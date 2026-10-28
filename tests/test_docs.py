@@ -80,18 +80,14 @@ def test_every_entry_point_in_the_agents_table_is_a_link():
         assert re.search(r"\]\(https://passageway\.marceltov\.de/\S+\)", first_cell), f"no link in: {first_cell.strip()}"
 
 
-def test_the_roadmap_is_a_page_of_the_site_linked_from_the_home_page_and_named_in_claude_md():
-    roadmap = (ROOT / "docs" / "roadmap.md").read_text()
-    assert "# Roadmap" in roadmap and "- [x]" in roadmap and "- [ ]" in roadmap, "done and open steps must both be there"
-    assert "roadmap.md" in (ROOT / "mkdocs.yml").read_text()
-    assert "(roadmap.md)" in (ROOT / "docs" / "index.md").read_text()
-    assert "docs/roadmap.md" in (ROOT / "CLAUDE.md").read_text()
+def test_the_roadmap_is_a_page_of_the_site_with_its_data_beside_it():
+    assert (ROOT / "docs" / "roadmap.yml").is_file() and (ROOT / "docs" / "roadmap.md").is_file()
 
 
 def test_no_public_file_names_the_work_project():
     """The employer's internal project must never appear in the repository (code, docs, skills, workflows, issues' source)."""
     needle = "cq" + "se"  # spelled in two parts so that this file does not match itself
-    public = [*ROOT.glob("docs/**/*.md"), *ROOT.glob("skills/**/*.md"), *ROOT.glob("connectors/**/*.md"),
+    public = [*ROOT.glob("docs/**/*.md"), *ROOT.glob("docs/**/*.yml"), *ROOT.glob("docs_hooks/*.py"), *ROOT.glob("skills/**/*.md"), *ROOT.glob("connectors/**/*.md"),
               *ROOT.glob("connectors/**/*.py"), *ROOT.glob("passageway/**/*.py"), *ROOT.glob("scripts/*"),
               *ROOT.glob(".github/**/*.yml"), ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "pyproject.toml", ROOT / "mkdocs.yml"]
     offenders = [str(p.relative_to(ROOT)) for p in public

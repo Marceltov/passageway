@@ -20,7 +20,7 @@ PASSAGEWAY_LIVE=1 uv run pytest connectors/wikipedia/tests/test_wikipedia_live.p
 
 ## Roadmap
 
-The plan for where passageway is going, and for how trilium-recall folds into it, is `docs/roadmap.md`. Keep it true: tick a step in the pull request that finishes it, and change the page in the pull request that changes the plan.
+The plan for where passageway is going, and for how trilium-recall folds into it, is `docs/roadmap.yml`, rendered as the timeline on the Roadmap page (`docs/roadmap.md`, `docs_hooks/roadmap.py`). Keep it true: mark a step done in the pull request that finishes it, and change the file in the pull request that changes the plan.
 
 ## Releases
 
