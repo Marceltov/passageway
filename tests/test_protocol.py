@@ -168,6 +168,22 @@ def test_check_refuses_what_the_schema_refuses(tmp_path, line, message):
         Connector("c", c).check()
 
 
+@pytest.mark.parametrize("mode,line", [("check", "5"), ("list", "[1]"), ("list", '"text"'), ("fetch", "null")])
+def test_a_line_that_is_not_an_object_is_a_connector_error_naming_the_line(tmp_path, mode, line):
+    c = cmd(tmp_path, f"print({line!r})")
+    call = {"check": lambda x: x.check(), "list": lambda x: x.list_versions(), "fetch": lambda x: x.fetch(["a"])}[mode]
+    with pytest.raises(ConnectorError, match="line 1: expected a JSON object"):
+        call(Connector("c", c))
+
+
+def test_a_whole_number_written_with_a_decimal_point_is_a_valid_count(tmp_path):
+    c = cmd(tmp_path, 'print(\'{"ok": true, "count": 3.0}\')')
+    assert Connector("c", c).check() == 3
+    c = cmd(tmp_path, 'print(\'{"ok": true, "count": 3.5}\')')
+    with pytest.raises(ConnectorError, match="count"):
+        Connector("c", c).check()
+
+
 def test_timeout_also_kills_children_the_connector_started(tmp_path):
     # a shell wrapper that forks: killing only the shell would leave the child holding the pipe open
     c = ["sh", "-c", f"{sys.executable} -c 'import time; time.sleep(8)'; true"]

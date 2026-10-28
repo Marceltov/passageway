@@ -110,14 +110,14 @@ class Connector:
         counts: list[int] = []
 
         def parse(record: dict) -> None:
-            if not isinstance(record, dict):
-                raise ValueError("expected a JSON object")
             if "protocol" in record:  # first: a newer protocol may change the rest
                 if not isinstance(record["protocol"], str):
                     raise ValueError(f"'protocol' must be the string {PROTOCOL_VERSION!r}")
                 if record["protocol"] != PROTOCOL_VERSION:
                     raise ValueError(f"speaks protocol {record['protocol']!r}, this core speaks {PROTOCOL_VERSION!r}")
             count = record.get("count")
+            if isinstance(count, float) and count.is_integer():  # 3.0 is the whole number 3 in JSON
+                count = int(count)
             if record.get("ok") is not True or isinstance(count, bool) or not isinstance(count, int) or count < 0:
                 raise ValueError("expected {\"ok\": true, \"count\": n} with n a whole number from 0")
             counts.append(count)
@@ -209,7 +209,10 @@ class Connector:
                 if not raw.strip():
                     continue
                 try:
-                    parse(json.loads(raw))
+                    record = json.loads(raw)
+                    if not isinstance(record, dict):
+                        raise ValueError("expected a JSON object")
+                    parse(record)
                 except (ValueError, TypeError) as e:  # includes JSONDecodeError
                     raise self._fail(f"line {number}: {e}") from None
             proc.wait()

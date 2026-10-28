@@ -87,7 +87,7 @@ def test_the_roadmap_is_a_page_of_the_site_with_its_data_beside_it():
 def test_no_public_file_names_the_work_project():
     """The employer's internal project must never appear in the repository (code, docs, skills, workflows, issues' source)."""
     needle = "cq" + "se"  # spelled in two parts so that this file does not match itself
-    public = [*ROOT.glob("docs/**/*.md"), *ROOT.glob("docs/**/*.yml"), *ROOT.glob("docs_hooks/*.py"), *ROOT.glob("skills/**/*.md"), *ROOT.glob("connectors/**/*.md"),
+    public = [*ROOT.glob("docs/**/*.md"), *ROOT.glob("docs/**/*.yml"), *ROOT.glob("docs/**/*.json"), *ROOT.glob("tests/**/*.py"), *ROOT.glob("docs_hooks/*.py"), *ROOT.glob("skills/**/*.md"), *ROOT.glob("connectors/**/*.md"),
               *ROOT.glob("connectors/**/*.py"), *ROOT.glob("passageway/**/*.py"), *ROOT.glob("scripts/*"),
               *ROOT.glob(".github/**/*.yml"), ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "pyproject.toml", ROOT / "mkdocs.yml"]
     offenders = [str(p.relative_to(ROOT)) for p in public
