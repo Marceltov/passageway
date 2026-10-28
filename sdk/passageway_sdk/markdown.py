@@ -5,7 +5,7 @@ from collections.abc import Iterator
 
 _FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 _HEADING = re.compile(r"^ {0,3}(#{1,6})[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$")
-_INLINE_CODE = re.compile(r"(`+)[^`\n]+?\1")
+_INLINE_CODE = re.compile(r"(?<!`)(`+)(?!`)[^\n]+?(?<!`)\1(?!`)")  # a span closes with a run of exactly the same length
 SEPARATOR = " › "
 
 
@@ -15,9 +15,11 @@ def _lines(text: str) -> Iterator[tuple[str, bool]]:
     for line in text.splitlines():
         match = _FENCE.match(line)
         if not fence:
-            if match:
+            # the info string of a backtick fence cannot contain a backtick: "```a`b" is not a fence
+            opens = bool(match) and not (match.group(1)[0] == "`" and "`" in match.group(2))
+            if opens:
                 fence = match.group(1)
-            yield line, bool(match)
+            yield line, opens
         else:
             # a closing fence: the same character, at least as long, and nothing after it
             if match and match.group(1)[0] == fence[0] and len(match.group(1)) >= len(fence) and not match.group(2).strip():
@@ -53,6 +55,7 @@ def split_markdown(text: str, *, skip_first_h1: bool = False) -> list[dict]:
         level, title = len(match.group(1)), match.group(2).strip()
         if skip_first_h1 and level == 1 and not seen_h1:
             seen_h1 = True
+            trail = []  # the title is above everything: what follows starts again from the top
         else:
             trail = [t for t in trail if t[0] < level] + [(level, title)]
         heading = SEPARATOR.join(t[1] for t in trail) or None

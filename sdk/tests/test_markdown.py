@@ -61,3 +61,17 @@ def test_first_h1_is_the_first_level_one_heading_outside_code():
     assert first_h1("intro\n\n# Real title\n\n# Second") == "Real title"
     assert first_h1("```\n# not a title\n```\n## Sub\n# Title `with code` ##") == "Title `with code`"
     assert first_h1("## Only a sub heading") is None and first_h1("") is None
+
+
+def test_a_first_h1_that_comes_after_other_headings_resets_the_trail_when_skipped():
+    assert sections("## Setup\nx\n# Appendix\ny\n## A\nz", skip_first_h1=True) == [("Setup", "x"), (None, "y"), ("A", "z")]
+
+
+def test_strip_code_handles_spans_that_contain_a_backtick():
+    assert "e.md" in strip_code("x ``a`b`` [`f()`](e.md)")
+    out = strip_code("a ``x ` [c](d.md)`` b")
+    assert "d.md" not in out and out.startswith("a") and out.endswith("b")
+
+
+def test_a_backtick_fence_whose_info_string_has_a_backtick_is_not_a_fence():
+    assert sections("```foo`bar\n## B\ntext") == [(None, "```foo`bar"), ("B", "text")]

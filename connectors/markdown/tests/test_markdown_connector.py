@@ -232,15 +232,18 @@ def test_check_counts_the_notes(folder):
     assert folder.call("check")[:2] == (0, [{"ok": True, "count": 2, "protocol": "1"}])
 
 
-def test_changed_returns_the_notes_modified_since(folder):
+def test_changed_returns_the_notes_modified_or_moved_in_since(folder):
+    soon = int(time.time()) + 3600  # whole seconds: a fraction can be stored a few nanoseconds short
     old = folder.write("old.md", "Old")
     new = folder.write("new.md", "New")
-    os.utime(old, (1_700_000_000, 1_700_000_000))
-    os.utime(new, (1_800_000_000, 1_800_000_000))
-    code, records, _ = folder.call("changed", extra=["--since", "2025-01-01T00:00:00Z"])
-    assert code == 0 and [r["id"] for r in records] == ["new.md"]
-    since = datetime.fromtimestamp(1_800_000_000, timezone.utc).isoformat()
-    assert [r["id"] for r in folder.call("changed", extra=["--since", since])[1]] == ["new.md"]  # inclusive
+    os.utime(old, (1_700_000_000, 1_700_000_000))  # an old mtime, but its ctime is now: it was just put here
+    os.utime(new, (soon, soon))
+    now = datetime.fromtimestamp(time.time() - 60, timezone.utc).isoformat()
+    assert sorted(r["id"] for r in folder.call("changed", extra=["--since", now])[1]) == ["new.md", "old.md"]
+    later = datetime.fromtimestamp(time.time() + 60, timezone.utc).isoformat()  # after the move, before the mtime of new
+    assert [r["id"] for r in folder.call("changed", extra=["--since", later])[1]] == ["new.md"]
+    exact = datetime.fromtimestamp(soon, timezone.utc).isoformat()
+    assert [r["id"] for r in folder.call("changed", extra=["--since", exact])[1]] == ["new.md"]  # inclusive
 
 
 # ---- settings ---------------------------------------------------------------------------------------
@@ -259,3 +262,74 @@ def test_bad_settings_exit_2_with_a_message_and_no_output(folder, settings, mess
     env = {"FOLDER": str(folder.root), **settings}
     assert Markdown.run(["markdown", "list"], env, io.StringIO(), out, err) == 2
     assert out.getvalue() == "" and message in err.getvalue()
+
+
+# ---- review findings ------------------------------------------------------------------------------
+
+def test_deeply_nested_front_matter_warns_and_does_not_fail_the_source(folder):
+    folder.write("deep.md", "---\nx: " + "[" * 5000 + "]" * 5000 + "\n---\nBody")
+    folder.write("good.md", "Good")
+    code, records, err = folder.call("list")
+    assert code == 0 and sorted(r["id"] for r in records) == ["deep.md", "good.md"] and "deep.md" in err
+
+
+@pytest.mark.parametrize("text", ["[" * 300_000, "[[" * 150_000, "[a](" * 75_000])
+def test_a_pathological_line_does_not_make_link_finding_slow(folder, text):
+    folder.write("a.md", text)
+    started = time.monotonic()
+    assert folder.fetch("a.md")["a.md"]["id"] == "a.md"
+    assert time.monotonic() - started < 5
+
+
+def test_the_version_changes_when_a_link_starts_to_resolve(folder):
+    folder.write("a.md", "see [[New Idea]] and [x](other.md)")
+    before = folder.call("list")[1][0]["version"]
+    folder.write("New Idea.md", "N")
+    folder.write("other.md", "O")
+    after = {r["id"]: r["version"] for r in folder.call("list")[1]}
+    assert after["a.md"] != before
+    assert folder.fetch("a.md")["a.md"]["links"] == ["New Idea.md", "other.md"]
+
+
+def test_an_h1_that_is_not_the_title_stays_a_heading(folder):
+    folder.write("a.md", "---\ntitle: Front\n---\n# Intro\ntext\n## Setup\nx")
+    item = folder.fetch("a.md")["a.md"]
+    assert item["title"] == "Front"
+    assert [(s["heading"], s["text"]) for s in item["sections"]] == [("Intro", "text"), ("Intro › Setup", "x")]
+
+
+@pytest.mark.skipif(os.geteuid() == 0, reason="root can read anything")
+def test_an_unreadable_folder_is_reported_not_silently_dropped(folder):
+    folder.write("top.md", "T")
+    folder.write("locked/a.md", "A")
+    (folder.root / "locked").chmod(0)
+    try:
+        code, records, err = folder.call("list")
+    finally:
+        (folder.root / "locked").chmod(0o755)
+    assert code == 0 and [r["id"] for r in records] == ["top.md"] and "locked" in err
+
+
+def test_a_wiki_link_with_a_folder_picks_the_right_one_of_two_same_named_notes(folder):
+    folder.write("a/Note.md", "A")
+    folder.write("b/Note.md", "B")
+    folder.write("n.md", "[[a/Note]] and [[b/Note|the other]] and [[Note]]")
+    assert folder.fetch("n.md")["n.md"]["links"] == ["a/Note.md", "b/Note.md"]
+
+
+def test_a_link_target_in_angle_brackets_may_contain_spaces(folder):
+    folder.write("my note.md", "M")
+    folder.write("n.md", "[x](<my note.md>) and [y](<my note.md> \"title\")")
+    assert folder.fetch("n.md")["n.md"]["links"] == ["my note.md"]
+
+
+def test_an_escaped_pipe_in_a_wiki_link_inside_a_table(folder):
+    folder.write("Setup.md", "S")
+    folder.write("n.md", "| a |\n|---|\n| [[Setup\\|the guide]] |")
+    assert folder.fetch("n.md")["n.md"]["links"] == ["Setup.md"]
+
+
+def test_the_yaml_document_end_marker_closes_the_front_matter(folder):
+    folder.write("a.md", "---\ntitle: T\n...\nBody")
+    item = folder.fetch("a.md")["a.md"]
+    assert item["title"] == "T" and item["sections"][0]["text"] == "Body"

@@ -5,7 +5,7 @@ import os
 import posixpath
 import re
 from collections.abc import Iterator, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from urllib.parse import unquote
@@ -15,8 +15,9 @@ from passageway_sdk import Connector, SettingsError, SourceError, first_h1, spli
 
 DEFAULT_INCLUDE = ("*.md", "*.markdown")
 SKIP_DIRS = frozenset({"node_modules"})
-FRONT_MATTER = re.compile(r"\A---[ \t]*\r?\n(?:(.*?)\r?\n)?---[ \t]*(?:\r?\n|\Z)", re.S)
-LINK = re.compile(r"\[\[([^\]]+)\]\]|\[[^\]]*\]\(([^)]*)\)")  # [[wiki link]] or [text](target)
+FRONT_MATTER = re.compile(r"\A---[ \t]*\r?\n(?:(.*?)\r?\n)?(?:---|\.\.\.)[ \t]*(?:\r?\n|\Z)", re.S)
+# [[wiki link]] or [text](target); no brackets or line breaks inside, which also keeps the matching linear
+LINK = re.compile(r"\[\[([^\[\]\n]+)\]\]|\[[^\[\]\n]*\]\(([^()\n]*)\)")
 SCHEME = re.compile(r"[a-zA-Z][a-zA-Z0-9+.-]*:")
 
 
@@ -59,8 +60,10 @@ class Note:
     id: str
     meta: dict
     body: str
-    version: str
+    version: str  # the content and the links it resolves to: a link that starts to resolve changes it
     mtime: float
+    changed: float  # the later of modification and change time: a note moved in keeps its old mtime
+    links: tuple[str, ...] = ()
 
 
 class Markdown(Connector):
@@ -83,18 +86,15 @@ class Markdown(Connector):
 
     def fetch(self, ids: list[str]) -> Iterator[dict]:
         notes = self._notes()
-        links = _Links(notes)
         for item_id in ids:
             if item_id in notes:
-                yield self._item(notes[item_id], links)
+                yield self._item(notes[item_id])
 
     def changed(self, since: datetime) -> Iterator[dict]:
         # ponytail: every call reads the whole folder (ids and links need it); a cache if a vault ever has tens of thousands of notes
-        notes = self._notes()
-        links = _Links(notes)
-        for note in notes.values():
-            if note.mtime >= since.timestamp():
-                yield self._item(note, links)
+        for note in self._notes().values():
+            if note.changed >= since.timestamp():
+                yield self._item(note)
 
     # -- the folder --------------------------------------------------------------------------
 
@@ -102,7 +102,10 @@ class Markdown(Connector):
         return any(g.match(rel) for g in self.include) and not any(g.match(rel) for g in self.exclude)
 
     def _paths(self) -> Iterator[tuple[str, Path]]:
-        for dirpath, dirnames, filenames in os.walk(self.root):  # does not follow symlinked folders
+        def unreadable(e: OSError) -> None:
+            self.warn(f"skipped {Path(e.filename).relative_to(self.root).as_posix()}/: {e.strerror}")
+
+        for dirpath, dirnames, filenames in os.walk(self.root, onerror=unreadable):  # does not follow symlinked folders
             dirnames[:] = sorted(d for d in dirnames if not d.startswith(".") and d not in SKIP_DIRS
                                  and not os.path.islink(os.path.join(dirpath, d)))
             for name in sorted(filenames):
@@ -123,6 +126,11 @@ class Markdown(Connector):
             if note.id in notes:
                 raise SourceError(f"two notes have the id {note.id!r}: {notes[note.id].rel} and {rel}")
             notes[note.id] = note
+        finder = _Links(notes)
+        for item_id, note in notes.items():
+            found = tuple(finder.of(note))
+            digest = hashlib.sha256((note.version + "\n".join(found)).encode()).hexdigest()[:16]
+            notes[item_id] = replace(note, links=found, version=digest)
         return notes
 
     def _read(self, rel: str, path: Path) -> Note | None:
@@ -143,7 +151,8 @@ class Markdown(Connector):
             self.warn(f"skipped {rel}: not UTF-8 text")
             return None
         meta, body = self._front_matter(rel, text)
-        return Note(rel, path, _text(meta, "id") or rel, meta, body, hashlib.sha256(raw).hexdigest()[:16], stat.st_mtime)
+        return Note(rel, path, _text(meta, "id") or rel, meta, body, hashlib.sha256(raw).hexdigest(), stat.st_mtime,
+                    max(stat.st_mtime, stat.st_ctime))
 
     def _front_matter(self, rel: str, text: str) -> tuple[dict, str]:
         match = FRONT_MATTER.match(text)
@@ -153,7 +162,7 @@ class Markdown(Connector):
         try:
             # BaseLoader keeps every scalar a string, so `no` stays "no" and a date stays "2026-10-28"; it builds no objects
             meta = yaml.load(match.group(1) or "", Loader=yaml.BaseLoader)
-        except yaml.YAMLError:
+        except (yaml.YAMLError, RecursionError):  # RecursionError: a few thousand nested brackets
             self.warn(f"{rel}: front matter is not valid YAML, indexed without it")
             return {}, body
         if meta is not None and not isinstance(meta, dict):
@@ -163,22 +172,24 @@ class Markdown(Connector):
 
     # -- the item ----------------------------------------------------------------------------
 
-    def _item(self, note: Note, links: "_Links") -> dict:
+    def _item(self, note: Note) -> dict:
         meta = note.meta
+        title = _text(meta, "title")
+        heading = None if title else first_h1(note.body)  # an H1 that is the title is not repeated as a heading
         item = {
             "id": note.id,
-            "title": _text(meta, "title") or first_h1(note.body) or PurePosixPath(note.rel).stem,
+            "title": title or heading or PurePosixPath(note.rel).stem,
             "url": _text(meta, "url") or note.path.as_uri(),
             "version": note.version,
             "updated": _text(meta, "updated") or datetime.fromtimestamp(note.mtime, UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "sections": split_markdown(note.body, skip_first_h1=True),
+            "sections": split_markdown(note.body, skip_first_h1=heading is not None),
         }
         if folders := list(PurePosixPath(note.rel).parent.parts):
             item["path"] = folders
         if labels := _tags(meta.get("tags")):
             item["labels"] = labels
-        if found := links.of(note):
-            item["links"] = found
+        if note.links:
+            item["links"] = list(note.links)
         weight = _text(meta, "weight")
         if weight is not None:
             try:
@@ -221,13 +232,19 @@ class _Links:
         return found
 
     def _wiki(self, wiki: str) -> str | None:
-        name = PurePosixPath(wiki.split("|")[0].split("#")[0].strip()).name
-        name = name[:-3] if name.lower().endswith(".md") else name
-        return self.by_stem.get(name.casefold())
+        target = re.split(r"\\?\|", wiki)[0].split("#")[0].strip()  # `\|` is how a table cell escapes the pipe
+        target = target[:-3] if target.lower().endswith(".md") else target
+        for candidate in (f"{target}.md", f"{target}.markdown"):  # [[folder/Name]] names the folder when the name is ambiguous
+            if candidate in self.by_path:
+                return self.by_path[candidate]
+        return self.by_stem.get(PurePosixPath(target).name.casefold())
 
     def _path(self, note: Note, target: str) -> str | None:
-        parts = target.strip().split()
-        target = parts[0].strip("<>") if parts else ""
+        target = target.strip()
+        if target.startswith("<") and ">" in target:  # <a target with spaces> and an optional title after it
+            target = target[1:target.index(">")]
+        else:
+            target = target.split()[0] if target else ""
         target = unquote(target.split("#")[0].split("?")[0])
         if not target or SCHEME.match(target):
             return None
