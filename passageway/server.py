@@ -1,7 +1,7 @@
 """HTTP + MCP front of the recall engine, and the background sync loop.
 
 Routes: GET /health (open), POST /recall (Claude Code hook), /mcp (MCP `recall` tool). The static
-Bearer token is RECALL_LOGIN_PASSWORD. With RECALL_BASE_URL set, /mcp also takes OAuth tokens from a
+Bearer token is PASSAGEWAY_LOGIN_PASSWORD. With PASSAGEWAY_BASE_URL set, /mcp also takes OAuth tokens from a
 login with that password (mcp-login-oauth) and the OAuth routes are open; /recall stays static-only.
 """
 
@@ -15,7 +15,6 @@ import sys
 import time
 
 import anyio
-import httpx
 from fastmcp import FastMCP
 from fastmcp.server.auth import OAuthProvider
 from mcp_login_oauth import LoginField, LoginOAuthProvider, LoginRejected, build_store
@@ -28,47 +27,54 @@ from passageway.config import DEFAULT_TOOL_DESCRIPTION, Config, ConfigError, loa
 from passageway.embed import Embedder
 from passageway.index import Index
 from passageway.rank import Hit, RankParams, rank
+from passageway.protocol import Connector
 from passageway.render import fit, render
 from passageway.sessions import SessionMemory
 from passageway.skip import should_skip
 from passageway.sync import Syncer
-from passageway.trilium import EtapiClient
 
 log = logging.getLogger("recall")
 
 VERSION = os.environ.get("APP_VERSION", "dev")
-NOTHING = "Nothing relevant in the notes for this query."
+NOTHING = "Nothing relevant in the sources for this query."
 
 
-class UnknownInstance(ValueError):
+class UnknownSource(ValueError):
     pass
 
 
 class Engine:
-    def __init__(self, config: Config, embedder: Embedder,
-                 transports: dict[str, httpx.BaseTransport] | None = None):
+    def __init__(self, config: Config, embedder: Embedder, connectors: dict[str, Connector] | None = None):
         self.config = config
         self.embedder = embedder
-        self.params = RankParams()
+        self.params = RankParams(min_cos=config.min_similarity) if config.min_similarity else RankParams()
         self.sessions = SessionMemory()
         self.syncers: dict[str, Syncer] = {}
         self.ready: dict[str, bool] = {}
-        for inst in config.instances:
-            index = Index(config.data_dir / f"{inst.name}.db", embedder.name, embedder.dim)
-            client = EtapiClient(inst.url, inst.etapi_token, transport=(transports or {}).get(inst.name))
-            self.syncers[inst.name] = Syncer(inst.name, client, index, embedder)
-            self.ready[inst.name] = False
+        for cc in config.connectors:
+            connector = (connectors or {}).get(cc.name) or Connector(
+                cc.name, list(cc.command), env=cc.env, secrets=cc.secrets, timeout=cc.timeout,
+                max_line_bytes=cc.max_line_bytes, max_output_bytes=cc.max_output_bytes)
+            index = Index(config.data_dir / f"{cc.name}.db", embedder.name, embedder.dim)
+            self.syncers[cc.name] = Syncer(cc.name, connector, index, embedder,
+                                           max_delete_fraction=cc.max_delete_fraction)
+            self.ready[cc.name] = False
 
     # -- search ------------------------------------------------------------------------------
 
-    def recall(self, query: str, cwd: str | None = None, limit: int = 3, instance: str | None = None) -> list[Hit]:
-        if instance and instance not in self.syncers:
-            raise UnknownInstance(f"Unknown instance {instance!r}. Configured: {', '.join(self.syncers)}.")
-        names = [instance] if instance else list(self.syncers)
+    def recall(self, query: str, cwd: str | None = None, limit: int = 3, source: str | None = None) -> list[Hit]:
+        if source and source not in self.syncers:
+            raise UnknownSource(f"Unknown source {source!r}. Configured: {', '.join(self.syncers)}.")
+        names = [source] if source else list(self.syncers)
         hits: list[Hit] = []
         for name in names:
-            if name in self.syncers:
-                hits += rank(name, self.syncers[name].index, self.embedder, query, cwd, self.params, limit)
+            index = self.syncers[name].index
+            if not self.ready[name] and index.needs_rebuild():
+                continue  # built with another embedder and not rebuilt yet: its vectors cannot be compared
+            try:
+                hits += rank(name, index, self.embedder, query, cwd, self.params, limit)
+            except Exception:  # one broken source must not take the answers of the others with it
+                log.exception("recall failed for source %s", name)
         return sorted(hits, key=lambda h: -h.score)[:limit]
 
     # -- sync --------------------------------------------------------------------------------
@@ -95,14 +101,17 @@ class Engine:
                 syncer.poll()
 
     def reconcile_once(self) -> None:
-        for syncer in self.syncers.values():
-            syncer.reconcile()
+        for name, syncer in self.syncers.items():
+            if not self.ready[name]:
+                self._first_sync(name)
+            else:
+                syncer.reconcile()
 
     async def run_sync_forever(self) -> None:
         last_reconcile = time.monotonic()
         try:
             await anyio.to_thread.run_sync(self.sync_all_once)
-        except Exception:  # an instance not marked ready is retried by poll_once below
+        except Exception:  # a source not marked ready is retried by poll_once below
             log.exception("first sync failed")
         while True:
             await asyncio.sleep(self.config.poll_seconds)
@@ -112,24 +121,24 @@ class Engine:
                     last_reconcile = time.monotonic()
                 else:
                     await anyio.to_thread.run_sync(self.poll_once)
-            except Exception:  # never let the loop die; Syncer already records ETAPI errors
+            except Exception:  # never let the loop die; Syncer already records connector errors
                 log.exception("sync loop iteration failed")
 
     def health(self) -> dict:
-        instances = {}
+        sources = {}
         for name, syncer in self.syncers.items():
-            notes, sections = syncer.index.counts()
+            items, sections = syncer.index.counts()
             st = syncer.status
-            instances[name] = {"notes": notes, "sections": sections,
+            sources[name] = {"items": items, "sections": sections,
                                "last_ok": st.last_ok.isoformat() if st.last_ok else None,
                                "last_error": st.last_error}
-        if any(v["last_error"] for v in instances.values()):
+        if any(v["last_error"] for v in sources.values()):
             status = "degraded"
         elif not all(self.ready.values()):
             status = "starting"
         else:
             status = "ok"
-        return {"status": status, "instances": instances, "version": VERSION}
+        return {"status": status, "sources": sources, "version": VERSION}
 
 
 # -- auth ---------------------------------------------------------------------------------------
@@ -160,7 +169,7 @@ class BearerGate:
 # -- app ----------------------------------------------------------------------------------------
 
 def build_oauth_provider(config: Config, **overrides) -> LoginOAuthProvider:
-    """OAuth login for /mcp whose password is RECALL_LOGIN_PASSWORD; the same password also works as a
+    """OAuth login for /mcp whose password is PASSAGEWAY_LOGIN_PASSWORD; the same password also works as a
     static Bearer token. Logins carry no grant: recall has nothing per client to hand to its tools. The
     store's key is the password, so changing it logs every client out."""
     expected = config.password.encode()
@@ -174,22 +183,22 @@ def build_oauth_provider(config: Config, **overrides) -> LoginOAuthProvider:
         return {} if hmac.compare_digest(token.encode(), expected) else None
 
     args = dict(base_url=config.base_url,
-                store=build_store(config.data_dir / "oauth", secret=config.password, salt="trilium-recall-oauth"),
-                service_name="Wiki recall",
-                fields=[LoginField("password", "Recall password", type="password", required=True)],
-                check_login=check_login, verify_static=verify_static, token_prefix="rcl_")
+                store=build_store(config.data_dir / "oauth", secret=config.password, salt="passageway-oauth"),
+                service_name="Passageway",
+                fields=[LoginField("password", "Passageway password", type="password", required=True)],
+                check_login=check_login, verify_static=verify_static, token_prefix="pw_")
     return LoginOAuthProvider(**{**args, **overrides})
 
 
 def build_mcp(engine: Engine, auth: OAuthProvider | None = None) -> FastMCP:
-    mcp = FastMCP("trilium-recall", auth=auth, instructions=engine.config.instructions)
+    mcp = FastMCP("passageway", auth=auth, instructions=engine.config.instructions)
 
     @mcp.tool(description=engine.config.tool_description)
-    async def recall(query: str, limit: int = 3, instance: str | None = None) -> str:
+    async def recall(query: str, limit: int = 3, source: str | None = None) -> str:
         try:
             hits = await anyio.to_thread.run_sync(
-                lambda: engine.recall(query, None, max(1, min(limit, 3)), instance))
-        except UnknownInstance as e:
+                lambda: engine.recall(query, None, max(1, min(limit, 3)), source))
+        except UnknownSource as e:
             return str(e)
         return render(hits) or NOTHING
 
@@ -202,8 +211,15 @@ def build_app(engine: Engine, background: bool = True, oauth_overrides: dict | N
     auth = build_oauth_provider(config, **(oauth_overrides or {})) if config.base_url else None
     mcp_app = build_mcp(engine, auth).http_app(path="/mcp", host_origin_protection=False)
 
-    async def health(_: Request) -> JSONResponse:
-        return JSONResponse(engine.health())
+    async def health(request: Request) -> JSONResponse:
+        body = engine.health()
+        given = request.headers.get("authorization", "").encode()
+        if not hmac.compare_digest(given, f"Bearer {config.password}".encode()):
+            # The open endpoint says that a source is failing, not why: connector output can hold hosts and paths.
+            for source in body["sources"].values():
+                if source["last_error"]:
+                    source["last_error"] = "failing (authenticate to see the error)"
+        return JSONResponse(body)
 
     async def recall(request: Request) -> JSONResponse:
         try:
@@ -218,13 +234,13 @@ def build_app(engine: Engine, background: bool = True, oauth_overrides: dict | N
             return JSONResponse({"context": "", "skipped": reason})
         started = time.perf_counter()
         hits = await anyio.to_thread.run_sync(lambda: engine.recall(prompt, cwd))
-        unseen = set(engine.sessions.peek(session_id, [h.note_id for h in hits]))
+        unseen = set(engine.sessions.peek(session_id, [h.item_id for h in hits]))
         # Remember only what the token budget let through; a dropped hit may come next time.
-        text, shown = fit([h for h in hits if h.note_id in unseen])
-        engine.sessions.record(session_id, [h.note_id for h in shown])
+        text, shown = fit([h for h in hits if h.item_id in unseen])
+        engine.sessions.record(session_id, [h.item_id for h in shown])
         ms = round((time.perf_counter() - started) * 1000, 1)
         log.info("recall hits=%d ms=%s", len(shown), ms)  # never log the prompt
-        return JSONResponse({"context": text, "hits": [h.note_id for h in shown], "ms": ms})
+        return JSONResponse({"context": text, "hits": [h.item_id for h in shown], "ms": ms})
 
     @contextlib.asynccontextmanager
     async def lifespan(app):
@@ -243,11 +259,11 @@ def build_app(engine: Engine, background: bool = True, oauth_overrides: dict | N
 
 def build_error_app(message: str) -> Starlette:
     """Started with a broken configuration: say what is wrong instead of dying silently."""
-    mcp = FastMCP("trilium-recall")
+    mcp = FastMCP("passageway")
 
     @mcp.tool(description=DEFAULT_TOOL_DESCRIPTION)
-    def recall(query: str, limit: int = 3, instance: str | None = None) -> str:
-        return f"The recall engine is not running: {message}"
+    def recall(query: str, limit: int = 3, source: str | None = None) -> str:
+        return f"The passageway engine is not running: {message}"
 
     mcp_app = mcp.http_app(path="/mcp", host_origin_protection=False)
 
@@ -266,19 +282,19 @@ def main() -> None:
 
     from passageway.embed import OnnxEmbedder
 
-    logging.basicConfig(level=os.environ.get("RECALL_LOG_LEVEL", "INFO"),
+    logging.basicConfig(level=os.environ.get("PASSAGEWAY_LOG_LEVEL", "INFO"),
                         format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-    logging.getLogger("httpx").setLevel(logging.WARNING)  # one line per ETAPI call drowns the log
+    logging.getLogger("httpx").setLevel(logging.WARNING)  # one line per request drowns the log
     try:
         config = load_config(os.environ)
         if not (config.model_dir / "model.onnx").exists():
-            raise ConfigError(f"embedding model not found in {config.model_dir}")
+            raise ConfigError(f"embedding model not found in {config.model_dir} (see docs/install.md)")
         app = build_app(Engine(config, OnnxEmbedder(config.model_dir)))
         host, port = config.host, config.port
     except (ConfigError, OSError) as e:
         log.error("startup failed: %s", e)
         app = build_error_app(str(e))
-        host, port = os.environ.get("RECALL_HOST", "0.0.0.0"), int(os.environ.get("RECALL_PORT", "8082") or 8082)
+        host, port = os.environ.get("PASSAGEWAY_HOST", "127.0.0.1"), int(os.environ.get("PASSAGEWAY_PORT", "8082") or 8082)
     uvicorn.run(app, host=host, port=port, log_level="warning")
 
 

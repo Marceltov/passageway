@@ -1,13 +1,13 @@
-"""Hybrid ranking: FTS5 + vectors fused, weighted by area, gated by an absolute relevance test."""
+"""Hybrid ranking: FTS5 + vectors fused by reciprocal rank, scaled by item weight, gated by relevance."""
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import PurePosixPath
 
 import numpy as np
 
 from passageway.embed import Embedder
-from passageway.index import Index, NoteRecord, SectionHit, fold, query_terms
+from passageway.index import Index, SectionHit, fold, query_terms
 
 EMBED_QUERY_CHARS = 2000
 PASSAGE_CHARS = 240
@@ -17,37 +17,30 @@ GENERIC_PATH_PARTS = {"root", "home", "src", "app", "repo", "repos", "code", "pr
 
 @dataclass
 class RankParams:
-    area_weight: dict[str, float] = field(
-        default_factory=lambda: {"wiki": 1.0, "source": 0.8, "journal": 0.6, "other": 0.6})
     rrf_k: int = 60
     cos_weight: float = 1.0
     rrf_weight: float = 20.0
     context_boost: float = 0.05
-    # e5 similarities sit in a narrow band: live matches 0.85–0.94, unrelated questions 0.79–0.86.
+    # e5 similarities sit in a narrow band: live matches 0.85-0.94, unrelated questions 0.79-0.86.
     min_cos: float = 0.845
-    # Tuned on the private trilium-marcel eval (49 cases, 2026-10-24): hit@3 0.86, silence 0.92.
     bm25_rescue_min_terms: int = 3
     top_n: int = 3
     max_links: int = 3
     candidates: int = 50
-    # A summary stands in for its source when its own best similarity is at most this much lower.
-    summary_slack: float = 0.05
 
 
 @dataclass
 class Hit:
-    instance: str
-    note_id: str
+    source: str
+    item_id: str
     title: str
-    wiki_type: str | None
-    topics: list[str]
-    status: str | None
-    area: str
-    heading_path: tuple[str, ...]
+    url: str
+    labels: list[str]
+    path: list[str]
+    heading: str
     passage: str
     score: float
-    links: list[tuple[str, str, str | None]]  # (note_id, title, wiki_type)
-    via_source: str | None
+    links: list[tuple[str, str]]  # (title, url) of related indexed items
 
 
 @dataclass
@@ -110,94 +103,45 @@ def _gather(index: Index, embedder: Embedder, query: str, params: RankParams) ->
     return candidates, qvec
 
 
-def _note_best(index: Index, note_id: str, qvec: np.ndarray) -> tuple[SectionHit | None, float]:
-    sections = index.note_sections(note_id)
-    vectors = index.section_vectors([s.section_id for s in sections])
-    best, best_cos = None, -1.0
-    for s in sections:
-        if s.section_id in vectors and (cos := float(vectors[s.section_id] @ qvec)) > best_cos:
-            best, best_cos = s, cos
-    return best, best_cos
-
-
-def rank(instance: str, index: Index, embedder: Embedder, query: str, cwd: str | None = None,
+def rank(source: str, index: Index, embedder: Embedder, query: str, cwd: str | None = None,
          params: RankParams = RankParams(), limit: int = 3) -> list[Hit]:
     words = query_terms(query)
-    candidates, qvec = _gather(index, embedder, query, params)
+    candidates, _ = _gather(index, embedder, query, params)
     if not candidates:
         return []
     ctx = context_terms(cwd)
-    notes: dict[str, NoteRecord] = {}
+    records: dict[str, object] = {}
 
-    def note(nid: str) -> NoteRecord | None:
-        if nid not in notes:
-            notes[nid] = index.note(nid)
-        return notes[nid]
+    def record(item_id: str):
+        if item_id not in records:
+            records[item_id] = index.item(item_id)
+        return records[item_id]
 
-    # Best section per note, scored.
     best: dict[str, tuple[float, _Candidate]] = {}
     for c in candidates.values():
-        rec = note(c.section.note_id)
+        rec = record(c.section.item_id)
         if rec is None:
             continue
-        score = params.area_weight.get(rec.area, 0.6) * (params.cos_weight * c.cos + params.rrf_weight * c.rrf)
-        haystack = fold(" ".join([rec.title, *rec.topics]))
-        if ctx and any(t in haystack for t in ctx):
+        score = rec.weight * (params.cos_weight * c.cos + params.rrf_weight * c.rrf)
+        if ctx and any(t in fold(" ".join([rec.title, *rec.path, *rec.labels])) for t in ctx):
             score += params.context_boost
-        if rec.note_id not in best or score > best[rec.note_id][0]:
-            best[rec.note_id] = (score, c)
-
-    def passes(c: _Candidate) -> bool:
-        return c.cos >= params.min_cos or c.matched_terms >= params.bm25_rescue_min_terms
+        if rec.item_id not in best or score > best[rec.item_id][0]:
+            best[rec.item_id] = (score, c)
 
     hits: list[Hit] = []
-    used: set[str] = set()
-    summary_first: dict[str, str] = {}  # hit note_id → summary to list first in its links
-    for nid, (score, c) in sorted(best.items(), key=lambda kv: -kv[1][0]):
+    for item_id, (score, c) in sorted(best.items(), key=lambda kv: -kv[1][0]):
         if len(hits) >= min(limit, params.top_n):
             break
-        if nid in used or not passes(c):
+        if not (c.cos >= params.min_cos or c.matched_terms >= params.bm25_rescue_min_terms):
             continue
-        rec = note(nid)
-        shown, section, via_source = rec, c.section, None
-        if rec.area == "source":
-            summaries = [s for s in index.sources_summarised_by(nid) if note(s)]
-            scored = [(s, *_note_best(index, s, qvec)) for s in summaries]
-            scored = [x for x in scored if x[1] is not None]
-            if scored:
-                sid, sec, cos = max(scored, key=lambda x: x[2])
-                if cos >= c.cos - params.summary_slack and sid not in used:
-                    shown, section, via_source = note(sid), sec, rec.title
-                else:
-                    summary_first[nid] = sid  # the source holds the detail; point at its summary
-        if shown.wiki_type == "summary" and via_source is None:
-            for rel, source_id in index.neighbours(shown.note_id):
-                if rel == "wikiSource" and (src := note(source_id)) and src.area == "source":
-                    via_source = src.title
-                    used.add(source_id)  # the summary stands for it; don't show it again
-                    break
-        if shown.note_id in used:
-            continue
-        used.update({shown.note_id, nid})
-        hits.append(Hit(instance, shown.note_id, shown.title, shown.wiki_type, shown.topics, shown.status,
-                        shown.area, section.heading_path, _passage(section.text, words), score, [],
-                        via_source))
+        rec = record(item_id)
+        hits.append(Hit(source, item_id, rec.title, rec.url, rec.labels, rec.path, c.section.heading,
+                        _passage(c.section.text, words), score, []))
 
-    # Links: wiki pages before sources and before journal/other (day notes are mostly the wiki log),
-    # within that neighbours that were candidates, then hubs, then the rest by id.
-    candidate_notes = {c.section.note_id for c in candidates.values()}
-    shown_ids = {h.note_id for h in hits} | used
-    area_order = {"wiki": 0, "source": 1}
+    shown = {h.item_id for h in hits}
+    candidate_items = {c.section.item_id for c in candidates.values()}
     for hit in hits:
-        neighbour_ids = {other for _, other in index.neighbours(hit.note_id)}
-        first = summary_first.get(hit.note_id)
-        ordered = sorted((o for o in neighbour_ids - shown_ids - {first} if note(o)),
-                         key=lambda o: (area_order.get(note(o).area, 2), o not in candidate_notes,
-                                        note(o).wiki_type != "hub", o))
-        if first:
-            ordered.insert(0, first)
-        for other in ordered:
-            rec = note(other)
-            if rec is not None and len(hit.links) < params.max_links:
-                hit.links.append((rec.note_id, rec.title, rec.wiki_type))
+        related = [(i, t, u) for i, t, u in index.links(hit.item_id) if i not in shown]
+        for _, title, url in sorted(related, key=lambda r: (r[0] not in candidate_items, r[0]))[:params.max_links]:
+            hit.links.append((title, url))
     return hits

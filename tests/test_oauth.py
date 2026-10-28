@@ -1,18 +1,19 @@
-"""OAuth login for /mcp (RECALL_BASE_URL set): the login page's password is RECALL_LOGIN_PASSWORD."""
+"""OAuth login for /mcp (PASSAGEWAY_BASE_URL set): the login page's password is PASSAGEWAY_LOGIN_PASSWORD."""
 
 import base64
 import hashlib
+import json
 import secrets
+import sys
 
 import httpx
 import pytest
 from starlette.testclient import TestClient
 
-from passageway.config import Config, InstanceConfig
+from passageway.config import Config, ConnectorConfig
 from passageway.embed import HashEmbedder
 from passageway.rank import RankParams
 from passageway.server import Engine, build_app
-from tests.fake_etapi import build_world
 
 BASE = "http://localhost:8082"
 PASSWORD = "secret"
@@ -29,11 +30,17 @@ def app(engine):
     return build_app(engine, background=False, oauth_overrides={"failed_login_delay": 0})
 
 
+DOC = {"id": "d1", "title": "Proxmox swap", "url": "http://x/d1", "version": "1",
+       "sections": [{"heading": "OOM", "text": "the proxmox host swap setting makes the OOM killer fire"}]}
+
+
 def make_engine(data_dir, base_url=BASE):
-    world = build_world()
-    config = Config(password=PASSWORD, base_url=base_url, data_dir=data_dir,
-                    instances=[InstanceConfig("marcel", "http://marcel/etapi", "e")])
-    engine = Engine(config, HashEmbedder(), transports={"marcel": world.etapi.transport()})
+    items = data_dir / "items.json"
+    items.write_text(json.dumps([DOC]))
+    cc = ConnectorConfig("notes", (sys.executable, "-m", "passageway.testing.fake_connector"),
+                         {"FAKE_ITEMS": str(items)}, {})
+    config = Config(password=PASSWORD, connectors=[cc], base_url=base_url, data_dir=data_dir, model_dir=data_dir)
+    engine = Engine(config, HashEmbedder())
     engine.params = RankParams(min_cos=0.2)
     engine.sync_all_once()
     return engine
@@ -98,7 +105,7 @@ def test_mcp_without_token_points_to_the_login(client):
 
 def test_login_gives_access_to_mcp(client):
     tokens = login(client)
-    assert tokens["access_token"].startswith("rcl_")
+    assert tokens["access_token"].startswith("pw_")
     assert mcp_status(client, tokens["access_token"]) == 200
 
 
@@ -144,7 +151,7 @@ def test_recall_endpoint_takes_only_the_static_password(client):
 
 
 def test_unknown_bearer_is_rejected(client):
-    assert mcp_status(client, "rcl_made-up") == 401
+    assert mcp_status(client, "pw_made-up") == 401
     assert mcp_status(client, "wrong") == 401
 
 

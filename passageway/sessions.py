@@ -1,4 +1,4 @@
-"""Remembers, per Claude Code session, which notes were already injected, so they are not sent again."""
+"""Remembers, per Claude Code session, which items were already injected, so they are not sent again."""
 
 import threading
 import time
@@ -7,29 +7,29 @@ import time
 class SessionMemory:
     def __init__(self, ttl_seconds: int = 43200):
         self.ttl = ttl_seconds
-        self._seen: dict[str, tuple[float, set[str]]] = {}  # session → (last activity, note ids)
+        self._seen: dict[str, tuple[float, set[str]]] = {}  # session → (last activity, item ids)
         self._lock = threading.Lock()
 
-    def peek(self, session_id: str | None, note_ids: list[str]) -> list[str]:
+    def peek(self, session_id: str | None, item_ids: list[str]) -> list[str]:
         """The ids not injected in this session yet, in order."""
         if not session_id:
-            return list(note_ids)
+            return list(item_ids)
         with self._lock:
             self.sweep()
             _, seen = self._seen.get(session_id, (0.0, set()))
-            return [n for n in note_ids if n not in seen]
+            return [n for n in item_ids if n not in seen]
 
-    def record(self, session_id: str | None, note_ids: list[str]) -> None:
+    def record(self, session_id: str | None, item_ids: list[str]) -> None:
         """Mark ids as injected in this session."""
         if not session_id:
             return
         with self._lock:
             _, seen = self._seen.get(session_id, (0.0, set()))
-            self._seen[session_id] = (time.time(), seen | set(note_ids))
+            self._seen[session_id] = (time.time(), seen | set(item_ids))
 
-    def fresh(self, session_id: str | None, note_ids: list[str]) -> list[str]:
+    def fresh(self, session_id: str | None, item_ids: list[str]) -> list[str]:
         """peek, then record what it returned."""
-        new = self.peek(session_id, note_ids)
+        new = self.peek(session_id, item_ids)
         self.record(session_id, new)
         return new
 
