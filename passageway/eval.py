@@ -2,7 +2,7 @@
 
     python app/eval.py --url http://localhost:9191 --token TOKEN --cases eval/fixture-cases.yaml [--enforce]
 
-A case is {query, cwd?, expect: [noteId, ...] | none}. Prints one JSON object of metrics; with
+A case is {query, cwd?, expect: [itemId, ...] | none}. Prints one JSON object of metrics; with
 --enforce, exits 1 below the v1 targets (hit@3 >= 0.8, silence >= 0.8, p95 < 300 ms).
 """
 

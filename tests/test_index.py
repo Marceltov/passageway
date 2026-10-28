@@ -1,9 +1,12 @@
-import numpy as np
 import pytest
 
+from passageway.chunk import Chunk
 from passageway.embed import HashEmbedder
-from passageway.index import Index, NoteRecord
-from passageway.text import html_to_sections
+from passageway.index import Index, ItemRecord
+
+
+def rec(item_id="a", title="Alpha", version="1", weight=1.0, links=()):
+    return ItemRecord(item_id, title, f"http://x/{item_id}", version, weight, ["Ops"], ["decision"], None, list(links))
 
 
 @pytest.fixture
@@ -16,124 +19,66 @@ def idx(tmp_path, emb):
     return Index(tmp_path / "i.db", emb.name, emb.dim)
 
 
-def record(note_id, title, area="wiki", **kw):
-    return NoteRecord(note_id=note_id, title=title, area=area, wiki_type=kw.get("wiki_type"),
-                      topics=kw.get("topics", []), status=kw.get("status"), path=[],
-                      utc_modified="2026-10-24 10:00:00.000Z", content_hash=kw.get("content_hash", "h"),
-                      attr_hash=kw.get("attr_hash", "a"))
+def put(idx, emb, record, *texts):
+    chunks = [Chunk("H", t, i) for i, t in enumerate(texts)]
+    idx.upsert_item(record, chunks, emb.embed_passages([f"{record.title}: {t}" for t in texts]))
 
 
-def add(idx, emb, note_id, title, html, **kw):
-    sections = html_to_sections(html)
-    vectors = emb.embed_passages([f"{title} › {' › '.join(s.heading_path)}: {s.text}" for s in sections])
-    idx.upsert_note(record(note_id, title, **kw), sections, vectors)
+def test_roundtrip_and_versions(idx, emb):
+    put(idx, emb, rec("a", version="3"), "rotate the signing certificate", "second section")
+    got = idx.item("a")
+    assert (got.title, got.version, got.weight, got.path, got.labels) == ("Alpha", "3", 1.0, ["Ops"], ["decision"])
+    assert idx.versions() == {"a": "3"} and idx.counts() == (1, 2)
 
 
-def test_upsert_and_search(idx, emb):
-    add(idx, emb, "n1", "Proxmox LXC", "<h2>Swap</h2><p>CT 115 has no swap</p>")
-    add(idx, emb, "n2", "Pizza", "<p>dough</p>")
-    hit = idx.fts_search("swap")[0]
-    assert hit.note_id == "n1" and hit.heading_path == ("Swap",) and hit.matched_terms == 1
-    assert idx.vec_search(emb.embed_queries(["swap ct 115"])[0])[0].note_id == "n1"
+def test_item_without_sections_is_still_recorded(idx, emb):
+    put(idx, emb, rec("empty", version="9"))
+    assert idx.versions() == {"empty": "9"} and idx.counts() == (1, 0)
 
 
-def test_matched_terms_counts_distinct_query_terms(idx, emb):
-    add(idx, emb, "n1", "Net", "<p>bridge vmbr0 carries vlan 20</p>")
-    assert idx.fts_search("vmbr0 vlan tag")[0].matched_terms == 2
+def test_fts_and_vector_search_find_the_section(idx, emb):
+    put(idx, emb, rec("a"), "rotate the signing certificate every year")
+    put(idx, emb, rec("b", "Beta"), "cafeteria opens at noon")
+    assert idx.fts_search("signing certificate")[0].item_id == "a"
+    q = emb.embed_queries(["signing certificate"])[0]
+    assert idx.vec_search(q, 1)[0].item_id == "a"
 
 
-def test_identifiers_findable(idx, emb):
-    add(idx, emb, "n1", "Net", "<p>bridge vmbr0 and utcDateModified.</p>")
-    assert idx.fts_search("vmbr0")[0].note_id == "n1"
-    assert idx.fts_search("utcDateModified")[0].note_id == "n1"
+def test_upsert_replaces_sections_and_delete_removes_everything(idx, emb):
+    put(idx, emb, rec("a"), "old words zebra")
+    put(idx, emb, rec("a", version="2"), "new words")
+    assert not idx.fts_search("zebra") and idx.versions() == {"a": "2"}
+    idx.delete_item("a")
+    assert idx.counts() == (0, 0) and idx.item("a") is None and not idx.fts_search("new")
 
 
-def test_german_diacritics_folded(idx, emb):
-    add(idx, emb, "n1", "Gewerbe", "<p>Die Gewerbeanmeldung beim Ordnungsamt in München</p>")
-    assert idx.fts_search("munchen")[0].note_id == "n1"
+def test_links_return_only_indexed_targets(idx, emb):
+    put(idx, emb, rec("a", links=["b", "gone"]), "text a")
+    put(idx, emb, rec("b", "Beta"), "text b")
+    assert idx.links("a") == [("b", "Beta", "http://x/b")]
 
 
-def test_fts_syntax_never_raises(idx, emb):
-    add(idx, emb, "n1", "X", "<p>x</p>")
-    for q in ['"', "a*", "NEAR(", "col:val", "-x", "AND OR NOT", "x" * 20000, "", "   ", "😀"]:
-        idx.fts_search(q)
-
-
-def test_long_query_keeps_rarest_terms(idx, emb):
-    add(idx, emb, "n1", "A", "<p>common zebra</p>")
-    add(idx, emb, "n2", "B", "<p>common</p>")
-    query = " ".join(["common"] * 10 + [f"filler{i}" for i in range(100)] + ["zebra"])
-    assert idx.fts_search(query)[0].note_id == "n1"
-
-
-def test_reupsert_replaces_sections(idx, emb):
-    add(idx, emb, "n1", "T", "<p>alpha</p>")
-    add(idx, emb, "n1", "T", "<p>beta</p>")
-    assert idx.fts_search("alpha") == [] and idx.fts_search("beta")
-    assert len(idx.vec_search(emb.embed_queries(["beta"])[0])) == 1
-
-
-def test_delete_removes_everything(idx, emb):
-    add(idx, emb, "n1", "T", "<p>alpha</p>")
-    idx.set_links("n1", [("internalLink", "n2")])
-    idx.delete_note("n1")
-    assert idx.fts_search("alpha") == [] and idx.neighbours("n2") == [] and idx.note("n1") is None
-    assert idx.vec_search(emb.embed_queries(["alpha"])[0]) == []
-
-
-def test_links_both_directions(idx):
-    idx.set_links("a", [("internalLink", "b"), ("wikiSource", "s")])
-    assert ("internalLink", "a") in idx.neighbours("b")
-    assert ("internalLink", "b") in idx.neighbours("a")
-    assert idx.sources_summarised_by("s") == ["a"]
-    idx.set_links("a", [])
-    assert idx.neighbours("b") == []
-
-
-def test_update_meta_and_all_notes(idx, emb):
-    add(idx, emb, "n1", "T", "<p>alpha</p>", content_hash="c1", attr_hash="a1")
-    rec = idx.note("n1")
-    rec.status, rec.attr_hash = "reviewed", "a2"
-    idx.update_meta(rec)
-    assert idx.note("n1").status == "reviewed"
-    assert idx.all_notes() == {"n1": ("c1", "a2")}
-
-
-def test_section_vectors(idx, emb):
-    add(idx, emb, "n1", "T", "<p>alpha</p>")
-    hit = idx.fts_search("alpha")[0]
-    vec = idx.section_vectors([hit.section_id])[hit.section_id]
-    assert vec.shape == (emb.dim,) and np.isclose(np.linalg.norm(vec), 1)
-
-
-def test_meta_mismatch_triggers_rebuild(tmp_path):
-    assert not Index(tmp_path / "i.db", "hash-test", 384).needs_rebuild()
-    other = Index(tmp_path / "i.db", "multilingual-e5-small-int8", 384)
+def test_changed_embedder_requires_rebuild(tmp_path, emb):
+    first = Index(tmp_path / "i.db", "model-1", emb.dim)
+    put(first, emb, rec("a"), "text")
+    assert not first.needs_rebuild()
+    other = Index(tmp_path / "i.db", "model-2", emb.dim)
     assert other.needs_rebuild()
     other.reset()
-    assert not other.needs_rebuild() and other.all_notes() == {}
+    assert other.counts() == (0, 0) and not other.needs_rebuild()
 
 
-def test_counts(idx, emb):
-    add(idx, emb, "n1", "T", "<h2>a</h2><p>x</p><h2>b</h2><p>y</p>")
-    assert idx.counts() == (1, 2)
+def test_a_failed_write_rolls_back_and_the_index_stays_usable(idx, emb, monkeypatch):
+    put(idx, emb, rec("a"), "text a")
+    original = idx._delete_sections
 
+    def boom(item_id):
+        raise RuntimeError("disk full")
 
-def test_note_sections(idx, emb):
-    add(idx, emb, "n1", "T", "<h2>a</h2><p>x</p><h2>b</h2><p>y</p>")
-    secs = idx.note_sections("n1")
-    assert [(s.heading_path, s.text) for s in secs] == [(("a",), "x"), (("b",), "y")]
-    assert idx.note_sections("nope") == []
-
-
-def test_stopwords_never_match(idx, emb):
-    add(idx, emb, "n1", "Cake", "<p>how do I make a cake? Wie mache ich ein Brot an?</p>")
-    assert idx.fts_search("how do I make a") == []
-    assert idx.fts_search("wie ich ein an") == []
-    assert idx.fts_search("how do I bake a cake")[0].matched_terms == 1
-
-
-def test_titles_in_one_call(idx, emb):
-    add(idx, emb, "n1", "One", "<p>x</p>")
-    add(idx, emb, "n2", "Two", "<p>y</p>")
-    assert idx.titles() == {"n1": "One", "n2": "Two"}
+    monkeypatch.setattr(idx, "_delete_sections", boom)
+    with pytest.raises(RuntimeError):
+        idx.delete_item("a")
+    monkeypatch.setattr(idx, "_delete_sections", original)
+    assert idx.versions() == {"a": "1"}  # nothing was half-deleted
+    idx.delete_item("a")  # would fail with "cannot start a transaction within a transaction" without a rollback
+    assert idx.versions() == {}

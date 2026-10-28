@@ -1,8 +1,9 @@
-"""One SQLite file per Trilium instance: notes, sections, FTS5, sqlite-vec vectors and links.
+"""One SQLite file per source: items, sections, FTS5, sqlite-vec vectors and links.
 
-Fully rebuildable from Trilium, so deleting the file is always safe.
+Fully rebuildable from the connector, so deleting the file is always safe.
 """
 
+import contextlib
 import json
 import re
 import sqlite3
@@ -14,10 +15,10 @@ from pathlib import Path
 import numpy as np
 import sqlite_vec
 
-from passageway.text import Section
+from passageway.chunk import Chunk
 
-CHUNKER_VERSION = 1
-SCHEMA_VERSION = 1
+CHUNKER_VERSION = 2
+SCHEMA_VERSION = 2
 MAX_QUERY_TERMS = 64
 # Function words in English and German: they match everywhere and say nothing about the topic.
 STOPWORDS = frozenset("""
@@ -34,24 +35,23 @@ mache machen wird werden wurde
 
 
 @dataclass
-class NoteRecord:
-    note_id: str
+class ItemRecord:
+    item_id: str
     title: str
-    area: str  # "wiki" | "source" | "journal" | "other"
-    wiki_type: str | None
-    topics: list[str]
-    status: str | None
+    url: str
+    version: str
+    weight: float
     path: list[str]
-    utc_modified: str
-    content_hash: str
-    attr_hash: str
+    labels: list[str]
+    updated: str | None
+    links: list[str]  # ids of related items
 
 
 @dataclass
 class SectionHit:
     section_id: int
-    note_id: str
-    heading_path: tuple[str, ...]
+    item_id: str
+    heading: str
     text: str
     score: float  # bm25 (lower is better) for FTS hits, cosine similarity for vector hits
     matched_terms: int = 0  # distinct query terms found in the section (FTS hits only)
@@ -89,25 +89,35 @@ class Index:
         if not self._stored_meta():
             self._create()
 
+    @contextlib.contextmanager
+    def _tx(self):
+        """One transaction under the lock: commit on success, roll back on any error."""
+        with self.lock:
+            self._db.execute("BEGIN")
+            try:
+                yield
+            except BaseException:
+                self._db.execute("ROLLBACK")
+                raise
+            self._db.execute("COMMIT")
+
     # -- schema ------------------------------------------------------------------------------
 
     def _stored_meta(self) -> dict[str, str]:
         return dict(self._db.execute("SELECT key, value FROM meta").fetchall())
 
     def _create(self) -> None:
-        with self.lock:
+        with self._tx():
             db = self._db
-            db.execute("BEGIN")
-            for table in ("notes", "sections", "links", "sections_fts", "sections_vocab", "sections_vec"):
+            for table in ("items", "sections", "links", "sections_fts", "sections_vocab", "sections_vec"):
                 db.execute(f"DROP TABLE IF EXISTS {table}")
-            db.execute("""CREATE TABLE notes (note_id TEXT PRIMARY KEY, title TEXT, area TEXT, wiki_type TEXT,
-                          topics TEXT, status TEXT, path TEXT, utc_modified TEXT, content_hash TEXT, attr_hash TEXT)""")
-            db.execute("""CREATE TABLE sections (id INTEGER PRIMARY KEY, note_id TEXT, ordinal INTEGER,
-                          heading_path TEXT, text TEXT)""")
-            db.execute("CREATE INDEX sections_note ON sections(note_id)")
-            db.execute("CREATE TABLE links (src TEXT, rel TEXT, dst TEXT)")
+            db.execute("""CREATE TABLE items (item_id TEXT PRIMARY KEY, title TEXT, url TEXT, version TEXT,
+                          weight REAL, path TEXT, labels TEXT, updated TEXT)""")
+            db.execute("""CREATE TABLE sections (id INTEGER PRIMARY KEY, item_id TEXT, ordinal INTEGER,
+                          heading TEXT, text TEXT)""")
+            db.execute("CREATE INDEX sections_item ON sections(item_id)")
+            db.execute("CREATE TABLE links (src TEXT, dst TEXT)")
             db.execute("CREATE INDEX links_src ON links(src)")
-            db.execute("CREATE INDEX links_dst ON links(dst)")
             # '_' joins identifiers like wiki_type; '-' and '.' stay separators so "swap." matches "swap".
             db.execute("""CREATE VIRTUAL TABLE sections_fts USING fts5(title, heading, text,
                           tokenize="unicode61 remove_diacritics 2 tokenchars '_'")""")
@@ -116,7 +126,6 @@ class Index:
                            embedding float[{self._dim}] distance_metric=cosine)""")
             db.execute("DELETE FROM meta")
             db.executemany("INSERT INTO meta VALUES (?, ?)", self._meta.items())
-            db.execute("COMMIT")
 
     def needs_rebuild(self) -> bool:
         return self._stored_meta() != self._meta
@@ -126,86 +135,63 @@ class Index:
 
     # -- writes ------------------------------------------------------------------------------
 
-    def _delete_sections(self, note_id: str) -> None:
-        ids = [r[0] for r in self._db.execute("SELECT id FROM sections WHERE note_id = ?", (note_id,))]
+    def _delete_sections(self, item_id: str) -> None:
+        ids = [r[0] for r in self._db.execute("SELECT id FROM sections WHERE item_id = ?", (item_id,))]
         for sid in ids:
             self._db.execute("DELETE FROM sections_fts WHERE rowid = ?", (sid,))
             self._db.execute("DELETE FROM sections_vec WHERE rowid = ?", (sid,))
-        self._db.execute("DELETE FROM sections WHERE note_id = ?", (note_id,))
+        self._db.execute("DELETE FROM sections WHERE item_id = ?", (item_id,))
 
-    def _write_note(self, rec: NoteRecord) -> None:
-        self._db.execute(
-            "INSERT OR REPLACE INTO notes VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (rec.note_id, rec.title, rec.area, rec.wiki_type, json.dumps(rec.topics), rec.status,
-             json.dumps(rec.path), rec.utc_modified, rec.content_hash, rec.attr_hash))
+    def upsert_item(self, rec: ItemRecord, chunks: list[Chunk], vectors: np.ndarray) -> None:
+        assert len(chunks) == len(vectors)
+        with self._tx():
+            self._delete_sections(rec.item_id)
+            self._db.execute("INSERT OR REPLACE INTO items VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                             (rec.item_id, rec.title, rec.url, rec.version, rec.weight,
+                              json.dumps(rec.path), json.dumps(rec.labels), rec.updated))
+            self._db.execute("DELETE FROM links WHERE src = ?", (rec.item_id,))
+            self._db.executemany("INSERT INTO links VALUES (?, ?)", [(rec.item_id, dst) for dst in rec.links])
+            for chunk, vector in zip(chunks, vectors):
+                cur = self._db.execute(
+                    "INSERT INTO sections (item_id, ordinal, heading, text) VALUES (?, ?, ?, ?)",
+                    (rec.item_id, chunk.ordinal, chunk.heading, chunk.text))
+                sid = cur.lastrowid
+                self._db.execute("INSERT INTO sections_fts (rowid, title, heading, text) VALUES (?, ?, ?, ?)",
+                                 (sid, rec.title, chunk.heading, chunk.text))
+                self._db.execute("INSERT INTO sections_vec (rowid, embedding) VALUES (?, ?)",
+                                 (sid, sqlite_vec.serialize_float32(np.asarray(vector, dtype=np.float32))))
 
-    def upsert_note(self, rec: NoteRecord, sections: list[Section], vectors: np.ndarray) -> None:
-        assert len(sections) == len(vectors)
-        with self.lock:
-            self._db.execute("BEGIN")
-            try:
-                self._delete_sections(rec.note_id)
-                self._write_note(rec)
-                for section, vector in zip(sections, vectors):
-                    heading = " › ".join(section.heading_path)
-                    cur = self._db.execute(
-                        "INSERT INTO sections (note_id, ordinal, heading_path, text) VALUES (?, ?, ?, ?)",
-                        (rec.note_id, section.ordinal, json.dumps(section.heading_path), section.text))
-                    sid = cur.lastrowid
-                    self._db.execute("INSERT INTO sections_fts (rowid, title, heading, text) VALUES (?, ?, ?, ?)",
-                                     (sid, rec.title, heading, section.text))
-                    self._db.execute("INSERT INTO sections_vec (rowid, embedding) VALUES (?, ?)",
-                                     (sid, sqlite_vec.serialize_float32(np.asarray(vector, dtype=np.float32))))
-                self._db.execute("COMMIT")
-            except BaseException:
-                self._db.execute("ROLLBACK")
-                raise
-
-    def update_meta(self, rec: NoteRecord) -> None:
-        with self.lock:
-            self._write_note(rec)
-            # The title is indexed with every section.
-            self._db.execute("UPDATE sections_fts SET title = ? WHERE rowid IN "
-                             "(SELECT id FROM sections WHERE note_id = ?)", (rec.title, rec.note_id))
-
-    def set_links(self, note_id: str, edges: list[tuple[str, str]]) -> None:
-        with self.lock:
-            self._db.execute("BEGIN")
-            self._db.execute("DELETE FROM links WHERE src = ?", (note_id,))
-            self._db.executemany("INSERT INTO links VALUES (?, ?, ?)", [(note_id, rel, dst) for rel, dst in edges])
-            self._db.execute("COMMIT")
-
-    def delete_note(self, note_id: str) -> None:
-        with self.lock:
-            self._db.execute("BEGIN")
-            self._delete_sections(note_id)
-            self._db.execute("DELETE FROM notes WHERE note_id = ?", (note_id,))
-            self._db.execute("DELETE FROM links WHERE src = ?", (note_id,))
-            self._db.execute("COMMIT")
+    def delete_item(self, item_id: str) -> None:
+        with self._tx():
+            self._delete_sections(item_id)
+            self._db.execute("DELETE FROM items WHERE item_id = ?", (item_id,))
+            self._db.execute("DELETE FROM links WHERE src = ?", (item_id,))
 
     # -- reads -------------------------------------------------------------------------------
 
-    def note(self, note_id: str) -> NoteRecord | None:
+    def item(self, item_id: str) -> ItemRecord | None:
         with self.lock:
-            row = self._db.execute("SELECT * FROM notes WHERE note_id = ?", (note_id,)).fetchone()
+            row = self._db.execute("SELECT * FROM items WHERE item_id = ?", (item_id,)).fetchone()
+            dst = [r[0] for r in self._db.execute("SELECT dst FROM links WHERE src = ?", (item_id,))]
         if row is None:
             return None
-        return NoteRecord(row[0], row[1], row[2], row[3], json.loads(row[4]), row[5], json.loads(row[6]),
-                          row[7], row[8], row[9])
+        return ItemRecord(row[0], row[1], row[2], row[3], row[4], json.loads(row[5]), json.loads(row[6]), row[7], dst)
 
-    def all_notes(self) -> dict[str, tuple[str, str]]:
+    def versions(self) -> dict[str, str]:
         with self.lock:
-            return {r[0]: (r[1], r[2]) for r in
-                    self._db.execute("SELECT note_id, content_hash, attr_hash FROM notes")}
-
-    def titles(self) -> dict[str, str]:
-        with self.lock:
-            return dict(self._db.execute("SELECT note_id, title FROM notes"))
+            return dict(self._db.execute("SELECT item_id, version FROM items"))
 
     def counts(self) -> tuple[int, int]:
         with self.lock:
-            return (self._db.execute("SELECT count(*) FROM notes").fetchone()[0],
+            return (self._db.execute("SELECT count(*) FROM items").fetchone()[0],
                     self._db.execute("SELECT count(*) FROM sections").fetchone()[0])
+
+    def links(self, item_id: str) -> list[tuple[str, str, str]]:
+        """(id, title, url) of the items this one links to that are indexed."""
+        with self.lock:
+            return self._db.execute(
+                "SELECT i.item_id, i.title, i.url FROM links l JOIN items i ON i.item_id = l.dst "
+                "WHERE l.src = ? ORDER BY i.item_id", (item_id,)).fetchall()
 
     def _query_terms(self, query: str) -> list[str]:
         unique = query_terms(query)
@@ -218,38 +204,36 @@ class Index:
 
     def fts_search(self, query: str, k: int = 50) -> list[SectionHit]:
         with self.lock:
-            query_terms = self._query_terms(query)
-            if not query_terms:
+            terms_ = self._query_terms(query)
+            if not terms_:
                 return []
-            match = " OR ".join(f'"{t}"' for t in query_terms)
+            match = " OR ".join(f'"{t}"' for t in terms_)
             rows = self._db.execute(
-                """SELECT s.id, s.note_id, s.heading_path, s.text, bm25(sections_fts, 5.0, 2.0, 1.0) AS rank,
+                """SELECT s.id, s.item_id, s.heading, s.text, bm25(sections_fts, 5.0, 2.0, 1.0) AS rank,
                           f.title, f.heading
                    FROM sections_fts f JOIN sections s ON s.id = f.rowid
                    WHERE sections_fts MATCH ? ORDER BY rank LIMIT ?""", (match, k)).fetchall()
         hits = []
-        for sid, note_id, heading_path, text, rank, title, heading in rows:
-            present = set(terms(f"{title} {heading} {text}"))
-            hits.append(SectionHit(sid, note_id, tuple(json.loads(heading_path)), text, rank,
-                                   sum(t in present for t in query_terms)))
+        for sid, item_id, heading, text, rank, title, fts_heading in rows:
+            present = set(terms(f"{title} {fts_heading} {text}"))
+            hits.append(SectionHit(sid, item_id, heading, text, rank, sum(t in present for t in terms_)))
         return hits
 
     def vec_search(self, vector: np.ndarray, k: int = 50) -> list[SectionHit]:
         with self.lock:
             rows = self._db.execute(
-                """SELECT s.id, s.note_id, s.heading_path, s.text, v.distance
+                """SELECT s.id, s.item_id, s.heading, s.text, v.distance
                    FROM (SELECT rowid, distance FROM sections_vec WHERE embedding MATCH ? AND k = ?) v
                    JOIN sections s ON s.id = v.rowid ORDER BY v.distance""",
                 (sqlite_vec.serialize_float32(np.asarray(vector, dtype=np.float32)), k)).fetchall()
-        return [SectionHit(sid, note_id, tuple(json.loads(hp)), text, 1.0 - dist)
-                for sid, note_id, hp, text, dist in rows]
+        return [SectionHit(sid, item_id, heading, text, 1.0 - dist) for sid, item_id, heading, text, dist in rows]
 
-    def note_sections(self, note_id: str) -> list[SectionHit]:
-        """All sections of a note in order, as hits with score 0."""
+    def item_sections(self, item_id: str) -> list[SectionHit]:
+        """All sections of an item in order, as hits with score 0."""
         with self.lock:
-            rows = self._db.execute("SELECT id, heading_path, text FROM sections WHERE note_id = ? ORDER BY ordinal",
-                                    (note_id,)).fetchall()
-        return [SectionHit(sid, note_id, tuple(json.loads(hp)), text, 0.0) for sid, hp, text in rows]
+            rows = self._db.execute("SELECT id, heading, text FROM sections WHERE item_id = ? ORDER BY ordinal",
+                                    (item_id,)).fetchall()
+        return [SectionHit(sid, item_id, heading, text, 0.0) for sid, heading, text in rows]
 
     def section_vectors(self, section_ids: list[int]) -> dict[int, np.ndarray]:
         if not section_ids:
@@ -259,15 +243,3 @@ class Index:
             rows = self._db.execute(f"SELECT rowid, embedding FROM sections_vec WHERE rowid IN ({placeholders})",
                                     section_ids).fetchall()
         return {sid: np.frombuffer(blob, dtype=np.float32) for sid, blob in rows}
-
-    def neighbours(self, note_id: str) -> list[tuple[str, str]]:
-        with self.lock:
-            rows = self._db.execute(
-                "SELECT rel, dst FROM links WHERE src = ? UNION SELECT rel, src FROM links WHERE dst = ?",
-                (note_id, note_id)).fetchall()
-        return [(rel, other) for rel, other in rows if other != note_id]
-
-    def sources_summarised_by(self, source_id: str) -> list[str]:
-        with self.lock:
-            return [r[0] for r in self._db.execute(
-                "SELECT src FROM links WHERE rel = 'wikiSource' AND dst = ? ORDER BY src", (source_id,))]
