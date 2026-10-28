@@ -1,0 +1,25 @@
+name: Audit
+
+# Known vulnerabilities in what is shipped: the locked runtime dependencies of the core and of every connector package.
+# A scheduled run, because an advisory appears without a commit. A red run means: upgrade the dependency. Dependabot security
+# updates (.github/dependabot.yml) open the pull request for a fixed version as soon as an advisory is known; this run is the net
+# for what it misses.
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+  pull_request:
+    paths: [.github/workflows/audit.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      # The locked versions of what runs in production: no dev group, none of the workspace's own packages.
+      - run: uv export -q --frozen --all-packages --no-dev --no-emit-workspace --no-hashes -o requirements-audit.txt
+      - run: uvx pip-audit -r requirements-audit.txt --no-deps --disable-pip

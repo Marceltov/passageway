@@ -1,13 +1,39 @@
-# One pull request a week that bumps the GitHub Actions the workflows use.
+# Dependency bumps as pull requests with CI run. Security updates (switched on in the repository's settings) come at once and skip
+# the cooldown; everything else waits two weeks after a release and comes grouped on Monday mornings. Patch and minor bumps merge by
+# themselves once the required checks are green (.github/workflows/dependabot-automerge.yml); majors wait for review.
 version: 2
+
 updates:
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Europe/Berlin
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: Dependencies
+    labels: [dependencies]
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
       day: monday
+      time: "05:00"
+      timezone: Europe/Berlin
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: Dependencies
+    labels: [dependencies]
     groups:
       actions:
         patterns: ["*"]
-    commit-message:
-      prefix: deps
