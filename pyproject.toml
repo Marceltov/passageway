@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "passageway"
+version = "0.1.0"
+description = "Retrieval for Claude over MCP: connectors feed passages, an eval harness keeps them honest"
+requires-python = ">=3.12"
+license = "AGPL-3.0-or-later"
+dependencies = [
+    "fastmcp>=3.0.0",
+    "httpx>=0.28.1",
+    "mcp-login-oauth",
+    "numpy>=2.0",
+    "onnxruntime>=1.20",
+    "pyyaml>=6.0",
+    "selectolax>=0.3.21",
+    "sentencepiece>=0.2.2",
+    "sqlite-vec>=0.1.6",
+    "starlette>=0.40",
+    "uvicorn>=0.30",
+]
+
+[project.scripts]
+passageway = "passageway.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["passageway"]
+
+[tool.uv.sources]
+mcp-login-oauth = { git = "https://github.com/Marceltov/mcp-login-oauth", rev = "v0.1.1" }
+
+[dependency-groups]
+dev = ["pytest>=8.3", "pytest-asyncio>=0.24"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
