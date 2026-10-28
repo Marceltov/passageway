@@ -22,9 +22,9 @@ Create `~/.config/passageway/passageway.toml` with one `[[connector]]` per sourc
 
 ```toml
 [[connector]]
-name = "lighthouses"
+name = "deep-learning"
 command = ["/path/to/python", "-m", "passageway_connector_wikipedia"]
-env = { LANGUAGE = "en", CATEGORIES = "Lighthouses in Germany", CATEGORY_DEPTH = "0" }
+env = { LANGUAGE = "en", CATEGORIES = "Deep learning", CATEGORY_DEPTH = "0" }
 ```
 
 A connector runs with an empty environment, so `python` on your `PATH` is usually not the interpreter that has passageway installed. Use the tool's own interpreter, `$(uv tool dir)/passageway/bin/python`, which is the environment from step 1. See [Configuration](configuration.md) for every setting and the [Wikipedia connector](connectors/wikipedia.md) for its options.

@@ -100,6 +100,10 @@ def _pages(wiki: Wiki, scope: Scope) -> dict[int, str]:
     return found
 
 
+def article_url(scope: Scope, title: str) -> str:
+    return scope.page_url + quote(title.replace(" ", "_"), safe="()_,:;@$&+=!*'~-./")
+
+
 class Wikipedia(Connector):
     name = "wikipedia connector"
     expected_errors = (WikiError, httpx.HTTPError, ValueError, KeyError)
@@ -121,7 +125,7 @@ class Wikipedia(Connector):
             title, extract, revid, timestamp = article
             yield {
                 "id": page_id, "title": title, "version": revid, "updated": timestamp,
-                "url": self.scope.page_url + quote(title.replace(" ", "_"), safe="()_,:;@$&+=!*'~-./"),
+                "url": article_url(self.scope, title),
                 "sections": split_sections(extract, self.scope.skip)}
     # changed: not implemented; edits appear at the next reconcile
 
