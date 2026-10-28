@@ -25,9 +25,9 @@ passageway is the retrieval half of a RAG system, served as an MCP tool. It does
 
 ```toml
 [[connector]]
-name = "lighthouses"
+name = "deep-learning"
 command = ["/path/to/python", "-m", "passageway_connector_wikipedia"]
-env = { LANGUAGE = "de", CATEGORIES = "Kategorie:Leuchtturm in Deutschland" }
+env = { LANGUAGE = "de", CATEGORIES = "Kategorie:Deep Learning" }
 ```
 
 ```mermaid

@@ -10,14 +10,14 @@ In `passageway.toml`, one `[[connector]]` per language (use the interpreter that
 
 ```toml
 [[connector]]
-name = "lighthouses-en"
+name = "deep-learning-en"
 command = ["/path/to/python", "-m", "passageway_connector_wikipedia"]
-env = { LANGUAGE = "en", CATEGORIES = "Lighthouses in Germany", CATEGORY_DEPTH = "1" }
+env = { LANGUAGE = "en", CATEGORIES = "Deep learning", CATEGORY_DEPTH = "0" }
 
 [[connector]]
-name = "lighthouses-de"
+name = "deep-learning-de"
 command = ["/path/to/python", "-m", "passageway_connector_wikipedia"]
-env = { LANGUAGE = "de", CATEGORIES = "Kategorie:Leuchtturm in Deutschland" }
+env = { LANGUAGE = "de", CATEGORIES = "Kategorie:Deep Learning" }
 
 [[connector]]
 name = "munich"

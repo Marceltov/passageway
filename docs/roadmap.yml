@@ -10,17 +10,6 @@
 
 items:
   # ---- open ------------------------------------------------------------------------------------------------------------
-  - id: frozen-corpus
-    status: next
-    when: Then
-    icon: notebook-outline
-    title: A frozen corpus
-    summary: A small, attributed Wikipedia snapshot in English and German, so that measurements are reproducible.
-    details: |
-      A `snapshot` command in the Wikipedia connector writes articles as markdown files with front matter (title, language, URL, revision id, licence).
-      A small English and German snapshot, about 30 articles each on one theme, is committed with an attribution file and its own licence note (CC BY-SA 4.0).
-      Measurements are only reproducible against a corpus that does not change under the questions.
-
   - id: eval-harness
     status: next
     when: Then
@@ -31,7 +20,7 @@ items:
       `passageway eval` reports hit@1, hit@3, MRR, silence on unanswerable questions and latency.
       - `--sweep` repeats the run over relevance thresholds, `compare` runs several embedding models on a copy of the index, and `--enforce` makes a CI job fail below targets.
       - Reports are aggregate-only by default, with no questions and no titles, and `--write` puts them into the reader's own docs.
-      - A public question set for the corpus, in both languages.
+      - A public question set for the corpus. Questions are asked in English or German without naming a source, since one `recall` searches every source; a question's expected answers list the articles of both languages that explain it.
 
   - id: embedders
     status: later
@@ -91,6 +80,16 @@ items:
       - configuration moves to `passageway.toml`.
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: frozen-corpus
+    status: done
+    date: 2026-10-28
+    icon: notebook-outline
+    title: A frozen corpus
+    summary: 30 hand-picked Wikipedia articles on deep learning in English and 30 in German, attributed and licensed CC BY-SA 4.0, so that measurements are reproducible.
+    links:
+      - {label: "Corpus", url: "https://passageway.marceltov.de/reference/corpus/"}
+      - {label: "PR #32", url: "https://github.com/Marceltov/passageway/pull/32"}
+
   - id: markdown-connector
     status: done
     date: 2026-10-28

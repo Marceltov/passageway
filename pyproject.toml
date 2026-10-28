@@ -24,6 +24,9 @@ dependencies = [
 [project.scripts]
 passageway = "passageway.server:main"
 
+[tool.hatch.build.targets.sdist]
+exclude = ["corpus"]  # CC BY-SA text, not part of the AGPL package
+
 [tool.hatch.build.targets.wheel]
 packages = ["passageway"]
 
@@ -38,7 +41,7 @@ dev = ["jsonschema>=4.23", "pytest>=8.3", "pytest-asyncio>=0.24", "passageway-co
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
-testpaths = ["tests", "connectors", "sdk"]
+testpaths = ["tests", "connectors", "sdk", "corpus"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 

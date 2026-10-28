@@ -1,0 +1,30 @@
+Activation function
+Attention (machine learning)
+Autoencoder
+Backpropagation
+Batch normalization
+Convolutional neural network
+Deep learning
+Deep reinforcement learning
+Diffusion model
+Dropout (neural networks)
+Fine-tuning (deep learning)
+Gated recurrent unit
+Generative adversarial network
+Hyperparameter (machine learning)
+Knowledge distillation
+Large language model
+Long short-term memory
+Multilayer perceptron
+Neural network (machine learning)
+Overfitting
+Perceptron
+Rectified linear unit
+Recurrent neural network
+Residual neural network
+Self-supervised learning
+Stochastic gradient descent
+Transfer learning
+Transformer (deep learning)
+Vanishing gradient problem
+Word embedding

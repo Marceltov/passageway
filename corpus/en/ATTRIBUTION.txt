@@ -1,0 +1,34 @@
+Articles from https://en.wikipedia.org, licensed CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
+Changes: converted to plain text and then to markdown. Tables, images, infoboxes and other formatting were not included; formulas are kept only as TeX between $ signs; boilerplate sections (references, external links) were removed. The wording of the remaining text was not changed.
+The authors of each article are listed in its history page.
+
+- Activation function: https://en.wikipedia.org/wiki/Activation_function (revision 1375551500, 2026-09-18T14:03:31Z); authors: https://en.wikipedia.org/w/index.php?title=Activation_function&action=history
+- Attention (machine learning): https://en.wikipedia.org/wiki/Attention_(machine_learning) (revision 1381934278, 2026-10-25T18:21:31Z); authors: https://en.wikipedia.org/w/index.php?title=Attention_%28machine_learning%29&action=history
+- Autoencoder: https://en.wikipedia.org/wiki/Autoencoder (revision 1375973936, 2026-09-21T05:41:12Z); authors: https://en.wikipedia.org/w/index.php?title=Autoencoder&action=history
+- Backpropagation: https://en.wikipedia.org/wiki/Backpropagation (revision 1381710221, 2026-10-24T08:06:45Z); authors: https://en.wikipedia.org/w/index.php?title=Backpropagation&action=history
+- Batch normalization: https://en.wikipedia.org/wiki/Batch_normalization (revision 1375137441, 2026-09-16T01:51:38Z); authors: https://en.wikipedia.org/w/index.php?title=Batch_normalization&action=history
+- Convolutional neural network: https://en.wikipedia.org/wiki/Convolutional_neural_network (revision 1379323106, 2026-10-09T06:37:37Z); authors: https://en.wikipedia.org/w/index.php?title=Convolutional_neural_network&action=history
+- Deep learning: https://en.wikipedia.org/wiki/Deep_learning (revision 1378632336, 2026-10-05T10:02:43Z); authors: https://en.wikipedia.org/w/index.php?title=Deep_learning&action=history
+- Deep reinforcement learning: https://en.wikipedia.org/wiki/Deep_reinforcement_learning (revision 1382061382, 2026-10-26T10:00:25Z); authors: https://en.wikipedia.org/w/index.php?title=Deep_reinforcement_learning&action=history
+- Diffusion model: https://en.wikipedia.org/wiki/Diffusion_model (revision 1382033477, 2026-10-26T03:59:31Z); authors: https://en.wikipedia.org/w/index.php?title=Diffusion_model&action=history
+- Dropout (neural networks): https://en.wikipedia.org/wiki/Dropout_(neural_networks) (revision 1360650719, 2026-06-22T19:45:58Z); authors: https://en.wikipedia.org/w/index.php?title=Dropout_%28neural_networks%29&action=history
+- Fine-tuning (deep learning): https://en.wikipedia.org/wiki/Fine-tuning_(deep_learning) (revision 1361361008, 2026-06-27T13:02:55Z); authors: https://en.wikipedia.org/w/index.php?title=Fine-tuning_%28deep_learning%29&action=history
+- Gated recurrent unit: https://en.wikipedia.org/wiki/Gated_recurrent_unit (revision 1368041305, 2026-08-06T17:48:43Z); authors: https://en.wikipedia.org/w/index.php?title=Gated_recurrent_unit&action=history
+- Generative adversarial network: https://en.wikipedia.org/wiki/Generative_adversarial_network (revision 1380981582, 2026-10-19T06:26:30Z); authors: https://en.wikipedia.org/w/index.php?title=Generative_adversarial_network&action=history
+- Hyperparameter (machine learning): https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning) (revision 1381284816, 2026-10-21T09:01:32Z); authors: https://en.wikipedia.org/w/index.php?title=Hyperparameter_%28machine_learning%29&action=history
+- Knowledge distillation: https://en.wikipedia.org/wiki/Knowledge_distillation (revision 1382050898, 2026-10-26T07:42:34Z); authors: https://en.wikipedia.org/w/index.php?title=Knowledge_distillation&action=history
+- Large language model: https://en.wikipedia.org/wiki/Large_language_model (revision 1382184113, 2026-10-27T03:47:17Z); authors: https://en.wikipedia.org/w/index.php?title=Large_language_model&action=history
+- Long short-term memory: https://en.wikipedia.org/wiki/Long_short-term_memory (revision 1380313689, 2026-10-15T00:50:31Z); authors: https://en.wikipedia.org/w/index.php?title=Long_short-term_memory&action=history
+- Multilayer perceptron: https://en.wikipedia.org/wiki/Multilayer_perceptron (revision 1380964914, 2026-10-19T02:58:56Z); authors: https://en.wikipedia.org/w/index.php?title=Multilayer_perceptron&action=history
+- Neural network (machine learning): https://en.wikipedia.org/wiki/Neural_network_(machine_learning) (revision 1382090148, 2026-10-26T15:05:10Z); authors: https://en.wikipedia.org/w/index.php?title=Neural_network_%28machine_learning%29&action=history
+- Overfitting: https://en.wikipedia.org/wiki/Overfitting (revision 1374396766, 2026-09-11T20:32:43Z); authors: https://en.wikipedia.org/w/index.php?title=Overfitting&action=history
+- Perceptron: https://en.wikipedia.org/wiki/Perceptron (revision 1377470406, 2026-09-29T15:19:14Z); authors: https://en.wikipedia.org/w/index.php?title=Perceptron&action=history
+- Rectified linear unit: https://en.wikipedia.org/wiki/Rectified_linear_unit (revision 1373687081, 2026-09-07T09:21:01Z); authors: https://en.wikipedia.org/w/index.php?title=Rectified_linear_unit&action=history
+- Recurrent neural network: https://en.wikipedia.org/wiki/Recurrent_neural_network (revision 1382045773, 2026-10-26T06:41:32Z); authors: https://en.wikipedia.org/w/index.php?title=Recurrent_neural_network&action=history
+- Residual neural network: https://en.wikipedia.org/wiki/Residual_neural_network (revision 1376425875, 2026-09-24T02:21:51Z); authors: https://en.wikipedia.org/w/index.php?title=Residual_neural_network&action=history
+- Self-supervised learning: https://en.wikipedia.org/wiki/Self-supervised_learning (revision 1380353226, 2026-10-15T05:44:13Z); authors: https://en.wikipedia.org/w/index.php?title=Self-supervised_learning&action=history
+- Stochastic gradient descent: https://en.wikipedia.org/wiki/Stochastic_gradient_descent (revision 1380942635, 2026-10-18T23:22:19Z); authors: https://en.wikipedia.org/w/index.php?title=Stochastic_gradient_descent&action=history
+- Transfer learning: https://en.wikipedia.org/wiki/Transfer_learning (revision 1360633829, 2026-06-22T18:11:09Z); authors: https://en.wikipedia.org/w/index.php?title=Transfer_learning&action=history
+- Transformer (deep learning): https://en.wikipedia.org/wiki/Transformer_(deep_learning) (revision 1382138706, 2026-10-26T21:13:43Z); authors: https://en.wikipedia.org/w/index.php?title=Transformer_%28deep_learning%29&action=history
+- Vanishing gradient problem: https://en.wikipedia.org/wiki/Vanishing_gradient_problem (revision 1371947961, 2026-08-29T14:41:35Z); authors: https://en.wikipedia.org/w/index.php?title=Vanishing_gradient_problem&action=history
+- Word embedding: https://en.wikipedia.org/wiki/Word_embedding (revision 1374850731, 2026-09-14T12:25:56Z); authors: https://en.wikipedia.org/w/index.php?title=Word_embedding&action=history

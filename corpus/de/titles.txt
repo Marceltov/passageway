@@ -1,0 +1,30 @@
+Attention Is All You Need
+Autoencoder
+Backpropagation
+Bestärkendes Lernen
+Boltzmann-Maschine
+Convolutional Neural Network
+Deep Learning
+Fine-Tuning (Künstliche Intelligenz)
+Generative Adversarial Networks
+Generatives KI-Modell
+Gradientenverfahren
+Hopfield-Netz
+Künstliches Neuron
+Künstliches neuronales Netz
+Large Language Model
+Long short-term memory
+Maschinelles Lernen
+Modellkollaps
+Multi-Layer-Perzeptron
+Neuronales Netz
+Perzeptron
+Prompt-Engineering
+Rekurrentes neuronales Netz
+Retrieval-Augmented Generation
+Selbstorganisierende Karte
+Selbstüberwachtes Lernen
+Transformer (Maschinelles Lernen)
+Wissensdestillation
+Überanpassung
+Überwachtes Lernen

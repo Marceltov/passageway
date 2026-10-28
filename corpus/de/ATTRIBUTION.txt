@@ -1,0 +1,34 @@
+Articles from https://de.wikipedia.org, licensed CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
+Changes: converted to plain text and then to markdown. Tables, images, infoboxes and other formatting were not included; formulas are kept only as TeX between $ signs; boilerplate sections (references, external links) were removed. The wording of the remaining text was not changed.
+The authors of each article are listed in its history page.
+
+- Attention Is All You Need: https://de.wikipedia.org/wiki/Attention_Is_All_You_Need (revision 268945412, 2026-07-19T14:06:05Z); authors: https://de.wikipedia.org/w/index.php?title=Attention_Is_All_You_Need&action=history
+- Autoencoder: https://de.wikipedia.org/wiki/Autoencoder (revision 257303441, 2025-06-23T15:40:34Z); authors: https://de.wikipedia.org/w/index.php?title=Autoencoder&action=history
+- Backpropagation: https://de.wikipedia.org/wiki/Backpropagation (revision 265138298, 2026-03-11T19:07:49Z); authors: https://de.wikipedia.org/w/index.php?title=Backpropagation&action=history
+- Bestärkendes Lernen: https://de.wikipedia.org/wiki/Best%C3%A4rkendes_Lernen (revision 268577713, 2026-07-07T10:21:10Z); authors: https://de.wikipedia.org/w/index.php?title=Best%C3%A4rkendes_Lernen&action=history
+- Boltzmann-Maschine: https://de.wikipedia.org/wiki/Boltzmann-Maschine (revision 268116312, 2026-06-21T16:16:42Z); authors: https://de.wikipedia.org/w/index.php?title=Boltzmann-Maschine&action=history
+- Convolutional Neural Network: https://de.wikipedia.org/wiki/Convolutional_Neural_Network (revision 271493609, 2026-10-20T20:00:33Z); authors: https://de.wikipedia.org/w/index.php?title=Convolutional_Neural_Network&action=history
+- Deep Learning: https://de.wikipedia.org/wiki/Deep_Learning (revision 270004831, 2026-08-27T01:07:18Z); authors: https://de.wikipedia.org/w/index.php?title=Deep_Learning&action=history
+- Fine-Tuning (Künstliche Intelligenz): https://de.wikipedia.org/wiki/Fine-Tuning_(K%C3%BCnstliche_Intelligenz) (revision 266929943, 2026-05-09T20:03:25Z); authors: https://de.wikipedia.org/w/index.php?title=Fine-Tuning_%28K%C3%BCnstliche_Intelligenz%29&action=history
+- Generative Adversarial Networks: https://de.wikipedia.org/wiki/Generative_Adversarial_Networks (revision 265198423, 2026-03-14T07:03:39Z); authors: https://de.wikipedia.org/w/index.php?title=Generative_Adversarial_Networks&action=history
+- Generatives KI-Modell: https://de.wikipedia.org/wiki/Generatives_KI-Modell (revision 271497554, 2026-10-21T04:40:40Z); authors: https://de.wikipedia.org/w/index.php?title=Generatives_KI-Modell&action=history
+- Gradientenverfahren: https://de.wikipedia.org/wiki/Gradientenverfahren (revision 270825489, 2026-09-27T11:27:20Z); authors: https://de.wikipedia.org/w/index.php?title=Gradientenverfahren&action=history
+- Hopfield-Netz: https://de.wikipedia.org/wiki/Hopfield-Netz (revision 268779384, 2026-07-14T12:52:37Z); authors: https://de.wikipedia.org/w/index.php?title=Hopfield-Netz&action=history
+- Künstliches Neuron: https://de.wikipedia.org/wiki/K%C3%BCnstliches_Neuron (revision 271640734, 2026-10-26T10:56:18Z); authors: https://de.wikipedia.org/w/index.php?title=K%C3%BCnstliches_Neuron&action=history
+- Künstliches neuronales Netz: https://de.wikipedia.org/wiki/K%C3%BCnstliches_neuronales_Netz (revision 271629840, 2026-10-25T22:41:40Z); authors: https://de.wikipedia.org/w/index.php?title=K%C3%BCnstliches_neuronales_Netz&action=history
+- Large Language Model: https://de.wikipedia.org/wiki/Large_Language_Model (revision 271533446, 2026-10-22T15:48:42Z); authors: https://de.wikipedia.org/w/index.php?title=Large_Language_Model&action=history
+- Long short-term memory: https://de.wikipedia.org/wiki/Long_short-term_memory (revision 263188484, 2026-01-09T21:55:01Z); authors: https://de.wikipedia.org/w/index.php?title=Long_short-term_memory&action=history
+- Maschinelles Lernen: https://de.wikipedia.org/wiki/Maschinelles_Lernen (revision 270130595, 2026-08-31T19:30:32Z); authors: https://de.wikipedia.org/w/index.php?title=Maschinelles_Lernen&action=history
+- Modellkollaps: https://de.wikipedia.org/wiki/Modellkollaps (revision 271559958, 2026-10-23T17:04:58Z); authors: https://de.wikipedia.org/w/index.php?title=Modellkollaps&action=history
+- Multi-Layer-Perzeptron: https://de.wikipedia.org/wiki/Multi-Layer-Perzeptron (revision 263576212, 2026-01-23T06:53:03Z); authors: https://de.wikipedia.org/w/index.php?title=Multi-Layer-Perzeptron&action=history
+- Neuronales Netz: https://de.wikipedia.org/wiki/Neuronales_Netz (revision 252572026, 2025-01-24T06:39:52Z); authors: https://de.wikipedia.org/w/index.php?title=Neuronales_Netz&action=history
+- Perzeptron: https://de.wikipedia.org/wiki/Perzeptron (revision 267968670, 2026-06-15T22:56:53Z); authors: https://de.wikipedia.org/w/index.php?title=Perzeptron&action=history
+- Prompt-Engineering: https://de.wikipedia.org/wiki/Prompt-Engineering (revision 271699682, 2026-10-28T16:58:21Z); authors: https://de.wikipedia.org/w/index.php?title=Prompt-Engineering&action=history
+- Rekurrentes neuronales Netz: https://de.wikipedia.org/wiki/Rekurrentes_neuronales_Netz (revision 257632743, 2025-07-05T12:46:44Z); authors: https://de.wikipedia.org/w/index.php?title=Rekurrentes_neuronales_Netz&action=history
+- Retrieval-Augmented Generation: https://de.wikipedia.org/wiki/Retrieval-Augmented_Generation (revision 271687415, 2026-10-28T07:54:16Z); authors: https://de.wikipedia.org/w/index.php?title=Retrieval-Augmented_Generation&action=history
+- Selbstorganisierende Karte: https://de.wikipedia.org/wiki/Selbstorganisierende_Karte (revision 269503413, 2026-08-09T04:39:37Z); authors: https://de.wikipedia.org/w/index.php?title=Selbstorganisierende_Karte&action=history
+- Selbstüberwachtes Lernen: https://de.wikipedia.org/wiki/Selbst%C3%BCberwachtes_Lernen (revision 251812224, 2025-01-01T17:36:20Z); authors: https://de.wikipedia.org/w/index.php?title=Selbst%C3%BCberwachtes_Lernen&action=history
+- Transformer (Maschinelles Lernen): https://de.wikipedia.org/wiki/Transformer_(Maschinelles_Lernen) (revision 266701409, 2026-05-03T11:44:56Z); authors: https://de.wikipedia.org/w/index.php?title=Transformer_%28Maschinelles_Lernen%29&action=history
+- Wissensdestillation: https://de.wikipedia.org/wiki/Wissensdestillation (revision 268917400, 2026-07-18T09:17:39Z); authors: https://de.wikipedia.org/w/index.php?title=Wissensdestillation&action=history
+- Überanpassung: https://de.wikipedia.org/wiki/%C3%9Cberanpassung (revision 240398362, 2023-12-21T10:28:39Z); authors: https://de.wikipedia.org/w/index.php?title=%C3%9Cberanpassung&action=history
+- Überwachtes Lernen: https://de.wikipedia.org/wiki/%C3%9Cberwachtes_Lernen (revision 268352920, 2026-06-30T10:29:34Z); authors: https://de.wikipedia.org/w/index.php?title=%C3%9Cberwachtes_Lernen&action=history
