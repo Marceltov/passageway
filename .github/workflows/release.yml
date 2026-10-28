@@ -1,0 +1,68 @@
+name: Release
+
+# A v* tag creates a GitHub release and posts its notes to notefeed, once per tag.
+#
+#   git tag -a v0.2.0 -m "A one-line headline for the release"
+#   git push origin v0.2.0
+#
+# The tag must equal the version in pyproject.toml (scripts/check-version.sh) and the tests must pass.
+# The notes are the annotated tag's message, the pull requests merged since the previous release and
+# install instructions (scripts/release-notes.sh). Without the NOTEFEED_FEED secret (forks) nothing is posted.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "An existing tag to publish again, for example v0.2.0"
+        required: true
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Tag matches pyproject.toml
+        run: scripts/check-version.sh "$TAG"
+
+      - uses: astral-sh/setup-uv@v6
+      - name: Tests
+        run: |
+          uv sync --frozen --all-packages
+          uv run pytest -q
+
+      - name: Assemble the release notes
+        run: scripts/release-notes.sh "$TAG" > notes.md
+
+      - name: Create or update the release
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "$TAG" --notes-file notes.md
+          else
+            gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag
+          fi
+
+      # Posts the notes of the release as published, plus a link to it. A re-run does not post twice.
+      - name: Post the notes to notefeed
+        env:
+          NOTEFEED_FEED: ${{ secrets.NOTEFEED_FEED }}
+          NOTEFEED_FEED_PASSWORD: ${{ secrets.NOTEFEED_FEED_PASSWORD }}
+        run: |
+          gh release view "$TAG" --json body,url --jq '.body + "\n\n[The release on GitHub](" + .url + ")\n"' > notefeed.md
+          scripts/post-to-notefeed.sh "$TAG" notefeed.md
