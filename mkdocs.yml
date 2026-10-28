@@ -6,6 +6,9 @@ repo_name: Marceltov/passageway
 edit_uri: edit/main/docs/
 copyright: Copyright &copy; 2026 Marcel Bruckner. Licensed under <a href="https://github.com/Marceltov/passageway/blob/main/LICENSE">AGPL-3.0-or-later</a>
 
+hooks:
+  - docs_hooks/roadmap.py
+
 exclude_docs: |
   superpowers/
 

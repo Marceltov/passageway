@@ -1,0 +1,188 @@
+# The roadmap, as data. docs_hooks/roadmap.py renders it as the timeline on the Roadmap page.
+#
+# Open entries (status next, later or decide) are shown first, in the order of this file, each with a `when` label and `details`.
+# Done entries are shown below them, newest date first (the order of this file breaks ties), each with a `date` and a link to its
+# pull request or release.
+#
+# To finish a step: set `status: done`, replace `when` with `date: YYYY-MM-DD`, add the link to its pull request, and move it to the
+# top of the done entries. `icon` is the name of a Material Design icon (https://pictogrammers.com/library/mdi/).
+# `details` is a small subset of markdown: paragraphs, "- " lists, **bold**, `code` and [links](https://...).
+
+items:
+  # ---- open ------------------------------------------------------------------------------------------------------------
+  - id: markdown-connector
+    status: next
+    when: Next
+    icon: language-markdown-outline
+    title: Markdown connector
+    summary: Index a folder of markdown files, with front matter. The base for the frozen corpus below.
+    details: |
+      A connector for a folder of markdown files: the title, URL, revision and date come from the front matter, the sections from the headings, the folder path becomes the breadcrumb. Unlike the Wikipedia connector it can answer `changed` cheaply, from the files' times.
+
+  - id: frozen-corpus
+    status: next
+    when: Then
+    icon: notebook-outline
+    title: A frozen corpus
+    summary: A small, attributed Wikipedia snapshot in English and German, so that measurements are reproducible.
+    details: |
+      A `snapshot` command in the Wikipedia connector writes articles as markdown files with front matter (title, language, URL, revision id, licence).
+      A small English and German snapshot, about 30 articles each on one theme, is committed with an attribution file and its own licence note (CC BY-SA 4.0).
+      Measurements are only reproducible against a corpus that does not change under the questions.
+
+  - id: eval-harness
+    status: next
+    when: Then
+    icon: chart-box-outline
+    title: Evaluation harness
+    summary: Measure retrieval quality on your own questions, and publish the numbers.
+    details: |
+      `passageway eval` reports hit@1, hit@3, MRR, silence on unanswerable questions and latency.
+      - `--sweep` repeats the run over relevance thresholds, `compare` runs several embedding models on a copy of the index, and `--enforce` makes a CI job fail below targets.
+      - Reports are aggregate-only by default, with no questions and no titles, and `--write` puts them into the reader's own docs.
+      - A public question set for the corpus, in both languages.
+
+  - id: embedders
+    status: later
+    when: Later
+    icon: cube-outline
+    title: Embedders
+    summary: Choose the embedding model, or bring your own.
+    details: |
+      The built-in `onnx` embedder generalised with presets (the multilingual e5-small as the default, a German-focused model such as Jina v2 base de) and a `device` setting (`auto`, `cpu`, `coreml`).
+      - An out-of-process `command` embedder (one long-lived process, JSON Lines) and a bundled OpenAI-compatible one, which covers Ollama, vLLM, OpenAI and Voyage.
+      - Relevance thresholds are recalibrated with the harness on the public corpus, not carried over from earlier measurements.
+
+  - id: trilium-connector
+    status: later
+    when: Later
+    icon: puzzle-outline
+    title: Trilium connector
+    summary: The trilium-recall features as a connector, with ranking quality at least as good as before.
+    details: |
+      `trilium.py`, the sync logic, the area and label handling and the HTML-to-sections code leave the engine; they can be recovered from the tag `trilium-engine-import`.
+      The wiki-aware ranking is expressed through the item fields: `weight` for the wiki, source and journal areas, `path` for the page trail, `labels` for type, topics and status, `links` for related notes.
+      - **Open design question:** trilium-recall shows a note's summary in place of its source note when the summary matches almost as well. Fields alone cannot express that.
+      - **Parity target:** ranking quality at least as good as trilium-recall on the same notes (its private evaluation: hit@3 0.86, silence 0.92), shown with fake-ETAPI fixtures and an opt-in live test against a throwaway Trilium.
+
+  - id: confluence-connector
+    status: later
+    when: Later
+    icon: puzzle-outline
+    title: Confluence connector
+    summary: Index Confluence spaces. Written from the public REST documentation.
+    details: |
+      A decision is needed first: **Cloud, Data Center or both**, because authentication and API paths differ.
+
+  - id: hook-plugin-image
+    status: later
+    when: Later
+    icon: docker
+    title: Hook, plugin, sidecar image, quickstart
+    summary: What is still to move over from trilium-recall.
+    details: |
+      The `/recall` endpoint with its skip rules and per-session memory exists. Still to move over:
+      - the `UserPromptSubmit` hook script and its self-test, and the setup skill;
+      - the sidecar Docker image: a multi-stage build, the model baked in and verified by checksum, a health check, memory settings;
+      - a minimal local quickstart: a generated password in the config directory and a documented launchd example.
+
+  - id: trilium-recall-adopts
+    status: later
+    when: Later
+    icon: swap-horizontal
+    title: trilium-recall adopts passageway
+    summary: After parity, trilium-recall points here.
+    details: |
+      trilium-recall becomes a thin distribution (a `passageway.toml` with the Trilium connector, its plugin, docs that point here) or is archived with a pointer.
+      It is a breaking change for its users, so it needs a migration guide:
+      - `RECALL_*` becomes `PASSAGEWAY_*`;
+      - the tool's `instance` argument becomes `source`;
+      - configuration moves to `passageway.toml`.
+
+  - id: decide-transport
+    status: decide
+    when: Decide
+    icon: help-circle-outline
+    title: JSON Lines or gRPC?
+    summary: Settle the transport before the protocol is frozen at v1, for connectors and for embedders, in an ADR.
+    links:
+      - {label: "#13", url: "https://github.com/Marceltov/passageway/issues/13"}
+    details: |
+      Why a subprocess with JSON Lines, what it costs, and the alternatives (a JSON Schema, a long-running mode, gRPC, HTTP) are written up in the issue. The deliverable is an ADR.
+
+  - id: decide-sdk
+    status: decide
+    when: Decide
+    icon: help-circle-outline
+    title: A connector SDK
+    summary: A package that wraps the boilerplate, so that a connector is just its logic.
+    links:
+      - {label: "#12", url: "https://github.com/Marceltov/passageway/issues/12"}
+    details: |
+      A small package with almost no dependencies that handles the modes, the input ids, the all-or-nothing output and the exit codes. The Wikipedia connector would be its first user.
+
+  # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: agent-entry-points
+    status: done
+    date: 2026-10-28
+    icon: robot-outline
+    title: Agent entry points
+    summary: Plugin skills, a root SKILL.md and llms-full.txt, so that an AI agent can learn passageway and write a connector.
+    links:
+      - {label: "PR #14", url: "https://github.com/Marceltov/passageway/pull/14"}
+      - {label: "PR #16", url: "https://github.com/Marceltov/passageway/pull/16"}
+
+  - id: dependabot
+    status: done
+    date: 2026-10-28
+    icon: shield-check-outline
+    title: Dependabot and a daily audit
+    summary: Weekly grouped bumps, with auto-merge for patch and minor ones once the required checks are green.
+    links:
+      - {label: "PR #10", url: "https://github.com/Marceltov/passageway/pull/10"}
+
+  - id: first-release
+    status: done
+    date: 2026-10-28
+    icon: rocket-launch-outline
+    title: First release
+    summary: A tag creates the GitHub release and posts its notes to notefeed, once.
+    links:
+      - {label: "v0.1.0", url: "https://github.com/Marceltov/passageway/releases/tag/v0.1.0"}
+      - {label: "PR #8", url: "https://github.com/Marceltov/passageway/pull/8"}
+
+  - id: docs-site
+    status: done
+    date: 2026-10-28
+    icon: book-open-page-variant-outline
+    title: Documentation site
+    summary: Built strictly on every pull request and published on its own domain.
+    links:
+      - {label: "PR #6", url: "https://github.com/Marceltov/passageway/pull/6"}
+
+  - id: wikipedia-connector
+    status: done
+    date: 2026-10-28
+    icon: wikipedia
+    title: Wikipedia connector
+    summary: Index a topic, some articles or a place, in English and German.
+    links:
+      - {label: "PR #4", url: "https://github.com/Marceltov/passageway/pull/4"}
+
+  - id: core-refactor
+    status: done
+    date: 2026-10-28
+    icon: graph-outline
+    title: A source-agnostic core
+    summary: The connector protocol, a generic index, a sync with a deletion guard, passageway.toml, bearer and OAuth authentication.
+    links:
+      - {label: "PR #2", url: "https://github.com/Marceltov/passageway/pull/2"}
+
+  - id: bootstrap
+    status: done
+    date: 2026-10-28
+    icon: source-branch
+    title: Bootstrap
+    summary: The trilium-recall engine imported with a fresh history. The last commit with all its Trilium code is a tag.
+    links:
+      - {label: "trilium-engine-import", url: "https://github.com/Marceltov/passageway/tree/trilium-engine-import"}

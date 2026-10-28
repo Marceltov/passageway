@@ -149,3 +149,200 @@
     display: flex;
   }
 }
+
+/* ---- The roadmap timeline (docs/roadmap.yml, rendered by docs_hooks/roadmap.py) ----------------------------------------
+   A label on the left (a date for what shipped), a line with a marker (hollow: planned, filled with a check: shipped) and a
+   card on the right. On narrow screens the label moves into the card and the line stays on the left. */
+.md-typeset .pw-center {
+  text-align: center;
+}
+.md-typeset .pw-lead {
+  max-width: 34em;
+  margin-inline: auto;
+  color: var(--md-default-fg-color--light);
+}
+
+.pw-timeline {
+  --pw-dot: 1.1rem;
+  --pw-when: 6.2rem;
+  --pw-gap: 0.9rem;
+  max-width: 46rem;
+  margin: 2.2rem auto 2.6rem;
+}
+.pw-tl-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--pw-when) var(--pw-dot) minmax(0, 1fr);
+  column-gap: var(--pw-gap);
+  padding-bottom: 0.6rem;
+}
+.pw-tl-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--pw-when) + var(--pw-gap) + var(--pw-dot) / 2 - 1px);
+  width: 2px;
+  background: var(--md-default-fg-color--lightest);
+}
+.pw-tl-row:first-child::before {
+  top: 1.25rem;
+}
+.pw-tl-row:last-child::before {
+  bottom: calc(100% - 1.25rem);
+}
+
+.pw-tl-when {
+  padding-top: 0.78rem;
+  text-align: right;
+  font-size: 0.72rem;
+  font-style: italic;
+  white-space: nowrap;
+  color: var(--md-default-fg-color--light);
+}
+.pw-tl-dot {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: var(--pw-dot);
+  height: var(--pw-dot);
+  margin-top: 0.7rem;
+  border: 2px solid var(--pw-accent);
+  border-radius: 50%;
+  background: var(--md-default-bg-color);
+}
+.pw-later .pw-tl-dot {
+  border-color: var(--md-default-fg-color--lighter);
+}
+.pw-decide .pw-tl-dot {
+  border-style: dashed;
+  border-color: var(--pw-warm);
+}
+.pw-done .pw-tl-dot {
+  background: var(--pw-accent);
+}
+.pw-done .pw-tl-dot::after {
+  content: "";
+  position: absolute;
+  left: 0.27rem;
+  top: 0.06rem;
+  width: 0.28rem;
+  height: 0.56rem;
+  border: solid var(--md-default-bg-color);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.pw-tl-card {
+  padding: 0.65rem 1rem 0.7rem;
+  border-radius: 0.6rem;
+  background: var(--pw-mist);
+}
+.pw-tl-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.pw-ic {
+  display: inline-flex;
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--pw-accent);
+}
+.pw-ic svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+.pw-later .pw-ic {
+  color: var(--md-default-fg-color--light);
+}
+.pw-decide .pw-ic {
+  color: var(--pw-warm);
+}
+.pw-tl-title {
+  flex: 1 1 auto;
+  font-weight: 600;
+}
+.pw-tl-links {
+  display: flex;
+  gap: 0.7rem;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.md-typeset .pw-tl-summary {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: var(--md-default-fg-color--light);
+}
+/* Material styles every <details> as an admonition (a box with an icon and a chevron); here it is a quiet "Details" toggle. */
+.md-typeset details.pw-tl-details {
+  margin: 0.45rem 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+  font-size: 0.76rem;
+}
+.md-typeset details.pw-tl-details > summary {
+  margin: 0;
+  padding: 0;
+  background: none;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--md-typeset-a-color);
+}
+.md-typeset details.pw-tl-details > summary::before {
+  content: none;
+}
+.md-typeset details.pw-tl-details > summary::after {
+  content: "\203A";
+  position: static;
+  display: inline-block;
+  width: auto;
+  height: auto;
+  margin-left: 0.35em;
+  background: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+  color: inherit;
+  transition: transform 0.15s;
+}
+.md-typeset details.pw-tl-details[open] > summary::after {
+  transform: rotate(90deg);
+}
+.md-typeset .pw-tl-details p,
+.md-typeset .pw-tl-details ul {
+  margin: 0.4em 0;
+}
+
+@media screen and (max-width: 44.9375em) {
+  .pw-timeline {
+    --pw-when: 0rem;
+  }
+  .pw-tl-row {
+    grid-template-columns: var(--pw-dot) minmax(0, 1fr);
+    grid-template-areas: ". when" "dot card";
+  }
+  .pw-tl-row::before {
+    left: calc(var(--pw-dot) / 2 - 1px);
+  }
+  .pw-tl-when {
+    grid-area: when;
+    padding: 0.2rem 0 0.15rem;
+    text-align: left;
+    font-size: 0.68rem;
+  }
+  .pw-tl-dot {
+    grid-area: dot;
+    margin-top: 0.7rem;
+  }
+  .pw-tl-card {
+    grid-area: card;
+  }
+  .pw-tl-head {
+    flex-wrap: wrap;
+  }
+}
