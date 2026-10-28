@@ -1,0 +1,124 @@
+import pytest
+
+from passageway_connector_wikipedia import mediawiki
+from passageway_connector_wikipedia.mediawiki import Wiki, WikiError
+
+
+def client(url, sleeps=None):
+    return Wiki(url, "test-agent/1.0", pause=0, sleep=(sleeps.append if sleeps is not None else lambda s: None))
+
+
+def lighthouse_wiki(wiki):
+    for i, t in [(1, "Heligoland"), (2, "Cape Arkona"), (3, "Roter Sand"), (4, "Lindau"), (5, "Neuwerk")]:
+        wiki.add(i, t)
+    wiki.categories["Category:Lighthouses"] = {"pages": [1, 2], "subcats": ["Category:Sea lighthouses"]}
+    wiki.categories["Category:Sea lighthouses"] = {"pages": [3], "subcats": ["Category:Lighthouses"]}  # a cycle
+
+
+def test_category_members_follow_continuation(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    wiki.page_size = 1
+    assert client(url).pages_in_categories(("Category:Lighthouses",), 0, 100) == {1: "Heligoland", 2: "Cape Arkona"}
+
+
+def test_depth_follows_subcategories_and_survives_cycles(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    found = client(url).pages_in_categories(("Category:Lighthouses",), 5, 100)  # the cycle must not loop
+    assert found == {1: "Heligoland", 2: "Cape Arkona", 3: "Roter Sand"}
+
+
+def test_a_bare_category_name_gets_the_category_prefix(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    assert set(client(url).pages_in_categories(("Lighthouses",), 0, 100)) == {1, 2}
+
+
+def test_a_prefixed_category_name_is_used_as_given(wiki_server):  # de: "Kategorie:..." must not become "Category:Kategorie:..."
+    url, wiki = wiki_server
+    wiki.add(11, "Roter Sand")
+    wiki.categories["Kategorie:Leuchtturm in Deutschland"] = {"pages": [11], "subcats": []}
+    assert client(url).pages_in_categories(("Kategorie:Leuchtturm in Deutschland",), 0, 10) == {11: "Roter Sand"}
+
+
+def test_too_many_pages_refuses_instead_of_truncating(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    with pytest.raises(WikiError, match="MAX_PAGES"):
+        client(url).pages_in_categories(("Category:Lighthouses",), 5, 2)
+
+
+def test_resolve_titles_follows_redirects_and_drops_missing(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    wiki.redirects["Helgoland"] = "Heligoland"
+    assert client(url).resolve_titles(("Helgoland", "Cape Arkona", "No such page")) == {1: "Heligoland", 2: "Cape Arkona"}
+
+
+def test_geo_pages(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    wiki.geo = [4, 5]
+    assert client(url).geo_pages(53.55, 9.99, 5000) == {4: "Lindau", 5: "Neuwerk"}
+    assert wiki.requests[-1]["query"]["gscoord"] == "53.55|9.99"
+
+
+def test_revisions_are_requested_in_batches(wiki_server, monkeypatch):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    monkeypatch.setattr(mediawiki, "BATCH", 2)
+    revs = client(url).revisions([1, 2, 3, 4, 5])
+    assert revs[3] == ("100", "2026-10-01T00:00:00Z") and len(revs) == 5
+    assert sum("rvprop" in r["query"] for r in wiki.requests) == 3
+
+
+def test_article_returns_text_and_revision_or_none_when_gone(wiki_server):
+    url, wiki = wiki_server
+    wiki.add(7, "Seven", "Lead text.\n\n== History ==\nOld.", revid=555, ts="2026-10-02T00:00:00Z")
+    assert client(url).article(7) == ("Seven", "Lead text.\n\n== History ==\nOld.", "555", "2026-10-02T00:00:00Z")
+    assert client(url).article(8) is None
+
+
+def test_every_request_identifies_itself_and_sets_maxlag(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    client(url).resolve_titles(("Cape Arkona",))
+    assert wiki.requests[0]["ua"] == "test-agent/1.0" and wiki.requests[0]["query"]["maxlag"] == "5"
+
+
+def test_maxlag_is_retried_with_backoff(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    wiki.lag_errors = 2
+    sleeps = []
+    assert client(url, sleeps).resolve_titles(("Cape Arkona",)) == {2: "Cape Arkona"}
+    assert sleeps == [1, 2]
+
+
+def test_429_and_503_are_retried_and_persistent_trouble_finally_fails(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    wiki.status_errors = [429, 503]
+    assert client(url).resolve_titles(("Cape Arkona",)) == {2: "Cape Arkona"}
+    wiki.lag_errors = 99
+    with pytest.raises(WikiError, match="try again later|retry"):
+        client(url).resolve_titles(("Cape Arkona",))
+    assert len(wiki.requests) < 20  # it gave up; it did not hammer
+
+
+def test_api_errors_become_wiki_errors(wiki_server):
+    url, _ = wiki_server
+    with pytest.raises(WikiError, match="badrequest"):
+        client(url)._get(action="query", bogus="1")
+
+
+def test_max_pages_is_enforced_while_listing_not_after_the_whole_category(wiki_server):
+    url, wiki = wiki_server
+    for i in range(1, 2001):
+        wiki.add(i, f"Page {i}")
+    wiki.categories["Category:Huge"] = {"pages": list(range(1, 2001)), "subcats": []}
+    wiki.page_size = 50
+    with pytest.raises(WikiError, match="MAX_PAGES"):
+        client(url).pages_in_categories(("Category:Huge",), 0, 100)
+    assert len(wiki.requests) <= 3  # it refused after the batch that crossed the limit, not after 40 batches

@@ -6,6 +6,7 @@ The core knows no source. A connector is any executable that lists items and ret
 
 - [Install and configure](docs/install.md)
 - [Connector protocol](docs/connectors.md)
+- Bundled connectors: [Wikipedia](connectors/wikipedia/README.md)
 
 Status: early. The engine started as the recall engine of [trilium-recall](https://github.com/Marceltov/trilium-recall) and is being generalized. Licensed AGPL-3.0-or-later.
 
