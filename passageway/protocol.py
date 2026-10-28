@@ -110,9 +110,17 @@ class Connector:
         counts: list[int] = []
 
         def parse(record: dict) -> None:
-            if record.get("ok") is not True or not isinstance(record.get("count"), int):
-                raise ValueError("expected {\"ok\": true, \"count\": n}")
-            counts.append(record["count"])
+            if not isinstance(record, dict):
+                raise ValueError("expected a JSON object")
+            if "protocol" in record:  # first: a newer protocol may change the rest
+                if not isinstance(record["protocol"], str):
+                    raise ValueError(f"'protocol' must be the string {PROTOCOL_VERSION!r}")
+                if record["protocol"] != PROTOCOL_VERSION:
+                    raise ValueError(f"speaks protocol {record['protocol']!r}, this core speaks {PROTOCOL_VERSION!r}")
+            count = record.get("count")
+            if record.get("ok") is not True or isinstance(count, bool) or not isinstance(count, int) or count < 0:
+                raise ValueError("expected {\"ok\": true, \"count\": n} with n a whole number from 0")
+            counts.append(count)
 
         self._run(["check"], parse)
         if not counts:

@@ -32,6 +32,7 @@ nav:
   - Decisions:
       - adr/0001-out-of-process-connectors.md
       - adr/0002-connectors-as-workspace-packages.md
+      - adr/0003-json-lines-over-a-subprocess-stays.md
 
 theme:
   name: material
