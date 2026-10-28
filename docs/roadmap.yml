@@ -10,15 +10,6 @@
 
 items:
   # ---- open ------------------------------------------------------------------------------------------------------------
-  - id: markdown-connector
-    status: next
-    when: Next
-    icon: language-markdown-outline
-    title: Markdown connector
-    summary: Index a folder of markdown files, with front matter. The base for the frozen corpus below.
-    details: |
-      A connector for a folder of markdown files, written with the SDK: the title, URL, revision and date come from the front matter, the sections from the headings, the folder path becomes the breadcrumb. Unlike the Wikipedia connector it can answer `changed` cheaply, from the files' times.
-
   - id: frozen-corpus
     status: next
     when: Then
@@ -100,6 +91,16 @@ items:
       - configuration moves to `passageway.toml`.
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: markdown-connector
+    status: done
+    date: 2026-10-28
+    icon: language-markdown-outline
+    title: Markdown connector
+    summary: Index a folder of markdown files with front matter, written with the SDK.
+    links:
+      - {label: "Connector", url: "https://passageway.marceltov.de/connectors/markdown/"}
+      - {label: "PR #30", url: "https://github.com/Marceltov/passageway/pull/30"}
+
   - id: decide-sdk
     status: done
     date: 2026-10-28

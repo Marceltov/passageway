@@ -18,6 +18,7 @@ Subclass it and call `YourConnector.main()`.
 | `fetch(self, ids)` | **Required.** The item record (a dict, see the protocol) for each requested id that still exists. |
 | `changed(self, since)` | Optional. Items changed since `since`, a timezone-aware `datetime`. Leave it out if that is not cheap; `--since` is then not required. |
 | `count(self)` | Optional. The number printed by `check`; by default `len(self.versions())`. |
+| `warn(self, message)` | Report something odd on stderr without failing the call. |
 | `expected_errors` | Optional tuple of exception types that mean "the source failed", exit 1 with the message, like `SourceError`. |
 
 The method is called `versions`, not `list`, so that a `list[str]` annotation in your class keeps working.
@@ -30,6 +31,18 @@ The method is called `versions`, not `list`, so that a `list[str]` annotation in
 - **Exit codes:** `SettingsError` exits 2 and `SourceError` (or an `expected_errors` type) exits 1, each with `name: message` on stderr and no traceback. Any other exception is a bug in the connector: it propagates, the process exits 1 with a traceback, and stdout is still empty.
 - Validates every item with the core's rules before printing it; an invalid item exits 1 and names the problem.
 - Prints `check` as `{"ok": true, "count": n, "protocol": "1"}` and keeps the JSON ASCII-safe.
+
+## Markdown helpers
+
+For connectors whose source is (or converts to) markdown:
+
+| Function | What it does |
+|---|---|
+| `split_markdown(text, skip_first_h1=False)` | The sections of a document: one per heading at any level (`#` to `######`), with the heading as the trail of its parents (`Setup › Linux`). Text before the first heading is a section without a heading; a `#` inside a fenced code block is not a heading; sections without text are dropped. With `skip_first_h1` the first `# heading`, the title, is left out of the trail. |
+| `first_h1(text)` | The text of the first level-1 heading outside code, or `None`. Use it as the title. |
+| `strip_code(text)` | The text without fenced code blocks and inline code, for finding the links a document really contains. |
+
+`Connector.warn(message)` reports something odd (a skipped file) on stderr as `name: warning: message` without failing the call.
 
 ## Testing
 

@@ -11,7 +11,9 @@ from collections.abc import Iterable, Mapping
 from datetime import datetime
 from typing import NoReturn, TextIO
 
-__all__ = ["Connector", "SettingsError", "SourceError", "validate_item"]
+from passageway_sdk.markdown import first_h1, split_markdown, strip_code
+
+__all__ = ["Connector", "SettingsError", "SourceError", "first_h1", "split_markdown", "strip_code", "validate_item"]
 
 PROTOCOL = "1"
 MODES = "check|list|fetch|changed"
@@ -80,6 +82,10 @@ class Connector:
     def count(self) -> int:
         return len(self.versions())
 
+    def warn(self, message: str) -> None:
+        """Report something odd (a skipped file, say) on stderr without failing the call."""
+        self.__dict__.setdefault("_warnings", []).append(message)
+
     # -- the plumbing ------------------------------------------------------------------------
 
     @classmethod
@@ -102,14 +108,19 @@ class Connector:
             except ValueError as e:
                 print(f"{cls.name}: {e}", file=stderr)
                 return 2
+        connector = None
         try:
-            lines = cls(env, **options)._lines(mode, stdin, since)
+            connector = cls(env, **options)
+            lines = connector._lines(mode, stdin, since)
         except SettingsError as e:
+            _show_warnings(connector, stderr)
             print(f"{cls.name}: {e}", file=stderr)
             return 2
         except (SourceError, *cls.expected_errors) as e:
+            _show_warnings(connector, stderr)
             print(f"{cls.name}: {e}", file=stderr)
             return 1
+        _show_warnings(connector, stderr)
         stdout.write("".join(lines))
         return 0
 
@@ -134,6 +145,11 @@ class Connector:
                 raise SourceError(f"fetch returned {item['id']!r}, which was not requested")
             lines.append(_line(item))
         return lines
+
+
+def _show_warnings(connector: "Connector | None", stderr: TextIO) -> None:
+    for message in getattr(connector, "_warnings", ()):
+        print(f"{connector.name}: warning: {message}", file=stderr)
 
 
 def _line(record: dict) -> str:
