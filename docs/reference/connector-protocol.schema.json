@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://passageway.marceltov.de/reference/connector-protocol.schema.json",
+  "title": "passageway connector protocol v1",
+  "description": "The JSON objects of the connector protocol, one per line. Validate with the definition for the mode: check -> check, list -> listRecord, fetch -> fetchRequest on stdin and item on stdout, changed -> item. Unknown fields are allowed and ignored, so the protocol can grow.",
+  "$defs": {
+    "check": {
+      "description": "The one line `check` prints.",
+      "type": "object",
+      "required": ["ok", "count"],
+      "properties": {
+        "ok": {"const": true},
+        "count": {"type": "integer", "minimum": 0, "description": "The number of items `list` would print."},
+        "protocol": {"const": "1", "description": "Optional. The protocol version the connector speaks."}
+      }
+    },
+    "listRecord": {
+      "description": "A line of `list`: one per existing item.",
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "description": "Any string that changes when the content changes."}
+      }
+    },
+    "fetchRequest": {
+      "description": "A line of stdin for `fetch`: the id of an item to return.",
+      "type": "object",
+      "required": ["id"],
+      "properties": {"id": {"type": "string", "minLength": 1}}
+    },
+    "section": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "heading": {"type": ["string", "null"]},
+        "text": {"type": "string"}
+      }
+    },
+    "item": {
+      "description": "A line of `fetch` or `changed`: one item with its sections.",
+      "type": "object",
+      "required": ["id", "title", "url", "version", "sections"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "title": {"type": "string"},
+        "url": {"type": "string"},
+        "version": {"type": "string"},
+        "sections": {"type": "array", "items": {"$ref": "#/$defs/section"}},
+        "weight": {"type": "number", "minimum": 0, "maximum": 2, "default": 1.0},
+        "path": {"type": "array", "items": {"type": "string"}},
+        "links": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "labels": {"type": "array", "items": {"type": "string"}},
+        "updated": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

@@ -149,6 +149,41 @@ def test_check_returns_count(tmp_path):
     assert Connector("c", c).check() == 42
 
 
+def test_check_accepts_the_protocol_version_the_connector_announces(tmp_path):
+    c = cmd(tmp_path, 'import json; print(json.dumps({"ok": True, "count": 1, "protocol": "1"}))')
+    assert Connector("c", c).check() == 1
+
+
+@pytest.mark.parametrize("line,message", [
+    ('{"ok": true, "count": 1, "protocol": "2"}', "protocol"),
+    ('{"ok": true, "protocol": "2"}', "protocol"),  # a newer protocol may change the shape: the version comes first
+    ('{"ok": true, "count": 1, "protocol": 1}', "must be the string"),
+    ('{"ok": true, "count": 1, "protocol": null}', "must be the string"),
+    ('{"ok": true, "count": true}', "count"),
+    ('{"ok": true, "count": -1}', "count"),
+])
+def test_check_refuses_what_the_schema_refuses(tmp_path, line, message):
+    c = cmd(tmp_path, f"print({line!r})")
+    with pytest.raises(ConnectorError, match=message):
+        Connector("c", c).check()
+
+
+@pytest.mark.parametrize("mode,line", [("check", "5"), ("list", "[1]"), ("list", '"text"'), ("fetch", "null")])
+def test_a_line_that_is_not_an_object_is_a_connector_error_naming_the_line(tmp_path, mode, line):
+    c = cmd(tmp_path, f"print({line!r})")
+    call = {"check": lambda x: x.check(), "list": lambda x: x.list_versions(), "fetch": lambda x: x.fetch(["a"])}[mode]
+    with pytest.raises(ConnectorError, match="line 1: expected a JSON object"):
+        call(Connector("c", c))
+
+
+def test_a_whole_number_written_with_a_decimal_point_is_a_valid_count(tmp_path):
+    c = cmd(tmp_path, 'print(\'{"ok": true, "count": 3.0}\')')
+    assert Connector("c", c).check() == 3
+    c = cmd(tmp_path, 'print(\'{"ok": true, "count": 3.5}\')')
+    with pytest.raises(ConnectorError, match="count"):
+        Connector("c", c).check()
+
+
 def test_timeout_also_kills_children_the_connector_started(tmp_path):
     # a shell wrapper that forks: killing only the shell would leave the child holding the pipe open
     c = ["sh", "-c", f"{sys.executable} -c 'import time; time.sleep(8)'; true"]

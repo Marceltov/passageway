@@ -99,17 +99,6 @@ items:
       - the tool's `instance` argument becomes `source`;
       - configuration moves to `passageway.toml`.
 
-  - id: decide-transport
-    status: decide
-    when: Decide
-    icon: help-circle-outline
-    title: JSON Lines or gRPC?
-    summary: Settle the transport before the protocol is frozen at v1, for connectors and for embedders, in an ADR.
-    links:
-      - {label: "#13", url: "https://github.com/Marceltov/passageway/issues/13"}
-    details: |
-      Why a subprocess with JSON Lines, what it costs, and the alternatives (a JSON Schema, a long-running mode, gRPC, HTTP) are written up in the issue. The deliverable is an ADR.
-
   - id: decide-sdk
     status: decide
     when: Decide
@@ -122,6 +111,16 @@ items:
       A small package with almost no dependencies that handles the modes, the input ids, the all-or-nothing output and the exit codes. The Wikipedia connector would be its first user.
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: decide-transport
+    status: done
+    date: 2026-10-28
+    icon: check-circle-outline
+    title: JSON Lines stays, with a JSON Schema
+    summary: The transport is settled before the protocol is frozen at v1. JSON Lines over a subprocess stays for connectors and embedders, with a published schema.
+    links:
+      - {label: "ADR 0003", url: "https://passageway.marceltov.de/adr/0003-json-lines-over-a-subprocess-stays/"}
+      - {label: "PR #26", url: "https://github.com/Marceltov/passageway/pull/26"}
+
   - id: agent-entry-points
     status: done
     date: 2026-10-28

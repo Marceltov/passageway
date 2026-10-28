@@ -14,7 +14,7 @@ dependencies = ["httpx>=0.28.1"]
 packages = ["passageway_connector_wikipedia"]
 
 [dependency-groups]
-dev = ["pytest>=8.3", "passageway"]
+dev = ["jsonschema>=4.23", "pytest>=8.3", "passageway"]
 
 [tool.uv.sources]
 passageway = { workspace = true }

@@ -73,6 +73,7 @@ class Syncer:
 
     def full_build(self) -> None:
         def work():
+            self.connector.check()  # once per start: refuses a connector that speaks another protocol version
             remote = self.connector.list_versions()  # list before reset: during an outage the old index keeps serving
             self.index.reset()
             return self._fetch_and_apply(list(remote))

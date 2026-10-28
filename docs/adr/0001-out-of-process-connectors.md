@@ -25,7 +25,7 @@ passageway must index many kinds of sources (notes, wikis, document stores) with
 
 ## Decision Outcome
 
-Chosen option: "out-of-process executables that print JSON Lines", because it is the only option that gives language independence, process isolation and a single mechanism for bundled and third-party connectors at the cost of one process start per call.
+Chosen option: "out-of-process executables that print JSON Lines" (the transport is weighed against gRPC and others in [ADR 0003](0003-json-lines-over-a-subprocess-stays.md)), because it is the only option that gives language independence, process isolation and a single mechanism for bundled and third-party connectors at the cost of one process start per call.
 
 The core runs `<command> <mode>` for `check`, `list`, `fetch` and `changed`. Each call starts with an empty environment plus the connector's own settings and the secrets it names, reads one JSON object per line, and stores nothing unless the process exits successfully. A timeout kills the connector's whole process group. A reconcile that would delete more than a configured share of a source is refused.
 

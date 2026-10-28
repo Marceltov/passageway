@@ -13,7 +13,7 @@ def main(argv: list[str]) -> int:
     with open(os.environ["FAKE_ITEMS"]) as f:
         items = json.load(f)
     if mode == "check":
-        print(json.dumps({"ok": True, "count": len(items)}))
+        print(json.dumps({"ok": True, "count": len(items), "protocol": os.environ.get("FAKE_PROTOCOL", "1")}))
     elif mode == "list":
         for item in items:
             print(json.dumps({"id": item["id"], "version": item["version"]}))

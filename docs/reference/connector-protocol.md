@@ -1,12 +1,12 @@
 # Connector protocol
 
-A connector is any executable that lists items and returns their text as JSON Lines. passageway runs it, indexes the result and never needs to know the source. This page is the protocol reference (v1).
+A connector is any executable that lists items and returns their text as JSON Lines. passageway runs it, indexes the result and never needs to know the source. This page is the protocol reference (v1). A machine-readable version of the messages is the [JSON Schema](connector-protocol.schema.json); validate a connector's output against it from any language.
 
 The core runs `<command> <mode>`. stdout is one JSON object per line. stderr goes to the log with secrets masked. A non-zero exit fails the call.
 
 | Mode | Input | Output |
 |---|---|---|
-| `check` | none | `{"ok": true, "count": 42}` |
+| `check` | none | `{"ok": true, "count": 42}`, optionally with `"protocol": "1"` (a connector that names another version is refused) |
 | `list` | none | `{"id", "version"}` for every existing item |
 | `fetch` | `{"id"}` lines on stdin | an item record per requested id that still exists |
 | `changed --since <UTC ISO>` | none | an item record per item changed since then; optional, a connector that cannot answer cheaply prints nothing and its edits appear at the next reconcile |
