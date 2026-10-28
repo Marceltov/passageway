@@ -25,6 +25,7 @@ nav:
       - Wikipedia: connectors/wikipedia.md
   - Contributing:
       - Development: development.md
+      - Roadmap: roadmap.md
   - Decisions:
       - adr/0001-out-of-process-connectors.md
       - adr/0002-connectors-as-workspace-packages.md
@@ -77,7 +78,7 @@ plugins:
         Guides: ["guides/*.md"]
         Reference: ["reference/*.md"]
         Connectors: ["connectors/*.md"]
-        Contributing: [development.md]
+        Contributing: [development.md, roadmap.md]
         Decisions: ["adr/*.md"]
 
 markdown_extensions:
