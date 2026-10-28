@@ -46,7 +46,7 @@ See [Connectors](connectors.md) for what a connector prints.
 
 ## Rebuilding a source
 
-Each source is one file, `<data dir>/<name>.db`, and it can always be rebuilt from the connector: stop the server, delete the file, start it again. Do this after changing the embedding model, after removing a connector from the config (its items stay searchable until then), and when the deletion guard keeps refusing a legitimate bulk delete (it refuses to remove more than `max_delete_fraction` of a source, or all of it, so a source of three items can never lose one).
+Each source is one file, `<data dir>/<name>.db`, and it can always be rebuilt from the connector: stop the server, delete the file, start it again. Do this after changing the embedding model, after removing a connector from the config (its items stay searchable until then), and when the deletion guard keeps refusing a legitimate bulk delete (it refuses to remove more than `max_delete_fraction` of a source, and always allows a single item; it also refuses to empty a source of two or more items).
 
 ## Health
 

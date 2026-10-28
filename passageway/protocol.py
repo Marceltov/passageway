@@ -44,7 +44,7 @@ class Item:
     sections: tuple[Section, ...] = ()
     weight: float = 1.0
     path: tuple[str, ...] = ()
-    links: tuple[tuple[str, str], ...] = ()  # (id, title)
+    links: tuple[str, ...] = ()  # ids of related items
     labels: tuple[str, ...] = ()
     updated: str | None = None
 
@@ -82,17 +82,15 @@ def parse_item(record: dict) -> Item:
     weight = record.get("weight", 1.0)
     if isinstance(weight, bool) or not isinstance(weight, (int, float)) or not 0 <= weight <= 2:
         raise ValueError("'weight' must be a number from 0 to 2")
-    links = []
-    for link in record.get("links", []):
-        if not isinstance(link, dict):
-            raise ValueError("a link must be an object")
-        links.append((_str(link, "id", non_empty=True), _str(link, "title")))
+    links = _strings(record, "links")
+    if not all(links):
+        raise ValueError("'links' must not contain empty ids")
     updated = record.get("updated")
     if updated is not None and not isinstance(updated, str):
         raise ValueError("'updated' must be a string")
     return Item(_str(record, "id", non_empty=True), _str(record, "title"), _str(record, "url"),
                 _str(record, "version"), tuple(sections), float(weight), _strings(record, "path"),
-                tuple(links), _strings(record, "labels"), updated)
+                links, _strings(record, "labels"), updated)
 
 
 class Connector:
@@ -170,7 +168,7 @@ class Connector:
         proc = subprocess.Popen([*self._command, *args], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE, env=env, start_new_session=True)
         timed_out = threading.Event()
-        timer = threading.Timer(self._timeout, lambda: (timed_out.set(), _kill(proc)))
+        timer = threading.Timer(self._timeout, lambda: None if proc.poll() is not None else (timed_out.set(), _kill(proc)))
         tail: deque[str] = deque(maxlen=_STDERR_LINES)
 
         def drain_stderr() -> None:
@@ -193,10 +191,10 @@ class Connector:
             t.start()
         try:
             total = number = 0
-            for raw in iter(lambda: proc.stdout.readline(self._max_line + 1), b""):
+            for raw in iter(lambda: proc.stdout.readline(self._max_line + 2), b""):
                 number += 1
                 total += len(raw)
-                if len(raw) > self._max_line:
+                if len(raw.rstrip(b"\r\n")) > self._max_line:  # the limit is on content, not the newline
                     raise self._fail(f"line {number} is longer than {self._max_line} bytes")
                 if total > self._max_output:
                     raise self._fail(f"more than {self._max_output} bytes of output")
@@ -214,7 +212,7 @@ class Connector:
                 proc.wait()
             for t in threads:
                 t.join(timeout=5)
-        if timed_out.is_set():
+        if timed_out.is_set() and proc.returncode != 0:  # a call that finished first is not a timeout
             raise self._fail(f"{args[0]} timed out after {self._timeout:g} s")
         if proc.returncode != 0:
             raise self._fail(f"{args[0]} exited with status {proc.returncode}: {' | '.join(tail)}")

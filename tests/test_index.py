@@ -66,3 +66,19 @@ def test_changed_embedder_requires_rebuild(tmp_path, emb):
     assert other.needs_rebuild()
     other.reset()
     assert other.counts() == (0, 0) and not other.needs_rebuild()
+
+
+def test_a_failed_write_rolls_back_and_the_index_stays_usable(idx, emb, monkeypatch):
+    put(idx, emb, rec("a"), "text a")
+    original = idx._delete_sections
+
+    def boom(item_id):
+        raise RuntimeError("disk full")
+
+    monkeypatch.setattr(idx, "_delete_sections", boom)
+    with pytest.raises(RuntimeError):
+        idx.delete_item("a")
+    monkeypatch.setattr(idx, "_delete_sections", original)
+    assert idx.versions() == {"a": "1"}  # nothing was half-deleted
+    idx.delete_item("a")  # would fail with "cannot start a transaction within a transaction" without a rollback
+    assert idx.versions() == {}

@@ -3,6 +3,7 @@
 Fully rebuildable from the connector, so deleting the file is always safe.
 """
 
+import contextlib
 import json
 import re
 import sqlite3
@@ -88,15 +89,26 @@ class Index:
         if not self._stored_meta():
             self._create()
 
+    @contextlib.contextmanager
+    def _tx(self):
+        """One transaction under the lock: commit on success, roll back on any error."""
+        with self.lock:
+            self._db.execute("BEGIN")
+            try:
+                yield
+            except BaseException:
+                self._db.execute("ROLLBACK")
+                raise
+            self._db.execute("COMMIT")
+
     # -- schema ------------------------------------------------------------------------------
 
     def _stored_meta(self) -> dict[str, str]:
         return dict(self._db.execute("SELECT key, value FROM meta").fetchall())
 
     def _create(self) -> None:
-        with self.lock:
+        with self._tx():
             db = self._db
-            db.execute("BEGIN")
             for table in ("items", "sections", "links", "sections_fts", "sections_vocab", "sections_vec"):
                 db.execute(f"DROP TABLE IF EXISTS {table}")
             db.execute("""CREATE TABLE items (item_id TEXT PRIMARY KEY, title TEXT, url TEXT, version TEXT,
@@ -114,7 +126,6 @@ class Index:
                            embedding float[{self._dim}] distance_metric=cosine)""")
             db.execute("DELETE FROM meta")
             db.executemany("INSERT INTO meta VALUES (?, ?)", self._meta.items())
-            db.execute("COMMIT")
 
     def needs_rebuild(self) -> bool:
         return self._stored_meta() != self._meta
@@ -133,36 +144,28 @@ class Index:
 
     def upsert_item(self, rec: ItemRecord, chunks: list[Chunk], vectors: np.ndarray) -> None:
         assert len(chunks) == len(vectors)
-        with self.lock:
-            self._db.execute("BEGIN")
-            try:
-                self._delete_sections(rec.item_id)
-                self._db.execute("INSERT OR REPLACE INTO items VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                                 (rec.item_id, rec.title, rec.url, rec.version, rec.weight,
-                                  json.dumps(rec.path), json.dumps(rec.labels), rec.updated))
-                self._db.execute("DELETE FROM links WHERE src = ?", (rec.item_id,))
-                self._db.executemany("INSERT INTO links VALUES (?, ?)", [(rec.item_id, dst) for dst in rec.links])
-                for chunk, vector in zip(chunks, vectors):
-                    cur = self._db.execute(
-                        "INSERT INTO sections (item_id, ordinal, heading, text) VALUES (?, ?, ?, ?)",
-                        (rec.item_id, chunk.ordinal, chunk.heading, chunk.text))
-                    sid = cur.lastrowid
-                    self._db.execute("INSERT INTO sections_fts (rowid, title, heading, text) VALUES (?, ?, ?, ?)",
-                                     (sid, rec.title, chunk.heading, chunk.text))
-                    self._db.execute("INSERT INTO sections_vec (rowid, embedding) VALUES (?, ?)",
-                                     (sid, sqlite_vec.serialize_float32(np.asarray(vector, dtype=np.float32))))
-                self._db.execute("COMMIT")
-            except BaseException:
-                self._db.execute("ROLLBACK")
-                raise
+        with self._tx():
+            self._delete_sections(rec.item_id)
+            self._db.execute("INSERT OR REPLACE INTO items VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                             (rec.item_id, rec.title, rec.url, rec.version, rec.weight,
+                              json.dumps(rec.path), json.dumps(rec.labels), rec.updated))
+            self._db.execute("DELETE FROM links WHERE src = ?", (rec.item_id,))
+            self._db.executemany("INSERT INTO links VALUES (?, ?)", [(rec.item_id, dst) for dst in rec.links])
+            for chunk, vector in zip(chunks, vectors):
+                cur = self._db.execute(
+                    "INSERT INTO sections (item_id, ordinal, heading, text) VALUES (?, ?, ?, ?)",
+                    (rec.item_id, chunk.ordinal, chunk.heading, chunk.text))
+                sid = cur.lastrowid
+                self._db.execute("INSERT INTO sections_fts (rowid, title, heading, text) VALUES (?, ?, ?, ?)",
+                                 (sid, rec.title, chunk.heading, chunk.text))
+                self._db.execute("INSERT INTO sections_vec (rowid, embedding) VALUES (?, ?)",
+                                 (sid, sqlite_vec.serialize_float32(np.asarray(vector, dtype=np.float32))))
 
     def delete_item(self, item_id: str) -> None:
-        with self.lock:
-            self._db.execute("BEGIN")
+        with self._tx():
             self._delete_sections(item_id)
             self._db.execute("DELETE FROM items WHERE item_id = ?", (item_id,))
             self._db.execute("DELETE FROM links WHERE src = ?", (item_id,))
-            self._db.execute("COMMIT")
 
     # -- reads -------------------------------------------------------------------------------
 

@@ -9,8 +9,8 @@ def test_skips(p):
     assert should_skip(p)
 
 
-@pytest.mark.parametrize("p", ["fix CT 115 swap", "vmbr0?", "Why is Trilium slow", "wie war das mit dem Gewerbe?",
-                               "restart authentik", "ok so how do backups of trilium work again", "check the karakeep-sync"])
+@pytest.mark.parametrize("p", ["fix CT 115 swap", "vmbr0?", "Why is Grafana slow", "wie war das mit dem Gewerbe?",
+                               "restart authentik", "ok so how do backups of grafana work again", "check the karakeep-sync"])
 def test_recalls(p):
     assert should_skip(p) is None
 

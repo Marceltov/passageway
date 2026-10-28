@@ -36,8 +36,7 @@ class Syncer:
 
     # -- applying ----------------------------------------------------------------------------
 
-    def _apply(self, items: list[Item]) -> int:
-        known = self.index.versions()
+    def _apply(self, items: list[Item], known: dict[str, str]) -> int:
         changed = 0
         for item in items:
             if known.get(item.id) == item.version:
@@ -46,13 +45,15 @@ class Syncer:
             vectors = self.embedder.embed_passages([passage_text(item, c) for c in parts])
             self.index.upsert_item(
                 ItemRecord(item.id, item.title, item.url, item.version, item.weight, list(item.path),
-                           list(item.labels), item.updated, [link_id for link_id, _ in item.links]),
+                           list(item.labels), item.updated, list(item.links)),
                 parts, vectors)
             changed += 1
         return changed
 
     def _fetch_and_apply(self, ids: list[str]) -> int:
-        return sum(self._apply(self.connector.fetch(ids[i:i + FETCH_BATCH])) for i in range(0, len(ids), FETCH_BATCH))
+        known = self.index.versions()  # once: the batches are disjoint, so it cannot go stale between them
+        return sum(self._apply(self.connector.fetch(ids[i:i + FETCH_BATCH]), known)
+                   for i in range(0, len(ids), FETCH_BATCH))
 
     def _guarded(self, work) -> int:
         started = datetime.now(UTC)
@@ -82,7 +83,8 @@ class Syncer:
             remote = self.connector.list_versions()
             known = self.index.versions()
             gone = set(known) - set(remote)
-            if gone and (len(gone) == len(known) or len(gone) / len(known) > self._max_delete):
+            # One item is never a bulk delete; losing everything from a source of two or more is.
+            if gone and (len(gone) > max(1, self._max_delete * len(known)) or (len(gone) == len(known) > 1)):
                 raise ConnectorError(f"refusing to delete {len(gone)} of {len(known)} items: "
                                      f"the listing looks incomplete")
             changed = self._fetch_and_apply([i for i, v in remote.items() if known.get(i) != v])
@@ -95,4 +97,4 @@ class Syncer:
         if self._cursor is None:
             return self.reconcile()
         since = self._cursor - POLL_MARGIN
-        return self._guarded(lambda: self._apply(self.connector.changed(since)))
+        return self._guarded(lambda: self._apply(self.connector.changed(since), self.index.versions()))

@@ -116,3 +116,30 @@ def test_any_failure_is_recorded_and_never_raised(world, idx, monkeypatch):
 
     monkeypatch.setattr(idx, "versions", boom)
     assert s.poll() == 0 and "disk I/O error" in s.status.last_error
+
+
+def test_small_sources_can_lose_one_item_but_not_everything(world, idx):
+    world.set(items("a", "b", "c"))
+    s = syncer(world, idx)
+    s.full_build()
+    world.set(items("a", "b"))  # 1 of 3 is above 30 %, but one item is never a bulk delete
+    assert s.reconcile() == 1 and set(idx.versions()) == {"a", "b"}
+    world.set([])  # all of a source with two or more items is refused
+    assert s.reconcile() == 0 and set(idx.versions()) == {"a", "b"} and "refus" in s.status.last_error
+
+
+def test_a_single_item_source_can_lose_its_item(world, idx):
+    world.set(items("a"))
+    s = syncer(world, idx)
+    s.full_build()
+    world.set([])
+    assert s.reconcile() == 1 and idx.versions() == {} and s.status.last_error is None
+
+
+def test_a_full_build_loads_the_version_map_once_not_per_batch(world, idx, monkeypatch):
+    world.set(items(*[f"i{n}" for n in range(120)]))  # three fetch batches
+    calls = []
+    original = idx.versions
+    monkeypatch.setattr(idx, "versions", lambda: calls.append(1) or original())
+    syncer(world, idx).full_build()
+    assert len(calls) == 1 and len(original()) == 120

@@ -21,16 +21,16 @@ ITEM = {"id": "a", "title": "T", "url": "http://x/a", "version": "1",
 
 def test_parse_item_minimal_and_full():
     assert parse_item(ITEM) == Item("a", "T", "http://x/a", "1", (Section("H", "body"),))
-    full = {**ITEM, "weight": 0.8, "path": ["P"], "links": [{"id": "z", "title": "Z"}],
+    full = {**ITEM, "weight": 0.8, "path": ["P"], "links": ["z"],
             "labels": ["l"], "updated": "2026-10-28T09:00:00Z"}
     assert parse_item(full) == Item("a", "T", "http://x/a", "1", (Section("H", "body"),), 0.8, ("P",),
-                                    (("z", "Z"),), ("l",), "2026-10-28T09:00:00Z")
+                                    ("z",), ("l",), "2026-10-28T09:00:00Z")
 
 
 @pytest.mark.parametrize("bad", [
     {**ITEM, "id": ""}, {**ITEM, "version": 1}, {**ITEM, "sections": "x"},
     {**ITEM, "sections": [{"heading": "H"}]}, {**ITEM, "weight": 3}, {**ITEM, "weight": True},
-    {**ITEM, "path": "P"}, {**ITEM, "links": [{"id": "z"}]}, [], {k: v for k, v in ITEM.items() if k != "url"},
+    {**ITEM, "path": "P"}, {**ITEM, "links": [{"id": "z"}]}, {**ITEM, "links": [""]}, [], {k: v for k, v in ITEM.items() if k != "url"},
 ])
 def test_parse_item_rejects(bad):
     with pytest.raises(ValueError):
@@ -156,3 +156,27 @@ def test_timeout_also_kills_children_the_connector_started(tmp_path):
     with pytest.raises(ConnectorError, match="timed out"):
         Connector("c", c, timeout=0.5).list_versions()
     assert time.monotonic() - started < 4
+
+
+def test_a_line_of_exactly_the_limit_is_allowed_and_one_byte_more_is_not(tmp_path):
+    line = json.dumps({"id": "a", "version": "1"})  # 24 characters
+    c = cmd(tmp_path, f"print({line!r})")
+    assert Connector("c", c, max_line_bytes=len(line)).list_versions() == {"a": "1"}
+    with pytest.raises(ConnectorError, match="longer than"):
+        Connector("c", c, max_line_bytes=len(line) - 1).list_versions()
+
+
+def test_a_call_that_finishes_just_before_the_timer_fires_is_not_reported_as_timed_out(tmp_path, monkeypatch):
+    class LateTimer:  # fires between the process ending and cancel()
+        def __init__(self, interval, fn):
+            self.fn = fn
+
+        def start(self):
+            pass
+
+        def cancel(self):
+            self.fn()
+
+    monkeypatch.setattr("passageway.protocol.threading.Timer", LateTimer)
+    c = cmd(tmp_path, 'import json; print(json.dumps({"id": "a", "version": "1"}))')
+    assert Connector("c", c).list_versions() == {"a": "1"}

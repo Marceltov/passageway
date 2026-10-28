@@ -16,17 +16,17 @@ Item record:
 ```json
 {"id": "abc", "title": "Rotating certificates", "url": "https://…", "version": "3f2a",
  "sections": [{"heading": "Steps", "text": "Rotate the signing cert every year…"}],
- "weight": 1.0, "path": ["Ops", "Security"], "links": [{"id": "def", "title": "TLS setup"}],
+ "weight": 1.0, "path": ["Ops", "Security"], "links": ["def"],
  "labels": ["decision"], "updated": "2026-10-28T09:00:00Z"}
 ```
 
 - Required: `id`, `title`, `url`, `version`, `sections` (may be empty; a section has optional `heading` and required `text`).
-- Optional: `weight` (multiplier on the ranking score, default 1.0), `path` (breadcrumb), `links` (related items shown with a hit), `labels` (short tags), `updated`.
+- Optional: `weight` (multiplier on the ranking score, default 1.0), `path` (breadcrumb), `links` (ids of related items, shown with a hit when they are indexed), `labels` (short tags), `updated`.
 - The core builds the embedded text as `title › path › heading: text` and splits any section over a size cap at paragraph boundaries, so a connector cannot send an oversize section.
 - `version` is any string that changes when the content changes; the core fetches only items whose version differs.
 - The connector receives an empty environment plus `PATH`, `HOME`, `PASSAGEWAY_PROTOCOL=1`, its `env` table and its named secrets. It never sees the core's password or another connector's secrets.
 - A call succeeds completely or stores nothing.
-- `list` decides deletions. The deletion guard refuses to remove more than 30 % of a source (configurable) or all of it, and reports an error instead.
+- `list` decides deletions. The deletion guard refuses to remove more than 30 % of a source (configurable, and never less than one item) or all of a source that has two or more items, and reports an error instead.
 - A failing connector never stops other sources; its already indexed items stay searchable. Line size, call size and timeout have configurable defaults.
 
 ## Try it
