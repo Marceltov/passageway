@@ -206,3 +206,29 @@ def test_connector_names_are_described_as_the_config_checks_them():
 
 def test_the_release_step_names_say_what_they_check():
     assert "Tag matches pyproject.toml" not in (ROOT / ".github" / "workflows" / "release.yml").read_text()
+
+
+# ---- the links in the header bar -----------------------------------------------------------------
+
+def test_the_agent_links_sit_in_the_header_before_the_theme_toggle_and_the_search():
+    config = yaml.load((ROOT / "mkdocs.yml").read_text(), Loader=_Loader)
+    assert config["theme"]["custom_dir"] == "overrides"
+    header = (ROOT / "overrides" / "partials" / "header.html").read_text()
+    block = header.index('class="pw-header-links"')  # the element, not the comment that explains it
+    assert header.index("md-header__title") < block < header.index("partials/palette.html") < header.index("partials/search.html")
+    assert "SKILL.md" in header and "llms-full.txt" in header
+    assert "config.site_url" in header, "the links come from site_url, not a hard-coded host"
+
+
+def test_the_header_copy_names_the_material_version_it_was_copied_from_and_it_is_the_pinned_one():
+    header = (ROOT / "overrides" / "partials" / "header.html").read_text()
+    copied = re.search(r"mkdocs-material (\d+\.\d+\.\d+)", header)
+    assert copied, "the override must say which Material version it was copied from"
+    for workflow in (".github/workflows/pages.yml", ".github/workflows/checks.yml"):
+        pinned = re.search(r"mkdocs-material==(\d+\.\d+\.\d+)", (ROOT / workflow).read_text()).group(1)
+        assert copied.group(1) == pinned, f"{workflow} pins Material {pinned}, the header copy is from {copied.group(1)}"
+
+
+def test_the_stylesheet_hides_the_links_where_the_header_has_no_room():
+    css = (ROOT / "docs" / "stylesheets" / "extra.css").read_text()
+    assert ".pw-header-links" in css and "min-width" in css.split(".pw-header-links", 1)[1]

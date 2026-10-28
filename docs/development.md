@@ -24,6 +24,8 @@ uvx --with mkdocs-material==9.7.7 --with mkdocs-llmstxt==0.5.1 --with 'mkdocs<2'
 uvx --with mkdocs-material==9.7.7 --with mkdocs-llmstxt==0.5.1 --with 'mkdocs<2' mkdocs build --strict   # what CI runs
 ```
 
+The header bar has two extra links for AI agents (`SKILL.md` and `llms-full.txt`). Material has no setting for that, so `overrides/partials/header.html` is a copy of Material's own header template with one block added. When you change the pinned Material version, copy the new `header.html` from the package and re-add the block; a test fails if the version in the copy and the pinned one differ.
+
 ## Changes
 
 Every change starts from an issue and goes through a pull request; the CI build must pass, including the strict docs build. Decisions that future contributors will ask about get an ADR in `docs/adr/`.
