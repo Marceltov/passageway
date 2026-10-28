@@ -17,7 +17,7 @@ passageway indexes what **connectors** report and serves the best few passages f
 |---|---|
 | **Understand what passageway is** | Explain it from this page; point to https://passageway.marceltov.de/how-it-works/ for the details. |
 | **Install and run it** | Follow [Install and run](#install-and-run). |
-| **Index a source** | Check whether a bundled connector fits (today: Wikipedia, https://passageway.marceltov.de/connectors/wikipedia/). Otherwise write one. |
+| **Index a source** | Check whether a bundled connector fits (today: Wikipedia, https://passageway.marceltov.de/connectors/wikipedia/, and a folder of markdown files, https://passageway.marceltov.de/connectors/markdown/). Otherwise write one. |
 | **Write a connector** | Use the skill `create-passageway-connector`: https://passageway.marceltov.de/skills/create-passageway-connector/SKILL.md (or install the plugin, see below). |
 | **Fix something that does not work** | Start with `curl http://127.0.0.1:8082/health`, see [Tips for agents](#tips-for-agents). |
 | **Measure retrieval quality, run it in a container, install a prompt hook** | A full evaluation harness, a container image and a plugin that installs the prompt hook are planned and **not available yet**; say so. What exists today: a basic scorer, `python -m passageway.eval`, and the `POST /recall` hook endpoint (https://passageway.marceltov.de/how-it-works/#the-hook-endpoint). |

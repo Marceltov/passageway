@@ -27,6 +27,7 @@ nav:
       - Connector SDK: reference/sdk.md
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
+      - Markdown: connectors/markdown.md
   - Contributing:
       - Development: development.md
       - Roadmap: roadmap.md

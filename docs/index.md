@@ -40,6 +40,7 @@ flowchart LR
 
 - The [connector protocol](reference/connector-protocol.md) and a [guide to writing a connector](guides/write-a-connector.md)
 - The [Wikipedia connector](connectors/wikipedia.md), in English and German
+- The [Markdown connector](connectors/markdown.md), for a folder of markdown files with front matter
 - Hybrid search with a relevance gate, described in [How it works](how-it-works.md)
 
 ## Coming

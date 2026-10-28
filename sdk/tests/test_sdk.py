@@ -273,3 +273,24 @@ def test_fetch_may_only_return_requested_ids():
 
 def test_the_usage_message_names_the_program():
     assert "prog" in call(Demo, "bogus")[2]
+
+
+def test_warnings_go_to_stderr_and_do_not_fail_the_call():
+    class Warns(Demo):
+        def versions(self):
+            self.warn("skipped notes/big.md: larger than 1 MiB")
+            return super().versions()
+
+    code, records, err = call(Warns, "list")
+    assert code == 0 and len(records) == 2
+    assert err.strip() == "demo connector: warning: skipped notes/big.md: larger than 1 MiB"
+
+
+def test_warnings_are_also_shown_when_the_call_fails():
+    class WarnsThenFails(Demo):
+        def versions(self):
+            self.warn("odd file")
+            raise SourceError("the source is down")
+
+    code, records, err = call(WarnsThenFails, "list")
+    assert code == 1 and records == [] and "warning: odd file" in err and "the source is down" in err
