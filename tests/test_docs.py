@@ -93,3 +93,32 @@ def test_no_public_file_names_the_work_project():
     offenders = [str(p.relative_to(ROOT)) for p in public
                  if p.is_file() and "superpowers" not in p.parts and needle in p.read_text(errors="ignore").lower()]
     assert not offenders, f"the work project is named in: {offenders}"
+
+
+def test_the_sdk_example_in_the_guide_is_short_and_passes_the_contract(tmp_path):
+    import sys
+
+    from passageway.protocol import Connector
+    from passageway.testing.contract import check_connector
+
+    guide = (ROOT / "docs" / "guides" / "write-a-connector.md").read_text()
+    blocks = re.findall(r"```python\n(.*?)```", guide, re.S)
+    sdk_block = next(b for b in blocks if "passageway_sdk" in b)
+    assert len([line for line in sdk_block.splitlines() if line.strip()]) <= 32  # "a folder connector in about 30 lines"
+    script = tmp_path / "folder_sdk.py"
+    script.write_text(sdk_block)
+    notes = tmp_path / "notes"
+    (notes / "sub").mkdir(parents=True)
+    (notes / "a.txt").write_text("Alpha note about lighthouses.")
+    (notes / "sub" / "b.txt").write_text("Beta note about harbours.")
+    connector = Connector("folder", [sys.executable, str(script)], env={"FOLDER": str(notes)})
+    check_connector(connector)
+    assert {i.title for i in connector.fetch(["a.txt", "sub/b.txt"])} == {"a", "b"}
+
+
+def test_the_sdk_is_versioned_with_the_core_and_documented():
+    import tomllib
+    core = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+    sdk = tomllib.loads((ROOT / "sdk" / "pyproject.toml").read_text())["project"]["version"]
+    assert sdk == core, "the SDK ships with the protocol: bump both together"
+    assert "sdk.md" in (ROOT / "mkdocs.yml").read_text()

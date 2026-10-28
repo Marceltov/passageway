@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "passageway connector for Wikipedia and other MediaWiki sites"
 requires-python = ">=3.12"
 license = "AGPL-3.0-or-later"
-dependencies = ["httpx>=0.28.1"]
+dependencies = ["httpx>=0.28.1", "passageway-sdk"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["passageway_connector_wikipedia"]
@@ -18,3 +18,4 @@ dev = ["jsonschema>=4.23", "pytest>=8.3", "passageway"]
 
 [tool.uv.sources]
 passageway = { workspace = true }
+passageway-sdk = { workspace = true }

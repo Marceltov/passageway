@@ -53,6 +53,8 @@ elif mode == "fetch":
 ```
 
 3. **Adapt it.** Keep the four modes. Choose the id and the version as decided in step 1. Cut an item into sections that are natural units (a heading and its text); passageway splits very long ones itself. Optional fields shape the ranking and the answer: `weight` (a multiplier, default 1.0), `path` (a breadcrumb), `labels`, `links` (ids of related items) and `updated`.
+
+   In Python you can drop the plumbing (mode dispatch, stdin ids, all-or-nothing output, exit codes, item validation) with `passageway-sdk`: subclass `Connector`, implement `versions()` and `fetch(ids)`, call `main()`. The same folder connector with the SDK, the install line and the API are in https://passageway.marceltov.de/guides/write-a-connector/ and https://passageway.marceltov.de/reference/sdk/. Show the user the plain script if they want to see the protocol, and offer the SDK version for Python.
 4. **Test it with the shared contract check.** It runs `check`, `list`, `fetch` and `changed` against your connector and checks the rules below.
 
 ```python

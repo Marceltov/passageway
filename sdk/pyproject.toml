@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "passageway-sdk"
+version = "0.1.0"
+description = "Write a passageway connector as three small functions: the protocol plumbing is done for you"
+requires-python = ">=3.12"
+license = "AGPL-3.0-or-later"
+dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["passageway_sdk"]
+
+[dependency-groups]
+dev = ["pytest>=8.3", "passageway"]
+
+[tool.uv.sources]
+passageway = { workspace = true }

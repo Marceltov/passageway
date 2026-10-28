@@ -36,4 +36,4 @@ Save a list of item records (see above) as `items.json`, then:
     FAKE_ITEMS=items.json python -m passageway.testing.fake_connector list
     FAKE_ITEMS=items.json python -m passageway.testing.fake_connector check
 
-and point a `[[connector]]` at that command in `passageway.toml` (see [Install](../install.md)). To test your own connector, call `passageway.testing.contract.check_connector(Connector("mine", [...]))` from a pytest test: it checks the rules above that a test can check.
+and point a `[[connector]]` at that command in `passageway.toml` (see [Install](../install.md)). In Python, the [SDK](sdk.md) does the plumbing of this protocol for you. To test your own connector, call `passageway.testing.contract.check_connector(Connector("mine", [...]))` from a pytest test: it checks the rules above that a test can check.

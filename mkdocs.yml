@@ -24,6 +24,7 @@ nav:
       - Work with an AI agent: guides/agents.md
   - Reference:
       - Connector protocol: reference/connector-protocol.md
+      - Connector SDK: reference/sdk.md
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
   - Contributing:

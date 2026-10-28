@@ -124,7 +124,9 @@ def test_llmstxt_is_configured_and_covers_every_page_of_the_nav():
 
 # ---- the release check ---------------------------------------------------------------------------
 
-def _mini_repo(tmp_path, pyproject="1.0.0", plugin="1.0.0", skill="1.0.0"):
+def _mini_repo(tmp_path, pyproject="1.0.0", plugin="1.0.0", skill="1.0.0", sdk="1.0.0"):
+    (tmp_path / "sdk").mkdir()
+    (tmp_path / "sdk" / "pyproject.toml").write_text(f'[project]\nname = "s"\nversion = "{sdk}"\n')
     (tmp_path / "pyproject.toml").write_text(f'[project]\nname = "x"\nversion = "{pyproject}"\n')
     (tmp_path / ".claude-plugin").mkdir()
     (tmp_path / ".claude-plugin" / "plugin.json").write_text(json.dumps({"name": "x", "version": plugin}))
@@ -148,6 +150,16 @@ def test_the_release_check_fails_when_the_plugin_or_the_skill_disagrees(tmp_path
     assert bad_plugin.returncode != 0 and "plugin.json" in bad_plugin.stderr
     bad_skill = _check(_mini_repo(tmp_path / "skill", skill="0.9.0"))
     assert bad_skill.returncode != 0 and "SKILL.md" in bad_skill.stderr
+
+
+def test_the_release_check_fails_when_the_sdk_disagrees(tmp_path):
+    bad_sdk = _check(_mini_repo(tmp_path, sdk="0.9.0"))
+    assert bad_sdk.returncode != 0 and "sdk/pyproject.toml" in bad_sdk.stderr
+
+
+def test_the_connector_skill_points_to_the_sdk():
+    text = CONNECTOR.read_text()
+    assert "passageway-sdk" in text and "reference/sdk" in text
 
 
 # ---- review findings: what the skills must say ---------------------------------------------------
