@@ -7,6 +7,12 @@ resolution-markers = [
     "python_full_version < '3.14'",
 ]
 
+[manifest]
+members = [
+    "passageway",
+    "passageway-connector-wikipedia",
+]
+
 [[package]]
 name = "aiofile"
 version = "3.12.3"
@@ -819,6 +825,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "passageway-connector-wikipedia" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
 ]
@@ -839,8 +846,32 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "passageway-connector-wikipedia", editable = "connectors/wikipedia" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-asyncio", specifier = ">=0.24" },
+]
+
+[[package]]
+name = "passageway-connector-wikipedia"
+version = "0.1.0"
+source = { editable = "connectors/wikipedia" }
+dependencies = [
+    { name = "httpx" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "passageway" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "httpx", specifier = ">=0.28.1" }]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "passageway", editable = "." },
+    { name = "pytest", specifier = ">=8.3" },
 ]
 
 [[package]]

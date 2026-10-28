@@ -28,7 +28,7 @@ max_delete_fraction = 0.3       # a reconcile that would delete more than this s
 
 A connector runs with an empty environment (only `PATH` and `HOME`, plus its `env` table and named secrets), so `python` on `PATH` is usually not the interpreter that has passageway installed. For the example above use the tool's own interpreter, `$(uv tool dir)/passageway/bin/python`.
 
-See [Connectors](connectors.md) for what a connector prints.
+See [Connectors](connectors.md) for what a connector prints. Bundled connectors: [Wikipedia](../connectors/wikipedia/README.md).
 
 ## Environment
 
