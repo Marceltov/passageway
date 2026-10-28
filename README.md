@@ -8,6 +8,7 @@ The core knows no source. A connector is any executable that lists items and ret
 - [How it works](docs/how-it-works.md)
 - [Write a connector](docs/guides/write-a-connector.md) and the [connector protocol](docs/reference/connector-protocol.md)
 - Bundled connectors: [Wikipedia](connectors/wikipedia/README.md)
+- For AI agents: [skills and `llms-full.txt`](docs/guides/agents.md); in Claude Code, `/plugin marketplace add Marceltov/passageway` gives you `/create-passageway-connector`
 
 Documentation: the pages in `docs/`, will be published at https://passageway.marceltov.de.
 

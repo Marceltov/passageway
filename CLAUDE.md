@@ -7,7 +7,7 @@ Retrieval for Claude over MCP: connectors (out-of-process programs speaking JSON
 ```bash
 uv sync                                   # the core and every connector package
 uv run pytest -q                          # the whole suite, offline
-uvx --with mkdocs-material==9.7.7 --with 'mkdocs<2' mkdocs build --strict   # the docs, as CI builds them
+uvx --with mkdocs-material==9.7.7 --with mkdocs-llmstxt==0.5.1 --with 'mkdocs<2' mkdocs build --strict   # the docs, as CI builds them
 PASSAGEWAY_LIVE=1 uv run pytest connectors/wikipedia/tests/test_wikipedia_live.py   # opt-in, hits Wikipedia
 ```
 

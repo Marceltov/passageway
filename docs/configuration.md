@@ -9,7 +9,7 @@ Default location `~/.config/passageway/passageway.toml`, or the path in `PASSAGE
 min_similarity = 0.845          # optional: the relevance gate for the model in use
 
 [[connector]]
-name = "notes"                  # a-z, 0-9, _ and -; it names the index file
+name = "notes"                  # starts with a-z or 0-9, then a-z, 0-9, _ or -; it names the index file
 command = ["/path/to/python", "-m", "passageway.testing.fake_connector"]
 env = { FAKE_ITEMS = "/path/to/items.json" }
 secrets = { TOKEN = "env:NOTES_TOKEN" }

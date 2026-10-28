@@ -38,7 +38,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Tag matches pyproject.toml
+      - name: Tag matches the project version
         run: scripts/check-version.sh "$TAG"
 
       - uses: astral-sh/setup-uv@v10.3.3
