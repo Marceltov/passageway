@@ -1,0 +1,125 @@
+/* passageway: teal accent on quiet ink; the header is a hairline, not a coloured bar. */
+
+:root > * {
+  --pw-accent: #0f766e;
+  --pw-warm: #b45309;
+  --pw-ink: #1e293b;
+  --pw-mist: #eef4f3;
+
+  --md-primary-fg-color: #ffffff;
+  --md-primary-fg-color--light: #ffffff;
+  --md-primary-fg-color--dark: #ffffff;
+  --md-primary-bg-color: var(--pw-ink);
+  --md-primary-bg-color--light: #475569;
+  --md-accent-fg-color: var(--pw-warm);
+  --md-typeset-a-color: var(--pw-accent);
+  --md-typeset-color: var(--pw-ink);
+  --md-footer-bg-color: #12211f;
+  --md-footer-bg-color--dark: #0d1a18;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-hue: 175;
+  --pw-accent: #5eead4;
+  --pw-warm: #fbbf77;
+  --pw-ink: #e2e8e6;
+  --pw-mist: hsla(175, 15%, 18%, 1);
+
+  --md-primary-fg-color: hsla(175, 15%, 12%, 1);
+  --md-primary-fg-color--light: hsla(175, 15%, 12%, 1);
+  --md-primary-fg-color--dark: hsla(175, 15%, 12%, 1);
+  --md-primary-bg-color: var(--pw-ink);
+  --md-typeset-a-color: var(--pw-accent);
+  --md-typeset-color: hsla(175, 10%, 88%, 1);
+}
+
+.md-header {
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  box-shadow: none;
+}
+.md-header[data-md-state="shadow"],
+.md-header--shadow {
+  box-shadow: 0 1px 0 var(--md-default-fg-color--lightest);
+}
+.md-search__input {
+  background-color: var(--pw-mist);
+  color: var(--pw-ink);
+}
+.md-search__input::placeholder,
+.md-search__icon {
+  color: var(--md-default-fg-color--light);
+}
+.md-search__input:hover {
+  background-color: var(--pw-mist);
+}
+
+/* The header already names the site; drop the repeat atop the sidebar. */
+@media screen and (min-width: 76.25em) {
+  .md-nav--primary > .md-nav__title {
+    display: none;
+  }
+}
+
+/* Reading rhythm: Atkinson reads best a touch larger and looser. */
+.md-typeset {
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+.md-typeset h1 {
+  color: var(--pw-ink);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.md-typeset h2 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.md-typeset a:focus-visible,
+.md-nav__link:focus-visible {
+  outline: 2px solid var(--pw-warm);
+  outline-offset: 2px;
+}
+
+/* Home page hero. */
+.pw-hero {
+  padding: 1.5rem 0 0.5rem;
+}
+.md-typeset .pw-hero h1 {
+  font-size: 2.4rem;
+  line-height: 1.1;
+  margin: 0.4em 0 0.4em;
+  max-width: 13em;
+  text-wrap: balance;
+}
+.pw-hero__lead {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  max-width: 34em;
+  color: var(--md-default-fg-color--light);
+}
+.md-typeset .pw-hero .md-button {
+  margin: 0.3rem 0.4rem 0.3rem 0;
+}
+.md-typeset .md-button {
+  color: var(--pw-accent);
+  border-color: currentColor;
+}
+.md-typeset .md-button--primary {
+  background-color: var(--pw-accent);
+  border-color: var(--pw-accent);
+  color: #ffffff;
+}
+[data-md-color-scheme="slate"] .md-typeset .md-button--primary {
+  color: #0b1f1c;
+}
+.md-typeset .md-button--primary:hover,
+.md-typeset .md-button--primary:focus {
+  background-color: var(--pw-warm);
+  border-color: var(--pw-warm);
+}
+
+@media screen and (max-width: 44.9375em) {
+  .md-typeset .pw-hero h1 {
+    font-size: 1.8rem;
+  }
+}

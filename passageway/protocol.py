@@ -1,4 +1,4 @@
-"""Runs connectors: executables that print JSON Lines on stdout (docs/connectors.md)."""
+"""Runs connectors: executables that print JSON Lines on stdout (docs/reference/connector-protocol.md)."""
 
 import json
 import logging

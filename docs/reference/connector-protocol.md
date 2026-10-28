@@ -1,4 +1,4 @@
-# Connectors
+# Connector protocol
 
 A connector is any executable that lists items and returns their text as JSON Lines. passageway runs it, indexes the result and never needs to know the source. This page is the protocol reference (v1).
 
@@ -36,4 +36,4 @@ Save a list of item records (see above) as `items.json`, then:
     FAKE_ITEMS=items.json python -m passageway.testing.fake_connector list
     FAKE_ITEMS=items.json python -m passageway.testing.fake_connector check
 
-and point a `[[connector]]` at that command in `passageway.toml` (see [Install](install.md)). To test your own connector, call `passageway.testing.contract.check_connector(Connector("mine", [...]))` from a pytest test: it checks the rules above that a test can check.
+and point a `[[connector]]` at that command in `passageway.toml` (see [Install](../install.md)). To test your own connector, call `passageway.testing.contract.check_connector(Connector("mine", [...]))` from a pytest test: it checks the rules above that a test can check.
