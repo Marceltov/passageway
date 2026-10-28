@@ -85,10 +85,15 @@ class Connector:
     @classmethod
     def run(cls, argv: list[str], env: Mapping[str, str], stdin: TextIO, stdout: TextIO, stderr: TextIO,
             **options) -> int:
-        """Run one mode and return the exit code. Output is written only if everything succeeded."""
+        """Run one mode and return the exit code. Output is written only if everything succeeded.
+
+        A SettingsError gives 2, a SourceError or an expected error 1. Any other exception is a bug in the connector and
+        propagates (the process then exits 1 with a traceback); nothing has been written by then either.
+        """
         mode = argv[1] if len(argv) > 1 else ""
         if mode not in MODES.split("|"):
-            print(f"usage: {MODES} (changed takes --since <UTC time>)", file=stderr)
+            print(f"usage: {os.path.basename(argv[0]) if argv else 'connector'} {MODES} (changed takes --since <UTC time>)",
+                  file=stderr)
             return 2
         since = None
         if mode == "changed" and cls.changed is not Connector.changed:  # a connector without `changed` has no use for the time
@@ -114,11 +119,21 @@ class Connector:
 
     def _lines(self, mode: str, stdin: TextIO, since: datetime | None) -> list[str]:
         if mode == "check":
-            return [_line({"ok": True, "count": self.count(), "protocol": PROTOCOL})]
+            count = self.count()
+            if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+                raise SourceError(f"count() must return a whole number from 0, got {count!r}")
+            return [_line({"ok": True, "count": count, "protocol": PROTOCOL})]
         if mode == "list":
-            return [_line({"id": i, "version": v}) for i, v in self.versions().items()]
-        items = self.fetch(_ids(stdin)) if mode == "fetch" else self.changed(since)
-        return [_line(_valid(item)) for item in items]
+            return [_line(_listed(i, v)) for i, v in self.versions().items()]
+        if mode == "changed":
+            return [_line(_valid(item)) for item in self.changed(since)]
+        ids = _ids(stdin)
+        lines = []
+        for item in self.fetch(ids):
+            if _valid(item)["id"] not in ids:
+                raise SourceError(f"fetch returned {item['id']!r}, which was not requested")
+            lines.append(_line(item))
+        return lines
 
 
 def _line(record: dict) -> str:
@@ -134,11 +149,20 @@ def _valid(item: object) -> dict:
     return item
 
 
+def _listed(item_id: object, version: object) -> dict:
+    if not (isinstance(item_id, str) and item_id and isinstance(version, str)):
+        raise SourceError(f"invalid list entry {item_id!r}: an id is a non-empty string and a version a string")
+    return {"id": item_id, "version": version}
+
+
 def _ids(stdin: TextIO) -> list[str]:
     try:
-        return [json.loads(line)["id"] for line in stdin if line.strip()]
+        ids = [json.loads(line)["id"] for line in stdin if line.strip()]
+        if not all(isinstance(i, str) and i for i in ids):
+            raise ValueError
+        return ids
     except (ValueError, KeyError, TypeError):
-        raise SourceError("fetch expects one JSON object with an 'id' per line on stdin") from None
+        raise SourceError("fetch expects one JSON object per line on stdin, each with a non-empty string 'id'") from None
 
 
 def _since(argv: list[str]) -> datetime:

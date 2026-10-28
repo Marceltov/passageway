@@ -124,3 +124,8 @@ def test_redirect_pages_in_a_category_are_not_listed_counted_or_fetched(env, wik
     assert sorted(r["id"] for r in call(env, "list")[1]) == ["1", "2"]
     assert call(env, "check")[1] == [{"ok": True, "count": 2, "protocol": "1"}]  # check and list must agree
     assert call(env, "fetch", '{"id": "20"}\n')[1] == []
+
+
+def test_a_fetch_id_that_is_not_a_string_is_an_error_not_a_crash(env):
+    code, records, err = call(env, "fetch", '{"id": 1}\n')
+    assert code == 1 and records == [] and "fetch expects" in err

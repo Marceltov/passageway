@@ -234,3 +234,42 @@ def test_main_exits_with_the_code_as_a_real_process(tmp_path):
     run = subprocess.run([sys.executable, str(script), "list"], capture_output=True, text=True,
                          env={"PATH": "/usr/bin", "FOLDER": str(tmp_path / "missing")})
     assert run.returncode == 2 and run.stdout == "" and "FOLDER must be an existing folder" in run.stderr
+
+
+@pytest.mark.parametrize("line", ['{"id": 1}', '{"id": null}', '{"id": ""}', '[]', '{"name": "a"}'])
+def test_fetch_ids_must_be_non_empty_strings(line):
+    code, records, err = call(Demo, "fetch", stdin=line + "\n")
+    assert code == 1 and records == [] and "fetch expects" in err
+
+
+@pytest.mark.parametrize("versions", [{"": "1"}, {2: "1"}, {"a": 3}, {"a": None}])
+def test_list_entries_are_validated_like_the_core_does(versions):
+    class Listing(Demo):
+        def versions(self):
+            return versions
+
+    code, records, err = call(Listing, "list")
+    assert code == 1 and records == [] and "invalid" in err
+
+
+@pytest.mark.parametrize("count", [-1, 1.5, "3", True, None])
+def test_a_custom_count_must_be_a_whole_number_from_zero(count):
+    class Counting(Demo):
+        def count(self):
+            return count
+
+    code, records, err = call(Counting, "check")
+    assert code == 1 and records == [] and "count" in err
+
+
+def test_fetch_may_only_return_requested_ids():
+    class Greedy(Demo):
+        def fetch(self, ids):
+            yield {**ITEM, "id": "zzz"}
+
+    code, records, err = call(Greedy, "fetch", stdin='{"id": "a"}\n')
+    assert code == 1 and records == [] and "zzz" in err and "not requested" in err
+
+
+def test_the_usage_message_names_the_program():
+    assert "prog" in call(Demo, "bogus")[2]

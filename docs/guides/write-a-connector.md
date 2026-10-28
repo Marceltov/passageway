@@ -93,7 +93,7 @@ class Folder(Connector):
 Folder.main()
 ```
 
-Install the SDK where the connector runs: `uv add git+https://github.com/Marceltov/passageway#subdirectory=sdk`, or add `--with 'passageway-sdk @ git+https://github.com/Marceltov/passageway#subdirectory=sdk'` to the `uv tool install` command in [Install](../install.md). The methods, the errors and the exit codes are in the [SDK reference](../reference/sdk.md). Implement `changed(self, since)` as well if your source can answer it cheaply; without it, edits appear at the next reconcile.
+Try it by hand with the SDK added for one run: `FOLDER=notes uv run --with 'passageway-sdk @ git+https://github.com/Marceltov/passageway#subdirectory=sdk' python folder_sdk.py list`. To run it under the server, install the SDK into passageway's own environment by adding `--with 'passageway-sdk @ git+https://github.com/Marceltov/passageway#subdirectory=sdk'` to the `uv tool install` command in [Install](../install.md), and register the connector with that environment's interpreter, `$(uv tool dir)/passageway/bin/python` (a connector runs with an empty environment, so the `python` on your `PATH` has neither passageway nor the SDK). In a project of your own, `uv add` the same address instead. The methods, the errors and the exit codes are in the [SDK reference](../reference/sdk.md). Implement `changed(self, since)` as well if your source can answer it cheaply; without it, edits appear at the next reconcile.
 
 ## Try it by hand
 
