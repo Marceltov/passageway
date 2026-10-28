@@ -175,14 +175,15 @@ class Markdown(Connector):
     def _item(self, note: Note) -> dict:
         meta = note.meta
         title = _text(meta, "title")
-        heading = None if title else first_h1(note.body)  # an H1 that is the title is not repeated as a heading
+        h1 = first_h1(note.body)
+        is_title = h1 is not None and (not title or h1.casefold() == title.casefold())  # then it is not repeated as a heading
         item = {
             "id": note.id,
-            "title": title or heading or PurePosixPath(note.rel).stem,
+            "title": title or h1 or PurePosixPath(note.rel).stem,
             "url": _text(meta, "url") or note.path.as_uri(),
             "version": note.version,
             "updated": _text(meta, "updated") or datetime.fromtimestamp(note.mtime, UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "sections": split_markdown(note.body, skip_first_h1=heading is not None),
+            "sections": split_markdown(note.body, skip_first_h1=is_title),
         }
         if folders := list(PurePosixPath(note.rel).parent.parts):
             item["path"] = folders

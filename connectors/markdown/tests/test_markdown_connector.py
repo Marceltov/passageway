@@ -333,3 +333,9 @@ def test_the_yaml_document_end_marker_closes_the_front_matter(folder):
     folder.write("a.md", "---\ntitle: T\n...\nBody")
     item = folder.fetch("a.md")["a.md"]
     assert item["title"] == "T" and item["sections"][0]["text"] == "Body"
+
+
+def test_an_h1_equal_to_the_front_matter_title_is_not_repeated_in_the_headings(folder):
+    folder.write("a.md", "---\ntitle: Rotating Certificates\n---\n# rotating certificates\nIntro.\n\n## Steps\nx")
+    item = folder.fetch("a.md")["a.md"]
+    assert [(s["heading"], s["text"]) for s in item["sections"]] == [(None, "Intro."), ("Steps", "x")]

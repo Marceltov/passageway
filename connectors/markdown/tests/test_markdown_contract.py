@@ -64,3 +64,17 @@ def test_every_setting_is_in_the_readme():
     readme = README.read_text()
     for name in names:
         assert f"`{name}`" in readme, f"{name} is read by the markdown connector but missing from its README"
+
+
+def test_the_example_in_the_readme_is_what_the_connector_really_produces(tmp_path):
+    readme = README.read_text()
+    note = re.search(r"```markdown\n(.*?)```", readme, re.S).group(1)
+    shown = json.loads(re.search(r"```json\n(.*?)```", readme, re.S).group(1))
+    (tmp_path / "ops").mkdir()
+    (tmp_path / "ops" / "rotating-certificates.md").write_text(note)
+    (tmp_path / "ops" / "deploy.md").write_text("# Deploy\nHow to deploy.")
+    out = subprocess.run(command() + ["fetch"], env={**os.environ, "FOLDER": str(tmp_path)},
+                         input='{"id": "ops/rotating-certificates.md"}\n', capture_output=True, text=True, check=True).stdout
+    real = json.loads(out)
+    for key, value in shown.items():
+        assert real[key] == value, f"the README shows {key} = {value!r} but the connector prints {real[key]!r}"
