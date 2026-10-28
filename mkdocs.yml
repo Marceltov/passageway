@@ -19,6 +19,7 @@ nav:
       - Configuration: configuration.md
   - Concepts:
       - How it works: how-it-works.md
+      - Design: design.md
   - Guides:
       - Write a connector: guides/write-a-connector.md
       - Work with an AI agent: guides/agents.md
@@ -77,7 +78,7 @@ plugins:
       full_output: llms-full.txt
       sections:
         Start: [index.md, install.md, configuration.md]
-        Concepts: [how-it-works.md]
+        Concepts: [how-it-works.md, design.md]
         Guides: ["guides/*.md"]
         Reference: ["reference/*.md"]
         Connectors: ["connectors/*.md"]

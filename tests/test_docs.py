@@ -93,3 +93,12 @@ def test_no_public_file_names_the_work_project():
     offenders = [str(p.relative_to(ROOT)) for p in public
                  if p.is_file() and "superpowers" not in p.parts and needle in p.read_text(errors="ignore").lower()]
     assert not offenders, f"the work project is named in: {offenders}"
+
+
+def test_the_design_page_is_published_and_reachable():
+    page = (ROOT / "docs" / "design.md").read_text()
+    for heading in ("Embedder protocol", "Eval harness", "Deployments", "Build order", "Non-goals"):
+        assert f"## {heading}" in page, f"design.md lacks the section {heading}"
+    config = (ROOT / "mkdocs.yml").read_text()
+    assert "design.md" in config.split("nav:")[1].split("theme:")[0]
+    assert re.search(r"Concepts: \[[^\]]*design\.md", config), "design.md must be in an llmstxt section"
