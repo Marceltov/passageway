@@ -143,3 +143,25 @@ def test_a_full_build_loads_the_version_map_once_not_per_batch(world, idx, monke
     monkeypatch.setattr(idx, "versions", lambda: calls.append(1) or original())
     syncer(world, idx).full_build()
     assert len(calls) == 1 and len(original()) == 120
+
+
+def test_a_source_that_speaks_another_protocol_is_refused_at_start_and_keeps_its_old_index(world, idx):
+    world.set(items("a"))
+    syncer(world, idx).full_build()
+    world.set(items("a", "b"))
+    wrong = Syncer("w", world.connector(FAKE_PROTOCOL="2"), idx, HashEmbedder())
+    wrong.full_build()
+    assert "protocol" in wrong.status.last_error and wrong.status.last_ok is None
+    assert idx.versions() == {"a": "1"}  # neither reset nor fetched
+
+
+def test_the_start_asks_check_once_and_polls_and_reconciles_do_not(world, idx, monkeypatch):
+    world.set(items("a"))
+    s = syncer(world, idx)
+    calls = []
+    real = s.connector.check
+    monkeypatch.setattr(s.connector, "check", lambda: calls.append(1) or real())
+    s.full_build()
+    s.reconcile()
+    s.poll()
+    assert len(calls) == 1

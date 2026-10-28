@@ -33,7 +33,7 @@ The cost that would argue against it is small. A start of the Wikipedia connecto
 What changes with this decision:
 
 * [`connector-protocol.schema.json`](../reference/connector-protocol.schema.json) describes every message (`check`, `list`, `fetch` in and out, `changed`). A test keeps it in step with the core's validator on a table of good and bad records, and the fake and Wikipedia connectors are validated against it.
-* `check` may print `"protocol": "1"`. The contract check (`check_connector`) refuses a connector that announces another version, with a message that says so; a `check` without the field is taken to speak v1. The running server does not call `check` yet.
+* `check` may print `"protocol": "1"`. The core refuses a connector that announces another version, with a message that says so; a `check` without the field is taken to speak v1. The server asks `check` once when a source starts (the full build), so a wrong version keeps the old index serving and shows as that source's error; polls and reconciles do not repeat it. The contract check asks it too.
 * The embedder protocol, which is planned (see the roadmap), uses the same transport. An embedder is designed as one long-lived process (`{"op":"info"}`, `{"op":"embed",…}`), which is exactly where a per-call start would hurt; it gets its own schema when it is built.
 
 ### Consequences
