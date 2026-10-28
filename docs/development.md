@@ -28,6 +28,8 @@ uvx --with mkdocs-material==9.7.7 --with 'mkdocs<2' mkdocs build --strict   # wh
 
 Every change starts from an issue and goes through a pull request; the CI build must pass, including the strict docs build. Decisions that future contributors will ask about get an ADR in `docs/adr/`.
 
+Dependabot opens one pull request a week that bumps the GitHub Actions the workflows use (`.github/dependabot.yml`). Those pull requests carry a `deps` prefix instead of an issue number.
+
 ## Releasing
 
 A release is a tag. Bump `version` in the root `pyproject.toml`, merge it, then tag the commit:
