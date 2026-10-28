@@ -1,53 +1,50 @@
-# Install
+# Install and run
+
+passageway runs as a small server on your machine. You give it connectors, it indexes what they report, and an MCP client such as Claude Code asks it for passages.
+
+## 1. Install
 
 ```bash
-uv tool install git+https://github.com/Marceltov/passageway
+uv tool install \
+  --with 'passageway-connector-wikipedia @ git+https://github.com/Marceltov/passageway#subdirectory=connectors/wikipedia' \
+  git+https://github.com/Marceltov/passageway
+```
+
+This installs passageway and the Wikipedia connector into one environment. A connector is a separate package, so add `--with` for every bundled connector you want to run.
+
+## 2. The embedding model
+
+passageway embeds text with the multilingual `e5-small` model in ONNX form. Put `model.onnx` and `sentencepiece.bpe.model` in the model directory (`<data dir>/models/e5-small` by default, or `PASSAGEWAY_MODEL_DIR`). Until the embedder work adds an automatic download, take both files from [trilium-recall](https://github.com/Marceltov/trilium-recall)'s `scripts/fetch-model.sh`.
+
+## 3. Say what to index
+
+Create `~/.config/passageway/passageway.toml` with one `[[connector]]` per source. This one indexes a small corner of English Wikipedia:
+
+```toml
+[[connector]]
+name = "lighthouses"
+command = ["/path/to/python", "-m", "passageway_connector_wikipedia"]
+env = { LANGUAGE = "en", CATEGORIES = "Lighthouses in Germany", CATEGORY_DEPTH = "0" }
+```
+
+A connector runs with an empty environment, so `python` on your `PATH` is usually not the interpreter that has passageway installed. Use the tool's own interpreter, `$(uv tool dir)/passageway/bin/python`, which is the environment from step 1. See [Configuration](configuration.md) for every setting and the [Wikipedia connector](connectors/wikipedia.md) for its options.
+
+## 4. Start it
+
+```bash
 PASSAGEWAY_LOGIN_PASSWORD=choose-one passageway
 ```
 
-The server needs a `passageway.toml` listing your connectors and the e5 embedding model in `PASSAGEWAY_MODEL_DIR` (`model.onnx` and `sentencepiece.bpe.model`; automatic download arrives with the embedder work, until then take them from [trilium-recall](https://github.com/Marceltov/trilium-recall)'s `scripts/fetch-model.sh`).
+The first start indexes every source, which can take a few minutes. Watch it with:
 
-## passageway.toml
-
-Default location `~/.config/passageway/passageway.toml`, or the path in `PASSAGEWAY_CONFIG`. One `[[connector]]` entry is one source with its own index file, so two servers of the same kind are two entries with the same `command`. Secrets are references to environment variables, never values.
-
-```toml
-[embedder]
-min_similarity = 0.845          # optional: the relevance gate for the model in use
-
-[[connector]]
-name = "notes"                  # a-z, 0-9, _ and -; it names the index file
-command = ["/path/to/python", "-m", "passageway.testing.fake_connector"]
-env = { FAKE_ITEMS = "/path/to/items.json" }
-secrets = { TOKEN = "env:NOTES_TOKEN" }
-timeout = 300                   # seconds per call
-max_line_bytes = 4194304        # longest line a connector may print
-max_output_bytes = 67108864     # most output one call may produce
-max_delete_fraction = 0.3       # a reconcile that would delete more than this share is refused
+```bash
+curl http://127.0.0.1:8082/health
 ```
 
-A connector runs with an empty environment (only `PATH` and `HOME`, plus its `env` table and named secrets), so `python` on `PATH` is usually not the interpreter that has passageway installed. For the example above use the tool's own interpreter, `$(uv tool dir)/passageway/bin/python`.
+`"status": "ok"` means every source is built, `"starting"` means one still is, and `"degraded"` means a source is failing. Add `-H 'Authorization: Bearer choose-one'` to the request to see why; a missing connector package, a wrong `command` path and an unreachable service all show up there.
 
-See [Connectors](connectors.md) for what a connector prints. Bundled connectors: [Wikipedia](../connectors/wikipedia/README.md).
+## 5. Connect a client
 
-## Environment
+Point an MCP client at `http://127.0.0.1:8082/mcp` and authenticate with `Authorization: Bearer choose-one`. The server offers one tool, `recall`: ask it a question and it returns up to three short passages with links, or says that nothing relevant is indexed.
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `PASSAGEWAY_LOGIN_PASSWORD` | required | Static Bearer token, and the OAuth login page's password |
-| `PASSAGEWAY_CONFIG` | `~/.config/passageway/passageway.toml` | Connector file |
-| `PASSAGEWAY_BASE_URL` | unset | Public https URL; set, it turns on OAuth for `/mcp` |
-| `PASSAGEWAY_DATA_DIR` | user data dir | Index files and OAuth state |
-| `PASSAGEWAY_MODEL_DIR` | `<data dir>/models/e5-small` | The embedding model |
-| `PASSAGEWAY_HOST`, `PASSAGEWAY_PORT` | `127.0.0.1`, `8082` | Where to listen |
-| `PASSAGEWAY_POLL_SECONDS`, `PASSAGEWAY_RECONCILE_SECONDS` | `60`, `1800` | Change polling and full reconcile |
-| `PASSAGEWAY_TOOL_DESCRIPTION`, `PASSAGEWAY_INSTRUCTIONS` | neutral text | What MCP clients read about the `recall` tool |
-| `PASSAGEWAY_LOG_LEVEL` | `INFO` | |
-
-## Rebuilding a source
-
-Each source is one file, `<data dir>/<name>.db`, and it can always be rebuilt from the connector: stop the server, delete the file, start it again. Do this after changing the embedding model, after removing a connector from the config (its items stay searchable until then), and when the deletion guard keeps refusing a legitimate bulk delete (it refuses to remove more than `max_delete_fraction` of a source, and always allows a single item; it also refuses to empty a source of two or more items).
-
-## Health
-
-`GET /health` is open so a container health check can use it. It reports each source's item count and whether it is failing; the error text itself is shown only when the request carries the Bearer password.
+For remote access with a login page instead of a static token, set `PASSAGEWAY_BASE_URL`; see [How it works](how-it-works.md#authentication).

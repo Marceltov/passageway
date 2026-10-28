@@ -1,0 +1,87 @@
+site_name: passageway
+site_description: "Retrieval for Claude over MCP: connectors feed passages, and a relevance gate keeps it quiet when nothing fits."
+site_url: https://passageway.marceltov.de/
+repo_url: https://github.com/Marceltov/passageway
+repo_name: Marceltov/passageway
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 Marcel Bruckner. Licensed under <a href="https://github.com/Marceltov/passageway/blob/main/LICENSE">AGPL-3.0-or-later</a>
+
+exclude_docs: |
+  superpowers/
+
+nav:
+  - Home: index.md
+  - Start:
+      - Install and run: install.md
+      - Configuration: configuration.md
+  - Concepts:
+      - How it works: how-it-works.md
+  - Guides:
+      - Write a connector: guides/write-a-connector.md
+  - Reference:
+      - Connector protocol: reference/connector-protocol.md
+  - Connectors:
+      - Wikipedia: connectors/wikipedia.md
+  - Contributing:
+      - Development: development.md
+  - Decisions:
+      - adr/0001-out-of-process-connectors.md
+      - adr/0002-connectors-as-workspace-packages.md
+
+theme:
+  name: material
+  logo: logo.svg
+  favicon: logo.svg
+  font:
+    text: Atkinson Hyperlegible Next
+    code: Atkinson Hyperlegible Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.instant
+    - navigation.footer
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+    - content.action.edit
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
