@@ -43,6 +43,8 @@ At least one of `CATEGORIES`, `TITLES` or `GEO` is required.
 ## Behavior
 
 - **Polite:** sequential requests with a descriptive User-Agent, `maxlag`, and back-off on 429 and 503.
+- **Redirects:** redirect pages inside a category are left out; `TITLES` follow redirects to the real article.
+- **Retries:** 429, 502, 503 and 504 answers, `maxlag` and network errors are retried with back-off (honoring `Retry-After`), at most five attempts per request.
 - **No `changed` mode:** edits appear at the next reconcile (every 30 minutes by default).
 - **Content license:** Wikipedia text is CC BY-SA 4.0. The link on each item points to the source article; its history page lists the authors.
 

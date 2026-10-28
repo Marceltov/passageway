@@ -122,3 +122,33 @@ def test_max_pages_is_enforced_while_listing_not_after_the_whole_category(wiki_s
     with pytest.raises(WikiError, match="MAX_PAGES"):
         client(url).pages_in_categories(("Category:Huge",), 0, 100)
     assert len(wiki.requests) <= 3  # it refused after the batch that crossed the limit, not after 40 batches
+
+
+def test_502_and_504_are_retried_and_retry_after_is_honored(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    wiki.status_errors = [502, 504]
+    wiki.retry_after = "7"
+    sleeps = []
+    assert client(url, sleeps).resolve_titles(("Cape Arkona",)) == {2: "Cape Arkona"}
+    assert sleeps == [7.0, 7.0]
+
+
+def test_an_unreachable_wiki_is_retried_then_reported_without_a_pointless_last_sleep():
+    sleeps = []
+    with pytest.raises(WikiError, match="could not be reached|try again later"):
+        client("http://127.0.0.1:9/w/api.php", sleeps).resolve_titles(("Cape Arkona",))
+    assert sleeps == [1, 2, 4, 8]  # five attempts, four waits: it does not sleep before giving up
+
+
+def test_a_continuation_that_repeats_a_request_key_does_not_crash(wiki_server):
+    url, _ = wiki_server
+    calls = []
+
+    def fake_get(**params):
+        calls.append(params)
+        return {"query": {}, **({"continue": {"list": "categorymembers"}} if len(calls) == 1 else {})}
+
+    wiki = client(url)
+    wiki._get = fake_get
+    assert list(wiki._query(list="categorymembers")) == [{}, {}]

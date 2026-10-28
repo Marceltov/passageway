@@ -15,6 +15,8 @@ class FakeWiki:
         self.page_size = 500  # category members per response; small values exercise continuation
         self.lag_errors = 0   # answer this many requests with a maxlag error
         self.status_errors = []  # answer the next requests with these HTTP statuses
+        self.retry_after = "0"   # Retry-After header sent with those error statuses
+        self.redirect_pages = set()  # page ids that are redirects (prop=info reports them)
         self.requests = []    # {"query": {...}, "ua": "..."} for every request
 
     def add(self, page_id, title, text="", revid=100, ts="2026-10-01T00:00:00Z"):
@@ -58,6 +60,8 @@ class FakeWiki:
                         "revisions": [{"revid": p["revid"], "timestamp": p["ts"]}]}
                 if "extracts" in q.get("prop", ""):
                     page["extract"] = p["text"]
+                if "info" in q.get("prop", "") and i in self.redirect_pages:
+                    page["redirect"] = True
                 pages.append(page)
             return {"batchcomplete": True, "query": {"pages": pages}}
         return {"error": {"code": "badrequest", "info": f"unsupported request {q}"}}
@@ -70,7 +74,7 @@ def serve(wiki: FakeWiki):
             wiki.requests.append({"query": q, "ua": self.headers.get("User-Agent", "")})
             if wiki.status_errors:
                 self.send_response(wiki.status_errors.pop(0))
-                self.send_header("Retry-After", "0")
+                self.send_header("Retry-After", wiki.retry_after)
                 self.end_headers()
                 return
             body = json.dumps(wiki.respond(q)).encode()

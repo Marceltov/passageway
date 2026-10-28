@@ -114,3 +114,13 @@ def test_german_page_sections_urls_and_umlauts(env, wiki_server):
     _, records, _ = call(env, "fetch", '{"id": "5"}\n')
     assert [s["heading"] for s in records[0]["sections"]] == [None, "Geschichte"]
     assert records[0]["title"] == "Köln Süd" and records[0]["url"] == "https://wiki.example/wiki/K%C3%B6ln_S%C3%BCd"
+
+
+def test_redirect_pages_in_a_category_are_not_listed_counted_or_fetched(env, wiki_server):
+    _, wiki = wiki_server
+    wiki.add(20, "Helgoland", "#REDIRECT Heligoland", revid=5)
+    wiki.redirect_pages.add(20)
+    wiki.categories["Category:Lighthouses"]["pages"].append(20)
+    assert sorted(r["id"] for r in call(env, "list")[1]) == ["1", "2"]
+    assert call(env, "check")[1] == [{"ok": True, "count": 2}]  # check and list must agree
+    assert call(env, "fetch", '{"id": "20"}\n')[1] == []

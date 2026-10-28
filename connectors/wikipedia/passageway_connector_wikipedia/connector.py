@@ -107,7 +107,7 @@ class _Buffer:
         self._parts: list[str] = []
 
     def emit(self, record: dict) -> None:
-        self._parts.append(json.dumps(record, ensure_ascii=False) + "\n")
+        self._parts.append(json.dumps(record) + "\n")
 
     def getvalue(self) -> str:
         return "".join(self._parts)
@@ -128,7 +128,8 @@ def run(argv: list[str], env: Mapping[str, str], stdin: TextIO, stdout: TextIO, 
     out = _Buffer()
     try:
         if mode == "check":
-            out.emit({"ok": True, "count": len(_pages(wiki, scope))})
+            # the same set `list` prints (redirect stubs are not items), so check and list always agree
+            out.emit({"ok": True, "count": len(wiki.revisions(list(_pages(wiki, scope))))})
         elif mode == "list":
             pages = _pages(wiki, scope)
             revisions = wiki.revisions(list(pages))
