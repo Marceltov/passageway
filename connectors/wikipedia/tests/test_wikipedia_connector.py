@@ -32,7 +32,7 @@ def test_list_prints_page_ids_with_revision_ids(env):
 
 
 def test_check_counts_the_scope(env):
-    assert call(env, "check")[1] == [{"ok": True, "count": 2}]
+    assert call(env, "check")[1] == [{"ok": True, "count": 2, "protocol": "1"}]
 
 
 def test_fetch_returns_valid_items_with_sections_and_urls(env):
@@ -122,5 +122,10 @@ def test_redirect_pages_in_a_category_are_not_listed_counted_or_fetched(env, wik
     wiki.redirect_pages.add(20)
     wiki.categories["Category:Lighthouses"]["pages"].append(20)
     assert sorted(r["id"] for r in call(env, "list")[1]) == ["1", "2"]
-    assert call(env, "check")[1] == [{"ok": True, "count": 2}]  # check and list must agree
+    assert call(env, "check")[1] == [{"ok": True, "count": 2, "protocol": "1"}]  # check and list must agree
     assert call(env, "fetch", '{"id": "20"}\n')[1] == []
+
+
+def test_a_fetch_id_that_is_not_a_string_is_an_error_not_a_crash(env):
+    code, records, err = call(env, "fetch", '{"id": 1}\n')
+    assert code == 1 and records == [] and "fetch expects" in err

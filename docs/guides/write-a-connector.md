@@ -53,6 +53,48 @@ passageway runs it as `<command> <mode>`:
 | `fetch` | an item record for each id it receives on stdin, for ids that still exist |
 | `changed --since T` | optional: items changed since the UTC time `T` |
 
+## The same connector with the SDK
+
+The script above shows the whole protocol, and a connector in any language can be written that way. In Python, the `passageway-sdk` package does the plumbing for you: it dispatches the mode, reads the ids from stdin, buffers the output so that a failed call prints nothing, exits 2 for bad settings and 1 for a failing source, validates each item before printing it, and keeps the JSON ASCII-safe. You write what is specific to the source:
+
+```python
+#!/usr/bin/env python3
+"""The folder connector with the SDK. Setting: FOLDER."""
+import hashlib
+from pathlib import Path
+
+from passageway_sdk import Connector, SettingsError
+
+
+class Folder(Connector):
+    name = "folder connector"
+
+    def __init__(self, env):
+        self.root = Path(env.get("FOLDER", "")).resolve()
+        if not self.root.is_dir():
+            raise SettingsError("FOLDER must be an existing folder")
+
+    def files(self):
+        return {p.relative_to(self.root).as_posix(): p for p in sorted(self.root.rglob("*.txt"))}
+
+    def version(self, path):
+        return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+
+    def versions(self):
+        return {i: self.version(p) for i, p in self.files().items()}
+
+    def fetch(self, ids):
+        for i, p in self.files().items():
+            if i in ids:
+                yield {"id": i, "title": p.stem, "url": p.as_uri(), "version": self.version(p),
+                       "sections": [{"heading": None, "text": p.read_text(encoding="utf-8")}]}
+
+
+Folder.main()
+```
+
+Try it by hand with the SDK added for one run: `FOLDER=notes uv run --with 'passageway-sdk @ git+https://github.com/Marceltov/passageway#subdirectory=sdk' python folder_sdk.py list`. To run it under the server, install the SDK into passageway's own environment by adding `--with 'passageway-sdk @ git+https://github.com/Marceltov/passageway#subdirectory=sdk'` to the `uv tool install` command in [Install](../install.md), and register the connector with that environment's interpreter, `$(uv tool dir)/passageway/bin/python` (a connector runs with an empty environment, so the `python` on your `PATH` has neither passageway nor the SDK). In a project of your own, `uv add` the same address instead. The methods, the errors and the exit codes are in the [SDK reference](../reference/sdk.md). Implement `changed(self, since)` as well if your source can answer it cheaply; without it, edits appear at the next reconcile.
+
 ## Try it by hand
 
 ```bash

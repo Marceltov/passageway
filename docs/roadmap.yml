@@ -17,7 +17,7 @@ items:
     title: Markdown connector
     summary: Index a folder of markdown files, with front matter. The base for the frozen corpus below.
     details: |
-      A connector for a folder of markdown files: the title, URL, revision and date come from the front matter, the sections from the headings, the folder path becomes the breadcrumb. Unlike the Wikipedia connector it can answer `changed` cheaply, from the files' times.
+      A connector for a folder of markdown files, written with the SDK: the title, URL, revision and date come from the front matter, the sections from the headings, the folder path becomes the breadcrumb. Unlike the Wikipedia connector it can answer `changed` cheaply, from the files' times.
 
   - id: frozen-corpus
     status: next
@@ -99,18 +99,17 @@ items:
       - the tool's `instance` argument becomes `source`;
       - configuration moves to `passageway.toml`.
 
-  - id: decide-sdk
-    status: decide
-    when: Decide
-    icon: help-circle-outline
-    title: A connector SDK
-    summary: A package that wraps the boilerplate, so that a connector is just its logic.
-    links:
-      - {label: "#12", url: "https://github.com/Marceltov/passageway/issues/12"}
-    details: |
-      A small package with almost no dependencies that handles the modes, the input ids, the all-or-nothing output and the exit codes. The Wikipedia connector would be its first user.
-
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: decide-sdk
+    status: done
+    date: 2026-10-28
+    icon: package-variant-closed
+    title: A connector SDK
+    summary: "`passageway-sdk` does the protocol plumbing, so that a Python connector is its logic. The Wikipedia connector is its first user."
+    links:
+      - {label: "Reference", url: "https://passageway.marceltov.de/reference/sdk/"}
+      - {label: "PR #27", url: "https://github.com/Marceltov/passageway/pull/27"}
+
   - id: decide-transport
     status: done
     date: 2026-10-28

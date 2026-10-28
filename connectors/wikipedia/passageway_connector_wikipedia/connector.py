@@ -1,16 +1,14 @@
 """passageway connector for Wikipedia (and any MediaWiki site): a topic, some titles or a place."""
 
-import json
-import os
 import re
-import sys
 import time
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from typing import TextIO
 from urllib.parse import quote
 
 import httpx
+from passageway_sdk import Connector, SettingsError
 
 from passageway_connector_wikipedia.mediawiki import Wiki, WikiError
 from passageway_connector_wikipedia.sections import DEFAULT_SKIP, split_sections
@@ -18,7 +16,7 @@ from passageway_connector_wikipedia.sections import DEFAULT_SKIP, split_sections
 VERSION = "0.1.0"
 
 
-class ScopeError(Exception):
+class ScopeError(SettingsError):
     pass
 
 
@@ -102,60 +100,36 @@ def _pages(wiki: Wiki, scope: Scope) -> dict[int, str]:
     return found
 
 
-class _Buffer:
-    def __init__(self):
-        self._parts: list[str] = []
+class Wikipedia(Connector):
+    name = "wikipedia connector"
+    expected_errors = (WikiError, httpx.HTTPError, ValueError, KeyError)
 
-    def emit(self, record: dict) -> None:
-        self._parts.append(json.dumps(record) + "\n")
+    def __init__(self, env: Mapping[str, str], *, sleep=time.sleep):
+        self.scope = parse_scope(env)
+        self.wiki = Wiki(self.scope.api_url, _user_agent(self.scope), pause=self.scope.pause, sleep=sleep)
 
-    def getvalue(self) -> str:
-        return "".join(self._parts)
+    def versions(self) -> dict[str, str]:
+        pages = _pages(self.wiki, self.scope)
+        revisions = self.wiki.revisions(list(pages))
+        return {str(page_id): revisions[page_id][0] for page_id in pages if page_id in revisions}
+
+    def fetch(self, ids: list[str]) -> Iterator[dict]:
+        for page_id in ids:
+            article = self.wiki.article(int(page_id)) if page_id.isdigit() else None
+            if article is None:  # deleted since list, or not one of our ids: skip; the next reconcile settles it
+                continue
+            title, extract, revid, timestamp = article
+            yield {
+                "id": page_id, "title": title, "version": revid, "updated": timestamp,
+                "url": self.scope.page_url + quote(title.replace(" ", "_"), safe="()_,:;@$&+=!*'~-./"),
+                "sections": split_sections(extract, self.scope.skip)}
+    # changed: not implemented; edits appear at the next reconcile
 
 
 def run(argv: list[str], env: Mapping[str, str], stdin: TextIO, stdout: TextIO, stderr: TextIO,
         *, sleep=time.sleep) -> int:
-    mode = argv[1] if len(argv) > 1 else ""
-    if mode not in ("check", "list", "fetch", "changed"):
-        print("usage: python -m passageway_connector_wikipedia check|list|fetch|changed", file=stderr)
-        return 2
-    try:
-        scope = parse_scope(env)
-    except ScopeError as e:
-        print(f"wikipedia connector: {e}", file=stderr)
-        return 2
-    wiki = Wiki(scope.api_url, _user_agent(scope), pause=scope.pause, sleep=sleep)
-    out = _Buffer()
-    try:
-        if mode == "check":
-            # the same set `list` prints (redirect stubs are not items), so check and list always agree
-            out.emit({"ok": True, "count": len(wiki.revisions(list(_pages(wiki, scope))))})
-        elif mode == "list":
-            pages = _pages(wiki, scope)
-            revisions = wiki.revisions(list(pages))
-            for page_id in pages:
-                if page_id in revisions:
-                    out.emit({"id": str(page_id), "version": revisions[page_id][0]})
-        elif mode == "fetch":
-            for line in stdin:
-                if not line.strip():
-                    continue
-                page_id = str(json.loads(line)["id"])
-                article = wiki.article(int(page_id)) if page_id.isdigit() else None
-                if article is None:  # deleted since list, or not one of our ids: skip; the next reconcile settles it
-                    continue
-                title, extract, revid, timestamp = article
-                out.emit({
-                    "id": page_id, "title": title, "version": revid, "updated": timestamp,
-                    "url": scope.page_url + quote(title.replace(" ", "_"), safe="()_,:;@$&+=!*'~-./"),
-                    "sections": split_sections(extract, scope.skip)})
-        # changed: nothing to print; edits appear at the next reconcile
-    except (WikiError, httpx.HTTPError, ValueError, KeyError) as e:
-        print(f"wikipedia connector: {e}", file=stderr)
-        return 1
-    stdout.write(out.getvalue())  # all or nothing: a failure above leaves stdout empty
-    return 0
+    return Wikipedia.run(argv, env, stdin, stdout, stderr, sleep=sleep)
 
 
 def main() -> None:
-    sys.exit(run(sys.argv, os.environ, sys.stdin, sys.stdout, sys.stderr))
+    Wikipedia.main()
