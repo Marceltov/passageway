@@ -13,90 +13,29 @@ source: Wikipedia
 ## Mathematische Definition
 
 Gegeben sei ein Hypothesenraum 
-  
-    
-      
-        H
-      
-    
-    {\displaystyle H}
-  
+$H$
+
  und eine Hypothese 
-  
-    
-      
-        h
-        ∈
-        H
-      
-    
-    {\displaystyle h\in H}
-  
+$h\in H$
+
 . Dann wird 
-  
-    
-      
-        h
-      
-    
-    {\displaystyle h}
-  
+$h$
+
  überangepasst an die Trainingsdaten genannt, wenn es eine alternative Hypothese 
-  
-    
-      
-        
-          h
-          ′
-        
-        ∈
-        H
-      
-    
-    {\displaystyle h'\in H}
-  
+$h'\in H$
+
  gibt, sodass 
-  
-    
-      
-        h
-      
-    
-    {\displaystyle h}
-  
+$h$
+
  einen kleineren Fehler gegenüber 
-  
-    
-      
-        
-          h
-          ′
-        
-      
-    
-    {\displaystyle h'}
-  
+$h'$
+
  auf den Trainingsdaten aufweist, aber 
-  
-    
-      
-        
-          h
-          ′
-        
-      
-    
-    {\displaystyle h'}
-  
+$h'$
+
  einen kleineren Fehler als 
-  
-    
-      
-        h
-      
-    
-    {\displaystyle h}
-  
+$h$
+
  in Bezug auf die Verteilung aller Instanzen hat.
 Eine einfache Überprüfung auf Überanpassung kann die Holdout-Methode liefern.
 
@@ -104,23 +43,8 @@ Eine einfache Überprüfung auf Überanpassung kann die Holdout-Methode liefern.
 
 In der multiplen linearen Regression wird mit Überanpassung ein Modell charakterisiert, das zusätzliche, irrelevante Regressoren (irrelevante erklärende Variablen) enthält. Analog dazu fehlen bei einem unterangepassten Modell einige (oder sogar alle) der relevanten Regressoren.
 Durch die Aufnahme zusätzlicher Regressoren kann das Bestimmtheitsmaß 
-  
-    
-      
-        
-          
-            
-              R
-            
-          
-          
-            2
-          
-        
-      
-    
-    {\displaystyle {\mathit {R}}^{2}}
-  
+${\mathit {R}}^{2}$
+
 , das die Güte der Anpassung des Modells an die Daten der Stichprobe misst, nicht sinken (siehe Bestimmtheitsmaß#Das adjustierte Bestimmtheitsmaß). Durch Zufallseffekte können so irrelevante Regressoren zur Erklärung der Varianz beitragen und das Bestimmtheitsmaß künstlich erhöhen.
 Überanpassung ist als negativ zu beurteilen, weil also die tatsächliche (geringere) Anpassungsgüte verschleiert wird und das Modell zwar besser auf die Daten der Stichprobe angepasst wird, allerdings aufgrund fehlender Generalität keine Übertragbarkeit auf die Grundgesamtheit besteht. Regressionskoeffizienten erscheinen fälschlicherweise als nicht signifikant, da ihre Wirkung nicht mehr hinreichend genau geschätzt werden kann. Die Schätzer sind ineffizient, d. h. ihre Varianz ist nicht mehr minimal. Gleichzeitig wächst die Gefahr, dass irrelevante Variablen aufgrund von Zufallseffekten als statistisch signifikant erscheinen. Überanpassung verschlechtert so die Schätzeigenschaften des Modells, insbesondere auch dadurch, dass eine zunehmende Anzahl von Regressoren die Anzahl der Freiheitsgrade verringert. Große Unterschiede zwischen dem unkorrigierten und dem korrigierten Bestimmtheitsmaß deuten auf Überanpassung hin. Überanpassung kann vor allem durch sachlogische Überlegungen und durch Anwendung einer Faktorenanalyse entgegengewirkt werden.
 

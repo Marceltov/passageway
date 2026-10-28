@@ -47,181 +47,37 @@ Beim einlagigen Perzeptron gibt es nur eine einzige Schicht aus künstlichen Neu
 ### Berechnung der Ausgabewerte
 
 Mit einem Bias 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
 , den Eingaben 
-  
-    
-      
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle x_{i}}
-  
+$x_{i}$
+
  und den Gewichten 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}}
-  
+$w_{ij}$
+
  berechnen sich die Ausgabewerte 
-  
-    
-      
-        
-          o
-          
-            j
-          
-        
-      
-    
-    {\displaystyle o_{j}}
-  
+$o_{j}$
+
  zu
 
-  
-    
-      
-        
-          o
-          
-            j
-          
-        
-        =
-        
-          
-            {
-            
-              
-                
-                  1
-                
-                
-                  
-                    ∑
-                    
-                      i
-                    
-                  
-                  
-                    w
-                    
-                      i
-                      j
-                    
-                  
-                  
-                    x
-                    
-                      i
-                    
-                  
-                  +
-                  b
-                  >
-                  0
-                
-              
-              
-                
-                  0
-                
-                
-                  
-                    ansonsten
-                  
-                
-              
-            
-            
-          
-        
-      
-    
-    {\displaystyle o_{j}={\begin{cases}1&\sum _{i}w_{ij}x_{i}+b>0\\0&{\text{ansonsten}}\end{cases}}}
-  
+$o_{j}={\begin{cases}1&\sum _{i}w_{ij}x_{i}+b>0\\0&{\text{ansonsten}}\end{cases}}$
+
 .
 Anmerkungen
 
 Der Bias 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
  ist als Schwellenwert 
-  
-    
-      
-        θ
-      
-    
-    {\displaystyle \theta }
-  
+$\theta $
+
  (engl. threshold) mit einem negativen Vorzeichen festgelegt.
 Verwendet man stattdessen den Schwellenwert 
-  
-    
-      
-        θ
-      
-    
-    {\displaystyle \theta }
-  
+$\theta $
+
 , so ergibt sich die erste Bedingung  zu 
-  
-    
-      
-        
-          ∑
-          
-            i
-          
-        
-        
-          w
-          
-            i
-            j
-          
-        
-        
-          x
-          
-            i
-          
-        
-        >
-        θ
-      
-    
-    {\displaystyle \sum _{i}w_{ij}x_{i}>\theta }
-  
+$\sum _{i}w_{ij}x_{i}>\theta $
+
  und es ändert sich auch beim zugehörigen Funktionsterm das entsprechende Vorzeichen.
 
 ### Perzeptron-Lernregel
@@ -234,341 +90,64 @@ Ist die Ausgabe 0, soll aber den Wert 1 annehmen, dann werden die Gewichte inkre
 Ist die Ausgabe 1, soll aber den Wert 0 annehmen, dann werden die Gewichte dekrementiert.
 Mathematisch wird der Sachverhalt folgendermaßen ausgedrückt:
 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-          
-            
-              n
-              e
-              u
-            
-          
-        
-        =
-        
-          w
-          
-            i
-            j
-          
-          
-            
-              a
-              l
-              t
-            
-          
-        
-        +
-        Δ
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}^{\mathrm {neu} }=w_{ij}^{\mathrm {alt} }+\Delta w_{ij}}
-  
+$w_{ij}^{\mathrm {neu} }=w_{ij}^{\mathrm {alt} }+\Delta w_{ij}$
+
 ,
 
-  
-    
-      
-        Δ
-        
-          w
-          
-            i
-            j
-          
-        
-        =
-        α
-        ⋅
-        (
-        
-          t
-          
-            j
-          
-        
-        −
-        
-          o
-          
-            j
-          
-        
-        )
-        ⋅
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle \Delta w_{ij}=\alpha \cdot (t_{j}-o_{j})\cdot x_{i}}
-  
+$\Delta w_{ij}=\alpha \cdot (t_{j}-o_{j})\cdot x_{i}$
+
 .
 Dabei ist
 
-  
-    
-      
-        Δ
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle \Delta w_{ij}}
-  
+$\Delta w_{ij}$
+
  die Änderung des Gewichts 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}}
-  
+$w_{ij}$
+
  für die Verbindung zwischen der Eingabezelle 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  und Ausgabezelle 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
 ,
 
-  
-    
-      
-        
-          t
-          
-            j
-          
-        
-      
-    
-    {\displaystyle t_{j}}
-  
+$t_{j}$
+
  die gewünschte Ausgabe des Neurons 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
 ,
 
-  
-    
-      
-        
-          o
-          
-            j
-          
-        
-      
-    
-    {\displaystyle o_{j}}
-  
+$o_{j}$
+
  die tatsächliche Ausgabe,
 
-  
-    
-      
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle x_{i}}
-  
+$x_{i}$
+
  die Eingabe des Neurons 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  und
 
-  
-    
-      
-        α
-        >
-        0
-      
-    
-    {\displaystyle \alpha >0}
-  
+$\alpha >0$
+
  die Lernrate.
 Eine Gewichtsaktualisierung im Schritt 
-  
-    
-      
-        k
-      
-    
-    {\displaystyle k}
-  
+$k$
+
  verläuft danach wie folgt:
 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-        (
-        k
-        +
-        1
-        )
-        =
-        
-          w
-          
-            i
-            j
-          
-        
-        (
-        k
-        )
-      
-    
-    {\displaystyle w_{ij}(k+1)=w_{ij}(k)}
-  
+$w_{ij}(k+1)=w_{ij}(k)$
+
  bei korrekter Ausgabe,
 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-        (
-        k
-        +
-        1
-        )
-        =
-        
-          w
-          
-            i
-            j
-          
-        
-        (
-        k
-        )
-        +
-        α
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle w_{ij}(k+1)=w_{ij}(k)+\alpha x_{i}}
-  
+$w_{ij}(k+1)=w_{ij}(k)+\alpha x_{i}$
+
  bei Ausgabe 0 und gewünschter Ausgabe 1 und
 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-        (
-        k
-        +
-        1
-        )
-        =
-        
-          w
-          
-            i
-            j
-          
-        
-        (
-        k
-        )
-        −
-        α
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle w_{ij}(k+1)=w_{ij}(k)-\alpha x_{i}}
-  
+$w_{ij}(k+1)=w_{ij}(k)-\alpha x_{i}$
+
  bei Ausgabe 1 und gewünschter Ausgabe 0.
 Rosenblatt konnte im Konvergenztheorem nachweisen, dass mit dem angegebenen Lernverfahren alle Lösungen eingelernt werden können, die ein Perzeptron repräsentieren kann.
 
@@ -576,25 +155,8 @@ Rosenblatt konnte im Konvergenztheorem nachweisen, dass mit dem angegebenen Lern
 
 Frank Rosenblatt zeigte, dass ein einfaches Perzeptron mit zwei Eingabewerten und einem einzigen Ausgabeneuron zur Darstellung der einfachen logischen Operatoren AND, OR und NOT genutzt werden kann. Marvin Minsky und Seymour Papert wiesen jedoch 1969 nach, dass ein einlagiges Perzeptron den XOR-Operator nicht auflösen kann (Problem der linearen Separierbarkeit). Dies führte zu einem Stillstand in der Forschung der künstlichen neuronalen Netze.
 Die in diesem Zusammenhang zum Teil äußerst polemisch geführte Diskussion war letztlich ein Richtungsstreit zwischen den Vertretern der symbolischen künstlichen Intelligenz und der „Konnektionisten“ um Forschungsgelder. Frank Rosenblatt hatte zwar gezeigt, dass der logische Operator XOR durch die Verwendung eines mehrlagigen Perzeptrons beschrieben werden kann, was sich aus der Äquivalenz zur folgenden Kombination der Operatoren OR, AND und NOT ergibt: 
-  
-    
-      
-        (
-        A
-        ∨
-        B
-        )
-        ∧
-        ¬
-        (
-        A
-        ∧
-        B
-        )
-      
-    
-    {\displaystyle (A\vee B)\wedge \neg (A\wedge B)}
-  
+$(A\vee B)\wedge \neg (A\wedge B)$
+
 . Er starb jedoch zu früh, um sich gegen die Angriffe seiner KI-Kollegen zu wehren.
 
 ### Varianten der Perzeptron-Lernregel
@@ -610,120 +172,23 @@ Ist die lineare Separabilität des Trainingsdatensatzes bekannt, so können vers
 ### Das Perzeptron als linearer Klassifikator
 
 Jenseits aller (pseudo-)biologischen Analogien ist ein einlagiges Perzeptron letztlich nichts weiter als ein linearer Klassifikator der Form 
-  
-    
-      
-        x
-        =
-        
-          a
-          
-            1
-          
-        
-        
-          y
-          
-            1
-          
-        
-        +
-        
-          a
-          
-            2
-          
-        
-        
-          y
-          
-            2
-          
-        
-        +
-        ⋯
-        +
-        
-          a
-          
-            n
-          
-        
-        
-          y
-          
-            n
-          
-        
-      
-    
-    {\displaystyle x=a_{1}y_{1}+a_{2}y_{2}+\cdots +a_{n}y_{n}}
-  
+$x=a_{1}y_{1}+a_{2}y_{2}+\cdots +a_{n}y_{n}$
+
  (lineare Diskriminanzfunktion, multiple lineare Regression). In der Nomenklatur der künstlichen neuronalen Netze werden 
-  
-    
-      
-        
-          a
-          
-            1
-          
-        
-      
-    
-    {\displaystyle a_{1}}
-  
+$a_{1}$
+
  bis 
-  
-    
-      
-        
-          a
-          
-            n
-          
-        
-      
-    
-    {\displaystyle a_{n}}
-  
+$a_{n}$
+
  als Gewichte und 
-  
-    
-      
-        
-          y
-          
-            1
-          
-        
-      
-    
-    {\displaystyle y_{1}}
-  
+$y_{1}$
+
  bis 
-  
-    
-      
-        
-          y
-          
-            n
-          
-        
-      
-    
-    {\displaystyle y_{n}}
-  
+$y_{n}$
+
  als Eingangssignale bezeichnet, wobei letztere nur Werte von 1 oder 0 („wahr“ oder „falsch“) annehmen können. Überschreitet die Summe 
-  
-    
-      
-        x
-      
-    
-    {\displaystyle x}
-  
+$x$
+
  einen Schwellenwert, so wird die Zuordnung der gesuchten Klasse auf „wahr“ bzw. 1 gesetzt, sonst auf „falsch“ bzw. 0.
 
 ## Mehrlagiges Perzeptron

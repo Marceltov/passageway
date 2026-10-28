@@ -1,5 +1,5 @@
 Articles from https://en.wikipedia.org, licensed CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
-Changes: converted to markdown; boilerplate sections (references, external links) removed.
+Changes: converted to plain text and then to markdown. Tables, images, infoboxes and other formatting were not included; formulas are kept only as TeX between $ signs; boilerplate sections (references, external links) were removed. The wording of the remaining text was not changed.
 The authors of each article are listed in its history page.
 
 - Activation function: https://en.wikipedia.org/wiki/Activation_function (revision 1375551500, 2026-09-18T14:03:31Z); authors: https://en.wikipedia.org/w/index.php?title=Activation_function&action=history

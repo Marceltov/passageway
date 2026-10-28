@@ -123,33 +123,11 @@ Convolutional neural networks (CNNs) are used in computer vision. CNNs also have
 
 As with ANNs, many issues can arise with naively trained DNNs. Two common issues are overfitting and computation time.
 DNNs are prone to overfitting because of the added layers of abstraction, which allow them to model rare dependencies in the training data. Regularization methods such as Ivakhnenko's unit pruning or weight decay (
-  
-    
-      
-        
-          ℓ
-          
-            2
-          
-        
-      
-    
-    {\displaystyle \ell _{2}}
-  
+$\ell _{2}$
+
 -regularization) or sparsity (
-  
-    
-      
-        
-          ℓ
-          
-            1
-          
-        
-      
-    
-    {\displaystyle \ell _{1}}
-  
+$\ell _{1}$
+
 -regularization) can be applied during training to combat overfitting. Alternatively dropout regularization randomly omits units from the hidden layers during training. This helps to exclude rare dependencies. Another interesting recent development is research into models of just enough complexity through an estimation of the intrinsic complexity of the task being modelled. This approach has been successfully applied for multivariate time series prediction tasks such as traffic prediction. Finally, data can be augmented via methods such as cropping and rotating such that smaller training sets can be increased in size to reduce the chances of overfitting.
 DNNs must consider many training parameters, such as the size (number of layers and number of units per layer), the learning rate, and initial weights. Sweeping through the parameter space for optimal parameters may not be feasible due to the cost in time and computational resources. Various tricks, such as batching (computing the gradient on several training examples at once rather than individual examples) speed up computation. Large processing capabilities of many-core architectures (such as GPUs or the Intel Xeon Phi) have produced significant speedups in training, because of the suitability of such processing architectures for the matrix and vector computations.
 Alternatively, engineers may look for other types of neural networks with more straightforward and convergent training algorithms. CMAC (cerebellar model articulation controller) is one such kind of neural network. It doesn't require learning rates or randomized initial weights. The training process can be guaranteed to converge in one step with a new batch of data, and the computational complexity of the training algorithm is linear with respect to the number of neurons involved.

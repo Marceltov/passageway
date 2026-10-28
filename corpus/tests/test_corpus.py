@@ -52,7 +52,23 @@ def test_the_attribution_names_every_article_with_revision_and_history(language)
 def test_the_licence_and_readme_say_what_the_files_are():
     licence = (CORPUS / "LICENSE.md").read_text()
     assert "CC BY-SA 4.0" in licence and "AGPL" in licence and "Changes made" in licence
+    for what in ("Tables", "images", "infoboxes", "formulas"):
+        assert what in licence, f"the licence notice does not say that {what} are not included"
     assert "deep learning" in (CORPUS / "README.md").read_text()
+
+
+@pytest.mark.parametrize("language", LANGUAGES)
+def test_titles_txt_lists_exactly_the_articles_of_the_folder(language):
+    listed = (CORPUS / language / "titles.txt").read_text(encoding="utf-8").splitlines()
+    assert sorted(listed) == sorted(front_matter(p)[0]["title"] for p in articles(language))
+
+
+@pytest.mark.parametrize("language", LANGUAGES)
+def test_the_articles_carry_no_leftover_formula_markup(language):
+    text = "".join(p.read_text(encoding="utf-8") for p in articles(language))
+    assert "displaystyle" not in text and not re.search("[\u2061-\u2064]", text)
+    indented = sum(line.startswith("  ") for line in text.splitlines())
+    assert indented < 0.03 * len(text.splitlines()), "formula token blocks are back in the text"
 
 
 @pytest.mark.parametrize("language", LANGUAGES)

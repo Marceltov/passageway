@@ -64,267 +64,76 @@ The solution spaces of decision boundaries for all binary functions and learning
 ## Definition
 
 In the modern sense, the perceptron is an algorithm for learning a binary classifier called a threshold function: a function that maps its input 
-  
-    
-      
-        
-          x
-        
-      
-    
-    {\displaystyle \mathbf {x} }
-  
+$\mathbf {x} $
+
  (a real-valued vector) to an output value 
-  
-    
-      
-        f
-        (
-        
-          x
-        
-        )
-      
-    
-    {\displaystyle f(\mathbf {x} )}
-  
+$f(\mathbf {x} )$
+
  (a single binary value):
 
-  
-    
-      
-        f
-        (
-        
-          x
-        
-        )
-        =
-        h
-        (
-        
-          w
-        
-        ⋅
-        
-          x
-        
-        +
-        b
-        )
-      
-    
-    {\displaystyle f(\mathbf {x} )=h(\mathbf {w} \cdot \mathbf {x} +b)}
-  
+$f(\mathbf {x} )=h(\mathbf {w} \cdot \mathbf {x} +b)$
 
 where 
-  
-    
-      
-        h
-      
-    
-    {\displaystyle h}
-  
+$h$
+
  is the Heaviside step-function (where an input of 
-  
-    
-      
+
         >
         0
-      
-    
+
     {\textstyle >0}
-  
+
  outputs 1; otherwise 0 is the output ), 
-  
-    
-      
-        
-          w
-        
-      
-    
-    {\displaystyle \mathbf {w} }
-  
+$\mathbf {w} $
+
  is a vector of real-valued weights, 
-  
-    
-      
-        
-          w
-        
-        ⋅
-        
-          x
-        
-      
-    
-    {\displaystyle \mathbf {w} \cdot \mathbf {x} }
-  
+$\mathbf {w} \cdot \mathbf {x} $
+
  is the dot product 
-  
-    
-      
-        
+
           ∑
-          
+
             i
             =
             1
-          
-          
+
             m
-          
-        
-        
+
           w
-          
+
             i
-          
-        
-        
+
           x
-          
+
             i
-          
-        
-      
-    
+
     {\textstyle \sum _{i=1}^{m}w_{i}x_{i}}
-  
+
 , where m is the number of inputs to the perceptron, and b is the bias. The bias shifts the decision boundary away from the origin and does not depend on any input value.
 Equivalently, since 
-  
-    
-      
-        
-          w
-        
-        ⋅
-        
-          x
-        
-        +
-        b
-        =
-        (
-        
-          w
-        
-        ,
-        b
-        )
-        ⋅
-        (
-        
-          x
-        
-        ,
-        1
-        )
-      
-    
-    {\displaystyle \mathbf {w} \cdot \mathbf {x} +b=(\mathbf {w} ,b)\cdot (\mathbf {x} ,1)}
-  
+$\mathbf {w} \cdot \mathbf {x} +b=(\mathbf {w} ,b)\cdot (\mathbf {x} ,1)$
+
 , we can add the bias term 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
  as another weight 
-  
-    
-      
-        
-          
-            w
-          
-          
-            m
-            +
-            1
-          
-        
-      
-    
-    {\displaystyle \mathbf {w} _{m+1}}
-  
+$\mathbf {w} _{m+1}$
+
  and add a coordinate 
-  
-    
-      
-        1
-      
-    
-    {\displaystyle 1}
-  
+$1$
+
  to each input 
-  
-    
-      
-        
-          x
-        
-      
-    
-    {\displaystyle \mathbf {x} }
-  
+$\mathbf {x} $
+
 , and then write it as a linear classifier that passes the origin:
-  
-    
-      
-        f
-        (
-        
-          x
-        
-        )
-        =
-        h
-        (
-        
-          w
-        
-        ⋅
-        
-          x
-        
-        )
-      
-    
-    {\displaystyle f(\mathbf {x} )=h(\mathbf {w} \cdot \mathbf {x} )}
-  
+$f(\mathbf {x} )=h(\mathbf {w} \cdot \mathbf {x} )$
 
 The binary value of 
-  
-    
-      
-        f
-        (
-        
-          x
-        
-        )
-      
-    
-    {\displaystyle f(\mathbf {x} )}
-  
+$f(\mathbf {x} )$
+
  (0 or 1) is used to perform binary classification on 
-  
-    
-      
-        
-          x
-        
-      
-    
-    {\displaystyle \mathbf {x} }
-  
+$\mathbf {x} $
+
  as either a positive or a negative instance. Spatially, the bias shifts the position (though not the orientation) of the planar decision boundary.
 In the context of neural networks, a perceptron is an artificial neuron using the Heaviside step function as the activation function. The perceptron algorithm is also termed the single-layer perceptron, to distinguish it from a multilayer perceptron, which is a misnomer for a more complicated neural network.  As a linear classifier, the single-layer perceptron is the simplest feedforward neural network.
 
@@ -334,270 +143,43 @@ In the context of neural networks, a perceptron is an artificial neuron using th
 
 From an information theory point of view, a single perceptron with K inputs has a capacity of 2K bits of information. This result is due to Thomas Cover.
 Specifically let 
-  
-    
-      
-        T
-        (
-        N
-        ,
-        K
-        )
-      
-    
-    {\displaystyle T(N,K)}
-  
+$T(N,K)$
+
  be the number of ways to linearly separate N points in K dimensions, then
-  
-    
-      
-        T
-        (
-        N
-        ,
-        K
-        )
-        =
-        
-          {
-          
-            
-              
-                
-                  
-                    2
-                    
-                      N
-                    
-                  
-                
-                
-                  K
-                  ≥
-                  N
-                
-              
-              
-                
-                  2
-                  
-                    ∑
-                    
-                      k
-                      =
-                      0
-                    
-                    
-                      K
-                      −
-                      1
-                    
-                  
-                  
-                    (
-                    
-                      
-                        
-                          
-                            N
-                            −
-                            1
-                          
-                        
-                        
-                          
-                            k
-                          
-                        
-                      
-                    
-                    )
-                  
-                
-                
-                  K
-                  <
-                  N
-                
-              
-            
-          
-          
-        
-      
-    
-    {\displaystyle T(N,K)=\left\{{\begin{array}{cc}2^{N}&K\geq N\\2\sum _{k=0}^{K-1}\left({\begin{array}{c}N-1\\k\end{array}}\right)&K<N\end{array}}\right.}
-  
+$T(N,K)=\left\{{\begin{array}{cc}2^{N}&K\geq N\\2\sum _{k=0}^{K-1}\left({\begin{array}{c}N-1\\k\end{array}}\right)&K<N\end{array}}\right.$
+
 When K is large, 
-  
-    
-      
-        T
-        (
-        N
-        ,
-        K
-        )
-        
-          /
-        
-        
-          2
-          
-            N
-          
-        
-      
-    
-    {\displaystyle T(N,K)/2^{N}}
-  
+$T(N,K)/2^{N}$
+
  is very close to one when 
-  
-    
-      
-        N
-        ≤
-        2
-        K
-      
-    
-    {\displaystyle N\leq 2K}
-  
+$N\leq 2K$
+
 , but very close to zero when 
-  
-    
-      
-        N
-        >
-        2
-        K
-      
-    
-    {\displaystyle N>2K}
-  
+$N>2K$
+
 . In words, one perceptron unit can almost certainly memorize a random assignment of binary labels on N points when 
-  
-    
-      
-        N
-        ≤
-        2
-        K
-      
-    
-    {\displaystyle N\leq 2K}
-  
+$N\leq 2K$
+
 , but almost certainly not when 
-  
-    
-      
-        N
-        >
-        2
-        K
-      
-    
-    {\displaystyle N>2K}
-  
+$N>2K$
+
 .
 
 ### Boolean function
 
 When operating on only binary inputs, a perceptron is called a linearly separable Boolean function, or threshold Boolean function. The sequence of numbers of threshold Boolean functions on n inputs is OEIS A000609. The value is only known exactly up to 
-  
-    
-      
-        n
-        =
-        9
-      
-    
-    {\displaystyle n=9}
-  
+$n=9$
+
  case, but the order of magnitude is known quite exactly: it has upper bound 
-  
-    
-      
-        
-          2
-          
-            
-              n
-              
-                2
-              
-            
-            −
-            n
-            
-              log
-              
-                2
-              
-            
-            ⁡
-            n
-            +
-            O
-            (
-            n
-            )
-          
-        
-      
-    
-    {\displaystyle 2^{n^{2}-n\log _{2}n+O(n)}}
-  
+$2^{n^{2}-n\log _{2}n+O(n)}$
+
  and lower bound 
-  
-    
-      
-        
-          2
-          
-            
-              n
-              
-                2
-              
-            
-            −
-            n
-            
-              log
-              
-                2
-              
-            
-            ⁡
-            n
-            −
-            O
-            (
-            n
-            )
-          
-        
-      
-    
-    {\displaystyle 2^{n^{2}-n\log _{2}n-O(n)}}
-  
+$2^{n^{2}-n\log _{2}n-O(n)}$
+
 .
 Any Boolean linear threshold function can be implemented with only integer weights. Furthermore, the number of bits necessary and sufficient for representing a single integer weight parameter is 
-  
-    
-      
-        Θ
-        (
-        n
-        ln
-        ⁡
-        n
-        )
-      
-    
-    {\displaystyle \Theta (n\ln n)}
-  
+$\Theta (n\ln n)$
+
 .
 
 ### Universal approximation theorem
@@ -609,82 +191,25 @@ A perceptron network with one hidden layer can learn to classify any compact sub
 
 Perceptrons (Minsky and Papert, 1969) studied the kind of perceptron networks necessary to learn various Boolean functions.
 Consider a perceptron network with 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  input units, one hidden layer, and one output, similar to the Mark I Perceptron machine. It computes a Boolean function of type 
-  
-    
-      
-        f
-        :
-        
-          2
-          
-            n
-          
-        
-        →
-        2
-      
-    
-    {\displaystyle f:2^{n}\to 2}
-  
+$f:2^{n}\to 2$
+
 . They call a function conjunctively local of order 
-  
-    
-      
-        k
-      
-    
-    {\displaystyle k}
-  
+$k$
+
 , iff there exists a perceptron network such that each unit in the hidden layer connects to at most 
-  
-    
-      
-        k
-      
-    
-    {\displaystyle k}
-  
+$k$
+
  input units.
 Theorem. (Theorem 3.1.1): The parity function is conjunctively local of order 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
 .
 Theorem. (Section 5.5): The connectedness function is conjunctively local of order 
-  
-    
-      
-        Ω
-        (
-        
-          n
-          
-            1
-            
-              /
-            
-            2
-          
-        
-        )
-      
-    
-    {\displaystyle \Omega (n^{1/2})}
-  
+$\Omega (n^{1/2})$
+
 .
 
 ## Learning algorithm for a single-layer perceptron
@@ -697,482 +222,110 @@ When multiple perceptrons are combined in an artificial neural network, each out
 
 We first define some variables:
 
-  
-    
-      
-        r
-      
-    
-    {\displaystyle r}
-  
+$r$
+
  is the learning rate of the perceptron. Learning rate is a positive number usually chosen to be less than 1. The larger the value, the greater the chance for volatility in the weight changes.
 
-  
-    
-      
-        D
-        =
-        {
-        (
-        
-          
-            x
-          
-          
-            1
-          
-        
-        ,
-        
-          d
-          
-            1
-          
-        
-        )
-        ,
-        …
-        ,
-        (
-        
-          
-            x
-          
-          
-            s
-          
-        
-        ,
-        
-          d
-          
-            s
-          
-        
-        )
-        }
-      
-    
-    {\displaystyle D=\{(\mathbf {x} _{1},d_{1}),\dots ,(\mathbf {x} _{s},d_{s})\}}
-  
+$D=\{(\mathbf {x} _{1},d_{1}),\dots ,(\mathbf {x} _{s},d_{s})\}$
+
  is the training set of 
-  
-    
-      
-        s
-      
-    
-    {\displaystyle s}
-  
+$s$
+
  samples, where:
 
-  
-    
-      
-        
-          
-            x
-          
-          
-            j
-          
-        
-      
-    
-    {\displaystyle \mathbf {x} _{j}}
-  
+$\mathbf {x} _{j}$
+
  is the 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
 th input vector from the 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
 -dimensional Euclidean space 
-  
-    
-      
-        
-          
-            R
-          
-          
-            n
-          
-        
-      
-    
-    {\displaystyle \mathbb {R} ^{n}}
-  
+$\mathbb {R} ^{n}$
+
 .
 
-  
-    
-      
-        
-          d
-          
-            j
-          
-        
-        ∈
-        {
-        0
-        ,
-        1
-        }
-      
-    
-    {\displaystyle d_{j}\in \{0,1\}}
-  
+$d_{j}\in \{0,1\}$
+
  is the desired output value of the perceptron for that input.
 We show the values of the features as follows:
 
-  
-    
-      
-        
-          x
-          
-            j
-            ,
-            i
-          
-        
-      
-    
-    {\displaystyle x_{j,i}}
-  
+$x_{j,i}$
+
  is the value of the 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 th feature of the 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
 th training input vector.
 
-  
-    
-      
-        
-          x
-          
-            j
-            ,
-            0
-          
-        
-        =
-        1
-      
-    
-    {\displaystyle x_{j,0}=1}
-  
+$x_{j,0}=1$
+
 .
 To represent the weights: 
 
-  
-    
-      
-        
-          w
-          
-            i
-          
-        
-      
-    
-    {\displaystyle w_{i}}
-  
+$w_{i}$
+
  is the 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 th value in the weight vector, to be multiplied by the value of the 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 th input feature.
 Because 
-  
-    
-      
-        
-          x
-          
-            j
-            ,
-            0
-          
-        
-        =
-        1
-      
-    
-    {\displaystyle x_{j,0}=1}
-  
+$x_{j,0}=1$
+
 , the 
-  
-    
-      
-        
-          w
-          
-            0
-          
-        
-      
-    
-    {\displaystyle w_{0}}
-  
+$w_{0}$
+
  is effectively a bias that we use instead of the bias constant 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
 .
 To show the time-dependence of 
-  
-    
-      
-        
-          w
-        
-      
-    
-    {\displaystyle \mathbf {w} }
-  
+$\mathbf {w} $
+
 , we use:
 
-  
-    
-      
-        
-          w
-          
-            i
-          
-        
-        (
-        t
-        )
-      
-    
-    {\displaystyle w_{i}(t)}
-  
+$w_{i}(t)$
+
  is the weight 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  at time 
-  
-    
-      
-        t
-      
-    
-    {\displaystyle t}
-  
+$t$
+
 .
 
 ### Steps
 
 For offline learning, the second step may be repeated until the iteration error 
-  
-    
-      
-        
-          
-            1
-            s
-          
-        
-        
-          ∑
-          
-            j
-            =
-            1
-          
-          
-            s
-          
-        
-        
-          |
-        
-        
-          d
-          
-            j
-          
-        
-        −
-        
-          y
-          
-            j
-          
-        
-        (
-        t
-        )
-        
-          |
-        
-      
-    
-    {\displaystyle {\frac {1}{s}}\sum _{j=1}^{s}|d_{j}-y_{j}(t)|}
-  
+${\frac {1}{s}}\sum _{j=1}^{s}|d_{j}-y_{j}(t)|$
+
  is less than a user-specified error threshold 
-  
-    
-      
-        γ
-      
-    
-    {\displaystyle \gamma }
-  
+$\gamma $
+
 , or a predetermined number of iterations have been completed, where s is again the size of the sample set. 
 The algorithm updates the weights after every training sample in step 2b, though one may note that the weights remain unchanged whenever 
-  
-    
-      
-        
-          d
-          
-            j
-          
-        
-        =
-        
-          y
-          
-            j
-          
-        
-        (
-        t
-        )
-      
-    
-    {\displaystyle d_{j}=y_{j}(t)}
-  
+$d_{j}=y_{j}(t)$
+
 .
 
 ### Convergence of one perceptron on a linearly separable dataset
 
 A single perceptron is a linear classifier. It can only reach a stable state if all input vectors are classified correctly. In case the training set D is not linearly separable, i.e. if the positive examples cannot be separated from the negative examples by a hyperplane, then the algorithm would not converge since there is no solution. Hence, if linear separability of the training set is not known a priori, one of the training variants below should be used. Detailed analysis and extensions to the convergence theorem are in Chapter 11 of Perceptrons (1969).
 Linear separability is testable in time 
-  
-    
-      
-        min
-        (
-        O
-        (
-        
-          n
-          
-            d
-            
-              /
-            
-            2
-          
-        
-        )
-        ,
-        O
-        (
-        
-          d
-          
-            2
-            n
-          
-        
-        )
-        ,
-        O
-        (
-        
-          n
-          
-            d
-            −
-            1
-          
-        
-        ln
-        ⁡
-        n
-        )
-        )
-      
-    
-    {\displaystyle \min(O(n^{d/2}),O(d^{2n}),O(n^{d-1}\ln n))}
-  
+$\min(O(n^{d/2}),O(d^{2n}),O(n^{d-1}\ln n))$
+
 , where 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  is the number of data points, and 
-  
-    
-      
-        d
-      
-    
-    {\displaystyle d}
-  
+$d$
+
  is the dimension of each point.
 If the training set is linearly separable, then the perceptron is guaranteed to converge after making finitely many mistakes. The theorem is proved by Rosenblatt et al.
 
@@ -1189,166 +342,47 @@ This is proved first by Bradley Efron.
 ### Learning a Boolean function
 
 Consider a dataset where the 
-  
-    
-      
-        x
-      
-    
-    {\displaystyle x}
-  
+$x$
+
  are from 
-  
-    
-      
-        {
-        −
-        1
-        ,
-        +
-        1
-        
-          }
-          
-            n
-          
-        
-      
-    
-    {\displaystyle \{-1,+1\}^{n}}
-  
+$\{-1,+1\}^{n}$
+
 , that is, the vertices of an n-dimensional hypercube centered at origin, and 
-  
-    
-      
-        y
-        =
-        θ
-        (
-        
-          x
-          
-            i
-          
-        
-        )
-      
-    
-    {\displaystyle y=\theta (x_{i})}
-  
+$y=\theta (x_{i})$
+
 . That is, all data points with positive 
-  
-    
-      
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle x_{i}}
-  
+$x_{i}$
+
  have 
-  
-    
-      
-        y
-        =
-        1
-      
-    
-    {\displaystyle y=1}
-  
+$y=1$
+
 , and vice versa. By the perceptron convergence theorem, a perceptron would converge after making at most 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  mistakes.
 If we were to write a logical program to perform the same task, each positive example shows that one of the coordinates is the right one, and each negative example shows that its complement is a positive example. By collecting all the known positive examples, we eventually eliminate all but one coordinate, at which point the dataset is learned.
 This bound is asymptotically tight in terms of the worst-case. In the worst-case, the first presented example is entirely new, and gives 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  bits of information, but each subsequent example would differ minimally from previous examples, and gives 1 bit each. After 
-  
-    
-      
-        n
-        +
-        1
-      
-    
-    {\displaystyle n+1}
-  
+$n+1$
+
  examples, there are 
-  
-    
-      
-        2
-        n
-      
-    
-    {\displaystyle 2n}
-  
+$2n$
+
  bits of information, which is sufficient for the perceptron (with 
-  
-    
-      
-        2
-        n
-      
-    
-    {\displaystyle 2n}
-  
+$2n$
+
  bits of information).
 However, it is not tight in terms of expectation if the examples are presented uniformly at random, since the first would give 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  bits, the second 
-  
-    
-      
-        n
-        
-          /
-        
-        2
-      
-    
-    {\displaystyle n/2}
-  
+$n/2$
+
  bits, and so on, taking 
-  
-    
-      
-        O
-        (
-        ln
-        ⁡
-        n
-        )
-      
-    
-    {\displaystyle O(\ln n)}
-  
+$O(\ln n)$
+
  examples in total.
 
 ## Variants
@@ -1358,14 +392,8 @@ The Maxover algorithm (Wendemuth, 1995) is "robust" in the sense that it will co
 The Voted Perceptron (Freund and Schapire, 1999), is a variant using multiple weighted perceptrons. The algorithm starts a new perceptron every time an example is wrongly classified, initializing the weights vector with the final weights of the last perceptron. Each perceptron will also be given another weight corresponding to how many examples do they correctly classify before wrongly classifying one, and at the end the output will be a weighted vote on all perceptrons.
 In separable problems, perceptron training can also aim at finding the largest separating margin between the classes. The so-called perceptron of optimal stability can be determined by means of iterative training and optimization schemes, such as the Min-Over algorithm (Krauth and Mezard, 1987)  or the AdaTron (Anlauf and Biehl, 1989)). AdaTron uses the fact that the corresponding quadratic optimization problem is convex. The perceptron of optimal stability, together with the kernel trick, are the conceptual foundations of the support-vector machine.
 The 
-  
-    
-      
-        α
-      
-    
-    {\displaystyle \alpha }
-  
+$\alpha $
+
 -perceptron further used a pre-processing layer of fixed random weights, with thresholded output units. This enabled the perceptron to classify analogue patterns, by projecting them into a binary space. In fact, for a projection space of sufficiently high dimension, patterns can become linearly separable.
 Another way to solve nonlinear problems without using multiple layers is to use higher-order networks (sigma-pi unit). In this type of network, each element in the input vector is extended with each pairwise combination of multiplied inputs (second order). This can be extended to an n-order network.
 A generalization of the perceptron model is the Receptron that incorporates non-linear interactions between inputs. A single receptron is able to classify non-linear Boolean functions.
@@ -1375,214 +403,43 @@ Other linear classification algorithms include Winnow, support-vector machine, a
 ### Multiclass perceptron
 
 Like most other techniques for training linear classifiers, the perceptron generalizes naturally to multiclass classification.  Here, the input 
-  
-    
-      
-        x
-      
-    
-    {\displaystyle x}
-  
+$x$
+
  and the output 
-  
-    
-      
-        y
-      
-    
-    {\displaystyle y}
-  
+$y$
+
  are drawn from arbitrary sets. A feature representation function 
-  
-    
-      
-        f
-        (
-        x
-        ,
-        y
-        )
-      
-    
-    {\displaystyle f(x,y)}
-  
+$f(x,y)$
+
  maps each possible input/output pair to a finite-dimensional real-valued feature vector.  As before, the feature vector is multiplied by a weight vector 
-  
-    
-      
-        w
-      
-    
-    {\displaystyle w}
-  
+$w$
+
 , but now the resulting score is used to choose among many possible outputs:
 
-  
-    
-      
-        
-          
-            
-              y
-              ^
-            
-          
-        
-        =
-        
-          argmax
-          
-            y
-          
-        
-        ⁡
-        f
-        (
-        x
-        ,
-        y
-        )
-        ⋅
-        w
-        .
-      
-    
-    {\displaystyle {\hat {y}}=\operatorname {argmax} _{y}f(x,y)\cdot w.}
-  
+${\hat {y}}=\operatorname {argmax} _{y}f(x,y)\cdot w.$
 
 Learning again iterates over the examples, predicting an output for each, leaving the weights unchanged when the predicted output matches the target, and changing them when it does not.  The update becomes:
 
-  
-    
-      
-        
-          w
-          
-            t
-            +
-            1
-          
-        
-        =
-        
-          w
-          
-            t
-          
-        
-        +
-        f
-        (
-        x
-        ,
-        y
-        )
-        −
-        f
-        (
-        x
-        ,
-        
-          
-            
-              y
-              ^
-            
-          
-        
-        )
-        .
-      
-    
-    {\displaystyle w_{t+1}=w_{t}+f(x,y)-f(x,{\hat {y}}).}
-  
+$w_{t+1}=w_{t}+f(x,y)-f(x,{\hat {y}}).$
 
 This multiclass feedback formulation reduces to the original perceptron when 
-  
-    
-      
-        x
-      
-    
-    {\displaystyle x}
-  
+$x$
+
  is a real-valued vector, 
-  
-    
-      
-        y
-      
-    
-    {\displaystyle y}
-  
+$y$
+
  is chosen from 
-  
-    
-      
-        {
-        0
-        ,
-        1
-        }
-      
-    
-    {\displaystyle \{0,1\}}
-  
+$\{0,1\}$
+
 , and 
-  
-    
-      
-        f
-        (
-        x
-        ,
-        y
-        )
-        =
-        y
-        x
-      
-    
-    {\displaystyle f(x,y)=yx}
-  
+$f(x,y)=yx$
+
 .
 For certain problems, input/output representations and features can be chosen so that 
-  
-    
-      
-        
-          
-            a
-            r
-            g
-            m
-            a
-            x
-          
-          
-            y
-          
-        
-        f
-        (
-        x
-        ,
-        y
-        )
-        ⋅
-        w
-      
-    
-    {\displaystyle \mathrm {argmax} _{y}f(x,y)\cdot w}
-  
+$\mathrm {argmax} _{y}f(x,y)\cdot w$
+
  can be found efficiently even though 
-  
-    
-      
-        y
-      
-    
-    {\displaystyle y}
-  
+$y$
+
  is chosen from a very large or even infinite set.
 Since 2002, perceptron training has become popular in the field of natural language processing for such tasks as part-of-speech tagging and syntactic parsing (Collins, 2002). It has also been applied to large-scale machine learning problems in a distributed computing setting.

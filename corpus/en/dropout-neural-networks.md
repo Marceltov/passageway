@@ -21,104 +21,31 @@ These techniques are also sometimes referred to as random pruning of weights, bu
 
 Output from a layer of linear nodes, in an artificial neural net can be described as
 
-  
-    
-      
-        
-          y
-          
-            i
-          
-        
-      
-    
-    {\displaystyle y_{i}}
-  
- – output from node 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$y_{i}$
 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}}
-  
+ – output from node 
+$i$
+$w_{ij}$
+
  – real weight before dilution, also called the Hebb connection strength
 
-  
-    
-      
-        
-          x
-          
-            j
-          
-        
-      
-    
-    {\displaystyle x_{j}}
-  
+$x_{j}$
+
  – input from node 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
 
 This can be written in vector notation as
 
-  
-    
-      
-        
-          y
-        
-      
-    
-    {\displaystyle \mathbf {y} }
-  
+$\mathbf {y} $
+
  – output vector
 
-  
-    
-      
-        
-          W
-        
-      
-    
-    {\displaystyle \mathbf {W} }
-  
+$\mathbf {W} $
+
  – weight matrix
 
-  
-    
-      
-        
-          x
-        
-      
-    
-    {\displaystyle \mathbf {x} }
-  
+$\mathbf {x} $
+
  – input vector
 Equations (1) and (2) are used in the subsequent sections.
 
@@ -126,159 +53,46 @@ Equations (1) and (2) are used in the subsequent sections.
 
 During weak dilution, the finite fraction of removed connections (the weights) is small, giving rise to a tiny uncertainty. This edge-case can be solved exactly with mean field theory. In weak dilution the impact on the weights can be described as
 
-  
-    
-      
-        
-          
-            
-              
-                w
-                ^
-              
-            
-          
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle {\hat {w}}_{ij}}
-  
+${\hat {w}}_{ij}$
+
  – diluted weight
 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}}
-  
+$w_{ij}$
+
  – real weight before dilution
 
-  
-    
-      
-        P
-        (
-        c
-        )
-      
-    
-    {\displaystyle P(c)}
-  
+$P(c)$
+
  – the probability of 
-  
-    
-      
-        c
-      
-    
-    {\displaystyle c}
-  
+$c$
+
 , the probability of keeping a weight
 The interpretation of probability 
-  
-    
-      
-        P
-        (
-        c
-        )
-      
-    
-    {\displaystyle P(c)}
-  
+$P(c)$
+
  can also be changed from keeping a weight into pruning a weight.
 In vector notation this can be written as
 
 where the function 
-  
-    
-      
-        g
-        ⁡
-        (
-        ⋅
-        )
-      
-    
-    {\displaystyle \operatorname {g} (\cdot )}
-  
+$\operatorname {g} (\cdot )$
+
  imposes the previous dilution.
 In weak dilution only a small and fixed fraction of the weights are diluted. When the number of terms in the sum goes to infinite (the weights for each node) it is still infinite (the fraction is fixed), thus mean field theory can be applied. In the notation from Hertz et al. this would be written as
 
-  
-    
-      
-        
-          ⟨
-          
-            h
-            
-              i
-            
-          
-          ⟩
-        
-      
-    
-    {\displaystyle \left\langle h_{i}\right\rangle }
-  
+$\left\langle h_{i}\right\rangle $
+
  the mean field temperature
 
-  
-    
-      
-        c
-      
-    
-    {\displaystyle c}
-  
+$c$
+
  – a scaling factor for the temperature from the probability of keeping the weight
 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}}
-  
+$w_{ij}$
+
  – real weight before dilution, also called the Hebb connection strength
 
-  
-    
-      
-        
-          ⟨
-          
-            S
-            
-              j
-            
-          
-          ⟩
-        
-      
-    
-    {\displaystyle \left\langle S_{j}\right\rangle }
-  
+$\left\langle S_{j}\right\rangle $
+
  – the mean stable equilibrium states
 There are some assumptions for this to hold, which are not listed here.
 
@@ -290,67 +104,19 @@ When the dilution is strong, the finite fraction of removed connections (the wei
 
 Dropout is a special case of the previous weight equation (3), where the aforementioned equation is adjusted to remove a whole row in the vector matrix, and not only random weights
 
-  
-    
-      
-        P
-        (
-        c
-        )
-      
-    
-    {\displaystyle P(c)}
-  
+$P(c)$
+
  – the probability 
-  
-    
-      
-        c
-      
-    
-    {\displaystyle c}
-  
+$c$
+
  to keep a row in the weight matrix
 
-  
-    
-      
-        
-          
-            w
-          
-          
-            j
-          
-        
-      
-    
-    {\displaystyle \mathbf {w} _{j}}
-  
+$\mathbf {w} _{j}$
+
  – real row in the weight matrix before dropout
 
-  
-    
-      
-        
-          
-            
-              
-                
-                  w
-                
-                ^
-              
-            
-          
-          
-            j
-          
-        
-      
-    
-    {\displaystyle {\hat {\mathbf {w} }}_{j}}
-  
+${\hat {\mathbf {w} }}_{j}$
+
  – diluted row in the weight matrix
 Because dropout removes a whole row from the vector matrix, the previous (unlisted) assumptions for weak dilution and the use of mean field theory are not applicable.
 The process by which the node is driven to zero, whether by setting the weights to zero, by “removing the node”, or by some other means, does not impact the end result and does not create a new and unique case. If the neural net is processed by a high-performance digital array-multiplicator, then it is likely more effective to drive the value to zero late in the process graph. If the net is processed by a constrained processor, perhaps even an analog neuromorphic processor, then it is likely a more power-efficient solution is to drive the value to zero early in the process graph.

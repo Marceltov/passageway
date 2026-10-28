@@ -25,564 +25,118 @@ Die mathematischen Grundlagen des bestärkenden Lernens bilden die folgenden fü
 ### Beschreibung der Umgebung
 
 Die Umgebung wird in der Regel als Markow-Entscheidungsproblem (englisch markov decision process, MDP) formuliert. Die Interaktion des Agenten mit der Umgebung findet zu diskreten Zeitpunkten 
-  
-    
-      
-        t
-        ∈
-        
-          
-            N
-          
-          
-            0
-          
-        
-      
-    
-    {\displaystyle t\in \mathbb {N} _{0}}
-  
+$t\in \mathbb {N} _{0}$
+
  statt. Zu jedem Zeitpunkt befindet sich der Agent in einem Zustand, wählt eine Aktion aus und erhält dafür eine reellwertige Belohnung.
 Das Markow-Entscheidungsproblem ist ein Tupel 
-  
-    
-      
-        (
-        S
-        ,
-        A
-        ,
-        T
-        ,
-        r
-        ,
-        
-          p
-          
-            0
-          
-        
-        )
-      
-    
-    {\displaystyle (S,A,T,r,p_{0})}
-  
+$(S,A,T,r,p_{0})$
+
 , wobei
 
-  
-    
-      
-        S
-      
-    
-    {\displaystyle S}
-  
+$S$
+
  eine Menge von Zuständen,
 
-  
-    
-      
-        A
-      
-    
-    {\displaystyle A}
-  
+$A$
+
  eine Menge von Aktionen,
 
-  
-    
-      
-        T
-      
-    
-    {\displaystyle T}
-  
+$T$
+
  das Aktionsmodell (auch Transitionswahrscheinlichkeit) 
-  
-    
-      
-        T
-        :
-        S
-        ×
-        A
-        ×
-        S
-        →
-        [
-        0
-        ,
-        1
-        ]
-      
-    
-    {\displaystyle T\colon S\times A\times S\rightarrow [0,1]}
-  
+$T\colon S\times A\times S\rightarrow [0,1]$
+
  ist, so dass 
-  
-    
-      
-        T
-        (
-        
-          s
-          
-            t
-          
-        
-        ,
-        
-          a
-          
-            t
-          
-        
-        ,
-        
-          s
-          
-            t
-            +
-            1
-          
-        
-        )
-        =
-        p
-        (
-        
-          s
-          
-            t
-            +
-            1
-          
-        
-        
-          |
-        
-        
-          s
-          
-            t
-          
-        
-        ,
-        
-          a
-          
-            t
-          
-        
-        )
-      
-    
-    {\displaystyle T(s_{t},a_{t},s_{t+1})=p(s_{t+1}|s_{t},a_{t})}
-  
+$T(s_{t},a_{t},s_{t+1})=p(s_{t+1}|s_{t},a_{t})$
+
  die Wahrscheinlichkeit ist, von Zustand 
-  
-    
-      
-        
-          s
-          
-            t
-          
-        
-      
-    
-    {\displaystyle s_{t}}
-  
+$s_{t}$
+
  durch Ausführen von Aktion 
-  
-    
-      
-        
-          a
-          
-            t
-          
-        
-      
-    
-    {\displaystyle a_{t}}
-  
+$a_{t}$
+
  in den Zustand 
-  
-    
-      
-        
-          s
-          
-            t
-            +
-            1
-          
-        
-      
-    
-    {\displaystyle s_{t+1}}
-  
+$s_{t+1}$
+
  zu gelangen.
 
-  
-    
-      
-        r
-        :
-        S
-        ×
-        A
-        ×
-        S
-        →
-        
-          R
-        
-      
-    
-    {\displaystyle r\colon S\times A\times S\rightarrow \mathbb {R} }
-  
+$r\colon S\times A\times S\rightarrow \mathbb {R} $
+
  die Belohnungsfunktion ist, die allen Zustandsübergängen eine Belohnung zuordnet und
 
-  
-    
-      
-        
-          p
-          
-            0
-          
-        
-        :
-        S
-        →
-        
-          R
-        
-      
-    
-    {\displaystyle p_{0}\colon S\rightarrow \mathbb {R} }
-  
+$p_{0}\colon S\rightarrow \mathbb {R} $
+
  die Startverteilung ist, die zu jedem Zustand angibt, wie wahrscheinlich es ist, in diesem Zustand zu starten.
 Eine Policy 
-  
-    
-      
-        π
-      
-    
-    {\displaystyle \pi }
-  
+$\pi $
+
  ist eine Kollektion von Wahrscheinlichkeitsmaßen 
-  
-    
-      
-        (
-        
-          π
-          
-            t
-          
-        
-        (
-        ⋅
-        ∣
-        s
-        )
-        
-          )
-          
-            s
-            ∈
-            
-              
-                S
-              
-            
-          
-        
-      
-    
-    {\displaystyle (\pi _{t}(\cdot \mid s))_{s\in {\mathcal {S}}}}
-  
+$(\pi _{t}(\cdot \mid s))_{s\in {\mathcal {S}}}$
+
  auf 
-  
-    
-      
-        
-          
-            A
-          
-        
-      
-    
-    {\displaystyle {\mathcal {A}}}
-  
+${\mathcal {A}}$
+
 . 
-  
-    
-      
-        
-          π
-          
-            t
-          
-        
-        (
-        a
-        ∣
-        s
-        )
-      
-    
-    {\displaystyle \pi _{t}(a\mid s)}
-  
+$\pi _{t}(a\mid s)$
+
  gibt dabei die Präferenz des Agenten an, zum Zeitpunkt 
-  
-    
-      
-        t
-      
-    
-    {\displaystyle t}
-  
+$t$
+
  die Aktion 
-  
-    
-      
-        a
-      
-    
-    {\displaystyle a}
-  
+$a$
+
  zu wählen, wenn er sich in Zustand 
-  
-    
-      
-        s
-      
-    
-    {\displaystyle s}
-  
+$s$
+
  befindet. In Zufallsvariablen gesprochen bedeutet dies 
-  
-    
-      
-        
-          A
-          
-            t
-          
-        
-        ∼
-        
-          π
-          
-            t
-          
-        
-        (
-        ⋅
-        ∣
-        
-          S
-          
-            t
-          
-        
-        )
-      
-    
-    {\displaystyle A_{t}\sim \pi _{t}(\cdot \mid S_{t})}
-  
+$A_{t}\sim \pi _{t}(\cdot \mid S_{t})$
+
 .
 
 ### Total Discounted Reward Kriterium
 
 Man kann die Qualität einer Policy 
-  
-    
-      
-        π
-      
-    
-    {\displaystyle \pi }
-  
+$\pi $
+
  bestimmen, indem man den Gewinn, den man mit ihr erzielt, mit dem Gewinn vergleicht, den man mit einer optimalen Policy 
-  
-    
-      
-        
-          π
-          
-            ∗
-          
-        
-      
-    
-    {\displaystyle \pi ^{*}}
-  
+$\pi ^{*}$
+
  erzielen kann. Um annähernd optimal zu handeln, muss der Agent die langfristigen Folgen seiner Handlungen berücksichtigen, auch wenn die damit verbundene unmittelbare Belohnung negativ sein könnte.
 Ziel des Agenten ist es, den insgesamt erwarteten Gewinn (englisch total discounted reward) zu maximieren. Dieser Gewinn wird auch kumulierter Reward genannt. Er wird in der Regel als Summe aller Belohnungen 
-  
-    
-      
-        r
-      
-    
-    {\displaystyle r}
-  
+$r$
+
  über unendlich viele Zustandsübergänge berechnet:
 
-  
-    
-      
-        
-          E
-        
-        [
-        
-          G
-          
-            t
-          
-        
-        ]
-        =
-        
-          E
-        
-        
-          [
-          
-            
-              ∑
-              
-                i
-                =
-                0
-              
-              
-                ∞
-              
-            
-            
-              γ
-              
-                i
-              
-            
-            ⋅
-            
-              r
-              
-                t
-                +
-                i
-              
-            
-          
-          ]
-        
-      
-    
-    {\displaystyle \mathbb {E} [G_{t}]=\mathbb {E} \left[\sum _{i=0}^{\infty }\gamma ^{i}\cdot r_{t+i}\right]}
-  
+$\mathbb {E} [G_{t}]=\mathbb {E} \left[\sum _{i=0}^{\infty }\gamma ^{i}\cdot r_{t+i}\right]$
+
  mit 
-  
-    
-      
-        0
-        ≤
-        γ
-        <
-        1
-      
-    
-    {\displaystyle 0\leq \gamma <1}
-  
+$0\leq \gamma <1$
 
 Dabei ist 
-  
-    
-      
-        
-          r
-          
-            t
-            +
-            i
-          
-        
-      
-    
-    {\displaystyle r_{t+i}}
-  
+$r_{t+i}$
+
  die Belohnung, die der Agent wahrscheinlich im Zeitschritt 
-  
-    
-      
-        t
-        +
-        1
-      
-    
-    {\displaystyle t+1}
-  
+$t+1$
+
  erhält. Der Diskontierungsfaktor 
-  
-    
-      
-        γ
-      
-    
-    {\displaystyle \gamma }
-  
+$\gamma $
+
  gewichtet Belohnungen, die kurzfristig erfolgen, höher als solche, die später erfolgen. Er sorgt auch dafür, dass die Summe für kontinuierliche Probleme (unendlich viele Zustandsübergänge) gegen einen Grenzwert konvergiert. Für 
-  
-    
-      
-        γ
-        =
-        0
-      
-    
-    {\displaystyle \gamma =0}
-  
+$\gamma =0$
+
  zählt nur die direkte Belohnung einer Aktion, alle zukünftigen Belohnungen werden ignoriert. Für 
-  
-    
-      
-        γ
-        →
-        1
-      
-    
-    {\displaystyle \gamma \rightarrow 1}
-  
+$\gamma \rightarrow 1$
+
  erhalten zukünftige Belohnungen immer mehr Gewicht. Typische Werte für 
-  
-    
-      
-        γ
-      
-    
-    {\displaystyle \gamma }
-  
+$\gamma $
+
  liegen zwischen 0,95 und 0,99.
 
 ### Erkundung der Umgebung
 
 Wenn alle Elemente eines MDP vollständig bekannt sind und er nicht zu viele Zustände enthält, kann die optimale Policy direkt mit dynamischer Programmierung berechnet werden, siehe auch Markow-Entscheidungsproblem#Algorithmen. Bei vielen Aufgaben, die mit bestärkendem Lernen gelöst werden sollen, ist das Aktionsmodell 
-  
-    
-      
-        T
-      
-    
-    {\displaystyle T}
-  
+$T$
+
  nicht bekannt. Bei diesen Aufgaben spielt die autonome Erkundung der Umgebung eine wichtige Rolle. Der Agent kann selbstständig eine Erkundungs-Policy ausführen, um durch Versuch und Irrtum entweder das Aktionsmodell oder, statt einem Modell, direkt eine optimale Policy zu erlernen. In einigen Aufgabenstellungen kann der Agent allerdings nur einen Teil der Zustände beobachten oder die Beobachtungen können ungenau sein. Formal muss das Problem dann als teilweise beobachtbares Markow-Entscheidungsproblem (englisch partially observable Markov decision process, (POMDP)) beschrieben werden. In beiden Fällen kann es auch Einschränkungen geben für die Aktionen, die der Agent ausführen kann.
 Zur Erkundung ist ein rein zufälliges Vorgehen nicht effizient. Der Agent sollte sinnvolle Ansätze verfolgen und dabei bereits erworbenes Wissen ausnutzen (englisch exploitation). Er soll sich aber nicht zu früh festlegen und weiter nach neuen, noch besseren Aktionsmöglichkeiten suchen (englisch exploration). Eine prominente Erkundungs-Policy ist die ε-greedy policy. Hierbei ist der Agent entweder gierig (englisch greedy) und wählt die aus seiner Sicht erfolgversprechendste Aktion (gemäß seinem bereits erworbenen Wissen) oder er wählt eine zufällige Aktion. Der Parameter ε mit Werten zwischen 0 und 1 gibt die Wahrscheinlichkeit an, mit der er eine zufällige Aktion wählt.
 
@@ -597,23 +151,11 @@ Das erste Problem ist ein „echtes“ Lernproblem. Das zweite Problem ist eigen
 ## Lernverfahren
 
 Zum Erlernen der Strategie des Agenten gibt es verschiedene Algorithmen. Sie lassen sich grob einteilen in modellbasiert und modellfrei. Modellbasierte Methoden lernen das Aktionsmodell 
-  
-    
-      
-        T
-      
-    
-    {\displaystyle T}
-  
+$T$
+
  und die Belohnungsfunktion 
-  
-    
-      
-        r
-      
-    
-    {\displaystyle r}
-  
+$r$
+
  und berechnen daraus die optimale Strategie. Modellfreie Methoden lernen für jeden Zustand die optimale Aktion. Der Agent kennt nur die optimalen Aktionen. Er kann nicht vorhersagen, zu welchen Folgezuständen die Aktionen führen.
 
 ### Modellfrei
@@ -644,911 +186,69 @@ Strategiebasierte Methoden versuchen, die zu erwartende kumulative Belohnung dir
 
 Der einfach herzuleitende Algorithmus REINFORCE schätzt den Gradienten des zu erwartenden Gewinnes
 
-  
-    
-      
-        
-          ∇
-          
-            θ
-          
-        
-        
-          
-            E
-          
-          
-            τ
-            ∼
-            
-              p
-              
-                θ
-              
-            
-          
-        
-        [
-        
-          R
-          
-            0
-          
-        
-        ]
-      
-    
-    {\displaystyle \nabla _{\theta }\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}]}
-  
+$\nabla _{\theta }\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}]$
+
 , um damit seine Parameter über empirisch gewinnbare Spielabläufe zu aktualisieren. Hierbei muss die Strategie 
-  
-    
-      
-        
-          π
-          
-            θ
-          
-        
-        (
-        a
-        
-          |
-        
-        s
-        )
-      
-    
-    {\displaystyle \pi _{\theta }(a|s)}
-  
+$\pi _{\theta }(a|s)$
+
  nach 
-  
-    
-      
-        θ
-      
-    
-    {\displaystyle \theta }
-  
+$\theta $
+
  differenzierbar sein und 
-  
-    
-      
-        τ
-        =
-        (
-        
-          s
-          
-            0
-          
-        
-        ,
-        
-          a
-          
-            0
-          
-        
-        ,
-        
-          s
-          
-            1
-          
-        
-        ,
-        
-          a
-          
-            1
-          
-        
-        ,
-        …
-        ,
-        
-          s
-          
-            T
-          
-        
-        ,
-        
-          a
-          
-            T
-          
-        
-        )
-      
-    
-    {\displaystyle \tau =(s_{0},a_{0},s_{1},a_{1},\dots ,s_{T},a_{T})}
-  
+$\tau =(s_{0},a_{0},s_{1},a_{1},\dots ,s_{T},a_{T})$
+
  stellt einen Spielablauf dar, der aus der Wahrscheinlichkeitsverteilung 
-  
-    
-      
-        
-          p
-          
-            θ
-          
-        
-      
-    
-    {\displaystyle p_{\theta }}
-  
+$p_{\theta }$
+
  entnommen wird. Diese setzt sich einerseits aus der Strategie 
-  
-    
-      
-        
-          π
-          
-            θ
-          
-        
-      
-    
-    {\displaystyle \pi _{\theta }}
-  
+$\pi _{\theta }$
+
 , als auch der möglicherweise nicht-deterministischen Umgebung 
-  
-    
-      
-        p
-        (
-        
-          s
-          ′
-        
-        
-          |
-        
-        s
-        ,
-        a
-        )
-      
-    
-    {\displaystyle p(s'|s,a)}
-  
+$p(s'|s,a)$
+
  (auf die der Agent keinen Einfluss hat), zusammen:
 
-  
-    
-      
-        
-          p
-          
-            θ
-          
-        
-        (
-        τ
-        )
-        =
-        μ
-        (
-        
-          s
-          
-            0
-          
-        
-        )
-        
-          ∏
-          
-            t
-            =
-            0
-          
-          
-            T
-          
-        
-        p
-        (
-        
-          s
-          
-            t
-            +
-            1
-          
-        
-        
-          |
-        
-        
-          s
-          
-            t
-          
-        
-        ,
-        
-          a
-          
-            t
-          
-        
-        )
-        
-        
-          π
-          
-            θ
-          
-        
-        (
-        
-          a
-          
-            t
-          
-        
-        
-          |
-        
-        
-          s
-          
-            t
-          
-        
-        )
-      
-    
-    {\displaystyle p_{\theta }(\tau )=\mu (s_{0})\prod _{t=0}^{T}p(s_{t+1}|s_{t},a_{t})\;\pi _{\theta }(a_{t}|s_{t})}
-  
+$p_{\theta }(\tau )=\mu (s_{0})\prod _{t=0}^{T}p(s_{t+1}|s_{t},a_{t})\;\pi _{\theta }(a_{t}|s_{t})$
+
 ,
 wobei 
-  
-    
-      
-        μ
-      
-    
-    {\displaystyle \mu }
-  
+$\mu $
+
  eine Verteilung über den Startzustand darstellt. Über die Definition der Erwartungswerts kann nun REINFORCE wie folgt hergeleitet werden:
 
-  
-    
-      
-        
-          ∇
-          
-            θ
-          
-        
-        
-          
-            E
-          
-          
-            τ
-            ∼
-            
-              p
-              
-                θ
-              
-            
-          
-        
-        [
-        
-          R
-          
-            0
-          
-        
-        ]
-        =
-        
-          ∇
-          
-            θ
-          
-        
-        ∫
-        
-          R
-          
-            0
-          
-        
-        
-        
-          p
-          
-            θ
-          
-        
-        (
-        τ
-        )
-        d
-        τ
-        =
-        ∫
-        
-          R
-          
-            0
-          
-        
-        
-        
-          ∇
-          
-            θ
-          
-        
-        
-          p
-          
-            θ
-          
-        
-        (
-        τ
-        )
-        d
-        τ
-        =
-      
-    
-    {\displaystyle \nabla _{\theta }\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}]=\nabla _{\theta }\int R_{0}\;p_{\theta }(\tau )d\tau =\int R_{0}\;\nabla _{\theta }p_{\theta }(\tau )d\tau =}
-  
+$\nabla _{\theta }\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}]=\nabla _{\theta }\int R_{0}\;p_{\theta }(\tau )d\tau =\int R_{0}\;\nabla _{\theta }p_{\theta }(\tau )d\tau =$
+
 :
-  
-    
-      
-        ∫
-        
-          R
-          
-            0
-          
-        
-        
-        
-          ∇
-          
-            θ
-          
-        
-        
-          log
-        
-        (
-        
-          p
-          
-            θ
-          
-        
-        (
-        τ
-        )
-        )
-        
-          p
-          
-            θ
-          
-        
-        (
-        τ
-        )
-        d
-        τ
-        =
-        
-          
-            E
-          
-          
-            τ
-            ∼
-            
-              p
-              
-                θ
-              
-            
-          
-        
-        [
-        
-          R
-          
-            0
-          
-        
-        
-          ∇
-          
-            θ
-          
-        
-        
-          log
-        
-        (
-        
-          p
-          
-            θ
-          
-        
-        (
-        τ
-        )
-        )
-        ]
-        ,
-      
-    
-    {\displaystyle \int R_{0}\;\nabla _{\theta }{\text{log}}(p_{\theta }(\tau ))p_{\theta }(\tau )d\tau =\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}\nabla _{\theta }{\text{log}}(p_{\theta }(\tau ))],}
-  
+$\int R_{0}\;\nabla _{\theta }{\text{log}}(p_{\theta }(\tau ))p_{\theta }(\tau )d\tau =\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}\nabla _{\theta }{\text{log}}(p_{\theta }(\tau ))],$
 
 wobei für die erste Gleichung die Leibnizregel verwendet wurde und für die dritte Gleichung die Regel
 
-  
-    
-      
-        
-          ∇
-          
-            x
-          
-        
-        
-          log
-        
-        (
-        f
-        (
-        x
-        )
-        )
-        =
-        
-          
-            
-              
-                ∇
-                
-                  x
-                
-              
-              f
-              (
-              x
-              )
-            
-            
-              f
-              (
-              x
-              )
-            
-          
-        
-      
-    
-    {\displaystyle \nabla _{x}{\text{log}}(f(x))={\frac {\nabla _{x}f(x)}{f(x)}}}
-  
+$\nabla _{x}{\text{log}}(f(x))={\frac {\nabla _{x}f(x)}{f(x)}}$
+
 ,
 wobei der natürliche Logarithmus gemeint ist. Als letzten Schritt erkennen wir, dass
 
-  
-    
-      
-        
-          ∇
-          
-            θ
-          
-        
-        
-          log
-        
-        (
-        
-          p
-          
-            θ
-          
-        
-        (
-        τ
-        )
-        )
-        =
-        
-          ∇
-          
-            θ
-          
-        
-        
-          
-            [
-          
-        
-        
-          log
-        
-        (
-        μ
-        (
-        
-          s
-          
-            0
-          
-        
-        )
-        )
-        +
-        
-          ∑
-          
-            t
-            =
-            0
-          
-          
-            T
-          
-        
-        
-          log
-        
-        (
-        p
-        (
-        
-          s
-          
-            t
-            +
-            1
-          
-        
-        
-          |
-        
-        
-          s
-          
-            t
-          
-        
-        ,
-        
-          a
-          
-            t
-          
-        
-        )
-        )
-        +
-        
-          log
-        
-        (
-        
-          π
-          
-            θ
-          
-        
-        (
-        
-          s
-          
-            t
-          
-        
-        
-          |
-        
-        
-          a
-          
-            t
-          
-        
-        )
-        )
-        
-          
-            ]
-          
-        
-        =
-        
-          ∑
-          
-            t
-            =
-            0
-          
-          
-            T
-          
-        
-        
-          ∇
-          
-            θ
-          
-        
-        
-          log
-        
-        (
-        
-          π
-          
-            θ
-          
-        
-        (
-        
-          s
-          
-            t
-          
-        
-        
-          |
-        
-        
-          a
-          
-            t
-          
-        
-        )
-        )
-      
-    
-    {\displaystyle \nabla _{\theta }{\text{log}}(p_{\theta }(\tau ))=\nabla _{\theta }{\Big [}{\text{log}}(\mu (s_{0}))+\sum _{t=0}^{T}{\text{log}}(p(s_{t+1}|s_{t},a_{t}))+{\text{log}}(\pi _{\theta }(s_{t}|a_{t})){\Big ]}=\sum _{t=0}^{T}\nabla _{\theta }{\text{log}}(\pi _{\theta }(s_{t}|a_{t}))}
-  
+$\nabla _{\theta }{\text{log}}(p_{\theta }(\tau ))=\nabla _{\theta }{\Big [}{\text{log}}(\mu (s_{0}))+\sum _{t=0}^{T}{\text{log}}(p(s_{t+1}|s_{t},a_{t}))+{\text{log}}(\pi _{\theta }(s_{t}|a_{t})){\Big ]}=\sum _{t=0}^{T}\nabla _{\theta }{\text{log}}(\pi _{\theta }(s_{t}|a_{t}))$
+
 .
 Nun kann man einen erwartungstreuen Schätzer 
-  
-    
-      
-        
-          
-            
-              
-                ∇
-                ^
-              
-            
-          
-          
-            θ
-          
-        
-        
-          
-            E
-          
-          
-            τ
-            ∼
-            
-              p
-              
-                θ
-              
-            
-          
-        
-        [
-        
-          R
-          
-            0
-          
-        
-        ]
-      
-    
-    {\displaystyle {\hat {\nabla }}_{\theta }\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}]}
-  
+${\hat {\nabla }}_{\theta }\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}]$
+
  des Gradienten des zu erwartenden Gewinns erhalten, indem man erst einen Spielablauf 
-  
-    
-      
-        τ
-      
-    
-    {\displaystyle \tau }
-  
+$\tau $
+
  mit dem Agenten generiert und einsetzt:
 
-  
-    
-      
-        
-          
-            
-              
-                ∇
-                ^
-              
-            
-          
-          
-            θ
-          
-        
-        
-          
-            E
-          
-          
-            τ
-            ∼
-            
-              p
-              
-                θ
-              
-            
-          
-        
-        [
-        
-          R
-          
-            0
-          
-        
-        ]
-        =
-        
-          R
-          
-            0
-          
-        
-        ⋅
-        
-          ∑
-          
-            t
-            =
-            0
-          
-          
-            T
-          
-        
-        
-          ∇
-          
-            θ
-          
-        
-        
-          log
-        
-        (
-        
-          π
-          
-            θ
-          
-        
-        (
-        
-          a
-          
-            t
-          
-        
-        
-          |
-        
-        
-          s
-          
-            t
-          
-        
-        )
-        )
-      
-    
-    {\displaystyle {\hat {\nabla }}_{\theta }\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}]=R_{0}\cdot \sum _{t=0}^{T}\nabla _{\theta }{\text{log}}(\pi _{\theta }(a_{t}|s_{t}))}
-  
+${\hat {\nabla }}_{\theta }\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}]=R_{0}\cdot \sum _{t=0}^{T}\nabla _{\theta }{\text{log}}(\pi _{\theta }(a_{t}|s_{t}))$
+
 .
 Der Parameterupdate mit Lernrate 
-  
-    
-      
-        η
-      
-    
-    {\displaystyle \eta }
-  
+$\eta $
+
  erfolgt dann wie folgt:
 
-  
-    
-      
-        
-          θ
-          
-            t
-            +
-            1
-          
-        
-        ←
-        
-          θ
-          
-            t
-          
-        
-        +
-        η
-        
-          
-            
-              
-                ∇
-                ^
-              
-            
-          
-          
-            θ
-          
-        
-        
-          
-            E
-          
-          
-            τ
-            ∼
-            
-              p
-              
-                θ
-              
-            
-          
-        
-        [
-        
-          R
-          
-            0
-          
-        
-        ]
-      
-    
-    {\displaystyle \theta _{t+1}\leftarrow \theta _{t}+\eta {\hat {\nabla }}_{\theta }\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}]}
-  
+$\theta _{t+1}\leftarrow \theta _{t}+\eta {\hat {\nabla }}_{\theta }\mathbf {E} _{\tau \sim p_{\theta }}[R_{0}]$
+
 .
 
 ### Modellbasiert

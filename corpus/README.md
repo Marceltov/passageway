@@ -22,7 +22,9 @@ Chosen by hand: the core concepts of deep learning (backpropagation, convolution
 `snapshot.py` writes the files. It is a maintenance script, not part of the Wikipedia connector, and uses the connector as a library:
 
 ```bash
-OUT=corpus/en LANGUAGE=en TITLES='Deep learning|Backpropagation|...' uv run python corpus/snapshot.py
+OUT=corpus/en LANGUAGE=en TITLES="$(paste -sd'|' corpus/en/titles.txt)" FORCE=1 uv run python corpus/snapshot.py
 ```
+
+Each folder's `titles.txt` is the list of articles it holds, so this repeats the same selection. `FORCE=1` replaces the whole folder, and the new files are written next to it first, so a failed run leaves the old ones.
 
 Its settings are the Wikipedia connector's (`LANGUAGE`, `TITLES`, `CATEGORIES`, `CATEGORY_DEPTH`, `SKIP_SECTIONS`, `CONTACT` and the others) plus `OUT` (the folder to write), `LIMIT` (keep only the N longest articles) and `FORCE=1` (overwrite existing files). A refresh fetches today's revisions, so it changes the corpus: do it deliberately and expect measurements to move.

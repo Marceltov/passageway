@@ -15,201 +15,42 @@ The basic idea behind stochastic approximation can be traced back to the Robbins
 
 Both statistical estimation and machine learning consider the problem of minimizing an objective function that has the form of a sum:
 
-  
-    
-      
-        Q
-        (
-        w
-        )
-        =
-        
-          
-            1
-            n
-          
-        
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-        ,
-      
-    
-    {\displaystyle Q(w)={\frac {1}{n}}\sum _{i=1}^{n}Q_{i}(w),}
-  
+$Q(w)={\frac {1}{n}}\sum _{i=1}^{n}Q_{i}(w),$
 
 where the parameter 
-  
-    
-      
-        w
-      
-    
-    {\displaystyle w}
-  
+$w$
+
  that minimizes 
-  
-    
-      
-        Q
-        (
-        w
-        )
-      
-    
-    {\displaystyle Q(w)}
-  
+$Q(w)$
+
  is to be estimated. Each summand function 
-  
-    
-      
-        
-          Q
-          
-            i
-          
-        
-      
-    
-    {\displaystyle Q_{i}}
-  
+$Q_{i}$
+
  is typically associated with the 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 -th observation in the data set (used for training).
 In classical statistics, sum-minimization problems arise in least squares and in maximum-likelihood estimation (for independent observations).  The general class of estimators that arise as minimizers of sums are called M-estimators. However, in statistics, it has been long recognized that requiring even local minimization is too restrictive for some problems of maximum-likelihood estimation. Therefore, contemporary statistical theorists often consider stationary points of the likelihood function (or zeros of its derivative, the score function, and other estimating equations).
 The sum-minimization problem also arises for empirical risk minimization. There, 
-  
-    
-      
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-      
-    
-    {\displaystyle Q_{i}(w)}
-  
+$Q_{i}(w)$
+
  is the value of the loss function at 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 -th example, and 
-  
-    
-      
-        Q
-        (
-        w
-        )
-      
-    
-    {\displaystyle Q(w)}
-  
+$Q(w)$
+
  is the empirical risk.
 When used to minimize the above function, a standard (or "batch") gradient descent method would perform the following iterations:
 
-  
-    
-      
-        w
-        :=
-        w
-        −
-        η
-        
-        ∇
-        Q
-        (
-        w
-        )
-        =
-        w
-        −
-        
-          
-            η
-            n
-          
-        
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        ∇
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-        .
-      
-    
-    {\displaystyle w:=w-\eta \,\nabla Q(w)=w-{\frac {\eta }{n}}\sum _{i=1}^{n}\nabla Q_{i}(w).}
-  
+$w:=w-\eta \,\nabla Q(w)=w-{\frac {\eta }{n}}\sum _{i=1}^{n}\nabla Q_{i}(w).$
 
 The step size is denoted by 
-  
-    
-      
-        η
-      
-    
-    {\displaystyle \eta }
-  
+$\eta $
+
  (sometimes called the learning rate in machine learning) and here "
-  
-    
-      
-        :=
-      
-    
-    {\displaystyle :=}
-  
+$:=$
+
 " denotes the update of a variable in the algorithm.
 In many cases, the summand functions have a simple form that enables inexpensive evaluations of the sum-function and the sum gradient. For example, in statistics, one-parameter exponential families allow economical function-evaluations and gradient-evaluations.
 However, in other cases, evaluating the sum-gradient may require expensive evaluations of the gradients from all summand functions. When the training set is enormous and no simple formulas exist, evaluating the sums of gradients becomes very expensive, because evaluating the gradient requires evaluating all the summand functions' gradients. To economize on the computational cost at every iteration, stochastic gradient descent samples a subset of summand functions at every step. This is very effective in the case of large-scale machine learning problems.
@@ -217,57 +58,19 @@ However, in other cases, evaluating the sum-gradient may require expensive evalu
 ## Iterative method
 
 In stochastic (or "on-line") gradient descent, the true gradient of 
-  
-    
-      
-        Q
-        (
-        w
-        )
-      
-    
-    {\displaystyle Q(w)}
-  
+$Q(w)$
+
  is approximated by a gradient at a single sample:
 
-  
-    
-      
-        w
-        :=
-        w
-        −
-        η
-        
-        ∇
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-        .
-      
-    
-    {\displaystyle w:=w-\eta \,\nabla Q_{i}(w).}
-  
+$w:=w-\eta \,\nabla Q_{i}(w).$
 
 As the algorithm sweeps through the training set, it performs the above update for each training sample. Several passes can be made over the training set until the algorithm converges. If this is done, the data can be shuffled for each pass to prevent cycles. Typical implementations may use an adaptive learning rate so that the algorithm converges.
 In pseudocode, stochastic gradient descent can be presented as :
 
 A compromise between computing the true gradient and the gradient at a single sample is to compute the gradient against more than one training sample (called a "mini-batch") at each step.  This can perform significantly better than "true" stochastic gradient descent described, because the code can make use of vectorization libraries rather than computing each step separately as was first shown in  where it was called "the bunch-mode back-propagation algorithm".  It may also result in smoother convergence, as the gradient computed at each step is averaged over more training samples.
 The convergence of stochastic gradient descent has been analyzed using the theories of convex minimization and of stochastic approximation. Briefly, when the learning rates 
-  
-    
-      
-        η
-      
-    
-    {\displaystyle \eta }
-  
+$\eta $
+
  decrease with an appropriate rate,
 and subject to relatively mild assumptions, stochastic gradient descent converges almost surely to a global minimum 
 when the objective function is convex or pseudoconvex, 
@@ -277,707 +80,41 @@ This is in fact a consequence of the Robbins–Siegmund theorem.
 ## Linear regression
 
 Suppose we want to fit a straight line 
-  
-    
-      
-        
-          
-            
-              y
-              ^
-            
-          
-        
-        =
-        
-          w
-          
-            1
-          
-        
-        +
-        
-          w
-          
-            2
-          
-        
-        x
-      
-    
-    {\displaystyle {\hat {y}}=w_{1}+w_{2}x}
-  
+${\hat {y}}=w_{1}+w_{2}x$
+
  to a training set with observations 
-  
-    
-      
-        (
-        (
-        
-          x
-          
-            1
-          
-        
-        ,
-        
-          y
-          
-            1
-          
-        
-        )
-        ,
-        (
-        
-          x
-          
-            2
-          
-        
-        ,
-        
-          y
-          
-            2
-          
-        
-        )
-        …
-        ,
-        (
-        
-          x
-          
-            n
-          
-        
-        ,
-        
-          y
-          
-            n
-          
-        
-        )
-        )
-      
-    
-    {\displaystyle ((x_{1},y_{1}),(x_{2},y_{2})\ldots ,(x_{n},y_{n}))}
-  
+$((x_{1},y_{1}),(x_{2},y_{2})\ldots ,(x_{n},y_{n}))$
+
  and corresponding estimated responses 
-  
-    
-      
-        (
-        
-          
-            
-              
-                y
-                ^
-              
-            
-          
-          
-            1
-          
-        
-        ,
-        
-          
-            
-              
-                y
-                ^
-              
-            
-          
-          
-            2
-          
-        
-        ,
-        …
-        ,
-        
-          
-            
-              
-                y
-                ^
-              
-            
-          
-          
-            n
-          
-        
-        )
-      
-    
-    {\displaystyle ({\hat {y}}_{1},{\hat {y}}_{2},\ldots ,{\hat {y}}_{n})}
-  
+$({\hat {y}}_{1},{\hat {y}}_{2},\ldots ,{\hat {y}}_{n})$
+
  using least squares. The objective function to be minimized is
 
-  
-    
-      
-        Q
-        (
-        w
-        )
-        =
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-        =
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        
-          
-            (
-            
-              
-                
-                  
-                    
-                      y
-                      ^
-                    
-                  
-                
-                
-                  i
-                
-              
-              −
-              
-                y
-                
-                  i
-                
-              
-            
-            )
-          
-          
-            2
-          
-        
-        =
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        
-          
-            (
-            
-              
-                w
-                
-                  1
-                
-              
-              +
-              
-                w
-                
-                  2
-                
-              
-              
-                x
-                
-                  i
-                
-              
-              −
-              
-                y
-                
-                  i
-                
-              
-            
-            )
-          
-          
-            2
-          
-        
-        .
-      
-    
-    {\displaystyle Q(w)=\sum _{i=1}^{n}Q_{i}(w)=\sum _{i=1}^{n}\left({\hat {y}}_{i}-y_{i}\right)^{2}=\sum _{i=1}^{n}\left(w_{1}+w_{2}x_{i}-y_{i}\right)^{2}.}
-  
+$Q(w)=\sum _{i=1}^{n}Q_{i}(w)=\sum _{i=1}^{n}\left({\hat {y}}_{i}-y_{i}\right)^{2}=\sum _{i=1}^{n}\left(w_{1}+w_{2}x_{i}-y_{i}\right)^{2}.$
 
 The last line in the above pseudocode for this specific problem will become:
 
-  
-    
-      
-        
-          
-            [
-            
-              
-                
-                  
-                    w
-                    
-                      1
-                    
-                  
-                
-              
-              
-                
-                  
-                    w
-                    
-                      2
-                    
-                  
-                
-              
-            
-            ]
-          
-        
-        ←
-        
-          
-            [
-            
-              
-                
-                  
-                    w
-                    
-                      1
-                    
-                  
-                
-              
-              
-                
-                  
-                    w
-                    
-                      2
-                    
-                  
-                
-              
-            
-            ]
-          
-        
-        −
-        η
-        
-          
-            [
-            
-              
-                
-                  
-                    
-                      ∂
-                      
-                        ∂
-                        
-                          w
-                          
-                            1
-                          
-                        
-                      
-                    
-                  
-                  (
-                  
-                    w
-                    
-                      1
-                    
-                  
-                  +
-                  
-                    w
-                    
-                      2
-                    
-                  
-                  
-                    x
-                    
-                      i
-                    
-                  
-                  −
-                  
-                    y
-                    
-                      i
-                    
-                  
-                  
-                    )
-                    
-                      2
-                    
-                  
-                
-              
-              
-                
-                  
-                    
-                      ∂
-                      
-                        ∂
-                        
-                          w
-                          
-                            2
-                          
-                        
-                      
-                    
-                  
-                  (
-                  
-                    w
-                    
-                      1
-                    
-                  
-                  +
-                  
-                    w
-                    
-                      2
-                    
-                  
-                  
-                    x
-                    
-                      i
-                    
-                  
-                  −
-                  
-                    y
-                    
-                      i
-                    
-                  
-                  
-                    )
-                    
-                      2
-                    
-                  
-                
-              
-            
-            ]
-          
-        
-        =
-        
-          
-            [
-            
-              
-                
-                  
-                    w
-                    
-                      1
-                    
-                  
-                
-              
-              
-                
-                  
-                    w
-                    
-                      2
-                    
-                  
-                
-              
-            
-            ]
-          
-        
-        −
-        η
-        
-          
-            [
-            
-              
-                
-                  2
-                  (
-                  
-                    w
-                    
-                      1
-                    
-                  
-                  +
-                  
-                    w
-                    
-                      2
-                    
-                  
-                  
-                    x
-                    
-                      i
-                    
-                  
-                  −
-                  
-                    y
-                    
-                      i
-                    
-                  
-                  )
-                
-              
-              
-                
-                  2
-                  
-                    x
-                    
-                      i
-                    
-                  
-                  (
-                  
-                    w
-                    
-                      1
-                    
-                  
-                  +
-                  
-                    w
-                    
-                      2
-                    
-                  
-                  
-                    x
-                    
-                      i
-                    
-                  
-                  −
-                  
-                    y
-                    
-                      i
-                    
-                  
-                  )
-                
-              
-            
-            ]
-          
-        
-        .
-      
-    
-    {\displaystyle {\begin{bmatrix}w_{1}\\w_{2}\end{bmatrix}}\leftarrow {\begin{bmatrix}w_{1}\\w_{2}\end{bmatrix}}-\eta {\begin{bmatrix}{\frac {\partial }{\partial w_{1}}}(w_{1}+w_{2}x_{i}-y_{i})^{2}\\{\frac {\partial }{\partial w_{2}}}(w_{1}+w_{2}x_{i}-y_{i})^{2}\end{bmatrix}}={\begin{bmatrix}w_{1}\\w_{2}\end{bmatrix}}-\eta {\begin{bmatrix}2(w_{1}+w_{2}x_{i}-y_{i})\\2x_{i}(w_{1}+w_{2}x_{i}-y_{i})\end{bmatrix}}.}
-  
+${\begin{bmatrix}w_{1}\\w_{2}\end{bmatrix}}\leftarrow {\begin{bmatrix}w_{1}\\w_{2}\end{bmatrix}}-\eta {\begin{bmatrix}{\frac {\partial }{\partial w_{1}}}(w_{1}+w_{2}x_{i}-y_{i})^{2}\\{\frac {\partial }{\partial w_{2}}}(w_{1}+w_{2}x_{i}-y_{i})^{2}\end{bmatrix}}={\begin{bmatrix}w_{1}\\w_{2}\end{bmatrix}}-\eta {\begin{bmatrix}2(w_{1}+w_{2}x_{i}-y_{i})\\2x_{i}(w_{1}+w_{2}x_{i}-y_{i})\end{bmatrix}}.$
+
 Note that in each iteration or update step, the gradient is only evaluated at a single 
-  
-    
-      
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle x_{i}}
-  
+$x_{i}$
+
 . This is the key difference between stochastic gradient descent and batched gradient descent.
 In general, given a linear regression 
-  
-    
-      
-        
-          
-            
-              y
-              ^
-            
-          
-        
-        =
-        
-          ∑
-          
-            k
-            ∈
-            1
-            :
-            m
-          
-        
-        
-          w
-          
-            k
-          
-        
-        
-          x
-          
-            k
-          
-        
-      
-    
-    {\displaystyle {\hat {y}}=\sum _{k\in 1:m}w_{k}x_{k}}
-  
+${\hat {y}}=\sum _{k\in 1:m}w_{k}x_{k}$
+
  problem, stochastic gradient descent behaves differently when 
-  
-    
-      
-        m
-        <
-        n
-      
-    
-    {\displaystyle m<n}
-  
+$m<n$
+
  (underparameterized) and 
-  
-    
-      
-        m
-        ≥
-        n
-      
-    
-    {\displaystyle m\geq n}
-  
+$m\geq n$
+
  (overparameterized). In the overparameterized case, stochastic gradient descent converges to 
-  
-    
-      
-        arg
-        ⁡
-        
-          min
-          
-            w
-            :
-            
-              w
-              
-                T
-              
-            
-            
-              x
-              
-                k
-              
-            
-            =
-            
-              y
-              
-                k
-              
-            
-            ∀
-            k
-            ∈
-            1
-            :
-            n
-          
-        
-        ‖
-        w
-        −
-        
-          w
-          
-            0
-          
-        
-        ‖
-      
-    
-    {\displaystyle \arg \min _{w:w^{T}x_{k}=y_{k}\forall k\in 1:n}\|w-w_{0}\|}
-  
+$\arg \min _{w:w^{T}x_{k}=y_{k}\forall k\in 1:n}\|w-w_{0}\|$
+
 . That is, SGD converges to the interpolation solution with minimum distance from the starting 
-  
-    
-      
-        
-          w
-          
-            0
-          
-        
-      
-    
-    {\displaystyle w_{0}}
-  
+$w_{0}$
+
 . This is true even when the learning rate remains constant. In the underparameterized case, SGD does not converge if learning rate remains constant.
 
 ## History
@@ -1001,1404 +138,183 @@ Many improvements on the basic stochastic gradient descent algorithm have been p
 
 As mentioned earlier, classical stochastic gradient descent is generally sensitive to learning rate η. Fast convergence requires large learning rates but this may induce numerical instability. The problem can be largely solved by considering implicit updates whereby the stochastic gradient is evaluated at the next iterate rather than the current one:
 
-  
-    
-      
-        
-          w
-          
-            new
-          
-        
-        :=
-        
-          w
-          
-            old
-          
-        
-        −
-        η
-        
-        ∇
-        
-          Q
-          
-            i
-          
-        
-        (
-        
-          w
-          
-            new
-          
-        
-        )
-        .
-      
-    
-    {\displaystyle w^{\text{new}}:=w^{\text{old}}-\eta \,\nabla Q_{i}(w^{\text{new}}).}
-  
+$w^{\text{new}}:=w^{\text{old}}-\eta \,\nabla Q_{i}(w^{\text{new}}).$
 
 This equation is implicit since 
-  
-    
-      
-        
-          w
-          
-            new
-          
-        
-      
-    
-    {\displaystyle w^{\text{new}}}
-  
+$w^{\text{new}}$
+
  appears on both sides of the equation. It is a stochastic form of the proximal gradient method since the update
 can also be written as:
 
-  
-    
-      
-        
-          w
-          
-            new
-          
-        
-        :=
-        arg
-        ⁡
-        
-          min
-          
-            w
-          
-        
-        
-          {
-          
-            
-              Q
-              
-                i
-              
-            
-            (
-            w
-            )
-            +
-            
-              
-                1
-                
-                  2
-                  η
-                
-              
-            
-            
-              
-                ‖
-                
-                  w
-                  −
-                  
-                    w
-                    
-                      old
-                    
-                  
-                
-                ‖
-              
-              
-                2
-              
-            
-          
-          }
-        
-        .
-      
-    
-    {\displaystyle w^{\text{new}}:=\arg \min _{w}\left\{Q_{i}(w)+{\frac {1}{2\eta }}\left\|w-w^{\text{old}}\right\|^{2}\right\}.}
-  
+$w^{\text{new}}:=\arg \min _{w}\left\{Q_{i}(w)+{\frac {1}{2\eta }}\left\|w-w^{\text{old}}\right\|^{2}\right\}.$
 
 As an example, 
 consider least squares with features 
-  
-    
-      
-        
-          x
-          
-            1
-          
-        
-        ,
-        …
-        ,
-        
-          x
-          
-            n
-          
-        
-        ∈
-        
-          
-            R
-          
-          
-            p
-          
-        
-      
-    
-    {\displaystyle x_{1},\ldots ,x_{n}\in \mathbb {R} ^{p}}
-  
+$x_{1},\ldots ,x_{n}\in \mathbb {R} ^{p}$
+
  and observations
 
-  
-    
-      
-        
-          y
-          
-            1
-          
-        
-        ,
-        …
-        ,
-        
-          y
-          
-            n
-          
-        
-        ∈
-        
-          R
-        
-      
-    
-    {\displaystyle y_{1},\ldots ,y_{n}\in \mathbb {R} }
-  
+$y_{1},\ldots ,y_{n}\in \mathbb {R} $
+
 . We wish to solve:
 
-  
-    
-      
-        
-          min
-          
-            w
-          
-        
-        
-          ∑
-          
-            j
-            =
-            1
-          
-          
-            n
-          
-        
-        
-          
-            (
-            
-              
-                y
-                
-                  j
-                
-              
-              −
-              
-                x
-                
-                  j
-                
-                ′
-              
-              w
-            
-            )
-          
-          
-            2
-          
-        
-        ,
-      
-    
-    {\displaystyle \min _{w}\sum _{j=1}^{n}\left(y_{j}-x_{j}'w\right)^{2},}
-  
+$\min _{w}\sum _{j=1}^{n}\left(y_{j}-x_{j}'w\right)^{2},$
 
 where 
-  
-    
-      
-        
-          x
-          
-            j
-          
-          ′
-        
-        w
-        =
-        
-          x
-          
-            j
-            1
-          
-        
-        
-          w
-          
-            1
-          
-        
-        +
-        
-          x
-          
-            j
-            ,
-            2
-          
-        
-        
-          w
-          
-            2
-          
-        
-        +
-        .
-        .
-        .
-        +
-        
-          x
-          
-            j
-            ,
-            p
-          
-        
-        
-          w
-          
-            p
-          
-        
-      
-    
-    {\displaystyle x_{j}'w=x_{j1}w_{1}+x_{j,2}w_{2}+...+x_{j,p}w_{p}}
-  
+$x_{j}'w=x_{j1}w_{1}+x_{j,2}w_{2}+...+x_{j,p}w_{p}$
+
   indicates the inner product.
 Note that 
-  
-    
-      
-        x
-      
-    
-    {\displaystyle x}
-  
+$x$
+
  could have "1" as the first element to include an intercept. Classical stochastic gradient descent proceeds as follows:
 
-  
-    
-      
-        
-          w
-          
-            new
-          
-        
-        =
-        
-          w
-          
-            old
-          
-        
-        +
-        η
-        
-          (
-          
-            
-              y
-              
-                i
-              
-            
-            −
-            
-              x
-              
-                i
-              
-              ′
-            
-            
-              w
-              
-                old
-              
-            
-          
-          )
-        
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle w^{\text{new}}=w^{\text{old}}+\eta \left(y_{i}-x_{i}'w^{\text{old}}\right)x_{i}}
-  
+$w^{\text{new}}=w^{\text{old}}+\eta \left(y_{i}-x_{i}'w^{\text{old}}\right)x_{i}$
 
 where 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  is uniformly sampled between 1 and 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
 . Although theoretical convergence of this procedure happens under relatively mild assumptions, in practice the procedure can be quite unstable. In particular, when 
-  
-    
-      
-        η
-      
-    
-    {\displaystyle \eta }
-  
+$\eta $
+
  is misspecified so that 
-  
-    
-      
-        I
-        −
-        η
-        
-          x
-          
-            i
-          
-        
-        
-          x
-          
-            i
-          
-          ′
-        
-      
-    
-    {\displaystyle I-\eta x_{i}x_{i}'}
-  
+$I-\eta x_{i}x_{i}'$
+
  has large absolute eigenvalues with high probability, the procedure may diverge numerically within a few iterations. In contrast, implicit stochastic gradient descent (shortened as ISGD) can be solved in closed-form as:
 
-  
-    
-      
-        
-          w
-          
-            new
-          
-        
-        =
-        
-          w
-          
-            old
-          
-        
-        +
-        
-          
-            η
-            
-              1
-              +
-              η
-              
-                
-                  ‖
-                  
-                    x
-                    
-                      i
-                    
-                  
-                  ‖
-                
-                
-                  2
-                
-              
-            
-          
-        
-        
-          (
-          
-            
-              y
-              
-                i
-              
-            
-            −
-            
-              x
-              
-                i
-              
-              ′
-            
-            
-              w
-              
-                old
-              
-            
-          
-          )
-        
-        
-          x
-          
-            i
-          
-        
-        .
-      
-    
-    {\displaystyle w^{\text{new}}=w^{\text{old}}+{\frac {\eta }{1+\eta \left\|x_{i}\right\|^{2}}}\left(y_{i}-x_{i}'w^{\text{old}}\right)x_{i}.}
-  
+$w^{\text{new}}=w^{\text{old}}+{\frac {\eta }{1+\eta \left\|x_{i}\right\|^{2}}}\left(y_{i}-x_{i}'w^{\text{old}}\right)x_{i}.$
 
 This procedure will remain numerically stable virtually for all 
-  
-    
-      
-        η
-      
-    
-    {\displaystyle \eta }
-  
+$\eta $
+
  as the learning rate is now normalized. Such comparison between classical and implicit stochastic gradient descent in the least squares problem is very similar to the comparison between least mean squares (LMS) and 
 normalized least mean squares filter (NLMS).
 Even though a closed-form solution for ISGD is only possible in least squares, the procedure can be efficiently implemented in a wide range of models. Specifically, suppose that 
-  
-    
-      
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-      
-    
-    {\displaystyle Q_{i}(w)}
-  
+$Q_{i}(w)$
+
  depends on 
-  
-    
-      
-        w
-      
-    
-    {\displaystyle w}
-  
+$w$
+
  only through a linear combination with features 
-  
-    
-      
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle x_{i}}
-  
+$x_{i}$
+
 , so that we can write 
-  
-    
-      
-        
-          ∇
-          
-            w
-          
-        
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-        =
-        −
-        q
-        (
-        
-          x
-          
-            i
-          
-          ′
-        
-        w
-        )
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle \nabla _{w}Q_{i}(w)=-q(x_{i}'w)x_{i}}
-  
+$\nabla _{w}Q_{i}(w)=-q(x_{i}'w)x_{i}$
+
 , where 
-  
-    
-      
-        q
-        (
-        )
-        ∈
-        
-          R
-        
-      
-    
-    {\displaystyle q()\in \mathbb {R} }
-  
+$q()\in \mathbb {R} $
+
  may depend on 
-  
-    
-      
-        
-          x
-          
-            i
-          
-        
-        ,
-        
-          y
-          
-            i
-          
-        
-      
-    
-    {\displaystyle x_{i},y_{i}}
-  
+$x_{i},y_{i}$
+
  as well but not on 
-  
-    
-      
-        w
-      
-    
-    {\displaystyle w}
-  
+$w$
+
  except through 
-  
-    
-      
-        
-          x
-          
-            i
-          
-          ′
-        
-        w
-      
-    
-    {\displaystyle x_{i}'w}
-  
+$x_{i}'w$
+
 . Least squares obeys this rule, and so does logistic regression, and most generalized linear models. For instance, in least squares, 
-  
-    
-      
-        q
-        (
-        
-          x
-          
-            i
-          
-          ′
-        
-        w
-        )
-        =
-        
-          y
-          
-            i
-          
-        
-        −
-        
-          x
-          
-            i
-          
-          ′
-        
-        w
-      
-    
-    {\displaystyle q(x_{i}'w)=y_{i}-x_{i}'w}
-  
+$q(x_{i}'w)=y_{i}-x_{i}'w$
+
 , and in logistic regression 
-  
-    
-      
-        q
-        (
-        
-          x
-          
-            i
-          
-          ′
-        
-        w
-        )
-        =
-        
-          y
-          
-            i
-          
-        
-        −
-        S
-        (
-        
-          x
-          
-            i
-          
-          ′
-        
-        w
-        )
-      
-    
-    {\displaystyle q(x_{i}'w)=y_{i}-S(x_{i}'w)}
-  
+$q(x_{i}'w)=y_{i}-S(x_{i}'w)$
+
 , where 
-  
-    
-      
-        S
-        (
-        u
-        )
-        =
-        
-          e
-          
-            u
-          
-        
-        
-          /
-        
-        (
-        1
-        +
-        
-          e
-          
-            u
-          
-        
-        )
-      
-    
-    {\displaystyle S(u)=e^{u}/(1+e^{u})}
-  
+$S(u)=e^{u}/(1+e^{u})$
+
  is the logistic function. In Poisson regression, 
-  
-    
-      
-        q
-        (
-        
-          x
-          
-            i
-          
-          ′
-        
-        w
-        )
-        =
-        
-          y
-          
-            i
-          
-        
-        −
-        
-          e
-          
-            
-              x
-              
-                i
-              
-              ′
-            
-            w
-          
-        
-      
-    
-    {\displaystyle q(x_{i}'w)=y_{i}-e^{x_{i}'w}}
-  
+$q(x_{i}'w)=y_{i}-e^{x_{i}'w}$
+
 , and so on.
 In such settings, ISGD is simply implemented as follows. Let 
-  
-    
-      
-        f
-        (
-        ξ
-        )
-        =
-        η
-        q
-        (
-        
-          x
-          
-            i
-          
-          ′
-        
-        
-          w
-          
-            old
-          
-        
-        +
-        ξ
-        ‖
-        
-          x
-          
-            i
-          
-        
-        
-          ‖
-          
-            2
-          
-        
-        )
-      
-    
-    {\displaystyle f(\xi )=\eta q(x_{i}'w^{\text{old}}+\xi \|x_{i}\|^{2})}
-  
+$f(\xi )=\eta q(x_{i}'w^{\text{old}}+\xi \|x_{i}\|^{2})$
+
 , where 
-  
-    
-      
-        ξ
-      
-    
-    {\displaystyle \xi }
-  
+$\xi $
+
  is scalar.
 Then, ISGD is equivalent to:
 
-  
-    
-      
-        
-          w
-          
-            new
-          
-        
-        =
-        
-          w
-          
-            old
-          
-        
-        +
-        
-          ξ
-          
-            ∗
-          
-        
-        
-          x
-          
-            i
-          
-        
-        ,
-         
-        
-          where
-        
-         
-        
-          ξ
-          
-            ∗
-          
-        
-        =
-        f
-        (
-        
-          ξ
-          
-            ∗
-          
-        
-        )
-        .
-      
-    
-    {\displaystyle w^{\text{new}}=w^{\text{old}}+\xi ^{\ast }x_{i},~{\text{where}}~\xi ^{\ast }=f(\xi ^{\ast }).}
-  
+$w^{\text{new}}=w^{\text{old}}+\xi ^{\ast }x_{i},~{\text{where}}~\xi ^{\ast }=f(\xi ^{\ast }).$
 
 The scaling factor 
-  
-    
-      
-        
-          ξ
-          
-            ∗
-          
-        
-        ∈
-        
-          R
-        
-      
-    
-    {\displaystyle \xi ^{\ast }\in \mathbb {R} }
-  
+$\xi ^{\ast }\in \mathbb {R} $
+
  can be found through the bisection method since in most regular models, such as the aforementioned generalized linear models, function 
-  
-    
-      
-        q
-        (
-        )
-      
-    
-    {\displaystyle q()}
-  
+$q()$
+
  is decreasing, and thus the search bounds for 
-  
-    
-      
-        
-          ξ
-          
-            ∗
-          
-        
-      
-    
-    {\displaystyle \xi ^{\ast }}
-  
+$\xi ^{\ast }$
+
  are 
-  
-    
-      
-        [
-        min
-        (
-        0
-        ,
-        f
-        (
-        0
-        )
-        )
-        ,
-        max
-        (
-        0
-        ,
-        f
-        (
-        0
-        )
-        )
-        ]
-      
-    
-    {\displaystyle [\min(0,f(0)),\max(0,f(0))]}
-  
+$[\min(0,f(0)),\max(0,f(0))]$
+
 .
 
 ### Momentum
 
 Further proposals include the momentum method or the heavy ball method, which in ML context appeared in Rumelhart, Hinton and Williams' paper on backpropagation learning and borrowed the idea from Soviet mathematician Boris Polyak's 1964 article on solving functional equations. Stochastic gradient descent with momentum remembers the update Δw at each iteration, and determines the next update as a linear combination of the gradient and the previous update:
 
-  
-    
-      
-        Δ
-        w
-        :=
-        α
-        Δ
-        w
-        −
-        η
-        
-        ∇
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-      
-    
-    {\displaystyle \Delta w:=\alpha \Delta w-\eta \,\nabla Q_{i}(w)}
-  
-
-  
-    
-      
-        w
-        :=
-        w
-        +
-        Δ
-        w
-      
-    
-    {\displaystyle w:=w+\Delta w}
-  
+$\Delta w:=\alpha \Delta w-\eta \,\nabla Q_{i}(w)$
+$w:=w+\Delta w$
 
 that leads to:
 
-  
-    
-      
-        w
-        :=
-        w
-        −
-        η
-        
-        ∇
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-        +
-        α
-        Δ
-        w
-      
-    
-    {\displaystyle w:=w-\eta \,\nabla Q_{i}(w)+\alpha \Delta w}
-  
+$w:=w-\eta \,\nabla Q_{i}(w)+\alpha \Delta w$
 
 where the parameter 
-  
-    
-      
-        w
-      
-    
-    {\displaystyle w}
-  
+$w$
+
  which minimizes 
-  
-    
-      
-        Q
-        (
-        w
-        )
-      
-    
-    {\displaystyle Q(w)}
-  
+$Q(w)$
+
  is to be estimated, 
-  
-    
-      
-        η
-      
-    
-    {\displaystyle \eta }
-  
+$\eta $
+
  is a step size (sometimes called the learning rate in machine learning) and 
-  
-    
-      
-        α
-      
-    
-    {\displaystyle \alpha }
-  
+$\alpha $
+
  is an exponential decay factor between 0 and 1 that determines the relative contribution of the current gradient and earlier gradients to the weight change.
 The name momentum stems from an analogy to momentum in physics: the weight vector 
-  
-    
-      
-        w
-      
-    
-    {\displaystyle w}
-  
+$w$
+
 , thought of as a particle traveling through parameter space, incurs acceleration from the gradient of the loss ("force"). Unlike in classical stochastic gradient descent, it tends to keep traveling in the same direction, preventing oscillations. Momentum has been used successfully by computer scientists in the training of artificial neural networks for several decades.
 The momentum method  is closely related to underdamped Langevin dynamics, and may be combined with simulated annealing.
 In mid-1980s the method was modified by Yurii Nesterov to use the gradient predicted at the next point. The resulting so-called Nesterov Accelerated Gradient was sometimes used in ML in the 2010s. Instead of evaluating the gradient at the current point 
-  
-    
-      
-        w
-      
-    
-    {\displaystyle w}
-  
+$w$
+
 , it evaluates it at the point 
-  
-    
-      
-        w
-        +
-        α
-        Δ
-        w
-      
-    
-    {\displaystyle w+\alpha \Delta w}
-  
+$w+\alpha \Delta w$
+
  that the momentum alone would reach:
-  
-    
-      
-        
-          
-            
-              
-                Δ
-                w
-              
-              
-                
-                :=
-                α
-                Δ
-                w
-                −
-                η
-                ∇
-                
-                  Q
-                  
-                    i
-                  
-                
-                (
-                w
-                +
-                α
-                Δ
-                w
-                )
-              
-            
-            
-              
-                w
-              
-              
-                
-                :=
-                w
-                +
-                Δ
-                w
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}\Delta w&:=\alpha \Delta w-\eta \nabla Q_{i}(w+\alpha \Delta w)\\w&:=w+\Delta w\end{aligned}}}
-  
+${\begin{aligned}\Delta w&:=\alpha \Delta w-\eta \nabla Q_{i}(w+\alpha \Delta w)\\w&:=w+\Delta w\end{aligned}}$
+
 That is, it first takes the momentum step, then corrects it with the gradient measured there. Writing 
-  
-    
-      
-        
-          
-            
-              w
-              ~
-            
-          
-        
-        =
-        w
-        +
-        α
-        Δ
-        w
-      
-    
-    {\displaystyle {\tilde {w}}=w+\alpha \Delta w}
-  
+${\tilde {w}}=w+\alpha \Delta w$
+
  for the look-ahead point, the same method needs only the gradient at the stored point:
-  
-    
-      
-        
-          
-            
-              
-                Δ
-                w
-              
-              
-                
-                :=
-                α
-                Δ
-                w
-                −
-                η
-                ∇
-                
-                  Q
-                  
-                    i
-                  
-                
-                (
-                
-                  
-                    
-                      w
-                      ~
-                    
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  
-                    
-                      w
-                      ~
-                    
-                  
-                
-              
-              
-                
-                :=
-                
-                  
-                    
-                      w
-                      ~
-                    
-                  
-                
-                +
-                α
-                Δ
-                w
-                −
-                η
-                ∇
-                
-                  Q
-                  
-                    i
-                  
-                
-                (
-                
-                  
-                    
-                      w
-                      ~
-                    
-                  
-                
-                )
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}\Delta w&:=\alpha \Delta w-\eta \nabla Q_{i}({\tilde {w}})\\{\tilde {w}}&:={\tilde {w}}+\alpha \Delta w-\eta \nabla Q_{i}({\tilde {w}})\end{aligned}}}
-  
+${\begin{aligned}\Delta w&:=\alpha \Delta w-\eta \nabla Q_{i}({\tilde {w}})\\{\tilde {w}}&:={\tilde {w}}+\alpha \Delta w-\eta \nabla Q_{i}({\tilde {w}})\end{aligned}}$
+
 Classical momentum moves by 
-  
-    
-      
-        α
-        Δ
-        w
-        −
-        η
-        ∇
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-      
-    
-    {\displaystyle \alpha \Delta w-\eta \nabla Q_{i}(w)}
-  
+$\alpha \Delta w-\eta \nabla Q_{i}(w)$
+
  with the previous 
-  
-    
-      
-        Δ
-        w
-      
-    
-    {\displaystyle \Delta w}
-  
+$\Delta w$
+
 . Nesterov momentum moves by the same expression with the updated 
-  
-    
-      
-        Δ
-        w
-      
-    
-    {\displaystyle \Delta w}
-  
+$\Delta w$
+
 . That is the only difference.
 
 ### Averaging
 
 Averaged stochastic gradient descent, invented independently by Ruppert and Polyak in the late 1980s, is ordinary stochastic gradient descent that records an average of its parameter vector over time. That is, the update is the same as for ordinary stochastic gradient descent, but the algorithm also keeps track of
 
-  
-    
-      
-        
-          
-            
-              w
-              ¯
-            
-          
-        
-        =
-        
-          
-            1
-            t
-          
-        
-        
-          ∑
-          
-            i
-            =
-            0
-          
-          
-            t
-            −
-            1
-          
-        
-        
-          w
-          
-            i
-          
-        
-        .
-      
-    
-    {\displaystyle {\bar {w}}={\frac {1}{t}}\sum _{i=0}^{t-1}w_{i}.}
-  
+${\bar {w}}={\frac {1}{t}}\sum _{i=0}^{t-1}w_{i}.$
+
 When optimization is done, this averaged parameter vector takes the place of w.
 
 ### AdaGrad
@@ -2406,237 +322,47 @@ When optimization is done, this averaged parameter vector takes the place of w.
 AdaGrad (for adaptive gradient algorithm) is a modified stochastic gradient descent algorithm with per-parameter learning rate, first published in 2011. Informally, this increases the learning rate for sparser parameters and decreases the learning rate for ones that are less sparse. This strategy often improves convergence performance over standard stochastic gradient descent in settings where data is sparse and sparse parameters are more informative. Examples of such applications include natural language processing and image recognition.
 It still has a base learning rate η, but this is multiplied with the elements of a vector {Gj,j}  which is the diagonal of the outer product matrix
 
-  
-    
-      
-        G
-        =
-        
-          ∑
-          
-            τ
-            =
-            1
-          
-          
-            t
-          
-        
-        
-          g
-          
-            τ
-          
-        
-        
-          g
-          
-            τ
-          
-          
-            
-              T
-            
-          
-        
-      
-    
-    {\displaystyle G=\sum _{\tau =1}^{t}g_{\tau }g_{\tau }^{\mathsf {T}}}
-  
+$G=\sum _{\tau =1}^{t}g_{\tau }g_{\tau }^{\mathsf {T}}$
 
 where 
-  
-    
-      
-        
-          g
-          
-            τ
-          
-        
-        =
-        ∇
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-      
-    
-    {\displaystyle g_{\tau }=\nabla Q_{i}(w)}
-  
+$g_{\tau }=\nabla Q_{i}(w)$
+
 , the gradient, at iteration τ. The diagonal is given by
 
-  
-    
-      
-        
-          G
-          
-            j
-            ,
-            j
-          
-        
-        =
-        
-          ∑
-          
-            τ
-            =
-            1
-          
-          
-            t
-          
-        
-        
-          g
-          
-            τ
-            ,
-            j
-          
-          
-            2
-          
-        
-        .
-      
-    
-    {\displaystyle G_{j,j}=\sum _{\tau =1}^{t}g_{\tau ,j}^{2}.}
-  
+$G_{j,j}=\sum _{\tau =1}^{t}g_{\tau ,j}^{2}.$
+
 This vector essentially stores a historical sum of gradient squares by dimension and is updated after every iteration. The formula for an update is now
 
-  
-    
-      
-        w
-        :=
-        w
-        −
-        η
-        
-        
-          d
-          i
-          a
-          g
-        
-        (
-        G
-        
-          )
-          
-            −
-            
-              
-                1
-                2
-              
-            
-          
-        
-        ⊙
-        g
-      
-    
-    {\displaystyle w:=w-\eta \,\mathrm {diag} (G)^{-{\frac {1}{2}}}\odot g}
-  
+$w:=w-\eta \,\mathrm {diag} (G)^{-{\frac {1}{2}}}\odot g$
 
 or, written as per-parameter updates,
 
-  
-    
-      
-        
-          w
-          
-            j
-          
-        
-        :=
-        
-          w
-          
-            j
-          
-        
-        −
-        
-          
-            η
-            
-              
-                G
-                
-                  j
-                  ,
-                  j
-                
-              
-            
-          
-        
-        
-          g
-          
-            j
-          
-        
-        .
-      
-    
-    {\displaystyle w_{j}:=w_{j}-{\frac {\eta }{\sqrt {G_{j,j}}}}g_{j}.}
-  
+$w_{j}:=w_{j}-{\frac {\eta }{\sqrt {G_{j,j}}}}g_{j}.$
 
 Each {G(i,i)}  gives rise to a scaling factor for the learning rate that applies to a single parameter wi. Since the denominator in this factor, 
-  
-    
-      
-        
-          
-            
+
               G
-              
+
                 i
-              
-            
-          
-        
+
         =
-        
-          
-            
+
               ∑
-              
+
                 τ
                 =
                 1
-              
-              
+
                 t
-              
-            
-            
+
               g
-              
+
                 τ
-              
-              
+
                 2
-              
-            
-          
-        
-      
-    
+
     {\textstyle {\sqrt {G_{i}}}={\sqrt {\sum _{\tau =1}^{t}g_{\tau }^{2}}}}
-  
+
  is the ℓ2 norm of previous derivatives, extreme parameter updates get dampened, while parameters that get few or small updates receive higher learning rates.
 While designed for convex problems, AdaGrad has been successfully applied to non-convex optimization.
 
@@ -2645,552 +371,88 @@ While designed for convex problems, AdaGrad has been successfully applied to non
 RMSProp (for Root Mean Square Propagation) is a method invented in 2012 by James Martens and Ilya Sutskever, at the time both PhD students in Geoffrey Hinton's group, in which the learning rate is, like in Adagrad, adapted for each of the parameters. The idea is to divide the learning rate for a weight by a running average of the magnitudes of recent gradients for that weight. Unusually, it was not published in an article but merely described in a Coursera lecture.
 So, first the running average is calculated in terms of means square,
 
-  
-    
-      
-        v
-        (
-        w
-        ,
-        t
-        )
-        :=
-        γ
-        v
-        (
-        w
-        ,
-        t
-        −
-        1
-        )
-        +
-        
-          (
-          
-            1
-            −
-            γ
-          
-          )
-        
-        
-          
-            (
-            
-              ∇
-              
-                Q
-                
-                  i
-                
-              
-              (
-              w
-              )
-            
-            )
-          
-          
-            2
-          
-        
-      
-    
-    {\displaystyle v(w,t):=\gamma v(w,t-1)+\left(1-\gamma \right)\left(\nabla Q_{i}(w)\right)^{2}}
-  
+$v(w,t):=\gamma v(w,t-1)+\left(1-\gamma \right)\left(\nabla Q_{i}(w)\right)^{2}$
 
 where, 
-  
-    
-      
-        γ
-      
-    
-    {\displaystyle \gamma }
-  
+$\gamma $
+
  is the decay factor. The concept of storing the historical gradient as sum of squares is borrowed from Adagrad, but decay is introduced to solve Adagrad's diminishing learning rates in non-convex problems by gradually decreasing the influence of old data.
 And the parameters are updated as,
 
-  
-    
-      
-        w
-        :=
-        w
-        −
-        
-          
-            η
-            
-              v
-              (
-              w
-              ,
-              t
-              )
-            
-          
-        
-        ∇
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-      
-    
-    {\displaystyle w:=w-{\frac {\eta }{\sqrt {v(w,t)}}}\nabla Q_{i}(w)}
-  
+$w:=w-{\frac {\eta }{\sqrt {v(w,t)}}}\nabla Q_{i}(w)$
 
 RMSProp has shown good adaptation of learning rate in different applications. RMSProp can be seen as a generalization of Rprop and is capable to work with mini-batches as well opposed to only full-batches.
 
 ### Adam
 
 Adam (short for Adaptive Moment Estimation) is a 2014 update to RMSProp that adds momentum. Compared with RMSProp, it keeps not just one, but two running averages for each parameter: 
-  
-    
-      
-        m
-      
-    
-    {\displaystyle m}
-  
+$m$
+
  of the gradient, 
-  
-    
-      
-        v
-      
-    
-    {\displaystyle v}
-  
+$v$
+
  of the squared gradient. Both start at 0. At iteration 
-  
-    
-      
-        t
-        =
-        1
-        ,
-        2
-        ,
-        …
-      
-    
-    {\displaystyle t=1,2,\dots }
-  
+$t=1,2,\dots $
+
 , with gradient 
-  
-    
-      
-        g
-        =
-        ∇
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-      
-    
-    {\displaystyle g=\nabla Q_{i}(w)}
-  
+$g=\nabla Q_{i}(w)$
+
 , the update is
-  
-    
-      
-        
-          
-            
-              
-                m
-              
-              
-                
-                :=
-                
-                  β
-                  
-                    1
-                  
-                
-                m
-                +
-                (
-                1
-                −
-                
-                  β
-                  
-                    1
-                  
-                
-                )
-                g
-              
-            
-            
-              
-                v
-              
-              
-                
-                :=
-                
-                  β
-                  
-                    2
-                  
-                
-                v
-                +
-                (
-                1
-                −
-                
-                  β
-                  
-                    2
-                  
-                
-                )
-                
-                  g
-                  
-                    2
-                  
-                
-              
-            
-            
-              
-                w
-              
-              
-                
-                :=
-                w
-                −
-                η
-                
-                  
-                    
-                      m
-                      
-                        /
-                      
-                      (
-                      1
-                      −
-                      
-                        β
-                        
-                          1
-                        
-                        
-                          t
-                        
-                      
-                      )
-                    
-                    
-                      
-                        
-                          v
-                          
-                            /
-                          
-                          (
-                          1
-                          −
-                          
-                            β
-                            
-                              2
-                            
-                            
-                              t
-                            
-                          
-                          )
-                        
-                      
-                      +
-                      ε
-                    
-                  
-                
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}m&:=\beta _{1}m+(1-\beta _{1})g\\v&:=\beta _{2}v+(1-\beta _{2})g^{2}\\w&:=w-\eta {\frac {m/(1-\beta _{1}^{t})}{{\sqrt {v/(1-\beta _{2}^{t})}}+\varepsilon }}\end{aligned}}}
-  
+${\begin{aligned}m&:=\beta _{1}m+(1-\beta _{1})g\\v&:=\beta _{2}v+(1-\beta _{2})g^{2}\\w&:=w-\eta {\frac {m/(1-\beta _{1}^{t})}{{\sqrt {v/(1-\beta _{2}^{t})}}+\varepsilon }}\end{aligned}}$
+
 where squaring, square root, division are element-wise. 
 
-  
-    
-      
-        
-          β
-          
-            1
-          
-        
-      
-    
-    {\displaystyle \beta _{1}}
-  
+$\beta _{1}$
+
  (e.g. 0.9) and 
-  
-    
-      
-        
-          β
-          
-            2
-          
-        
-      
-    
-    {\displaystyle \beta _{2}}
-  
+$\beta _{2}$
+
  (e.g. 0.999) are the decay factors for the gradient and the squared gradient. The factors 
-  
-    
-      
-        1
-        
-          /
-        
-        (
-        1
-        −
-        
-          β
-          
-            1
-          
-          
-            t
-          
-        
-        )
-      
-    
-    {\displaystyle 1/(1-\beta _{1}^{t})}
-  
+$1/(1-\beta _{1}^{t})$
+
  and 
-  
-    
-      
-        1
-        
-          /
-        
-        (
-        1
-        −
-        
-          β
-          
-            2
-          
-          
-            t
-          
-        
-        )
-      
-    
-    {\displaystyle 1/(1-\beta _{2}^{t})}
-  
+$1/(1-\beta _{2}^{t})$
+
  correct the smallness of 
-  
-    
-      
-        m
-      
-    
-    {\displaystyle m}
-  
+$m$
+
  and 
-  
-    
-      
-        v
-      
-    
-    {\displaystyle v}
-  
+$v$
+
  when 
-  
-    
-      
-        t
-      
-    
-    {\displaystyle t}
-  
+$t$
+
  is small. Concretely, at 
-  
-    
-      
-        t
-        =
-        1
-      
-    
-    {\displaystyle t=1}
-  
+$t=1$
+
 , we have 
-  
-    
-      
-        m
-        =
-        (
-        1
-        −
-        
-          β
-          
-            1
-          
-        
-        )
-        
-          g
-          
-            1
-          
-        
-      
-    
-    {\displaystyle m=(1-\beta _{1})g_{1}}
-  
+$m=(1-\beta _{1})g_{1}$
+
 , which is small compared to 
-  
-    
-      
-        
-          g
-          
-            1
-          
-        
-      
-    
-    {\displaystyle g_{1}}
-  
+$g_{1}$
+
  itself. Dividing by 
-  
-    
-      
-        1
-        −
-        
-          β
-          
-            1
-          
-        
-      
-    
-    {\displaystyle 1-\beta _{1}}
-  
+$1-\beta _{1}$
+
  recovers 
-  
-    
-      
-        
-          g
-          
-            1
-          
-        
-      
-    
-    {\displaystyle g_{1}}
-  
+$g_{1}$
+
 . Similarly, dividing 
-  
-    
-      
-        v
-      
-    
-    {\displaystyle v}
-  
+$v$
+
  by 
-  
-    
-      
-        1
-        −
-        
-          β
-          
-            2
-          
-        
-      
-    
-    {\displaystyle 1-\beta _{2}}
-  
+$1-\beta _{2}$
+
  recovers 
-  
-    
-      
-        
-          g
-          
-            1
-          
-          
-            2
-          
-        
-      
-    
-    {\displaystyle g_{1}^{2}}
-  
+$g_{1}^{2}$
+
 .
 
-  
-    
-      
-        ε
-      
-    
-    {\displaystyle \varepsilon }
-  
+$\varepsilon $
+
  (e.g. 
-  
-    
-      
-        
-          10
-          
-            −
-            8
-          
-        
-      
-    
-    {\displaystyle 10^{-8}}
-  
+$10^{-8}$
+
 ) prevents division by 0.
 The initial proof of convergence was incomplete. Later analysis showed that Adam does not converge for all convex objectives. Despite this, Adam remains widely used for its strong performance in practice.
 
@@ -3204,359 +466,50 @@ Using infinity norm: AdaMax
 AMSGrad, which improves convergence over Adam by using maximum of past squared gradients instead of the exponential average. AdamX further improves convergence over AMSGrad.
 AdamW stands for "Adam with decoupled weight decay". Strictly speaking, it is not a variant of Adam, but a different way to use Adam. The idea is as follows.
 Standard SGD implements weight decay by a computational trick. Instead of applying weight decay directly, it is implemented by adding an L2 regularization term to the loss function, of form 
-  
-    
-      
-        λ
-        
-          
-            
-              1
-              2
-            
-          
-        
-        ‖
-        w
-        
-          ‖
-          
-            2
-          
-        
-      
-    
-    {\displaystyle \lambda {\tfrac {1}{2}}\|w\|^{2}}
-  
+$\lambda {\tfrac {1}{2}}\|w\|^{2}$
+
 . This term then produces 
-  
-    
-      
-        −
-        η
-        λ
-        w
-      
-    
-    {\displaystyle -\eta \lambda w}
-  
+$-\eta \lambda w$
+
  in the weight update, which produces weight decay. With Adam, the L2 regularization term no longer updates weight like 
-  
-    
-      
-        −
-        η
-        λ
-        w
-      
-    
-    {\displaystyle -\eta \lambda w}
-  
+$-\eta \lambda w$
+
 , but approximately 
-  
-    
-      
-        −
-        η
-        λ
-        w
-        
-          /
-        
-        
-          
-            v
-          
-        
-      
-    
-    {\displaystyle -\eta \lambda w/{\sqrt {v}}}
-  
+$-\eta \lambda w/{\sqrt {v}}$
+
 . Consequently, weights with higher gradients decay slower. In this way, weight decay and gradient descent are coupled.
 AdamW decouples gradient descent and weight decay simply by not using L2 regularization loss, and doing weight-decay directly as 
-  
-    
-      
-        w
-        :=
-        w
-        −
-        η
-        
-          
-            
-              m
-              
-                /
-              
-              (
-              1
-              −
-              
-                β
-                
-                  1
-                
-                
-                  t
-                
-              
-              )
-            
-            
-              
-                
-                  v
-                  
-                    /
-                  
-                  (
-                  1
-                  −
-                  
-                    β
-                    
-                      2
-                    
-                    
-                      t
-                    
-                  
-                  )
-                
-              
-              +
-              ε
-            
-          
-        
-        −
-        η
-        λ
-        w
-      
-    
-    {\displaystyle w:=w-\eta {\frac {m/(1-\beta _{1}^{t})}{{\sqrt {v/(1-\beta _{2}^{t})}}+\varepsilon }}-\eta \lambda w}
+$w:=w-\eta {\frac {m/(1-\beta _{1}^{t})}{{\sqrt {v/(1-\beta _{2}^{t})}}+\varepsilon }}-\eta \lambda w$
 
 ### Muon
 
 Muon (Momentum Orthogonalized by Newton–Schulz) is an improvement over standard momentum SGD, but it only works for weight matrices (not scalars or vectors). It was first proposed for NanoGPT speedrunning, and later found wider applications.
 At iteration 
-  
-    
-      
-        t
-        =
-        1
-        ,
-        2
-        ,
-        …
-      
-    
-    {\displaystyle t=1,2,\dots }
-  
+$t=1,2,\dots $
+
 , with gradient 
-  
-    
-      
-        g
-        =
-        ∇
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-      
-    
-    {\displaystyle g=\nabla Q_{i}(w)}
-  
+$g=\nabla Q_{i}(w)$
+
 , the update is
-  
-    
-      
-        
-          
-            
-              
-                m
-              
-              
-                
-                :=
-                β
-                m
-                +
-                (
-                1
-                −
-                β
-                )
-                g
-              
-            
-            
-              
-                w
-              
-              
-                
-                :=
-                w
-                −
-                η
-                Orth
-                ⁡
-                (
-                m
-                )
-                −
-                η
-                λ
-                w
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}m&:=\beta m+(1-\beta )g\\w&:=w-\eta \operatorname {Orth} (m)-\eta \lambda w\end{aligned}}}
-  
+${\begin{aligned}m&:=\beta m+(1-\beta )g\\w&:=w-\eta \operatorname {Orth} (m)-\eta \lambda w\end{aligned}}$
+
 where we define 
-  
-    
-      
-        m
-        :=
-        U
-        Σ
-        
-          V
-          
-            T
-          
-        
-      
-    
-    {\displaystyle m:=U\Sigma V^{T}}
-  
+$m:=U\Sigma V^{T}$
+
  to be its SVD, and 
-  
-    
-      
-        Orth
-        ⁡
-        (
-        m
-        )
-        =
-        U
-        
-          V
-          
-            T
-          
-        
-      
-    
-    {\displaystyle \operatorname {Orth} (m)=UV^{T}}
-  
+$\operatorname {Orth} (m)=UV^{T}$
+
  be the symmetric orthogonalization of 
-  
-    
-      
-        m
-      
-    
-    {\displaystyle m}
-  
+$m$
+
 . Since SVD is slow, the original paper suggests using Newton–Schulz iteration to fast approximate 
-  
-    
-      
-        Orth
-        ⁡
-        (
-        m
-        )
-      
-    
-    {\displaystyle \operatorname {Orth} (m)}
-  
+$\operatorname {Orth} (m)$
+
 , as previously used for the Shampoo optimizer.
 Muon can be applied to convolutions by representing the convolutional kernel as a weight matrix, and convolution as a matrix multiplication.
 Muon can also be done with Nesterov momentum SGD, as
-  
-    
-      
-        
-          
-            
-              
-                m
-              
-              
-                
-                :=
-                β
-                m
-                +
-                (
-                1
-                −
-                β
-                )
-                g
-              
-            
-            
-              
-                w
-              
-              
-                
-                :=
-                w
-                −
-                η
-                Orth
-                ⁡
-                
-                  
-                    (
-                  
-                
-                β
-                m
-                +
-                (
-                1
-                −
-                β
-                )
-                g
-                
-                  
-                    )
-                  
-                
-                −
-                η
-                λ
-                w
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}m&:=\beta m+(1-\beta )g\\w&:=w-\eta \operatorname {Orth} {\big (}\beta m+(1-\beta )g{\big )}-\eta \lambda w\end{aligned}}}
-  
+${\begin{aligned}m&:=\beta m+(1-\beta )g\\w&:=w-\eta \operatorname {Orth} {\big (}\beta m+(1-\beta )g{\big )}-\eta \lambda w\end{aligned}}$
+
 Empirically it sometimes worked better.
 
 ### Sign-based stochastic gradient descent
@@ -3566,142 +519,19 @@ Even though sign-based optimization goes back to the aforementioned Rprop, in 20
 ### Backtracking line search
 
 Backtracking line search is another variant of gradient descent. All of the below are sourced from the mentioned link. It is based on a condition known as the Armijo–Goldstein condition. Both methods allow learning rates to change at each iteration; however, the manner of the change is different. Backtracking line search uses function evaluations to check Armijo's condition, and in principle the loop in the algorithm for determining the learning rates can be long and unknown in advance. Adaptive SGD does not need a loop in determining learning rates. On the other hand, adaptive SGD does not guarantee the "descent property" – which Backtracking line search enjoys – which is that 
-  
-    
-      
-        f
-        (
-        
-          x
-          
-            n
-            +
-            1
-          
-        
-        )
-        ≤
-        f
-        (
-        
-          x
-          
-            n
-          
-        
-        )
-      
-    
-    {\displaystyle f(x_{n+1})\leq f(x_{n})}
-  
+$f(x_{n+1})\leq f(x_{n})$
+
  for all n. If the gradient of the cost function is globally Lipschitz continuous, with Lipschitz constant L, and learning rate is chosen of the order 1/L, then the standard version of SGD is a special case of backtracking line search.
 
 ### Second-order methods
 
 A stochastic analogue of the standard (deterministic) Newton–Raphson algorithm (a "second-order" method) provides an asymptotically optimal or near-optimal form of iterative optimization in the setting of stochastic approximation. A method that uses direct measurements of the Hessian matrices of the summands in the empirical risk function was developed by Byrd, Hansen, Nocedal, and Singer. However, directly determining the required Hessian matrices for optimization may not be possible in practice. Practical and theoretically sound methods for second-order versions of SGD that do not require direct Hessian information are given by Spall and others. (A less efficient method based on finite differences, instead of simultaneous perturbations, is given by Ruppert.) Another approach to the approximation Hessian matrix is replacing it with the Fisher information matrix, which transforms usual gradient to natural. These methods not requiring direct Hessian information are based on either values of the summands in the above empirical risk function or values of the gradients of the summands (i.e., the SGD inputs). In particular, second-order optimality is asymptotically achievable without direct calculation of the Hessian matrices of the summands in the empirical risk function. When the objective is a  nonlinear least-squares loss
 
-  
-    
-      
-        Q
-        (
-        w
-        )
-        =
-        
-          
-            1
-            n
-          
-        
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        
-          Q
-          
-            i
-          
-        
-        (
-        w
-        )
-        =
-        
-          
-            1
-            n
-          
-        
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        (
-        m
-        (
-        w
-        ;
-        
-          x
-          
-            i
-          
-        
-        )
-        −
-        
-          y
-          
-            i
-          
-        
-        
-          )
-          
-            2
-          
-        
-        ,
-      
-    
-    {\displaystyle Q(w)={\frac {1}{n}}\sum _{i=1}^{n}Q_{i}(w)={\frac {1}{n}}\sum _{i=1}^{n}(m(w;x_{i})-y_{i})^{2},}
-  
- 
+$Q(w)={\frac {1}{n}}\sum _{i=1}^{n}Q_{i}(w)={\frac {1}{n}}\sum _{i=1}^{n}(m(w;x_{i})-y_{i})^{2},$
+
 where 
-  
-    
-      
-        m
-        (
-        w
-        ;
-        
-          x
-          
-            i
-          
-        
-        )
-      
-    
-    {\displaystyle m(w;x_{i})}
-  
+$m(w;x_{i})$
+
  is the predictive model (e.g., a deep neural network)
 the objective's structure can be exploited to estimate 2nd order information using gradients only. The resulting 
 methods are simple and often effective
@@ -3709,512 +539,110 @@ methods are simple and often effective
 ## Approximations in continuous time
 
 For small learning rate 
-  
-    
-      
+
         η
-      
-    
+
     {\textstyle \eta }
-  
+
  stochastic gradient descent 
-  
-    
-      
+
         (
-        
+
           w
-          
+
             n
-          
-        
-        
+
           )
-          
+
             n
             ∈
-            
-              
+
                 N
-              
-              
+
                 0
-              
-            
-          
-        
-      
-    
+
     {\textstyle (w_{n})_{n\in \mathbb {N} _{0}}}
-  
+
  can be viewed as a discretization of the gradient flow ODE
 
-  
-    
-      
-        
-          
-            d
-            
-              d
-              t
-            
-          
-        
-        
-          W
-          
-            t
-          
-        
-        =
-        −
-        ∇
-        Q
-        (
-        
-          W
-          
-            t
-          
-        
-        )
-      
-    
-    {\displaystyle {\frac {d}{dt}}W_{t}=-\nabla Q(W_{t})}
-  
+${\frac {d}{dt}}W_{t}=-\nabla Q(W_{t})$
 
 subject to additional stochastic noise. This approximation is only valid on a finite time-horizon in the following sense: assume that all the coefficients  
-  
-    
-      
-        
+
           Q
-          
+
             i
-          
-        
-      
-    
+
     {\textstyle Q_{i}}
-  
+
  are sufficiently smooth. Let 
-  
-    
-      
+
         T
         >
         0
-      
-    
+
     {\textstyle T>0}
-  
+
  and 
-  
-    
-      
+
         g
         :
-        
-          
-            R
-          
-          
-            d
-          
-        
-        →
-        
-          R
-        
-      
-    
-    {\textstyle g:\mathbb {R} ^{d}\to \mathbb {R} }
-  
- be a sufficiently smooth test function. Then, there exists a constant 
-  
-    
-      
-        C
-        >
-        0
-      
-    
-    {\textstyle C>0}
-  
- such that for all 
-  
-    
-      
-        η
-        >
-        0
-      
-    
-    {\textstyle \eta >0}
-  
 
-  
-    
-      
-        
-          max
-          
-            k
-            =
-            0
-            ,
-            …
-            ,
-            ⌊
-            T
-            
-              /
-            
-            η
-            ⌋
-          
-        
-        
-          |
-          
-            
-              E
-            
-            [
-            g
-            (
-            
-              w
-              
-                k
-              
-            
-            )
-            ]
-            −
-            g
-            (
-            
-              W
-              
-                k
-                η
-              
-            
-            )
-          
-          |
-        
-        ≤
+            R
+
+            d
+
+        →
+
+          R
+
+    {\textstyle g:\mathbb {R} ^{d}\to \mathbb {R} }
+
+ be a sufficiently smooth test function. Then, there exists a constant 
+
         C
-        η
-        ,
-      
-    
-    {\displaystyle \max _{k=0,\dots ,\lfloor T/\eta \rfloor }\left|\mathbb {E} [g(w_{k})]-g(W_{k\eta })\right|\leq C\eta ,}
-  
+        >
+        0
+
+    {\textstyle C>0}
+
+ such that for all 
+$\max _{k=0,\dots ,\lfloor T/\eta \rfloor }\left|\mathbb {E} [g(w_{k})]-g(W_{k\eta })\right|\leq C\eta ,$
 
 where 
-  
-    
-      
-        
+
           E
-        
-      
-    
+
     {\textstyle \mathbb {E} }
-  
+
  denotes taking the expectation with respect to the random choice of indices in the stochastic gradient descent scheme.
 Since this approximation does not capture the random fluctuations around the mean behavior of stochastic gradient descent solutions to stochastic differential equations (SDEs) have been proposed as limiting objects. More precisely, the solution to the SDE
 
-  
-    
-      
-        d
-        
-          W
-          
-            t
-          
-        
-        =
-        −
-        ∇
-        
-          (
-          
-            Q
-            (
-            
-              W
-              
-                t
-              
-            
-            )
-            +
-            
-              
-                
-                  1
-                  4
-                
-              
-            
-            η
-            
-              |
-            
-            ∇
-            Q
-            (
-            
-              W
-              
-                t
-              
-            
-            )
-            
-              
-                |
-              
-              
-                2
-              
-            
-          
-          )
-        
-        d
-        t
-        +
-        
-          
-            η
-          
-        
-        Σ
-        (
-        
-          W
-          
-            t
-          
-        
-        
-          )
-          
-            1
-            
-              /
-            
-            2
-          
-        
-        d
-        
-          B
-          
-            t
-          
-        
-        ,
-      
-    
-    {\displaystyle dW_{t}=-\nabla \left(Q(W_{t})+{\tfrac {1}{4}}\eta |\nabla Q(W_{t})|^{2}\right)dt+{\sqrt {\eta }}\Sigma (W_{t})^{1/2}dB_{t},}
-  
+$dW_{t}=-\nabla \left(Q(W_{t})+{\tfrac {1}{4}}\eta |\nabla Q(W_{t})|^{2}\right)dt+{\sqrt {\eta }}\Sigma (W_{t})^{1/2}dB_{t},$
 
 for 
-  
-    
-      
-        Σ
-        (
-        w
-        )
-        =
-        
-          
-            1
-            
-              n
-              
-                2
-              
-            
-          
-        
-        
-          (
-          
-            
-              ∑
-              
-                i
-                =
-                1
-              
-              
-                n
-              
-            
-            
-              Q
-              
-                i
-              
-            
-            (
-            w
-            )
-            −
-            Q
-            (
-            w
-            )
-          
-          )
-        
-        
-          
-            (
-            
-              
-                ∑
-                
-                  i
-                  =
-                  1
-                
-                
-                  n
-                
-              
-              
-                Q
-                
-                  i
-                
-              
-              (
-              w
-              )
-              −
-              Q
-              (
-              w
-              )
-            
-            )
-          
-          
-            T
-          
-        
-      
-    
-    {\displaystyle \Sigma (w)={\frac {1}{n^{2}}}\left(\sum _{i=1}^{n}Q_{i}(w)-Q(w)\right)\left(\sum _{i=1}^{n}Q_{i}(w)-Q(w)\right)^{T}}
-  
+$\Sigma (w)={\frac {1}{n^{2}}}\left(\sum _{i=1}^{n}Q_{i}(w)-Q(w)\right)\left(\sum _{i=1}^{n}Q_{i}(w)-Q(w)\right)^{T}$
+
  where 
-  
-    
-      
+
         d
-        
+
           B
-          
+
             t
-          
-        
-      
-    
+
     {\textstyle dB_{t}}
-  
+
  denotes the Ito-integral with respect to a Brownian motion is a more precise approximation in the sense that there exists a constant 
-  
-    
-      
+
         C
         >
         0
-      
-    
+
     {\textstyle C>0}
-  
+
  such that
 
-  
-    
-      
-        
-          max
-          
-            k
-            =
-            0
-            ,
-            …
-            ,
-            ⌊
-            T
-            
-              /
-            
-            η
-            ⌋
-          
-        
-        
-          |
-          
-            
-              E
-            
-            [
-            g
-            (
-            
-              w
-              
-                k
-              
-            
-            )
-            ]
-            −
-            
-              E
-            
-            [
-            g
-            (
-            
-              W
-              
-                k
-                η
-              
-            
-            )
-            ]
-          
-          |
-        
-        ≤
-        C
-        
-          η
-          
-            2
-          
-        
-        .
-      
-    
-    {\displaystyle \max _{k=0,\dots ,\lfloor T/\eta \rfloor }\left|\mathbb {E} [g(w_{k})]-\mathbb {E} [g(W_{k\eta })]\right|\leq C\eta ^{2}.}
-  
+$\max _{k=0,\dots ,\lfloor T/\eta \rfloor }\left|\mathbb {E} [g(w_{k})]-\mathbb {E} [g(W_{k\eta })]\right|\leq C\eta ^{2}.$
 
 However this SDE only approximates the one-point motion of stochastic gradient descent. For an approximation of the stochastic flow one has to consider SDEs with infinite-dimensional noise.

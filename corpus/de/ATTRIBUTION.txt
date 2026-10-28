@@ -1,5 +1,5 @@
 Articles from https://de.wikipedia.org, licensed CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
-Changes: converted to markdown; boilerplate sections (references, external links) removed.
+Changes: converted to plain text and then to markdown. Tables, images, infoboxes and other formatting were not included; formulas are kept only as TeX between $ signs; boilerplate sections (references, external links) were removed. The wording of the remaining text was not changed.
 The authors of each article are listed in its history page.
 
 - Attention Is All You Need: https://de.wikipedia.org/wiki/Attention_Is_All_You_Need (revision 268945412, 2026-07-19T14:06:05Z); authors: https://de.wikipedia.org/w/index.php?title=Attention_Is_All_You_Need&action=history

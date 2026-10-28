@@ -97,11 +97,11 @@ def test_attribution_lists_every_article_with_revision_and_history(wiki_server, 
     assert text.count("action=history") == 3
 
 
-def test_it_refuses_to_overwrite_unless_forced_and_writes_nothing_when_it_refuses(wiki_server, articles, tmp_path):
+def test_it_refuses_to_overwrite_a_folder_with_files_in_it_unless_forced(wiki_server, articles, tmp_path):
     (tmp_path / "out").mkdir()
     (tmp_path / "out" / "autoencoder.md").write_text("mine")
     code, _, err = run(wiki_server, tmp_path, CATEGORIES="Deep learning")
-    assert code == 2 and "autoencoder.md" in err and "FORCE" in err
+    assert code == 2 and "FORCE" in err
     assert sorted(p.name for p in (tmp_path / "out").iterdir()) == ["autoencoder.md"]
     assert (tmp_path / "out" / "autoencoder.md").read_text() == "mine"
     code, _, _ = run(wiki_server, tmp_path, CATEGORIES="Deep learning", FORCE="1")
@@ -162,3 +162,85 @@ def test_the_files_are_what_the_markdown_connector_indexes(wiki_server, articles
                             env={**os.environ, "FOLDER": str(tmp_path / "out")}, capture_output=True, text=True,
                             check=True).stdout
     assert "ATTRIBUTION" not in listed  # the attribution file is .txt: not indexed as a note
+
+
+# ---- review findings ------------------------------------------------------------------------------
+
+MATH = ("Backpropagation takes an input\n\n  \n    \n      \n        x\n      \n    \n    {\\displaystyle x}\n  \n"
+        ": input (vector of features), and an output\n\n  \n    \n      \n        y\n      \n"
+        "        ⁢\n        z\n    \n    {\\displaystyle yz}\n  \nof the network.")
+
+
+def test_a_mathml_token_block_becomes_its_tex_between_dollar_signs():
+    from snapshot import to_markdown
+    out = to_markdown(MATH, frozenset())
+    assert out == ("Backpropagation takes an input\n\n$x$\n\n: input (vector of features), and an output\n\n$yz$\n\nof the network.")
+
+
+def test_invisible_operators_are_removed_and_other_indented_text_is_kept():
+    from snapshot import to_markdown
+    out = to_markdown("A⁡B and\n\n  an indented quote\n  second line\n\nend", frozenset())
+    assert out == "AB and\n\n  an indented quote\n  second line\n\nend"
+
+
+def test_a_display_style_formula_line_without_a_token_block_is_kept_as_tex():
+    from snapshot import to_markdown
+    assert to_markdown("Energy\n    {\\displaystyle E=mc^{2}}\nis", frozenset()) == "Energy\n$E=mc^{2}$\nis"
+
+
+def test_a_folder_that_is_not_empty_is_refused_without_force_before_any_request(wiki_server, articles, tmp_path):
+    (tmp_path / "out").mkdir()
+    (tmp_path / "out" / "ATTRIBUTION.txt").write_text("precious")
+    before = len(articles.requests)
+    code, _, err = run(wiki_server, tmp_path, TITLES="Autoencoder")
+    assert code == 2 and "FORCE" in err and "not empty" in err
+    assert len(articles.requests) == before  # nothing was fetched
+    assert (tmp_path / "out" / "ATTRIBUTION.txt").read_text() == "precious"
+
+
+def test_force_replaces_the_whole_folder_so_no_stale_articles_stay(wiki_server, articles, tmp_path):
+    run(wiki_server, tmp_path, TITLES="Autoencoder|Backpropagation")
+    code, _, err = run(wiki_server, tmp_path, TITLES="Backpropagation", FORCE="1")
+    assert code == 0, err
+    assert sorted(p.name for p in (tmp_path / "out").iterdir()) == ["ATTRIBUTION.txt", "backpropagation.md", "titles.txt"]
+    assert (tmp_path / "out" / "ATTRIBUTION.txt").read_text().count("action=history") == 1
+
+
+def test_a_failing_forced_run_leaves_the_old_folder_untouched(wiki_server, articles, tmp_path):
+    run(wiki_server, tmp_path, TITLES="Autoencoder")
+    articles.status_errors = [500]
+    code, _, _ = run(wiki_server, tmp_path, TITLES="Backpropagation", FORCE="1")
+    assert code == 1 and (tmp_path / "out" / "autoencoder.md").is_file()
+    assert not (tmp_path / "out.tmp").exists()
+
+
+def test_out_that_is_a_file_is_a_settings_error(wiki_server, articles, tmp_path):
+    (tmp_path / "out").write_text("a file")
+    code, _, err = run(wiki_server, tmp_path, TITLES="Autoencoder", FORCE="1")
+    assert code == 2 and "OUT" in err
+
+
+def test_the_chosen_titles_are_written_one_per_line(wiki_server, articles, tmp_path):
+    run(wiki_server, tmp_path, CATEGORIES="Deep learning")
+    assert (tmp_path / "out" / "titles.txt").read_text(encoding="utf-8").splitlines() == [
+        "Autoencoder", "Backpropagation", "Convolutional neural network"]
+
+
+def test_the_attribution_says_what_was_removed(wiki_server, articles, tmp_path):
+    run(wiki_server, tmp_path, TITLES="Autoencoder")
+    text = (tmp_path / "out" / "ATTRIBUTION.txt").read_text(encoding="utf-8")
+    for word in ("tables", "images", "infoboxes", "formulas"):
+        assert word in text.casefold()
+
+
+def test_a_formula_block_with_empty_lines_between_its_tokens_is_one_formula():
+    from snapshot import to_markdown
+    block = "text\n\n        D\n        :\n\n            E\n\n        ]\n\n    {\\displaystyle D:E]}\n  \nmore"
+    assert to_markdown(block, frozenset()) == "text\n\n$D:E]$\n\nmore"
+
+
+def test_a_text_line_with_a_single_leading_space_is_not_part_of_a_formula_block():
+    from snapshot import to_markdown
+    text = "against any\n$\\mu$\n\n is deterministic, so there is no loss of generality\n\n        D\n        :\n\n    {\\displaystyle D:}\n  \n. Next"
+    assert to_markdown(text, frozenset()) == ("against any\n$\\mu$\n\n is deterministic, so there is no loss of generality\n\n"
+                                              "$D:$\n\n. Next")

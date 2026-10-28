@@ -40,16 +40,8 @@ Convolutional layers convolve the input and pass its result to the next layer. T
 
 Although fully connected feedforward neural networks can be used to learn features and classify data, this architecture is generally impractical for larger inputs (e.g., high-resolution images), which would require massive numbers of neurons because each pixel is a relevant input feature. A fully connected layer for an image of size 100 × 100 has 10,000 weights for each neuron in the second layer. Convolution reduces the number of free parameters, allowing the network to be deeper. For example, using a 5 × 5 tiling region, each with the same shared weights, requires only 25 neurons. Using shared weights means there are many fewer parameters, which helps avoid the vanishing gradients and exploding gradients problems seen during backpropagation in earlier neural networks.
 To speed processing, standard convolutional layers can be replaced by depthwise separable convolutional layers, which are based on a depthwise convolution followed by a pointwise convolution. The depthwise convolution is a spatial convolution applied independently over each channel of the input tensor, while the pointwise convolution is a standard convolution restricted to the use of 
-  
-    
-      
-        1
-        ×
-        1
-      
-    
-    {\displaystyle 1\times 1}
-  
+$1\times 1$
+
  kernels.
 
 ### Pooling layers
@@ -75,41 +67,8 @@ The vectors of weights and biases are called filters and represent particular fe
 A deconvolutional neural network is essentially the reverse of a CNN. It consists of deconvolutional layers and unpooling layers.
 A deconvolutional layer is the transpose of a convolutional layer. Specifically, a convolutional layer can be written as a multiplication with a matrix, and a deconvolutional layer is multiplication with the transpose of that matrix.
 An unpooling layer expands the layer. The max-unpooling layer is the simplest, as it simply copies each entry multiple times. For example, a 2-by-2 max-unpooling layer is 
-  
-    
-      
-        [
-        x
-        ]
-        ↦
-        
-          
-            [
-            
-              
-                
-                  x
-                
-                
-                  x
-                
-              
-              
-                
-                  x
-                
-                
-                  x
-                
-              
-            
-            ]
-          
-        
-      
-    
-    {\displaystyle [x]\mapsto {\begin{bmatrix}x&x\\x&x\end{bmatrix}}}
-  
+$[x]\mapsto {\begin{bmatrix}x&x\\x&x\end{bmatrix}}$
+
 .
 Deconvolution layers are used in image generators. By default, it creates periodic checkerboard artifact, which can be fixed by upscale-then-convolve.
 
@@ -216,96 +175,43 @@ Three hyperparameters control the size of the output volume of the convolutional
 
 The depth of the output volume controls the number of neurons in a layer that connect to the same region of the input volume. These neurons learn to activate for different features in the input. For example, if the first convolutional layer takes the raw image as input, then different neurons along the depth dimension may activate in the presence of various oriented edges, or blobs of color.
 Stride controls how depth columns around the width and height are allocated. If the stride is 1, then we move the filters one pixel at a time. This leads to heavily overlapping receptive fields between the columns, and to large output volumes. For any integer 
-  
-    
-      
+
         S
         >
         0
         ,
-      
-    
+
     {\textstyle S>0,}
-  
+
  a stride S means that the filter is translated S units at a time per output. In practice, 
-  
-    
-      
+
         S
         ≥
         3
-      
-    
+
     {\textstyle S\geq 3}
-  
+
  is rare. A greater stride means smaller overlap of receptive fields and smaller spatial dimensions of the output volume.
 Sometimes, it is convenient to pad the input with zeros (or other values, such as the average of the region) on the border of the input volume. The size of this padding is a third hyperparameter. Padding provides control of the output volume's spatial size. In particular, sometimes it is desirable to exactly preserve the spatial size of the input volume, this is commonly referred to as "same" padding.
 
 The spatial size of the output volume is a function of the input volume size 
-  
-    
-      
-        W
-      
-    
-    {\displaystyle W}
-  
+$W$
+
 , the kernel field size 
-  
-    
-      
-        K
-      
-    
-    {\displaystyle K}
-  
+$K$
+
  of the convolutional layer neurons, the stride 
-  
-    
-      
-        S
-      
-    
-    {\displaystyle S}
-  
+$S$
+
 , and the amount of zero padding 
-  
-    
-      
-        P
-      
-    
-    {\displaystyle P}
-  
+$P$
+
  on the border. The number of neurons that "fit" in a given volume is then:
 
-  
-    
-      
-        
-          
-            
-              W
-              −
-              K
-              +
-              2
-              P
-            
-            S
-          
-        
-        +
-        1.
-      
-    
-    {\displaystyle {\frac {W-K+2P}{S}}+1.}
-  
+${\frac {W-K+2P}{S}}+1.$
 
 If this number is not an integer, then the strides are incorrect and the neurons cannot be tiled to fit across the input volume in a symmetric way. In general, setting zero padding to be 
-  
-    
-      
+
         P
         =
         (
@@ -313,25 +219,16 @@ If this number is not an integer, then the strides are incorrect and the neurons
         −
         1
         )
-        
+
           /
-        
+
         2
-      
-    
+
     {\textstyle P=(K-1)/2}
-  
+
  when the stride is 
-  
-    
-      
-        S
-        =
-        1
-      
-    
-    {\displaystyle S=1}
-  
+$S=1$
+
  ensures that the input volume and output volume will have the same size spatially. However, it is not always completely necessary to use all of the neurons of the previous layer. For example, a neural network designer may decide to use just a portion of padding.
 
 #### Parameter sharing
@@ -344,53 +241,7 @@ Sometimes, the parameter sharing assumption may not make sense. This is especial
 
 Another important concept of CNNs is pooling, which is used as a form of non-linear down-sampling. Pooling provides downsampling because it reduces the spatial dimensions (height and width) of the input feature maps while retaining the most important information. There are several non-linear functions to implement pooling, where max pooling and average pooling are the most common. Pooling aggregates information from small regions of the input creating partitions of the input feature map, typically using a fixed-size window (like 2x2) and applying a stride (often 2) to move the window across the input. Note that without using a stride greater than 1, pooling would not perform downsampling, as it would simply move the pooling window across the input one step at a time, without reducing the size of the feature map. In other words, the stride is what actually causes the downsampling by determining how much the pooling window moves over the input.
 Intuitively, the exact location of a feature is less important than its rough location relative to other features. This is the idea behind the use of pooling in convolutional neural networks. The pooling layer serves to progressively reduce the spatial size of the representation, to reduce the number of parameters, memory footprint and amount of computation in the network, and hence to also control overfitting. This is known as down-sampling. It is common to periodically insert a pooling layer between successive convolutional layers (each one typically followed by an activation function, such as a ReLU layer) in a CNN architecture. While pooling layers contribute to local translation invariance, they do not provide global translation invariance in a CNN, unless a form of global pooling is used. The pooling layer commonly operates independently on every depth, or slice, of the input and resizes it spatially. A very common form of max pooling is a layer with filters of size 2×2, applied with a stride of 2, which subsamples every depth slice in the input by 2 along both width and height, discarding 75% of the activations:
-  
-    
-      
-        
-          f
-          
-            X
-            ,
-            Y
-          
-        
-        (
-        S
-        )
-        =
-        
-          max
-          
-            a
-            ,
-            b
-            =
-            0
-          
-          
-            1
-          
-        
-        
-          S
-          
-            2
-            X
-            +
-            a
-            ,
-            2
-            Y
-            +
-            b
-          
-        
-        .
-      
-    
-    {\displaystyle f_{X,Y}(S)=\max _{a,b=0}^{1}S_{2X+a,2Y+b}.}
-  
+$f_{X,Y}(S)=\max _{a,b=0}^{1}S_{2X+a,2Y+b}.$
 
 In this case, every max operation is over 4 numbers. The depth dimension remains unchanged (this is true for other forms of pooling as well).
 In addition to max pooling, pooling units can use other functions, such as average pooling or ℓ2-norm pooling. Average pooling was often used historically but has recently fallen out of favor compared to max pooling, which generally performs better in practice.
@@ -404,9 +255,7 @@ See  for reviews for pooling methods.
 ### ReLU layer
 
 ReLU is the abbreviation of rectified linear unit. It was proposed by Alston Householder in 1941, and used in CNN by Kunihiko Fukushima in 1969. ReLU applies the non-saturating activation function 
-  
-    
-      
+
         f
         (
         x
@@ -418,58 +267,19 @@ ReLU is the abbreviation of rectified linear unit. It was proposed by Alston Hou
         ,
         x
         )
-      
-    
+
     {\textstyle f(x)=\max(0,x)}
-  
+
 . It effectively removes negative values from an activation map by setting them to zero. It introduces nonlinearity to the decision function and in the overall network without affecting the receptive fields of the convolution layers.
 In 2011, Xavier Glorot, Antoine Bordes and Yoshua Bengio found that ReLU enables better training of deeper networks, compared to widely used activation functions prior to 2011.
 Other functions can also be used to increase nonlinearity, for example the saturating hyperbolic tangent 
-  
-    
-      
-        f
-        (
-        x
-        )
-        =
-        tanh
-        ⁡
-        (
-        x
-        )
-      
-    
-    {\displaystyle f(x)=\tanh(x)}
-  
+$f(x)=\tanh(x)$
+
 , 
-  
-    
-      
-        f
-        (
-        x
-        )
-        =
-        
-          |
-        
-        tanh
-        ⁡
-        (
-        x
-        )
-        
-          |
-        
-      
-    
-    {\displaystyle f(x)=|\tanh(x)|}
-  
+$f(x)=|\tanh(x)|$
+
 , and the sigmoid function 
-  
-    
-      
+
         σ
         (
         x
@@ -478,24 +288,19 @@ Other functions can also be used to increase nonlinearity, for example the satur
         (
         1
         +
-        
+
           e
-          
+
             −
             x
-          
-        
-        
+
           )
-          
+
             −
             1
-          
-        
-      
-    
+
     {\textstyle \sigma (x)=(1+e^{-x})^{-1}}
-  
+
 . ReLU is often preferred to other functions because it trains the neural network several times faster without a significant penalty to generalization accuracy.
 
 ### Fully connected layer
@@ -506,32 +311,11 @@ After several convolutional and max pooling layers, the final classification is 
 
 The "loss layer", or "loss function", exemplifies how training penalizes the deviation between the predicted output of the network, and the true data labels (during supervised learning). Various loss functions can be used, depending on the specific task.
 The Softmax loss function is used for predicting a single class of K mutually exclusive classes. Sigmoid cross-entropy loss is used for predicting K independent probability values in 
-  
-    
-      
-        [
-        0
-        ,
-        1
-        ]
-      
-    
-    {\displaystyle [0,1]}
-  
+$[0,1]$
+
 . Euclidean loss is used for regressing to real-valued labels 
-  
-    
-      
-        (
-        −
-        ∞
-        ,
-        ∞
-        )
-      
-    
-    {\displaystyle (-\infty ,\infty )}
-  
+$(-\infty ,\infty )$
+
 .
 
 ## Hyperparameters
@@ -583,98 +367,36 @@ Regularization is a process of introducing additional information to solve an il
 #### Dropout
 
 Because networks have so many parameters, they are prone to overfitting. One method to reduce overfitting is dropout, introduced in 2014. At each training stage, individual nodes are either "dropped out" of the net (ignored) with probability 
-  
-    
-      
-        1
-        −
-        p
-      
-    
-    {\displaystyle 1-p}
-  
+$1-p$
+
  or kept with probability 
-  
-    
-      
-        p
-      
-    
-    {\displaystyle p}
-  
+$p$
+
 , so that a reduced network is left; incoming and outgoing edges to a dropped-out node are also removed. Only the reduced network is trained on the data in that stage. The removed nodes are then reinserted into the network with their original weights.
 In the training stages, 
-  
-    
-      
-        p
-      
-    
-    {\displaystyle p}
-  
+$p$
+
  is usually 0.5; for input nodes, it is typically much higher because information is directly lost when input nodes are ignored.
 At testing time after training has finished, we would ideally like to find a sample average of all possible 
-  
-    
-      
-        
-          2
-          
-            n
-          
-        
-      
-    
-    {\displaystyle 2^{n}}
-  
+$2^{n}$
+
  dropped-out networks; unfortunately this is unfeasible for large values of 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
 . However, we can find an approximation by using the full network with each node's output weighted by a factor of 
-  
-    
-      
-        p
-      
-    
-    {\displaystyle p}
-  
+$p$
+
 , so the expected value of the output of any node is the same as in the training stages. This is the biggest contribution of the dropout method: although it effectively generates 
-  
-    
-      
-        
-          2
-          
-            n
-          
-        
-      
-    
-    {\displaystyle 2^{n}}
-  
+$2^{n}$
+
  neural nets, and as such allows for model combination, at test time only a single network needs to be tested.
 By avoiding training all nodes on all training data, dropout decreases overfitting. The method also significantly improves training speed. This makes the model combination practical, even for deep neural networks. The technique seems to reduce node interactions, leading them to learn more robust features that better generalize to new data.
 
 #### DropConnect
 
 DropConnect is the generalization of dropout in which each connection, rather than each output unit, can be dropped with probability 
-  
-    
-      
-        1
-        −
-        p
-      
-    
-    {\displaystyle 1-p}
-  
+$1-p$
+
 . Each unit thus receives input from a random subset of units in the previous layer.
 DropConnect is similar to dropout as it introduces dynamic sparsity within the model, but differs in that the sparsity is on the weights, rather than the output vectors of a layer. In other words, the fully connected layer with DropConnect becomes a sparsely connected layer in which the connections are chosen at random during the training stage.
 
@@ -707,55 +429,14 @@ L1 regularization is also common. It makes the weight vectors sparse during opti
 #### Max norm constraints
 
 Another form of regularization is to enforce an absolute upper bound on the magnitude of the weight vector for every neuron and use projected gradient descent to enforce the constraint. In practice, this corresponds to performing the parameter update as normal, and then enforcing the constraint by clamping the weight vector 
-  
-    
-      
-        
-          
-            
-              w
-              →
-            
-          
-        
-      
-    
-    {\displaystyle {\vec {w}}}
-  
+${\vec {w}}$
+
  of every neuron to satisfy 
-  
-    
-      
-        ‖
-        
-          
-            
-              w
-              →
-            
-          
-        
-        
-          ‖
-          
-            2
-          
-        
-        <
-        c
-      
-    
-    {\displaystyle \|{\vec {w}}\|_{2}<c}
-  
+$\|{\vec {w}}\|_{2}<c$
+
 . Typical values of 
-  
-    
-      
-        c
-      
-    
-    {\displaystyle c}
-  
+$c$
+
  are order of 3–4. Some papers report improvements when using this form of regularization.
 
 ## Hierarchical coordinate frames

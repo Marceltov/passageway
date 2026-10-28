@@ -128,107 +128,26 @@ Supervised learning pairs inputs and desired outputs. The learning task is to pr
 #### Unsupervised learning
 
 In unsupervised learning, input data is given along with the cost function for the data 
-  
-    
-      
-        
-          x
-        
-      
-    
-    {\displaystyle \textstyle x}
-  
+$\textstyle x$
+
  and the output, without an "answer sheet". The cost function is dependent on the task (the model domain) and reflects a priori assumptions (implicit model properties, its parameters and the observed variables). For example, the model 
-  
-    
-      
-        
-          f
-          (
-          x
-          )
-          =
-          a
-        
-      
-    
-    {\displaystyle \textstyle f(x)=a}
-  
+$\textstyle f(x)=a$
+
  treats 
-  
-    
-      
-        
-          a
-        
-      
-    
-    {\displaystyle \textstyle a}
-  
+$\textstyle a$
+
  as a constant and the cost 
-  
-    
-      
-        
-          C
-          =
-          E
-          [
-          (
-          x
-          −
-          f
-          (
-          x
-          )
-          
-            )
-            
-              2
-            
-          
-          ]
-        
-      
-    
-    {\displaystyle \textstyle C=E[(x-f(x))^{2}]}
-  
+$\textstyle C=E[(x-f(x))^{2}]$
+
 . Minimizing this cost produces a value of 
-  
-    
-      
-        
-          a
-        
-      
-    
-    {\displaystyle \textstyle a}
-  
+$\textstyle a$
+
  that is equal to the mean of the data. The cost function can be much more complicated. Its form depends on the application: for example, in compression it could be related to the mutual information between 
-  
-    
-      
-        
-          x
-        
-      
-    
-    {\displaystyle \textstyle x}
-  
+$\textstyle x$
+
  and 
-  
-    
-      
-        
-          f
-          (
-          x
-          )
-        
-      
-    
-    {\displaystyle \textstyle f(x)}
-  
+$\textstyle f(x)$
+
 , whereas in statistical modeling, it could be related to the posterior probability (in both examples, those quantities are maximized). Unsupervised learning is typically applied to estimation problems; applications include clustering, the estimation of statistical distributions, compression, and filtering.
 
 #### Self-supervised learning
@@ -237,160 +156,20 @@ In unsupervised learning, input data is given along with the cost function for t
 
 In applications such as playing video games, an actor takes a string of actions, receiving a generally unpredictable response from the environment (the game) after each one. The goal is to win the game (get the highest score). The cost is the inverse of the score. In reinforcement learning, the aim is to weight the network to increase the score. After each action the game generates an observation and an instantaneous cost, according to its rules. The rules and the long-term cost  can only be estimated. At any juncture, the agent decides whether to explore new actions to uncover their costs or to exploit prior learning to proceed more quickly.
 Formally, the environment is modeled as a Markov decision process (MDP) with states 
-  
-    
-      
-        
-          
-            
-              s
-              
-                1
-              
-            
-            ,
-            .
-            .
-            .
-            ,
-            
-              s
-              
-                n
-              
-            
-          
-          ∈
-          S
-        
-      
-    
-    {\displaystyle \textstyle {s_{1},...,s_{n}}\in S}
-  
+$\textstyle {s_{1},...,s_{n}}\in S$
+
  and actions 
-  
-    
-      
-        
-          
-            
-              a
-              
-                1
-              
-            
-            ,
-            .
-            .
-            .
-            ,
-            
-              a
-              
-                m
-              
-            
-          
-          ∈
-          A
-        
-      
-    
-    {\displaystyle \textstyle {a_{1},...,a_{m}}\in A}
-  
+$\textstyle {a_{1},...,a_{m}}\in A$
+
 . Because the state transitions (policies) are not known, probability distributions are used instead: the instantaneous cost distribution 
-  
-    
-      
-        
-          P
-          (
-          
-            c
-            
-              t
-            
-          
-          
-            |
-          
-          
-            s
-            
-              t
-            
-          
-          )
-        
-      
-    
-    {\displaystyle \textstyle P(c_{t}|s_{t})}
-  
+$\textstyle P(c_{t}|s_{t})$
+
 , the observation distribution 
-  
-    
-      
-        
-          P
-          (
-          
-            x
-            
-              t
-            
-          
-          
-            |
-          
-          
-            s
-            
-              t
-            
-          
-          )
-        
-      
-    
-    {\displaystyle \textstyle P(x_{t}|s_{t})}
-  
+$\textstyle P(x_{t}|s_{t})$
+
  and the transition distribution 
-  
-    
-      
-        
-          P
-          (
-          
-            s
-            
-              t
-              +
-              1
-            
-          
-          
-            |
-          
-          
-            s
-            
-              t
-            
-          
-          ,
-          
-            a
-            
-              t
-            
-          
-          )
-        
-      
-    
-    {\displaystyle \textstyle P(s_{t+1}|s_{t},a_{t})}
-  
+$\textstyle P(s_{t+1}|s_{t},a_{t})$
+
 , while a policy is defined as the conditional distribution over actions given the observations. Taken together, the two define a Markov chain (MC). The aim is to discover the lowest-cost MC.
 NNs serve as the learning component. Dynamic programming coupled with NNs (giving neurodynamic programming) has been applied to problems such as vehicle routing, video games, natural resource management and medicine because of NNs' ability to mitigate cost even when reducing the discretization grid density for numerically approximating control tasks.
 
@@ -459,58 +238,7 @@ Supervised neural networks that use a mean squared error (MSE) cost function can
 By adopting a softmax activation function, a generalization of the logistic function, on the output layer of the neural network (or a softmax component in a component-based network) for categorical target variables, the outputs can be interpreted as posterior probabilities. This is useful in classification as it gives a certainty measure.
 The softmax activation function is:
 
-  
-    
-      
-        
-          y
-          
-            i
-          
-        
-        =
-        
-          
-            
-              e
-              
-                
-                  x
-                  
-                    i
-                  
-                
-              
-            
-            
-              
-                ∑
-                
-                  j
-                  =
-                  1
-                
-                
-                  c
-                
-              
-              
-                e
-                
-                  
-                    x
-                    
-                      j
-                    
-                  
-                
-              
-            
-          
-        
-      
-    
-    {\displaystyle y_{i}={\frac {e^{x_{i}}}{\sum _{j=1}^{c}e^{x_{j}}}}}
+$y_{i}={\frac {e^{x_{i}}}{\sum _{j=1}^{c}e^{x_{j}}}}$
 
 ## Applications
 

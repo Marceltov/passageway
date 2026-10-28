@@ -24,6 +24,9 @@ dependencies = [
 [project.scripts]
 passageway = "passageway.server:main"
 
+[tool.hatch.build.targets.sdist]
+exclude = ["corpus"]  # CC BY-SA text, not part of the AGPL package
+
 [tool.hatch.build.targets.wheel]
 packages = ["passageway"]
 

@@ -60,72 +60,11 @@ Im Rahmen eines Projekts untersuchen Fachleute den Stromverbrauch der LLMs und s
 Für LLMs kommen nur modernste Prozessorgenerationen bzw. spezialisierte Mehrkernprozessoren zum Einsatz. Im Speziellen sind die „KI-Beschleuniger“ gemeint. Aufgrund der parallelen Abläufe und Datenzugriffe bei Convolutional Neural Networks (CNN) haben sich Grafikprozessoren (in Form von Grafik- oder spezialisierten Prozessorkarten), die besonders gut für Fließkommaoperationen (vgl. IEEE 754) geeignet sind, als geeignet erwiesen. Um die Modelle und deren Speicheranforderungen zu optimieren („Quantisierung“), geht man von 32-, zu 16-, 8- und mittlerweile zu kleinen 4-Bit Fließkommazahlen (FP – vgl. auch Minifloat) bzw. Operationen über. Der Hintergrund ist, dass KI-Systeme für unterschiedliche Aufgaben unterschiedliche Präzisionen erfordern, die typischerweise in Bit angegeben werden. Ein kleineres Präzisionsmaß wie 8 Bit reduziert die erforderlichen Rechenleistungen. Wie bei vielen technischen Problemstellungen muss auch hier ein Kompromiss zwischen Geschwindigkeit und Genauigkeit abgewogen werden, je nach Herausforderung.
 Große LLMs Modelle stellen grundlegend enorm hohe Anforderungen an die Computerressourcen, speziell den Grafikprozessor (GPU) und den Grafikspeicher (VRAM, genauer: High Bandwidth Memory (HBM)), oder an einen spezialisierten „KI-Beschleuniger“ als separate Hardwareressource. Der Speicherbedarf M in GB lässt sich grob abschätzen:
 
-  
-    
-      
-        
-          M
-          
-            m
-            i
-            n
-          
-        
-        ≈
-        P
-        ×
-        (
-        Q
-        
-          /
-        
-        8
-        )
-        ×
-        (
-        1
-        +
-        O
-        )
-      
-    
-    {\displaystyle M_{min}\approx P\times (Q/8)\times (1+O)}
-  
+$M_{min}\approx P\times (Q/8)\times (1+O)$
 
 Darin sind P die Anzahl der Parameter in Milliarden, Q die Präzision in Bits (Q/8 in Bytes) und O ein zusätzlicher Speicherbedarf (Overhead) für Cache usw. in %. Für das GPT-OSS-20B-Modell werden 
-  
-    
-      
-        
-          M
-          
-            m
-            i
-            n
-          
-        
-        ≈
-        20
-        ×
-        (
-        16
-        
-          /
-        
-        8
-        )
-        ×
-        (
-        1
-        +
-        0.2
-        )
-        ≈
-        48
-      
-    
-    {\displaystyle M_{min}\approx 20\times (16/8)\times (1+0.2)\approx 48}
-  
+$M_{min}\approx 20\times (16/8)\times (1+0.2)\approx 48$
+
  GB benötigt, d. h., eine moderne, dafür ausgelegte Nvidia-H100-Grafikkarte kann dies erfüllen, eine „gewöhnliche“ PC-Grafikkarten mit einstelligen GB RAM (meist DDR5) jedoch nicht. Im Falle von FP8 (Präzision der Modellgewichte während der Inferenz) werden rund 24 GB benötigt. CPU/RAM-Offloading wird in der Formel nicht berücksichtigt.
 Abgesehen von diesen Modellgrößenordnungen und damit Hardwareanforderungen existieren spezialisierte ML-Modelle, z. B. TinyML oder TensorFlow Lite (ab 2026: LiteRT), für Embedded Systems, bei denen Mikrocontroller zum Einsatz kommen. Mithilfe von LiteRT können vortrainierte Modelle genutzt oder Modelle konvertiert, optimiert und schließlich in KI-optimierter Hardware ausgeführt werden. Die genauen Verfahren (Frameworks, Workflows und kompatible Geräte) müssen im Einzelfall überprüft werden.
 Klassische Recurrent Neural Networks (RNN) arbeiten hingegen sequenziell, sodass GPUs oder TPUs (s. u.) hier ihre hardwarearchitektonischen Fähigkeiten nicht voll ausspielen können. Neben den klassischen Grafikprozessoren, die ihren Erfolg vor allem in der Computerspieleindustrie (Computerspielebranche) haben, gibt es jedoch bereits optimierte Chiparchitekturen, die für das Training und Inferencing von großen neuronalen Netzen designed wurden.
@@ -234,23 +173,11 @@ Kleine Chip-Beschleuniger (KI-Koprozessoren von Mikrocontroller) haben Leistungs
 Nvidia H200 GPU: 4 PetaFLOPS (FP8) bei bis zu 700 W (TDP)
 NXP Ara240 NPU: 40 äquivalente TOPS bei 6,5 W
 Die Rechengeschwindigkeiten für KI-Anwendungen und die Stromaufnahme der Geräte könnten nicht unterschiedlicher sein. Da die Geräte jedoch ganz unterschiedliche Spezifikationen haben, sind auch ihre Einsatzgebiete unterschiedlich. Die Messwerte können nicht verglichen oder umgerechnet werden. Bei gleichem Format (z. B. FP8) kann man abschätzen: 1 MAC 
-  
-    
-      
-        ≈
-      
-    
-    {\displaystyle \approx }
-  
+$\approx $
+
  2 × FLOP, jedoch können grundsätzlich die Metriken OPS nicht mit den FLOPS verglichen werden, also xOPS 
-  
-    
-      
-        ≠
-      
-    
-    {\displaystyle \neq }
-  
+$\neq $
+
  xFLOPS.
 Aufgrund der Komplexität des Themas hat sich 2018 die MLCommons-Organisation gebildet. Sie versucht eine Vielzahl von Standards zu erarbeiten. Dazu zählen Benchmarks für KI-Algorithmen, Training und Inferenz, für mobile Anwendungen (Smartphone), für eingebettete Anwendungen (Tiny), Sicherheit usw.
 
@@ -284,39 +211,8 @@ Vortrainierte Vision-Modelle bieten eine qualitativ hochwertige visuelle Darstel
 Im Rahmen des maschinellen Lernens (ML) bzw. des tiefen Lernens (DL) analysieren Forscher die Leistung künstlicher neuronaler Netze (KNN). Dazu werden verschiedene empirische bzw. theoretische Potenzgesetze erforscht, die sich durch die Veränderung von Schlüsselfaktoren auf die Leistung der Berechnungen auswirken. Es handelt sich um Methoden zur Messung der Leistung von KNN und auch LLMs. Man spricht in diesem Zusammenhang auch von Metriken.
 Viele KI-Modelle lassen sich durch vier Parameter beschreiben: (1) die Anzahl der Parameter (Modellgröße ohne MoE-Architektur) N, (2) die Größe des Datensatzes D, (3) die Berechnungskosten des Trainings (Zeit) C und (4) die Verluste oder Fehlerrate L. Die vier (oder mehr) Größen werden durch reelle Zahlen (Fließkommazahlen) definiert. Je nach Untersuchungsgegenstand existieren auch viele weitere Variablen.
 Für das Training des GPT-3 Modells wurde beispielsweise das Gesetz 
-  
-    
-      
-        L
-        =
-        
-          L
-          
-            0
-          
-        
-        +
-        (
-        
-          C
-          
-            0
-          
-        
-        
-          /
-        
-        C
-        
-          )
-          
-            0.048
-          
-        
-      
-    
-    {\displaystyle L=L_{0}+(C_{0}/C)^{0.048}}
-  
+$L=L_{0}+(C_{0}/C)^{0.048}$
+
  bestätigt.
 Unterschiede ergeben sich für die Modellarchitektur (Funktionen und Komplexität der genutzten Algorithmen), beispielsweise bei der MoE-Architektur oder bei den Trainingsdaten, die in Vortraining und Feintraining aufgeteilt wurden. Das heißt, die meisten der oben genannten Faktoren hängen von anderen Variablen ab. Die Leistung eines Modells wird anhand seiner Fähigkeit bewertet, den Output anhand gegebener Eingangsdaten präzise vorherzusagen. Für LLMs nutzt man hierfür die logarithmische Plausibilitätsfunktion (der Logarithmus der Perplexität).
 Das Thema „Skalierungsgesetze“ fällt in den Bereich der laufenden Forschung. KI-Wissenschaftler erforschen und testen verschiedene neuronale Potenzgesetze.

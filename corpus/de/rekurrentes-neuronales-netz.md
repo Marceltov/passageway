@@ -58,200 +58,44 @@ Der Unterschied zu einem Feedforward-Netz ergibt sich aus der Tatsache, dass vor
 Rekurrente künstliche neuronale Netze sind schwierig durch Methoden des maschinellen Lernens zu trainieren. Ein populärer Ansatz ist es daher, nicht das Netz, sondern das Auslesen des Netzes zu trainieren. Das rekurrente neuronale Netz wird im Rahmen von Reservoir Computing als sogenanntes Reservoir betrachtet.
 Im Falle von LSTMs werden die Netze durch Backpropagation-Through-Time (siehe Backpropagation) während des Trainingsvorgangs in ein Feedforward-Netz entsprechend der Sequenzlänge umgewandelt. Damit wird die Komplexität des Lernverhaltens ähnlich dem der herkömmlichen Feedforward-Netze.
 Ausgangspunkt für die Backpropagation-Through-Time ist, dass die totale Verlustfunktion der Zeitreihe, welche aus 
-  
-    
-      
-        T
-      
-    
-    {\displaystyle T}
-  
+$T$
+
  Zeitschritten besteht, wie folgt dargestellt werden kann:
 
-  
-    
-      
-        L
-        =
-        
-          ∑
-          
-            t
-            =
-            1
-          
-          
-            T
-          
-        
-        l
-        (
-        
-          y
-          
-            t
-          
-        
-        ,
-        
-          o
-          
-            t
-          
-        
-        (
-        θ
-        )
-        )
-      
-    
-    {\displaystyle L=\sum _{t=1}^{T}l(y_{t},o_{t}(\theta ))}
-  
+$L=\sum _{t=1}^{T}l(y_{t},o_{t}(\theta ))$
+
 ,
 wobei 
-  
-    
-      
-        l
-      
-    
-    {\displaystyle l}
-  
+$l$
+
  eine Funktion ist, welche die Ausgabe (Output) des Netzwerkens 
-  
-    
-      
-        
-          o
-          
-            t
-          
-        
-      
-    
-    {\displaystyle o_{t}}
-  
+$o_{t}$
+
  (zum Zeitpunkt 
-  
-    
-      
-        t
-      
-    
-    {\displaystyle t}
-  
+$t$
+
 ) mit dem Ziel 
-  
-    
-      
-        
-          y
-          
-            t
-          
-        
-      
-    
-    {\displaystyle y_{t}}
-  
+$y_{t}$
+
  vergleicht und wobei 
-  
-    
-      
-        θ
-      
-    
-    {\displaystyle \theta }
-  
+$\theta $
+
  der zeitinvariante Parametervektor des rekurrenten neuronalen Netzes ist.
 Backpropagation-Through-Time erlaubt durch Anwenden der Kettenregel die Berechnung der (komponentenweisen) totalen Ableitung 
-  
-    
-      
-        
-          
-            
-              d
-              L
-            
-            
-              d
-              
-                θ
-                
-                  i
-                
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\frac {dL}{d\theta _{i}}}}
-  
+${\frac {dL}{d\theta _{i}}}$
+
 . Da der Output 
-  
-    
-      
-        
-          o
-          
-            t
-          
-        
-        (
-        
-          h
-          
-            t
-            −
-            1
-          
-        
-        (
-        θ
-        )
-        )
-      
-    
-    {\displaystyle o_{t}(h_{t-1}(\theta ))}
-  
+$o_{t}(h_{t-1}(\theta ))$
+
  selbst von Werten 
-  
-    
-      
-        
-          h
-          
-            t
-            −
-            1
-          
-        
-      
-    
-    {\displaystyle h_{t-1}}
-  
+$h_{t-1}$
+
  des vorherigen Zeitschrittes 
-  
-    
-      
-        t
-        −
-        1
-      
-    
-    {\displaystyle t-1}
-  
+$t-1$
+
  abhängt und diese von 
-  
-    
-      
-        θ
-      
-    
-    {\displaystyle \theta }
-  
+$\theta $
+
 , müssen diese vorherigen Zeitschritte in die Ableitung mit einbezogen werden.
 Probleme beim Training von rekurrenten neuronalen Netzen können aufgrund von verschwindenden oder explodierenden Gradienten auftreten. Um diese Probleme zu umgehen, kann Teacher-Forcing angewendet werden, wobei man jedoch den Bias-Exposure tradeoff eingeht.
 
@@ -260,843 +104,113 @@ Probleme beim Training von rekurrenten neuronalen Netzen können aufgrund von ve
 Die am häufigsten verwendeten Aktivierungsfunktionen für rekurrente neuronale Netze sind:
 
 Sigmoidfunktion: 
-  
-    
-      
-        g
-        (
-        z
-        )
-        =
-        
-          
-            1
-            
-              1
-              +
-              
-                e
-                
-                  −
-                  z
-                
-              
-            
-          
-        
-      
-    
-    {\displaystyle g(z)={\frac {1}{1+e^{-z}}}}
-  
+$g(z)={\frac {1}{1+e^{-z}}}$
 
 Tangens hyperbolicus: 
-  
-    
-      
-        g
-        (
-        z
-        )
-        =
-        
-          
-            
-              
-                
-                  e
-                
-                
-                  z
-                
-              
-              −
-              
-                
-                  e
-                
-                
-                  −
-                  z
-                
-              
-            
-            
-              
-                
-                  e
-                
-                
-                  z
-                
-              
-              +
-              
-                
-                  e
-                
-                
-                  −
-                  z
-                
-              
-            
-          
-        
-      
-    
-    {\displaystyle g(z)={\frac {\mathrm {e} ^{z}-\mathrm {e} ^{-z}}{\mathrm {e} ^{z}+\mathrm {e} ^{-z}}}}
-  
+$g(z)={\frac {\mathrm {e} ^{z}-\mathrm {e} ^{-z}}{\mathrm {e} ^{z}+\mathrm {e} ^{-z}}}$
 
 Rectifier: 
-  
-    
-      
-        g
-        (
-        z
-        )
-        =
-        max
-        (
-        0
-        ,
-        z
-        )
-      
-    
-    {\displaystyle g(z)=\max(0,z)}
+$g(z)=\max(0,z)$
 
 ## Verlustfunktion
 
 Um ein rekurrentes neuronales Netz zu trainieren, braucht man eine Möglichkeit, die Fehler zu messen, die es macht. Dafür kann man eine sogenannte Verlustfunktion definieren. Ziel ist es, die Parameter zu finden, die die Verlustfunktion für die Trainingsdaten minimieren.
 Eine übliche Verlustfunktion ist die Kreuzentropie. Ist 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  die Anzahl der Trainingsbeispiele, dann ist die Verlustfunktion in Bezug auf die Vorhersagen 
-  
-    
-      
-        
-          o
-          
-            n
-          
-        
-      
-    
-    {\displaystyle o_{n}}
-  
+$o_{n}$
+
  und die wahren Labels 
-  
-    
-      
-        
-          y
-          
-            n
-          
-        
-      
-    
-    {\displaystyle y_{n}}
-  
+$y_{n}$
+
  gegeben durch
 
-  
-    
-      
-        L
-        (
-        y
-        ,
-        o
-        )
-        =
-        −
-        
-          
-            1
-            n
-          
-        
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        
-          y
-          
-            i
-          
-        
-        log
-        ⁡
-        (
-        
-          o
-          
-            i
-          
-        
-        )
-      
-    
-    {\displaystyle L(y,o)=-{\frac {1}{n}}\sum _{i=1}^{n}y_{i}\log(o_{i})}
+$L(y,o)=-{\frac {1}{n}}\sum _{i=1}^{n}y_{i}\log(o_{i})$
 
 ## Zielfunktionen
 
 Mit einem geeigneten 
-  
-    
-      
-        
-          P
-          
-            θ
-          
-        
-      
-    
-    {\displaystyle P_{\theta }}
-  
+$P_{\theta }$
+
  fährt man fort, den Fehler aus den Zeitschritt zu minimieren und die Anpassung aus dem Aktualisierungsschritt zu maximieren. Dadurch wird jede Beobachtung des Ergebnisses 
-  
-    
-      
-        y
-        (
-        t
-        )
-      
-    
-    {\displaystyle y(t)}
-  
+$y(t)$
+
  zweimal verwendet. Der Wert des verborgenen Zustands vor einer Aktualisierung wir mit 
-  
-    
-      
-        z
-        (
-        t
-        −
-        )
-      
-    
-    {\displaystyle z(t-)}
-  
+$z(t-)$
+
  bezeichnet und danach mit 
-  
-    
-      
-        z
-        (
-        t
-        )
-      
-    
-    {\displaystyle z(t)}
-  
+$z(t)$
+
 . Die Verlustfunktion für den Prognoseschritt ist die negative logarithmische Wahrscheinlichkeit der Daten:
 
-  
-    
-      
-        
-          L
-          
-            p
-            r
-            e
-            d
-          
-        
-        (
-        
-          y
-          
-            i
-          
-        
-        ,
-        θ
-        )
-        =
-        −
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            N
-          
-        
-        
-          ∑
-          
-            t
-            =
-            
-              t
-              
-                0
-                ,
-                i
-              
-            
-          
-          
-            
-              T
-              
-                i
-              
-            
-          
-        
-        log
-        ⁡
-        (
-        
-          p
-          
-            θ
-          
-        
-        (
-        y
-        
-          |
-        
-        z
-        (
-        t
-        −
-        )
-        )
-      
-    
-    {\displaystyle L_{pred}(y_{i},\theta )=-\sum _{i=1}^{N}\sum _{t=t_{0,i}}^{T_{i}}\log(p_{\theta }(y|z(t-))}
-  
+$L_{pred}(y_{i},\theta )=-\sum _{i=1}^{N}\sum _{t=t_{0,i}}^{T_{i}}\log(p_{\theta }(y|z(t-))$
 
 Dabei ist 
-  
-    
-      
-        z
-        (
-        t
-        −
-        )
-      
-    
-    {\displaystyle z(t-)}
-  
+$z(t-)$
+
  der endgültige Wert des verborgenen Zustands vor dem Aktualisierungsschritt. Die zusätzliche Verlustfunktion, um sicherzustellen, dass nach dem Aktualisierungsschritt die durch den neuen Wert des verborgenen Zustands implizierte Ergebnisverteilung nahe beim beobachteten Datenpunkt 
-  
-    
-      
-        y
-        (
-        t
-        )
-      
-    
-    {\displaystyle y(t)}
-  
+$y(t)$
+
  liegt, ist
 
-  
-    
-      
-        
-          L
-          
-            j
-            u
-            m
-            p
-          
-        
-        (
-        
-          y
-          
-            i
-          
-        
-        ,
-        θ
-        )
-        =
-        −
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            N
-          
-        
-        
-          ∑
-          
-            t
-            =
-            
-              t
-              
-                0
-                ,
-                i
-              
-            
-          
-          
-            
-              T
-              
-                i
-              
-            
-          
-        
-        
-          m
-          
-            i
-          
-        
-        log
-        ⁡
-        (
-        
-          p
-          
-            θ
-          
-        
-        (
-        y
-        
-          |
-        
-        z
-        (
-        t
-        )
-        )
-      
-    
-    {\displaystyle L_{jump}(y_{i},\theta )=-\sum _{i=1}^{N}\sum _{t=t_{0,i}}^{T_{i}}m_{i}\log(p_{\theta }(y|z(t))}
-  
+$L_{jump}(y_{i},\theta )=-\sum _{i=1}^{N}\sum _{t=t_{0,i}}^{T_{i}}m_{i}\log(p_{\theta }(y|z(t))$
 
 Dabei ist 
-  
-    
-      
-        
-          m
-          
-            i
-          
-        
-      
-    
-    {\displaystyle m_{i}}
-  
+$m_{i}$
+
  eine binäre Maske, die nützlich ist, wenn ein Aktualisierungsschritt erforderlich ist, z. B. aufgrund von Änderungen in 
-  
-    
-      
-        z
-        (
-        t
-        )
-      
-    
-    {\displaystyle z(t)}
-  
+$z(t)$
+
 , 
-  
-    
-      
-        y
-        (
-        t
-        )
-      
-    
-    {\displaystyle y(t)}
-  
+$y(t)$
+
  jedoch entweder nicht gemessen wird oder aus anderen Gründen fehlt. Wenn der Beobachtungsprozess mit Fehlern gemessen wird, können wir dies durch die Verwendung einer Kullback-Leibler-Divergenz als Verlustfunktion beschreiben:
 
-  
-    
-      
-        
-          L
-          
-            j
-            u
-            m
-            p
-          
-        
-        (
-        
-          y
-          
-            i
-          
-        
-        ,
-        θ
-        )
-        =
-        −
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            N
-          
-        
-        K
-        L
-        (
-        
-          p
-          
-            θ
-          
-        
-        (
-        y
-        
-          |
-        
-        z
-        (
-        t
-        )
-        
-          |
-        
-        
-          |
-        
-        
-          p
-          
-            o
-            b
-            s
-          
-        
-        (
-        y
-        ,
-        
-          σ
-          
-            2
-          
-        
-        )
-        )
-        )
-      
-    
-    {\displaystyle L_{jump}(y_{i},\theta )=-\sum _{i=1}^{N}KL(p_{\theta }(y|z(t)||p_{obs}(y,\sigma ^{2})))}
-  
+$L_{jump}(y_{i},\theta )=-\sum _{i=1}^{N}KL(p_{\theta }(y|z(t)||p_{obs}(y,\sigma ^{2})))$
 
 Dabei ist 
-  
-    
-      
-        
-          p
-          
-            o
-            b
-            s
-          
-        
-        (
-        y
-        ,
-        
-          σ
-          
-            2
-          
-        
-        )
-      
-    
-    {\displaystyle p_{obs}(y,\sigma ^{2})}
-  
+$p_{obs}(y,\sigma ^{2})$
+
  die angenommene Verteilung der Antwort 
-  
-    
-      
-        y
-        (
-        t
-        )
-      
-    
-    {\displaystyle y(t)}
-  
+$y(t)$
+
  bei gegebener Beobachtung 
-  
-    
-      
-        y
-      
-    
-    {\displaystyle y}
-  
+$y$
+
  und der Annahme eines mittleren Messfehlers von Null mit Varianz 
-  
-    
-      
-        
-          σ
-          
-            2
-          
-        
-      
-    
-    {\displaystyle \sigma ^{2}}
-  
+$\sigma ^{2}$
+
 .
 
 ## GloVe Modell
 
 Das GloVe Modell ist eine Worteinbettungstechnik, die eine Co-Occurence-Matrix 
-  
-    
-      
-        X
-      
-    
-    {\displaystyle X}
-  
+$X$
+
  verwendet, wobei jedes 
-  
-    
-      
-        
-          X
-          
-            i
-            ,
-            j
-          
-        
-      
-    
-    {\displaystyle X_{i,j}}
-  
+$X_{i,j}$
+
  die Anzahl der Male bezeichnet, in denen ein Ziel 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  mit einem Kontext 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
  aufgetreten ist. Die Kostenfunktion 
-  
-    
-      
-        J
-      
-    
-    {\displaystyle J}
-  
+$J$
+
  für dieses Modell lautet
 
-  
-    
-      
-        J
-        (
-        θ
-        )
-        =
-        
-          
-            1
-            2
-          
-        
-        
-          ∑
-          
-            i
-            ,
-            j
-            =
-            1
-          
-          
-            
-              |
-            
-            V
-            
-              |
-            
-          
-        
-        f
-        (
-        
-          X
-          
-            i
-            ,
-            j
-          
-        
-        )
-        (
-        
-          θ
-          
-            i
-          
-          
-            T
-          
-        
-        
-          e
-          
-            j
-          
-        
-        +
-        
-          b
-          
-            i
-          
-        
-        +
-        
-          b
-          
-            j
-          
-          ′
-        
-        −
-        log
-        ⁡
-        (
-        
-          X
-          
-            i
-            ,
-            j
-          
-        
-        )
-        
-          )
-          
-            2
-          
-        
-      
-    
-    {\displaystyle J(\theta )={\frac {1}{2}}\sum _{i,j=1}^{|V|}f(X_{i,j})(\theta _{i}^{T}e_{j}+b_{i}+b_{j}'-\log(X_{i,j}))^{2}}
-  
+$J(\theta )={\frac {1}{2}}\sum _{i,j=1}^{|V|}f(X_{i,j})(\theta _{i}^{T}e_{j}+b_{i}+b_{j}'-\log(X_{i,j}))^{2}$
 
 wobei 
-  
-    
-      
-        f
-      
-    
-    {\displaystyle f}
-  
+$f$
+
  eine Gewichtungsfunktion ist, sodass 
-  
-    
-      
-        f
-        (
-        
-          X
-          
-            i
-            ,
-            j
-          
-        
-        )
-        =
-        0
-      
-    
-    {\displaystyle f(X_{i,j})=0}
-  
+$f(X_{i,j})=0$
+
  für alle 
-  
-    
-      
-        
-          X
-          
-            i
-            ,
-            j
-          
-        
-        =
-        0
-      
-    
-    {\displaystyle X_{i,j}=0}
-  
+$X_{i,j}=0$
+
  ist.

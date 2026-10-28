@@ -124,23 +124,11 @@ Es gibt viele Arten von Modellen, die untersucht wurden und in solchen Systemen 
 ### Lineare Regression
 
 Die lineare Regression ist ein statistisches Verfahren, mit dem versucht wird, eine beobachtete abhängige Variable durch eine oder mehrere unabhängige Variablen zu erklären. Bei der linearen Regression wird dabei ein lineares Modell angenommen. Bei der einfachen linearen Regression wird mithilfe zweier Parameter eine Gerade (Regressionsgerade) so durch eine Punktwolke gelegt, dass der lineare Zusammenhang zwischen 
-  
-    
-      
-        X
-      
-    
-    {\displaystyle X}
-  
+$X$
+
  und 
-  
-    
-      
-        Y
-      
-    
-    {\displaystyle Y}
-  
+$Y$
+
  möglichst gut beschrieben wird.
 Um eine möglichst genaue Vorhersage für die abhängige Variable zu erhalten, wird eine Kostenfunktion aufgestellt. Diese Funktion beschreibt die mittlere quadratische Abweichung, die dadurch entsteht, dass die Regressionsgerade die zu erklärende Variable nur approximiert und nicht genau darstellt. Der Lernalgorithmus minimiert die Kostenfunktion.
 

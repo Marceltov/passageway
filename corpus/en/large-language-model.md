@@ -151,47 +151,17 @@ These reasoning models typically require more computational resources per query 
 
 Multimodality means having multiple modalities, where a "modality" refers to a type of input or output, such as video, image, audio, text, proprioception, etc. For example, Google PaLM model was fine-tuned into a multimodal model and applied to robotic control. LLaMA models have also been turned multimodal using the tokenization method, to allow image inputs, and video inputs. GPT-4o can process and generate text, audio and images.
 A common method to create multimodal models out of an LLM is to "tokenize" the output of a trained encoder. Concretely, one can construct an LLM that can understand images as follows: take a trained LLM, and take a trained image encoder 
-  
-    
-      
-        E
-      
-    
-    {\displaystyle E}
-  
+$E$
+
 . Make a small multilayer perceptron 
-  
-    
-      
-        f
-      
-    
-    {\displaystyle f}
-  
+$f$
+
 , so that for any image 
-  
-    
-      
-        y
-      
-    
-    {\displaystyle y}
-  
+$y$
+
 , the post-processed vector 
-  
-    
-      
-        f
-        (
-        E
-        (
-        y
-        )
-        )
-      
-    
-    {\displaystyle f(E(y))}
-  
+$f(E(y))$
+
  has the same dimensions as an encoded token. That is an "image token". Then, one can interleave text tokens and image tokens. The compound model is then fine-tuned on an image-text dataset. This basic construction can be applied with more sophistication to improve the model. The image encoder may be frozen to improve stability. This type of method, where embeddings from multiple modalities are fused and the predictor is trained on the combined embeddings, is called early fusion.
 Another method, called intermediate fusion, involves each modality being first processed independently to obtain modality-specific representations; then these intermediate representations are fused together. In general, cross-attention is used for integrating information from different modalities. As an example, the Flamingo model uses cross-attention layers to inject visual information into its pre-trained language model.
 
@@ -206,192 +176,45 @@ In computational biology, transformer-based architectures, such as DNA LLMs, hav
 
 The performance of an LLM after pretraining largely depends on the:
 
-  
-    
-      
-        C
-      
-    
-    {\displaystyle C}
-  
+$C$
+
 : cost of pretraining (the total amount of compute used),
 
-  
-    
-      
-        N
-      
-    
-    {\displaystyle N}
-  
+$N$
+
 : size of the artificial neural network itself, such as number of parameters (i.e. amount of neurons in its layers, amount of weights between them and biases),
 
-  
-    
-      
-        D
-      
-    
-    {\displaystyle D}
-  
+$D$
+
 : size of its pretraining dataset (i.e. number of tokens in corpus).
 Scaling laws are empirical statistical laws that predict LLM performance based on such factors. One particular scaling law ("Chinchilla scaling") for LLM autoregressively trained for one epoch, with a log–log learning rate schedule, states that:
 
-  
-    
-      
-        
-          
-            {
-            
-              
-                
-                  C
-                  =
-                  
-                    C
-                    
-                      0
-                    
-                  
-                  N
-                  D
-                
-              
-              
-                
-                  L
-                  =
-                  
-                    
-                      A
-                      
-                        N
-                        
-                          α
-                        
-                      
-                    
-                  
-                  +
-                  
-                    
-                      B
-                      
-                        D
-                        
-                          β
-                        
-                      
-                    
-                  
-                  +
-                  
-                    L
-                    
-                      0
-                    
-                  
-                
-              
-            
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{cases}C=C_{0}ND\\[6pt]L={\frac {A}{N^{\alpha }}}+{\frac {B}{D^{\beta }}}+L_{0}\end{cases}}}
-  
+${\begin{cases}C=C_{0}ND\\[6pt]L={\frac {A}{N^{\alpha }}}+{\frac {B}{D^{\beta }}}+L_{0}\end{cases}}$
+
  where the variables are
 
-  
-    
-      
-        C
-      
-    
-    {\displaystyle C}
-  
+$C$
+
  is the cost of training the model, in FLOPs.
 
-  
-    
-      
-        N
-      
-    
-    {\displaystyle N}
-  
+$N$
+
  is the number of parameters in the model.
 
-  
-    
-      
-        D
-      
-    
-    {\displaystyle D}
-  
+$D$
+
  is the number of tokens in the training set.
 
-  
-    
-      
-        L
-      
-    
-    {\displaystyle L}
-  
+$L$
+
  is the average negative log-likelihood loss per token (nats/token), achieved by the trained LLM on the test dataset.
 and the statistical hyper-parameters are
 
-  
-    
-      
-        
-          C
-          
-            0
-          
-        
-        =
-        6
-      
-    
-    {\displaystyle C_{0}=6}
-  
+$C_{0}=6$
+
 , meaning that it costs 6 FLOPs per parameter to train on one token. Note that training cost is much higher than inference cost, where it costs 1 to 2 FLOPs per parameter to infer on one token.
 
-  
-    
-      
-        α
-        =
-        0.34
-        ,
-        β
-        =
-        0.28
-        ,
-        A
-        =
-        406.4
-        ,
-        B
-        =
-        410.7
-        ,
-        
-          L
-          
-            0
-          
-        
-        =
-        1.69
-      
-    
-    {\displaystyle \alpha =0.34,\beta =0.28,A=406.4,B=410.7,L_{0}=1.69}
+$\alpha =0.34,\beta =0.28,A=406.4,B=410.7,L_{0}=1.69$
 
 ### Emergent abilities
 
@@ -408,23 +231,11 @@ chain-of-thought prompting: In a 2022 research paper, chain-of-thought prompting
 identifying offensive content in paragraphs of Hinglish (a combination of Hindi and English), and generating a similar English equivalent of Kiswahili proverbs.
 Schaeffer et al. argue that the emergent abilities are not unpredictably acquired, but predictably acquired according to a smooth scaling law. The authors considered a toy statistical model of an LLM solving multiple-choice questions, and showed that this statistical model, modified to account for other types of tasks, applies to these tasks as well.
 Let 
-  
-    
-      
-        x
-      
-    
-    {\displaystyle x}
-  
+$x$
+
  be the number of parameter count, and 
-  
-    
-      
-        y
-      
-    
-    {\displaystyle y}
-  
+$y$
+
  be the performance of the model.
 
 ## Interpretation
@@ -447,118 +258,26 @@ The matter of LLM's exhibiting intelligence or understanding has two main aspect
 
 The canonical measure of the performance of any language model is its perplexity on a given text corpus. Perplexity measures how well a model predicts the contents of a dataset; the higher the likelihood the model assigns to the dataset, the lower the perplexity. In mathematical terms, perplexity is the exponential of the average negative log likelihood per token.
 
-  
-    
-      
-        log
-        ⁡
-        (
-        
-          Perplexity
-        
-        )
-        =
-        −
-        
-          
-            1
-            N
-          
-        
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            N
-          
-        
-        log
-        ⁡
-        (
-        Pr
-        (
-        
-          
-            token
-          
-          
-            i
-          
-        
-        ∣
-        
-          
-            context for token
-          
-          
-            i
-          
-        
-        )
-        )
-      
-    
-    {\displaystyle \log({\text{Perplexity}})=-{\frac {1}{N}}\sum _{i=1}^{N}\log(\Pr({\text{token}}_{i}\mid {\text{context for token}}_{i}))}
-  
+$\log({\text{Perplexity}})=-{\frac {1}{N}}\sum _{i=1}^{N}\log(\Pr({\text{token}}_{i}\mid {\text{context for token}}_{i}))$
 
 Here, 
-  
-    
-      
-        N
-      
-    
-    {\displaystyle N}
-  
+$N$
+
  is the number of tokens in the text corpus, and "context for token 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 " depends on the specific type of LLM. If the LLM is autoregressive, then "context for token 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 " is the segment of text appearing before token 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 . If the LLM is masked, then "context for token 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 " is the segment of text surrounding token 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 .
 Because language models may overfit to training data, models are usually evaluated by their perplexity on a test set. This evaluation is potentially problematic for larger models which, as they are trained on increasingly large corpora of text, are increasingly likely to inadvertently include portions of any given test set.
 

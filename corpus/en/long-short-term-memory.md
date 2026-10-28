@@ -20,1803 +20,214 @@ The intuition behind the LSTM architecture is to create an additional module in 
 ## Variants
 
 In the equations below, the lowercase variables represent vectors. Matrices 
-  
-    
-      
-        
-          W
-          
-            q
-          
-        
-      
-    
-    {\displaystyle W_{q}}
-  
+$W_{q}$
+
  and 
-  
-    
-      
-        
-          U
-          
-            q
-          
-        
-      
-    
-    {\displaystyle U_{q}}
-  
+$U_{q}$
+
  contain, respectively, the weights of the input and recurrent connections, where the subscript 
-  
-    
-      
-        
-          
-          
-            q
-          
-        
-      
-    
-    {\displaystyle _{q}}
-  
+$_{q}$
+
  can either be the input gate 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 , output gate 
-  
-    
-      
-        o
-      
-    
-    {\displaystyle o}
-  
+$o$
+
 , the forget gate 
-  
-    
-      
-        f
-      
-    
-    {\displaystyle f}
-  
+$f$
+
  or the memory cell 
-  
-    
-      
-        c
-      
-    
-    {\displaystyle c}
-  
+$c$
+
 , depending on the activation being calculated. In this section, we are thus using a "vector notation". So, for example, 
-  
-    
-      
-        
-          c
-          
-            t
-          
-        
-        ∈
-        
-          
-            R
-          
-          
-            h
-          
-        
-      
-    
-    {\displaystyle c_{t}\in \mathbb {R} ^{h}}
-  
+$c_{t}\in \mathbb {R} ^{h}$
+
  is not just one unit of one LSTM cell, but contains 
-  
-    
-      
-        h
-      
-    
-    {\displaystyle h}
-  
+$h$
+
  LSTM cell's units.
 
 ### LSTM with a forget gate (crucial)
 
 The compact forms of the equations for the forward pass of an LSTM cell with a forget gate are:
 
-  
-    
-      
-        
-          
-            
-              
-                
-                  f
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    g
-                  
-                
-                (
-                
-                  W
-                  
-                    f
-                  
-                
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    f
-                  
-                
-                
-                  h
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    f
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  i
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    g
-                  
-                
-                (
-                
-                  W
-                  
-                    i
-                  
-                
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    i
-                  
-                
-                
-                  h
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    i
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  o
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    g
-                  
-                
-                (
-                
-                  W
-                  
-                    o
-                  
-                
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    o
-                  
-                
-                
-                  h
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    o
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  
-                    
-                      
-                        c
-                        ~
-                      
-                    
-                  
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    c
-                  
-                
-                (
-                
-                  W
-                  
-                    c
-                  
-                
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    c
-                  
-                
-                
-                  h
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    c
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  c
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  f
-                  
-                    t
-                  
-                
-                ⊙
-                
-                  c
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  i
-                  
-                    t
-                  
-                
-                ⊙
-                
-                  
-                    
-                      
-                        c
-                        ~
-                      
-                    
-                  
-                  
-                    t
-                  
-                
-              
-            
-            
-              
-                
-                  h
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  o
-                  
-                    t
-                  
-                
-                ⊙
-                
-                  σ
-                  
-                    h
-                  
-                
-                (
-                
-                  c
-                  
-                    t
-                  
-                
-                )
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}f_{t}&=\sigma _{g}(W_{f}x_{t}+U_{f}h_{t-1}+b_{f})\\i_{t}&=\sigma _{g}(W_{i}x_{t}+U_{i}h_{t-1}+b_{i})\\o_{t}&=\sigma _{g}(W_{o}x_{t}+U_{o}h_{t-1}+b_{o})\\{\tilde {c}}_{t}&=\sigma _{c}(W_{c}x_{t}+U_{c}h_{t-1}+b_{c})\\c_{t}&=f_{t}\odot c_{t-1}+i_{t}\odot {\tilde {c}}_{t}\\h_{t}&=o_{t}\odot \sigma _{h}(c_{t})\end{aligned}}}
-  
+${\begin{aligned}f_{t}&=\sigma _{g}(W_{f}x_{t}+U_{f}h_{t-1}+b_{f})\\i_{t}&=\sigma _{g}(W_{i}x_{t}+U_{i}h_{t-1}+b_{i})\\o_{t}&=\sigma _{g}(W_{o}x_{t}+U_{o}h_{t-1}+b_{o})\\{\tilde {c}}_{t}&=\sigma _{c}(W_{c}x_{t}+U_{c}h_{t-1}+b_{c})\\c_{t}&=f_{t}\odot c_{t-1}+i_{t}\odot {\tilde {c}}_{t}\\h_{t}&=o_{t}\odot \sigma _{h}(c_{t})\end{aligned}}$
 
 where the initial values are 
-  
-    
-      
-        
-          c
-          
-            0
-          
-        
-        =
-        0
-      
-    
-    {\displaystyle c_{0}=0}
-  
+$c_{0}=0$
+
  and 
-  
-    
-      
-        
-          h
-          
-            0
-          
-        
-        =
-        0
-      
-    
-    {\displaystyle h_{0}=0}
-  
+$h_{0}=0$
+
  and the operator 
-  
-    
-      
-        ⊙
-      
-    
-    {\displaystyle \odot }
-  
+$\odot $
+
  denotes the Hadamard product (element-wise product). The subscript 
-  
-    
-      
-        t
-      
-    
-    {\displaystyle t}
-  
+$t$
+
  indexes the time step.
 
 #### Variables
 
 Letting the superscripts 
-  
-    
-      
-        d
-      
-    
-    {\displaystyle d}
-  
+$d$
+
  and 
-  
-    
-      
-        h
-      
-    
-    {\displaystyle h}
-  
+$h$
+
  refer to the number of input features and number of hidden units, respectively:
 
-  
-    
-      
-        
-          x
-          
-            t
-          
-        
-        ∈
-        
-          
-            R
-          
-          
-            d
-          
-        
-      
-    
-    {\displaystyle x_{t}\in \mathbb {R} ^{d}}
-  
+$x_{t}\in \mathbb {R} ^{d}$
+
 : input vector to the LSTM unit
 
-  
-    
-      
-        
-          f
-          
-            t
-          
-        
-        ∈
-        
-          
-            (
-            0
-            ,
-            1
-            )
-          
-          
-            h
-          
-        
-      
-    
-    {\displaystyle f_{t}\in {(0,1)}^{h}}
-  
+$f_{t}\in {(0,1)}^{h}$
+
 : forget gate's activation vector
 
-  
-    
-      
-        
-          i
-          
-            t
-          
-        
-        ∈
-        
-          
-            (
-            0
-            ,
-            1
-            )
-          
-          
-            h
-          
-        
-      
-    
-    {\displaystyle i_{t}\in {(0,1)}^{h}}
-  
+$i_{t}\in {(0,1)}^{h}$
+
 : input/update gate's activation vector
 
-  
-    
-      
-        
-          o
-          
-            t
-          
-        
-        ∈
-        
-          
-            (
-            0
-            ,
-            1
-            )
-          
-          
-            h
-          
-        
-      
-    
-    {\displaystyle o_{t}\in {(0,1)}^{h}}
-  
+$o_{t}\in {(0,1)}^{h}$
+
 : output gate's activation vector
 
-  
-    
-      
-        
-          h
-          
-            t
-          
-        
-        ∈
-        
-          
-            (
-            −
-            1
-            ,
-            1
-            )
-          
-          
-            h
-          
-        
-      
-    
-    {\displaystyle h_{t}\in {(-1,1)}^{h}}
-  
+$h_{t}\in {(-1,1)}^{h}$
+
 : hidden state vector also known as output vector of the LSTM unit
 
-  
-    
-      
-        
-          
-            
-              
-                c
-                ~
-              
-            
-          
-          
-            t
-          
-        
-        ∈
-        
-          
-            (
-            −
-            1
-            ,
-            1
-            )
-          
-          
-            h
-          
-        
-      
-    
-    {\displaystyle {\tilde {c}}_{t}\in {(-1,1)}^{h}}
-  
+${\tilde {c}}_{t}\in {(-1,1)}^{h}$
+
 : cell input activation vector
 
-  
-    
-      
-        
-          c
-          
-            t
-          
-        
-        ∈
-        
-          
-            R
-          
-          
-            h
-          
-        
-      
-    
-    {\displaystyle c_{t}\in \mathbb {R} ^{h}}
-  
+$c_{t}\in \mathbb {R} ^{h}$
+
 : cell state vector
 
-  
-    
-      
-        W
-        ∈
-        
-          
-            R
-          
-          
-            h
-            ×
-            d
-          
-        
-      
-    
-    {\displaystyle W\in \mathbb {R} ^{h\times d}}
-  
+$W\in \mathbb {R} ^{h\times d}$
+
 , 
-  
-    
-      
-        U
-        ∈
-        
-          
-            R
-          
-          
-            h
-            ×
-            h
-          
-        
-      
-    
-    {\displaystyle U\in \mathbb {R} ^{h\times h}}
-  
+$U\in \mathbb {R} ^{h\times h}$
+
  and 
-  
-    
-      
-        b
-        ∈
-        
-          
-            R
-          
-          
-            h
-          
-        
-      
-    
-    {\displaystyle b\in \mathbb {R} ^{h}}
-  
+$b\in \mathbb {R} ^{h}$
+
 : weight matrices and bias vector parameters which need to be learned during training
 
 #### Activation functions
 
-σ
-          
-            g
-          
-        
-      
-    
-    {\displaystyle \sigma _{g}}
-  
+$\sigma _{g}$
+
 : sigmoid function.
 
-  
-    
-      
-        
-          σ
-          
-            c
-          
-        
-      
-    
-    {\displaystyle \sigma _{c}}
-  
+$\sigma _{c}$
+
 : hyperbolic tangent function.
 
-  
-    
-      
-        
-          σ
-          
-            h
-          
-        
-      
-    
-    {\displaystyle \sigma _{h}}
-  
+$\sigma _{h}$
+
 : hyperbolic tangent function or, as the peephole LSTM paper suggests, 
-  
-    
-      
-        
-          σ
-          
-            h
-          
-        
-        (
-        x
-        )
-        =
-        x
-      
-    
-    {\displaystyle \sigma _{h}(x)=x}
-  
+$\sigma _{h}(x)=x$
+
 .
 
 ### Peephole LSTM
 
 The figure on the right is a graphical representation of an LSTM unit with peephole connections (i.e. a peephole LSTM). Peephole connections allow the gates to access the constant error carousel (CEC), whose activation is the cell state. 
-  
-    
-      
-        
-          h
-          
-            t
-            −
-            1
-          
-        
-      
-    
-    {\displaystyle h_{t-1}}
-  
+$h_{t-1}$
+
  is not used, 
-  
-    
-      
-        
-          c
-          
-            t
-            −
-            1
-          
-        
-      
-    
-    {\displaystyle c_{t-1}}
-  
+$c_{t-1}$
+
  is used instead in most places.
 
-  
-    
-      
-        
-          
-            
-              
-                
-                  f
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    g
-                  
-                
-                (
-                
-                  W
-                  
-                    f
-                  
-                
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    f
-                  
-                
-                
-                  c
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    f
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  i
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    g
-                  
-                
-                (
-                
-                  W
-                  
-                    i
-                  
-                
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    i
-                  
-                
-                
-                  c
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    i
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  o
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    g
-                  
-                
-                (
-                
-                  W
-                  
-                    o
-                  
-                
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    o
-                  
-                
-                
-                  c
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    o
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  c
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  f
-                  
-                    t
-                  
-                
-                ⊙
-                
-                  c
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  i
-                  
-                    t
-                  
-                
-                ⊙
-                
-                  σ
-                  
-                    c
-                  
-                
-                (
-                
-                  W
-                  
-                    c
-                  
-                
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  b
-                  
-                    c
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  h
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  o
-                  
-                    t
-                  
-                
-                ⊙
-                
-                  σ
-                  
-                    h
-                  
-                
-                (
-                
-                  c
-                  
-                    t
-                  
-                
-                )
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}f_{t}&=\sigma _{g}(W_{f}x_{t}+U_{f}c_{t-1}+b_{f})\\i_{t}&=\sigma _{g}(W_{i}x_{t}+U_{i}c_{t-1}+b_{i})\\o_{t}&=\sigma _{g}(W_{o}x_{t}+U_{o}c_{t-1}+b_{o})\\c_{t}&=f_{t}\odot c_{t-1}+i_{t}\odot \sigma _{c}(W_{c}x_{t}+b_{c})\\h_{t}&=o_{t}\odot \sigma _{h}(c_{t})\end{aligned}}}
-  
+${\begin{aligned}f_{t}&=\sigma _{g}(W_{f}x_{t}+U_{f}c_{t-1}+b_{f})\\i_{t}&=\sigma _{g}(W_{i}x_{t}+U_{i}c_{t-1}+b_{i})\\o_{t}&=\sigma _{g}(W_{o}x_{t}+U_{o}c_{t-1}+b_{o})\\c_{t}&=f_{t}\odot c_{t-1}+i_{t}\odot \sigma _{c}(W_{c}x_{t}+b_{c})\\h_{t}&=o_{t}\odot \sigma _{h}(c_{t})\end{aligned}}$
 
 Each of the gates can be thought as a "standard" neuron in a feed-forward (or multi-layer) neural network: that is, they compute an activation (using an activation function) of a weighted sum. 
-  
-    
-      
-        
-          i
-          
-            t
-          
-        
-        ,
-        
-          o
-          
-            t
-          
-        
-      
-    
-    {\displaystyle i_{t},o_{t}}
-  
+$i_{t},o_{t}$
+
  and 
-  
-    
-      
-        
-          f
-          
-            t
-          
-        
-      
-    
-    {\displaystyle f_{t}}
-  
+$f_{t}$
+
  represent the activations of respectively the input, output and forget gates, at time step 
-  
-    
-      
-        t
-      
-    
-    {\displaystyle t}
-  
+$t$
+
 .
 The 3 exit arrows from the memory cell 
-  
-    
-      
-        c
-      
-    
-    {\displaystyle c}
-  
+$c$
+
  to the 3 gates 
-  
-    
-      
-        i
-        ,
-        o
-      
-    
-    {\displaystyle i,o}
-  
+$i,o$
+
  and 
-  
-    
-      
-        f
-      
-    
-    {\displaystyle f}
-  
+$f$
+
  represent the peephole connections. These peephole connections actually denote the contributions of the activation of the memory cell 
-  
-    
-      
-        c
-      
-    
-    {\displaystyle c}
-  
+$c$
+
  at time step 
-  
-    
-      
-        t
-        −
-        1
-      
-    
-    {\displaystyle t-1}
-  
+$t-1$
+
 , i.e. the contribution of 
-  
-    
-      
-        
-          c
-          
-            t
-            −
-            1
-          
-        
-      
-    
-    {\displaystyle c_{t-1}}
-  
+$c_{t-1}$
+
  (and not 
-  
-    
-      
-        
-          c
-          
-            t
-          
-        
-      
-    
-    {\displaystyle c_{t}}
-  
+$c_{t}$
+
 , as the picture may suggest). In other words, the gates 
-  
-    
-      
-        i
-        ,
-        o
-      
-    
-    {\displaystyle i,o}
-  
+$i,o$
+
  and 
-  
-    
-      
-        f
-      
-    
-    {\displaystyle f}
-  
+$f$
+
  calculate their activations at time step 
-  
-    
-      
-        t
-      
-    
-    {\displaystyle t}
-  
+$t$
+
  (i.e., respectively, 
-  
-    
-      
-        
-          i
-          
-            t
-          
-        
-        ,
-        
-          o
-          
-            t
-          
-        
-      
-    
-    {\displaystyle i_{t},o_{t}}
-  
+$i_{t},o_{t}$
+
  and 
-  
-    
-      
-        
-          f
-          
-            t
-          
-        
-      
-    
-    {\displaystyle f_{t}}
-  
+$f_{t}$
+
 ) also considering the activation of the memory cell 
-  
-    
-      
-        c
-      
-    
-    {\displaystyle c}
-  
+$c$
+
  at time step 
-  
-    
-      
-        t
-        −
-        1
-      
-    
-    {\displaystyle t-1}
-  
+$t-1$
+
 , i.e. 
-  
-    
-      
-        
-          c
-          
-            t
-            −
-            1
-          
-        
-      
-    
-    {\displaystyle c_{t-1}}
-  
+$c_{t-1}$
+
 .
 The single left-to-right arrow exiting the memory cell is not a peephole connection and denotes 
-  
-    
-      
-        
-          c
-          
-            t
-          
-        
-      
-    
-    {\displaystyle c_{t}}
-  
+$c_{t}$
+
 .
 The little circles containing a 
-  
-    
-      
-        ×
-      
-    
-    {\displaystyle \times }
-  
+$\times $
+
  symbol represent an element-wise multiplication between its inputs. The big circles containing an S-like curve represent the application of a differentiable function (like the sigmoid function) to a weighted sum.
 
 ### Peephole convolutional LSTM
 
 Peephole convolutional LSTM. The 
-  
-    
-      
-        ∗
-      
-    
-    {\displaystyle *}
-  
+$*$
+
  denotes the convolution operator.
 
-  
-    
-      
-        
-          
-            
-              
-                
-                  f
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    g
-                  
-                
-                (
-                
-                  W
-                  
-                    f
-                  
-                
-                ∗
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    f
-                  
-                
-                ∗
-                
-                  h
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  V
-                  
-                    f
-                  
-                
-                ⊙
-                
-                  c
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    f
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  i
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    g
-                  
-                
-                (
-                
-                  W
-                  
-                    i
-                  
-                
-                ∗
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    i
-                  
-                
-                ∗
-                
-                  h
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  V
-                  
-                    i
-                  
-                
-                ⊙
-                
-                  c
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    i
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  c
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  f
-                  
-                    t
-                  
-                
-                ⊙
-                
-                  c
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  i
-                  
-                    t
-                  
-                
-                ⊙
-                
-                  σ
-                  
-                    c
-                  
-                
-                (
-                
-                  W
-                  
-                    c
-                  
-                
-                ∗
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    c
-                  
-                
-                ∗
-                
-                  h
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    c
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  o
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    g
-                  
-                
-                (
-                
-                  W
-                  
-                    o
-                  
-                
-                ∗
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    o
-                  
-                
-                ∗
-                
-                  h
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  V
-                  
-                    o
-                  
-                
-                ⊙
-                
-                  c
-                  
-                    t
-                  
-                
-                +
-                
-                  b
-                  
-                    o
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  h
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  o
-                  
-                    t
-                  
-                
-                ⊙
-                
-                  σ
-                  
-                    h
-                  
-                
-                (
-                
-                  c
-                  
-                    t
-                  
-                
-                )
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}f_{t}&=\sigma _{g}(W_{f}*x_{t}+U_{f}*h_{t-1}+V_{f}\odot c_{t-1}+b_{f})\\i_{t}&=\sigma _{g}(W_{i}*x_{t}+U_{i}*h_{t-1}+V_{i}\odot c_{t-1}+b_{i})\\c_{t}&=f_{t}\odot c_{t-1}+i_{t}\odot \sigma _{c}(W_{c}*x_{t}+U_{c}*h_{t-1}+b_{c})\\o_{t}&=\sigma _{g}(W_{o}*x_{t}+U_{o}*h_{t-1}+V_{o}\odot c_{t}+b_{o})\\h_{t}&=o_{t}\odot \sigma _{h}(c_{t})\end{aligned}}}
+${\begin{aligned}f_{t}&=\sigma _{g}(W_{f}*x_{t}+U_{f}*h_{t-1}+V_{f}\odot c_{t-1}+b_{f})\\i_{t}&=\sigma _{g}(W_{i}*x_{t}+U_{i}*h_{t-1}+V_{i}\odot c_{t-1}+b_{i})\\c_{t}&=f_{t}\odot c_{t-1}+i_{t}\odot \sigma _{c}(W_{c}*x_{t}+U_{c}*h_{t-1}+b_{c})\\o_{t}&=\sigma _{g}(W_{o}*x_{t}+U_{o}*h_{t-1}+V_{o}\odot c_{t}+b_{o})\\h_{t}&=o_{t}\odot \sigma _{h}(c_{t})\end{aligned}}$
 
 ## Training
 
 An RNN using LSTM units can be trained in a supervised fashion on a set of training sequences, using an optimization algorithm like gradient descent combined with backpropagation through time to compute the gradients needed during the optimization process, in order to change each weight of the LSTM network in proportion to the derivative of the error (at the output layer of the LSTM network) with respect to corresponding weight.
 A problem with using gradient descent for standard RNNs is that error gradients vanish exponentially quickly with the size of the time lag between important events. This is due to 
-  
-    
-      
-        
-          lim
-          
-            n
-            →
-            ∞
-          
-        
-        
-          W
-          
-            n
-          
-        
-        =
-        0
-      
-    
-    {\displaystyle \lim _{n\to \infty }W^{n}=0}
-  
+$\lim _{n\to \infty }W^{n}=0$
+
  if the spectral radius of 
-  
-    
-      
-        W
-      
-    
-    {\displaystyle W}
-  
+$W$
+
  is smaller than 1.
 However, with LSTM units, when error values are back-propagated from the output layer, the error remains in the LSTM unit's cell. This "error carousel" continuously feeds error back to each of the LSTM unit's gates, until they learn to cut off the value.
 

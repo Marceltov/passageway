@@ -45,156 +45,25 @@ Each artificial neuron in an MLP receives multiple inputs, processes them throug
 The neuron model consists of three main parts:
 
 Input connections: Each input 
-  
-    
-      
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle x_{i}}
-  
+$x_{i}$
+
  is associated with a synaptic weight 
-  
-    
-      
-        
-          w
-          
-            i
-          
-        
-      
-    
-    {\displaystyle w_{i}}
-  
+$w_{i}$
+
  that represents the strength of that connection. These weights are the learnable parameters of the network.
 Linear combiner: The neuron computes a weighted sum of its inputs, typically including a bias term 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
 :
 
-  
-    
-      
-        u
-        =
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        
-          w
-          
-            i
-          
-        
-        
-          x
-          
-            i
-          
-        
-        +
-        b
-        =
-        
-          
-            w
-          
-          
-            
-              T
-            
-          
-        
-        
-          x
-        
-        +
-        b
-      
-    
-    {\displaystyle u=\sum _{i=1}^{n}w_{i}x_{i}+b=\mathbf {w} ^{\mathsf {T}}\mathbf {x} +b}
-  
+$u=\sum _{i=1}^{n}w_{i}x_{i}+b=\mathbf {w} ^{\mathsf {T}}\mathbf {x} +b$
 
 Activation function: The weighted sum is passed through a nonlinear function 
-  
-    
-      
-        g
-        (
-        u
-        )
-      
-    
-    {\displaystyle g(u)}
-  
+$g(u)$
+
  to produce the neuron's output:
 
-  
-    
-      
-        y
-        =
-        g
-        (
-        u
-        )
-        =
-        g
-        
-          (
-          
-            
-              ∑
-              
-                i
-                =
-                1
-              
-              
-                n
-              
-            
-            
-              w
-              
-                i
-              
-            
-            
-              x
-              
-                i
-              
-            
-            +
-            b
-          
-          )
-        
-      
-    
-    {\displaystyle y=g(u)=g\left(\sum _{i=1}^{n}w_{i}x_{i}+b\right)}
-  
+$y=g(u)=g\left(\sum _{i=1}^{n}w_{i}x_{i}+b\right)$
 
 The bias term can be viewed as an adjustable threshold for neuron activation.
 
@@ -217,140 +86,42 @@ For multi-class classification, it usually has one neuron per class (e.g., 10 ne
 ### Connectivity patterns
 
 MLPs are defined by their fully connected (dense) topology: each neuron in layer 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  connects to every neuron in layer 
-  
-    
-      
-        i
-        +
-        1
-      
-    
-    {\displaystyle i+1}
-  
+$i+1$
+
 .
 This architecture provides maximum representational flexibility, as the network can learn arbitrary input-output mappings. Using matrix notation, the output 
-  
-    
-      
-        
-          h
-        
-      
-    
-    {\displaystyle \mathbf {h} }
-  
+$\mathbf {h} $
+
  of a layer with input 
-  
-    
-      
-        
-          x
-        
-      
-    
-    {\displaystyle \mathbf {x} }
-  
+$\mathbf {x} $
+
  is computed as:
 
-  
-    
-      
-        
-          h
-        
-        =
-        σ
-        (
-        
-          W
-        
-        
-          x
-        
-        +
-        
-          b
-        
-        )
-        ,
-      
-    
-    {\displaystyle \mathbf {h} =\sigma (\mathbf {W} \mathbf {x} +\mathbf {b} ),}
-  
+$\mathbf {h} =\sigma (\mathbf {W} \mathbf {x} +\mathbf {b} ),$
 
 where 
-  
-    
-      
-        
-          W
-        
-      
-    
-    {\displaystyle \mathbf {W} }
-  
+$\mathbf {W} $
+
  is the weight matrix, 
-  
-    
-      
-        
-          b
-        
-      
-    
-    {\displaystyle \mathbf {b} }
-  
+$\mathbf {b} $
+
  is the bias vector, and 
-  
-    
-      
-        σ
-      
-    
-    {\displaystyle \sigma }
-  
+$\sigma $
+
  is the activation function applied element-wise.
 The number of parameters in a fully connected layer equals the product of the input and output dimensions, plus the bias terms.
 A layer connecting 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  inputs to 
-  
-    
-      
-        m
-      
-    
-    {\displaystyle m}
-  
+$m$
+
  outputs contains 
-  
-    
-      
-        n
-        ×
-        m
-        +
-        m
-      
-    
-    {\displaystyle n\times m+m}
-  
+$n\times m+m$
+
  learnable parameters.
 This quadratic scaling means MLPs require substantially more parameters than architectures with sparse connectivity, making them less practical for high-dimensional inputs such as images.
 
@@ -362,92 +133,22 @@ Early nonlinear activation functions were developed to model the firing frequenc
 Common activation functions include:
 
 Sigmoid, 
-  
-    
-      
-        σ
-        (
-        x
-        )
-        =
-        1
-        
-          /
-        
-        (
-        1
-        +
-        
-          e
-          
-            −
-            x
-          
-        
-        )
-      
-    
-    {\displaystyle \sigma (x)=1/(1+e^{-x})}
-  
+$\sigma (x)=1/(1+e^{-x})$
+
 : Historically common, it maps inputs to the range 
-  
-    
-      
-        (
-        0
-        ,
-        1
-        )
-      
-    
-    {\displaystyle (0,1)}
-  
+$(0,1)$
+
 . It is often used in the output layer for binary classification but is less commonly used in hidden layers due to the vanishing gradient problem.
 Hyperbolic Tangent, 
-  
-    
-      
-        tanh
-        ⁡
-        x
-      
-    
-    {\displaystyle \tanh x}
-  
+$\tanh x$
+
 : Similar to the sigmoid but maps inputs to 
-  
-    
-      
-        (
-        −
-        1
-        ,
-        1
-        )
-      
-    
-    {\displaystyle (-1,1)}
-  
+$(-1,1)$
+
 . Its zero-centered output often leads to faster convergence than the sigmoid during training.
 Rectified linear unit (ReLU), 
-  
-    
-      
-        f
-        (
-        x
-        )
-        =
-        max
-        (
-        0
-        ,
-        x
-        )
-      
-    
-    {\displaystyle f(x)=\max(0,x)}
-  
+$f(x)=\max(0,x)$
+
 : A common choice for hidden layers. Because its gradient is exactly 1 for positive inputs (and 0 otherwise), ReLU avoids the saturation problem and enables training of deeper networks. The related softplus function provides a smooth approximation.
 Softmax: Typically found in the output layer for multi-class classification. It generalizes the logistic function to multiple dimensions, normalizing a vector of real values into a probability distribution where all values sum to 1.
 
@@ -458,708 +159,114 @@ Softmax: Typically found in the output layer for multi-class classification. It 
 If a multilayer perceptron has a linear activation function in all neurons, that is, a linear function that maps the weighted inputs to the output of each neuron, then linear algebra shows that any number of layers can be reduced to a two-layer input-output model. In MLPs some neurons use a nonlinear activation function that was developed to model the frequency of action potentials, or firing, of biological neurons.
 The two historically common activation functions are both sigmoids, and are described by
 
-  
-    
-      
-        y
-        (
-        
-          v
-          
-            i
-          
-        
-        )
-        =
-        tanh
-        ⁡
-        (
-        
-          v
-          
-            i
-          
-        
-        )
-         
-         
-        
-          
-            and
-          
-        
-         
-         
-        y
-        (
-        
-          v
-          
-            i
-          
-        
-        )
-        =
-        (
-        1
-        +
-        
-          e
-          
-            −
-            
-              v
-              
-                i
-              
-            
-          
-        
-        
-          )
-          
-            −
-            1
-          
-        
-      
-    
-    {\displaystyle y(v_{i})=\tanh(v_{i})~~{\textrm {and}}~~y(v_{i})=(1+e^{-v_{i}})^{-1}}
-  
+$y(v_{i})=\tanh(v_{i})~~{\textrm {and}}~~y(v_{i})=(1+e^{-v_{i}})^{-1}$
+
 .
 The first is a hyperbolic tangent that ranges from −1 to 1, while the other is the logistic function, which is similar in shape but ranges from 0 to 1. Here 
-  
-    
-      
-        
-          y
-          
-            i
-          
-        
-      
-    
-    {\displaystyle y_{i}}
-  
+$y_{i}$
+
  is the output of the 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 th node (neuron) and 
-  
-    
-      
-        
-          v
-          
-            i
-          
-        
-      
-    
-    {\displaystyle v_{i}}
-  
+$v_{i}$
+
  is the weighted sum of the input connections. Alternative activation functions have been proposed, including the rectifier and softplus functions. More specialized activation functions include radial basis functions (used in radial basis networks, another class of supervised neural network models).
 In recent developments of deep learning the rectified linear unit (ReLU) is more frequently used as one of the possible ways to overcome the numerical problems related to the sigmoids.
 
 ### Layers
 
 The MLP consists of three or more layers (an input and an output layer with one or more hidden layers) of nonlinearly-activating nodes. Since MLPs are fully connected, each node in one layer connects with a certain weight 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}}
-  
+$w_{ij}$
+
  to every node in the following layer.
 
 ### Learning
 
 Learning occurs in the perceptron by changing connection weights after each piece of data is processed, based on the amount of error in the output compared to the expected result. This is an example of supervised learning, and is carried out through backpropagation, a generalization of the least mean squares algorithm in the linear perceptron.
 We can represent the degree of error in an output node 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
  in the 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
 th data point (training example) by 
-  
-    
-      
-        
-          e
-          
-            j
-          
-        
-        (
-        n
-        )
-        =
-        
-          d
-          
-            j
-          
-        
-        (
-        n
-        )
-        −
-        
-          y
-          
-            j
-          
-        
-        (
-        n
-        )
-      
-    
-    {\displaystyle e_{j}(n)=d_{j}(n)-y_{j}(n)}
-  
+$e_{j}(n)=d_{j}(n)-y_{j}(n)$
+
 , where 
-  
-    
-      
-        
-          d
-          
-            j
-          
-        
-        (
-        n
-        )
-      
-    
-    {\displaystyle d_{j}(n)}
-  
+$d_{j}(n)$
+
  is the desired target value for 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
 th data point at node 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
 , and 
-  
-    
-      
-        
-          y
-          
-            j
-          
-        
-        (
-        n
-        )
-      
-    
-    {\displaystyle y_{j}(n)}
-  
+$y_{j}(n)$
+
  is the value produced by the perceptron at node 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
  when the 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
 th data point is given as an input.
 The node weights can then be adjusted based on corrections that minimize the error in the entire output for the 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
 th data point, given by
 
-  
-    
-      
-        
-          
-            E
-          
-        
-        (
-        n
-        )
-        =
-        
-          
-            1
-            2
-          
-        
-        
-          ∑
-          
-            
-              output node 
-            
-            j
-          
-        
-        
-          e
-          
-            j
-          
-          
-            2
-          
-        
-        (
-        n
-        )
-      
-    
-    {\displaystyle {\mathcal {E}}(n)={\frac {1}{2}}\sum _{{\text{output node }}j}e_{j}^{2}(n)}
-  
+${\mathcal {E}}(n)={\frac {1}{2}}\sum _{{\text{output node }}j}e_{j}^{2}(n)$
+
 .
 Using gradient descent, the change in each weight 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}}
-  
+$w_{ij}$
+
  is
 
-  
-    
-      
-        Δ
-        
-          w
-          
-            j
-            i
-          
-        
-        (
-        n
-        )
-        =
-        −
-        η
-        
-          
-            
-              ∂
-              
-                
-                  E
-                
-              
-              (
-              n
-              )
-            
-            
-              ∂
-              
-                v
-                
-                  j
-                
-              
-              (
-              n
-              )
-            
-          
-        
-        
-          y
-          
-            i
-          
-        
-        (
-        n
-        )
-      
-    
-    {\displaystyle \Delta w_{ji}(n)=-\eta {\frac {\partial {\mathcal {E}}(n)}{\partial v_{j}(n)}}y_{i}(n)}
-  
+$\Delta w_{ji}(n)=-\eta {\frac {\partial {\mathcal {E}}(n)}{\partial v_{j}(n)}}y_{i}(n)$
 
 where 
-  
-    
-      
-        
-          y
-          
-            i
-          
-        
-        (
-        n
-        )
-      
-    
-    {\displaystyle y_{i}(n)}
-  
+$y_{i}(n)$
+
  is the output of the previous neuron 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 , and 
-  
-    
-      
-        η
-      
-    
-    {\displaystyle \eta }
-  
+$\eta $
+
  is the learning rate, which is selected to ensure that the weights quickly converge to a response, without oscillations. In the previous expression, 
-  
-    
-      
-        
-          
-            
-              ∂
-              
-                
-                  E
-                
-              
-              (
-              n
-              )
-            
-            
-              ∂
-              
-                v
-                
-                  j
-                
-              
-              (
-              n
-              )
-            
-          
-        
-      
-    
-    {\displaystyle {\frac {\partial {\mathcal {E}}(n)}{\partial v_{j}(n)}}}
-  
+${\frac {\partial {\mathcal {E}}(n)}{\partial v_{j}(n)}}$
+
  denotes the partial derivate of the error 
-  
-    
-      
-        
-          
-            E
-          
-        
-        (
-        n
-        )
-      
-    
-    {\displaystyle {\mathcal {E}}(n)}
-  
+${\mathcal {E}}(n)$
+
  according to the weighted sum 
-  
-    
-      
-        
-          v
-          
-            j
-          
-        
-        (
-        n
-        )
-      
-    
-    {\displaystyle v_{j}(n)}
-  
+$v_{j}(n)$
+
  of the input connections of neuron 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 .
 The derivative to be calculated depends on the induced local field 
-  
-    
-      
-        
-          v
-          
-            j
-          
-        
-      
-    
-    {\displaystyle v_{j}}
-  
+$v_{j}$
+
 , which itself varies. It is easy to prove that for an output node this derivative can be simplified to
 
-  
-    
-      
-        −
-        
-          
-            
-              ∂
-              
-                
-                  E
-                
-              
-              (
-              n
-              )
-            
-            
-              ∂
-              
-                v
-                
-                  j
-                
-              
-              (
-              n
-              )
-            
-          
-        
-        =
-        
-          e
-          
-            j
-          
-        
-        (
-        n
-        )
-        
-          ϕ
-          
-            ′
-          
-        
-        (
-        
-          v
-          
-            j
-          
-        
-        (
-        n
-        )
-        )
-      
-    
-    {\displaystyle -{\frac {\partial {\mathcal {E}}(n)}{\partial v_{j}(n)}}=e_{j}(n)\phi ^{\prime }(v_{j}(n))}
-  
+$-{\frac {\partial {\mathcal {E}}(n)}{\partial v_{j}(n)}}=e_{j}(n)\phi ^{\prime }(v_{j}(n))$
 
 where 
-  
-    
-      
-        
-          ϕ
-          
-            ′
-          
-        
-      
-    
-    {\displaystyle \phi ^{\prime }}
-  
+$\phi ^{\prime }$
+
  is the derivative of the activation function described above, which itself does not vary. The analysis is more difficult for the change in weights to a hidden node, but it can be shown that the relevant derivative is
 
-  
-    
-      
-        −
-        
-          
-            
-              ∂
-              
-                
-                  E
-                
-              
-              (
-              n
-              )
-            
-            
-              ∂
-              
-                v
-                
-                  j
-                
-              
-              (
-              n
-              )
-            
-          
-        
-        =
-        
-          ϕ
-          
-            ′
-          
-        
-        (
-        
-          v
-          
-            j
-          
-        
-        (
-        n
-        )
-        )
-        
-          ∑
-          
-            k
-          
-        
-        −
-        
-          
-            
-              ∂
-              
-                
-                  E
-                
-              
-              (
-              n
-              )
-            
-            
-              ∂
-              
-                v
-                
-                  k
-                
-              
-              (
-              n
-              )
-            
-          
-        
-        
-          w
-          
-            k
-            j
-          
-        
-        (
-        n
-        )
-      
-    
-    {\displaystyle -{\frac {\partial {\mathcal {E}}(n)}{\partial v_{j}(n)}}=\phi ^{\prime }(v_{j}(n))\sum _{k}-{\frac {\partial {\mathcal {E}}(n)}{\partial v_{k}(n)}}w_{kj}(n)}
-  
+$-{\frac {\partial {\mathcal {E}}(n)}{\partial v_{j}(n)}}=\phi ^{\prime }(v_{j}(n))\sum _{k}-{\frac {\partial {\mathcal {E}}(n)}{\partial v_{k}(n)}}w_{kj}(n)$
+
 .
 This depends on the change in weights of the 
-  
-    
-      
-        k
-      
-    
-    {\displaystyle k}
-  
+$k$
+
 th nodes, which represent the output layer. So to change the hidden layer weights, the output layer weights change according to the derivative of the activation function, and so this algorithm represents a backpropagation of the activation function.
 
 ## Training
@@ -1168,170 +275,46 @@ Learning in an MLP occurs by adjusting connections (weights) and biases to minim
 This is typically achieved using backpropagation to compute gradients combined with stochastic gradient descent (SGD) or its variants.
 Training proceeds iteratively over minibatches sampled from the training dataset.
 In each iteration, a minibatch of input-target pairs 
-  
-    
-      
-        (
-        
-          x
-        
-        ,
-        y
-        )
-      
-    
-    {\displaystyle (\mathbf {x} ,y)}
-  
+$(\mathbf {x} ,y)$
+
  is processed through two phases: a forward pass and a backward pass.
 The forward pass computes predictions 
-  
-    
-      
-        
-          
-            
-              y
-              ^
-            
-          
-        
-      
-    
-    {\displaystyle {\hat {y}}}
-  
+${\hat {y}}$
+
  from the inputs and evaluates the loss function 
-  
-    
-      
-        L
-        (
-        
-          
-            
-              y
-              ^
-            
-          
-        
-        ,
-        y
-        )
-      
-    
-    {\displaystyle L({\hat {y}},y)}
-  
+$L({\hat {y}},y)$
+
 , which quantifies the error between predictions and targets.
 The backward pass computes gradients of the loss with respect to all parameters—denoted collectively as 
-  
-    
-      
-        θ
-      
-    
-    {\displaystyle \theta }
-  
+$\theta $
+
  (encompassing all weights and biases)—using the chain rule of calculus.
 These gradients 
-  
-    
-      
-        
-          ∇
-          
-            θ
-          
-        
-        L
-      
-    
-    {\displaystyle \nabla _{\theta }L}
-  
+$\nabla _{\theta }L$
+
  indicate the direction to adjust parameters to reduce the loss.
 Finally, parameters are updated using the rule 
-  
-    
-      
-        θ
-        ←
-        θ
-        −
-        η
-        
-          ∇
-          
-            θ
-          
-        
-        L
-      
-    
-    {\displaystyle \theta \leftarrow \theta -\eta \nabla _{\theta }L}
-  
+$\theta \leftarrow \theta -\eta \nabla _{\theta }L$
+
 , where 
-  
-    
-      
-        η
-      
-    
-    {\displaystyle \eta }
-  
+$\eta $
+
  is the learning rate controlling the step size.
 At a finer level of detail, for a weight connecting neuron 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
  in one layer to neuron 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  in the next, the gradient is proportional to the error term 
-  
-    
-      
-        
-          δ
-          
-            i
-          
-        
-      
-    
-    {\displaystyle \delta _{i}}
-  
+$\delta _{i}$
+
  (the sensitivity of the loss to neuron 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 's activation) and the activation 
-  
-    
-      
-        
-          h
-          
-            j
-          
-        
-      
-    
-    {\displaystyle h_{j}}
-  
+$h_{j}$
+
  from the previous layer.
 Training often utilizes adaptive optimization algorithms like Adam and RMSProp, which modify the basic SGD update rule to adapt the learning rate for each parameter individually, accelerating convergence and improving stability.
 Training deep networks presents specific challenges. The vanishing gradient problem, identified by Sepp Hochreiter in 1991 and further analyzed by Bengio et al., occurs when sigmoidal activations saturate.
@@ -1340,19 +323,8 @@ ReLU activations address this problem: unlike sigmoidal units, rectified linear 
 Proper initialization is also critical; techniques like Glorot initialization and He initialization scale initial weights to preserve signal variance.
 To prevent overfitting, regularization techniques are standard.
 Weight decay (
-  
-    
-      
-        
-          L
-          
-            2
-          
-        
-      
-    
-    {\displaystyle L^{2}}
-  
+$L^{2}$
+
  regularization) adds a penalty for large weights, while dropout randomly disables a fraction of neurons during each training step to enforce robust representations.
 Early stopping halts training if validation performance degrades.
 Although the loss landscape is non-convex with multiple local minima, theoretical analysis suggests that in sufficiently large networks, most local minima achieve error rates comparable to global minima.
@@ -1384,34 +356,14 @@ The MLP overcame the fundamental limitation of single-layer perceptrons, which M
 
 The fully connected structure that gives MLPs their flexibility also introduces inefficiencies for certain data types.
 Because every neuron connects to every neuron in adjacent layers, the number of parameters scales quadratically with layer dimensions—a layer connecting 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  inputs to 
-  
-    
-      
-        m
-      
-    
-    {\displaystyle m}
-  
+$m$
+
  outputs requires 
-  
-    
-      
-        n
-        ×
-        m
-      
-    
-    {\displaystyle n\times m}
-  
+$n\times m$
+
  weights plus bias terms.
 For high-dimensional inputs such as images, this scaling becomes prohibitively expensive and increases the risk of overfitting, particularly when training data is limited.
 Architectures like convolutional neural networks address this through weight sharing and local receptive fields, significantly reducing parameter counts for spatially structured data.

@@ -12,7 +12,7 @@ The core knows no source. A connector is any executable that lists items and ret
 
 Documentation: the pages in `docs/`, will be published at https://passageway.marceltov.de.
 
-Status: early. The engine started as the recall engine of [trilium-recall](https://github.com/Marceltov/trilium-recall) and is being generalized. Licensed AGPL-3.0-or-later.
+Status: early. The engine started as the recall engine of [trilium-recall](https://github.com/Marceltov/trilium-recall) and is being generalized. The code is licensed AGPL-3.0-or-later; the Wikipedia articles of the sample corpus in `corpus/` are CC BY-SA 4.0 (see `corpus/LICENSE.md`).
 
 ## Contact
 

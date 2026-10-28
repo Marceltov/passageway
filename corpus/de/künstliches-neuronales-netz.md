@@ -29,38 +29,14 @@ Künstliche neuronale Netze basieren meist auf der Vernetzung vieler McCulloch-P
 Entwicklung neuer Verbindungen
 Löschen existierender Verbindungen
 Ändern der Gewichtung (der Gewichte der Verbindung 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}}
-  
+$w_{ij}$
+
  von Neuron 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
  zu Neuron 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
 )
 Anpassen der Schwellenwerte der Neuronen, sofern diese Schwellenwerte besitzen
 Hinzufügen oder Löschen von Neuronen
@@ -130,211 +106,49 @@ Künstliche neuronale Netze dienen als universelle Funktionsapproximatoren. Wert
 ### Künstliche Neuronen
 
 Ein künstliches Neuron erhält Eingaben von anderen Neuronen (oder von außen), wie auf dem Bild rechts zu erkennen ist. Der Wert einer Eingabe hängt vom Aktivitätslevel des sendenden Neurons und vom Gewicht 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}}
-  
+$w_{ij}$
+
  der Verbindung zwischen Sender- und Empfänger-Neuron ab.
 Die Propagierungsfunktion (Übertragungsfunktion) errechnet aus den einzelnen Eingaben und ihren Gewichten die Gesamteingabe 
-  
-    
-      
-        n
-        e
-        
-          t
-          
-            j
-          
-        
-      
-    
-    {\displaystyle net_{j}}
-  
+$net_{j}$
+
  für das Neuron, die Netz-Eingabe oder Netz-Input genannt wird. Am häufigsten wird die gewichtete Summe (Linearkombination) verwendet:
 
-  
-    
-      
-        
-          
-            
-              net
-            
-          
-          
-            j
-          
-        
-        =
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        
-          x
-          
-            i
-          
-        
-        
-          w
-          
-            i
-            j
-          
-        
-        .
-      
-    
-    {\displaystyle {\mbox{net}}_{j}=\sum \limits _{i=1}^{n}x_{i}w_{ij}.}
-  
+${\mbox{net}}_{j}=\sum \limits _{i=1}^{n}x_{i}w_{ij}.$
 
 Welches Aktivitätslevel 
-  
-    
-      
-        
-          o
-          
-            j
-          
-        
-      
-    
-    {\displaystyle o_{j}}
-  
+$o_{j}$
+
  das Neuron annimmt, wird nicht direkt durch die Netz-Eingabe bestimmt, sondern durch die Aktivierungsfunktion. Dieses Aktivitätslevel bestimmt dann die Ausgabe des Neurons an Neuronen der nächsten Schicht.
 
-  
-    
-      
-        
-          o
-          
-            j
-          
-        
-        =
-        φ
-        (
-        
-          
-            
-              net
-            
-          
-          
-            j
-          
-        
-        )
-      
-    
-    {\displaystyle o_{j}=\varphi ({\mbox{net}}_{j})}
-  
+$o_{j}=\varphi ({\mbox{net}}_{j})$
 
 Die Aktivierungsfunktion ermöglicht die Einführung von Nichtlinearität ins neuronale Netz, denn nicht alle Aufgaben neuronaler Netze lassen sich mit linearen Funktionen abbilden. Es gibt verschiedene Aktivierungsfunktionen. In den verdeckten Schichten wird meist die Rectifier-Funktion verwendet, in der Ausgabeschicht eine Sigmoidfunktion.
 Hierbei ist
 
-  
-    
-      
-        φ
-      
-    
-    {\displaystyle \varphi }
-  
+$\varphi $
+
  eine differenzierbare Funktion, deren Ableitung nicht überall gleich null ist,
 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  die Anzahl der Eingaben,
 
-  
-    
-      
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle x_{i}}
-  
+$x_{i}$
+
  die von Neuron 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  kommende Eingabe
 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w_{ij}}
-  
+$w_{ij}$
+
  die Gewichtung im Neuron 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
  für die Eingabe 
-  
-    
-      
-        
-          x
-          
-            i
-          
-        
-      
-    
-    {\displaystyle x_{i}}
-  
+$x_{i}$
+
 .
 Die Aktivierungsfunktion, welche im allerletzten Schritt des neuronalen Netzes ausgeführt wird, kann als Ausgabefunktion aufgefasst werden. Diese Ausgabefunktion hat als Hauptaufgabe sicherzustellen, dass der Bereich (Träger) der Ausgaben zu weiteren Annahmen der Modellierung passt. Die Ausgabefunktion kann sicherstellen, dass Verteilungsvoraussetzungen der Likelihoodfunktion erfüllt sind, wie z. B. die Ausgabe von strikt positiven Ergebnissen oder Ergebnissen nur im Intervall von 0 bis 1. Die Aufgabe der Ausgabefunktion ist direkt analog zur (inversen) Linkfunktion in verallgemeinerten linearen Modellen.
 
@@ -342,121 +156,28 @@ Die Aktivierungsfunktion, welche im allerletzten Schritt des neuronalen Netzes a
 
 Mit Hilfe von verbundenen Neuronen, die die Propagierungs- und Aktivierungsfunktionen anwenden, gibt das neuronale Netz einen Zahlenvektor aus. Inwieweit das Ergebnis aus dem KNN von dem Zielwert abweicht, wird mit Hilfe einer Fehlerfunktion bestimmt. Es gibt verschiedene Arten von Fehlerfunktionen. Eine davon ist der mittlere quadratische Fehler (MQF):
 
-  
-    
-      
-        E
-        =
-        
-          
-            1
-            2
-          
-        
-        
-          ∑
-          
-            i
-            =
-            1
-          
-          
-            n
-          
-        
-        (
-        
-          t
-          
-            i
-          
-        
-        −
-        
-          o
-          
-            i
-          
-        
-        
-          )
-          
-            2
-          
-        
-        .
-      
-    
-    {\displaystyle E={\frac {1}{2}}\sum \limits _{i=1}^{n}(t_{i}-o_{i})^{2}.}
-  
+$E={\frac {1}{2}}\sum \limits _{i=1}^{n}(t_{i}-o_{i})^{2}.$
 
 Dabei ist
 
-  
-    
-      
-        E
-      
-    
-    {\displaystyle E}
-  
+$E$
+
  der Fehler,
 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  die Anzahl der Ausgabeneuronen,
 
-  
-    
-      
-        
-          t
-          
-            i
-          
-        
-      
-    
-    {\displaystyle t_{i}}
-  
+$t_{i}$
+
  die gewünschte Soll-Ausgabe oder Zielwert (target) und
 
-  
-    
-      
-        
-          o
-          
-            i
-          
-        
-      
-    
-    {\displaystyle o_{i}}
-  
+$o_{i}$
+
  die errechnete Ist-Ausgabe (output).
 Der Faktor 
-  
-    
-      
-        
-          
-            
-              1
-              2
-            
-          
-        
-      
-    
-    {\displaystyle {\tfrac {1}{2}}}
-  
+${\tfrac {1}{2}}$
+
  wird dabei lediglich zur Vereinfachung bei der Ableitung hinzugenommen.
 Der MQF eignet sich, wenn die Rückgabe des Netzes ein einzelner Wert ist.
 
@@ -465,104 +186,7 @@ Der MQF eignet sich, wenn die Rückgabe des Netzes ein einzelner Wert ist.
 Mit Hilfe des Fehlers lassen sich die Gewichte anpassen. Dies geschieht in zwei Schritten: Im ersten Schritt werden mit Hilfe der Fehlerrückführung die Gradienten bestimmt. Im zweiten Schritt werden die Gradienten mit einem Optimierungsverfahren verwendet, um die Gewichte zu aktualisieren. In diesem Abschnitt geht es um die Fehlerrückführung.
 Die Idee hinter der Fehlerrückführung ist, die Gradienten schichtweise zu berechnen. Dies geschieht über die Kettenregel:
 
-  
-    
-      
-        
-          
-            
-              
-                ∂
-                E
-              
-              
-                ∂
-                
-                  w
-                  
-                    i
-                    j
-                  
-                
-              
-            
-          
-        
-        =
-        
-          
-            
-              ∂
-              E
-            
-            
-              ∂
-              
-                o
-                
-                  j
-                
-              
-            
-          
-        
-        
-          
-            
-              ∂
-              
-                o
-                
-                  j
-                
-              
-            
-            
-              ∂
-              
-                
-                  
-                    net
-                  
-                
-                
-                  j
-                
-              
-            
-          
-        
-        
-          
-            
-              ∂
-              
-                
-                  
-                    net
-                  
-                
-                
-                  j
-                
-              
-            
-            
-              ∂
-              
-                w
-                
-                  i
-                  j
-                
-              
-            
-          
-        
-        .
-      
-    
-    {\displaystyle {\dfrac {\partial E}{\partial w_{ij}}}={\frac {\partial E}{\partial o_{j}}}{\frac {\partial o_{j}}{\partial {\mbox{net}}_{j}}}{\frac {\partial {\mbox{net}}_{j}}{\partial w_{ij}}}.}
+${\dfrac {\partial E}{\partial w_{ij}}}={\frac {\partial E}{\partial o_{j}}}{\frac {\partial o_{j}}{\partial {\mbox{net}}_{j}}}{\frac {\partial {\mbox{net}}_{j}}{\partial w_{ij}}}.$
 
 ### Optimierung
 
@@ -570,55 +194,11 @@ Es ist wichtig, das Training mit zufälligen Anfangswerten zu beginnen. Bei übe
 Mit der Fehlerrückführung wurden Fehler und Gewichte in einer Funktion abgebildet. Das Lernen korrespondiert nun zu einer Minimierung der Fehlerfunktion, indem die Gewichte angepasst werden. Das aus der Schule bekannte Optimalitätskriterium 1. Ordnung, das Nullsetzen der Ableitung, ist bei Neuronalen Netzen praktisch jedoch ungeeignet. Stattdessen wird mit Gradientenverfahren gearbeitet, um ein lokales Minimum der Fehlerfunktion zu finden. Der Gradient ist die Richtung des steilsten Anstieges einer Funktion, eine Bewegung entgegen den Gradienten ermöglicht also einen Abstieg auf dem Graphen der Fehlerfunktion. Eine Iteration des naiven Gradientverfahrens oder Gradientenabstieges ist also die Berechnung des Gradienten für die aktuelle Wahl der Gewichte, anschließend wird von den Gewichten der Gradient abgezogen und so neue Gewichte mit niedrigerem Fehler erhalten. Das Netz hat somit also „gelernt“.
 Dieses Update bzw. dieser Abstiegsschritt wird durch folgende Zuweisung notiert:
 
-  
-    
-      
-        
-          w
-          
-            i
-          
-        
-        =
-        
-          w
-          
-            i
-          
-        
-        −
-        α
-        
-          
-            
-              ∂
-              E
-            
-            
-              ∂
-              
-                w
-                
-                  i
-                
-              
-            
-          
-        
-        .
-      
-    
-    {\displaystyle w_{i}=w_{i}-\alpha {\frac {\partial E}{\partial w_{i}}}.}
-  
+$w_{i}=w_{i}-\alpha {\frac {\partial E}{\partial w_{i}}}.$
+
 Dabei beschreibt der Wert 
-  
-    
-      
-        α
-      
-    
-    {\displaystyle \alpha }
-  
+$\alpha $
+
  die Lernrate. Dieser gibt an, wie groß die Schritte sind, die das Verfahren in Richtung des Minimums nehmen soll. Zur Berechnung des Gradienten wird die Fehlerrückführung (engl. Backpropagation) verwendet. Das Verfahren wird solange wiederholt, bis ein Abbruchkriterium erfüllt ist, idealerweise durch Konvergenz zu einem lokalen Minimum.
 Neben dem hier dargestellten naiven Gradientenverfahren werden in der Praxis meist besser entwickelte und leistungsfähigere Variationen des Gradientenabstieges verwendet, z. B. der stochastische Gradientenabstieg oder das ADAM-Verfahren.
 
@@ -728,80 +308,14 @@ Es müssen Trainings- und Testdaten gesammelt oder manuell erzeugt werden. Diese
 Bei Anwendung einer heuristischen Vorgehensweise bei der Netzspezifikation neigen KNN dazu, die Trainingsdaten einfach auswendig zu lernen, infolge Übergeneralisierung bzw. Überanpassung (englisch overfitting). Wenn dies geschieht, können die Netze nicht mehr auf neue Daten verallgemeinern. Um eine Überanpassung zu vermeiden, muss die Netzarchitektur mit Bedacht gewählt werden. In ähnlicher Weise besteht diese Problematik auch bei vielen anderen statistischen Verfahren und wird als Verzerrung-Varianz-Dilemma bezeichnet. Verbesserte Verfahren setzen Boosting, Support-Vector-Maschinen oder Regularisierung ein, um diesem Problem zu begegnen.
 Die Kodierung der Trainingsdaten muss problemangepasst und nach Möglichkeit redundanzfrei gewählt werden. In welcher Form die zu lernenden Daten dem Netz präsentiert werden, hat einen großen Einfluss auf die Lerngeschwindigkeit, sowie darauf, ob das Problem überhaupt von einem Netz gelernt werden kann. Gute Beispiele hierfür sind Sprachdaten, Musikdaten oder auch Texte. Das einfache Einspeisen von Zahlen, beispielsweise aus einer .wav-Datei für Sprache, führt selten zu einem erfolgreichen Ergebnis. Je präziser das Problem allein durch die Vorverarbeitung und Kodierung gestellt wird, desto erfolgreicher kann ein KNN dieses verarbeiten.
 Die Vorbelegung der Gewichte spielt eine wichtige Rolle. Als Beispiel sei ein 3-schichtiges Feed-Forward-Netz mit einem Eingabeneuron (plus ein Bias-Neuron) und einem Ausgabeneuron und einer verdeckten Schicht mit N Neuronen (plus ein Bias-Neuron) angenommen. Die Aktivierungsfunktion des Eingabeneurons sei die Identität. Die Aktivierungsfunktion der verdeckten Schicht sei die Tanh-Funktion. Die Aktivierungsfunktion der Ausgabeschicht sei die logistische Sigmoide. Das Netz kann maximal eine Sinusfunktion mit N lokalen Extrema im Intervall von 0 bis 1 lernen. Wenn es diese Sinusfunktion gelernt hat, kann es mit dieser Gewichtsbelegung jede beliebige Funktion – die nicht mehr lokale Extrema als diese Sinusfunktion – mit möglicherweise exponentieller Beschleunigung – lernen (unabhängig vom Lernalgorithmus). Hier sei der einfachste Backpropagation ohne Momentum verwendet. Glücklicherweise kann man die Gewichte für solch eine Sinusfunktion leicht berechnen, ohne dass das Netz das erst lernen muss: Verdeckte Schicht : 
-  
-    
-      
-        i
-        =
-        0
-        …
-        N
-        −
-        1
-      
-    
-    {\displaystyle i=0\ldots N-1}
-  
+$i=0\ldots N-1$
+
 , x = i % 2 == 0 ? 1 : -1 , 
-  
-    
-      
-        
-          w
-          
-            0
-            i
-          
-        
-        =
-        x
-        ⋅
-        π
-        ⋅
-        (
-        N
-        −
-        0
-        
-          ,
-        
-        5
-        )
-        ,
-        
-          w
-          
-            l
-            i
-          
-        
-        =
-        −
-        x
-        ⋅
-        i
-        ⋅
-        π
-      
-    
-    {\displaystyle w_{0i}=x\cdot \pi \cdot (N-0{,}5),w_{li}=-x\cdot i\cdot \pi }
-  
+$w_{0i}=x\cdot \pi \cdot (N-0{,}5),w_{li}=-x\cdot i\cdot \pi $
+
 ; Ausgabeschicht : 
-  
-    
-      
-        
-          w
-          
-            j
-          
-        
-        =
-        1
-      
-    
-    {\displaystyle w_{j}=1}
-  
+$w_{j}=1$
+
 .
 
 ## Filmische Dokumentationen

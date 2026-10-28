@@ -38,158 +38,37 @@ An RNN-based model can be factored into two parts: configuration and architectur
 ### Standard
 
 RNNs come in many variants. Abstractly speaking, an RNN is a function 
-  
-    
-      
-        
-          f
-          
-            θ
-          
-        
-      
-    
-    {\displaystyle f_{\theta }}
-  
+$f_{\theta }$
+
  of type 
-  
-    
-      
-        (
-        
-          x
-          
-            t
-          
-        
-        ,
-        
-          h
-          
-            t
-          
-        
-        )
-        ↦
-        (
-        
-          y
-          
-            t
-          
-        
-        ,
-        
-          h
-          
-            t
-            +
-            1
-          
-        
-        )
-      
-    
-    {\displaystyle (x_{t},h_{t})\mapsto (y_{t},h_{t+1})}
-  
+$(x_{t},h_{t})\mapsto (y_{t},h_{t+1})$
+
 , where
 
-  
-    
-      
-        
-          x
-          
-            t
-          
-        
-      
-    
-    {\displaystyle x_{t}}
-  
+$x_{t}$
+
 : input vector;
 
-  
-    
-      
-        
-          h
-          
-            t
-          
-        
-      
-    
-    {\displaystyle h_{t}}
-  
+$h_{t}$
+
 : hidden vector;
 
-  
-    
-      
-        
-          y
-          
-            t
-          
-        
-      
-    
-    {\displaystyle y_{t}}
-  
+$y_{t}$
+
 : output vector;
 
-  
-    
-      
-        θ
-      
-    
-    {\displaystyle \theta }
-  
+$\theta $
+
 : neural network parameters.
 In words, it is a neural network that maps an input 
-  
-    
-      
-        
-          x
-          
-            t
-          
-        
-      
-    
-    {\displaystyle x_{t}}
-  
+$x_{t}$
+
  into an output 
-  
-    
-      
-        
-          y
-          
-            t
-          
-        
-      
-    
-    {\displaystyle y_{t}}
-  
+$y_{t}$
+
 , with the hidden vector 
-  
-    
-      
-        
-          h
-          
-            t
-          
-        
-      
-    
-    {\displaystyle h_{t}}
-  
+$h_{t}$
+
  playing the role of "memory", a partial record of all previous input-output pairs. At each step, it transforms input to an output, and modifies its "memory" to help it to better perform future processing.
 The illustration to the right may be misleading to many because practical neural network topologies are frequently organized in "layers" and the drawing gives that appearance. However, what appears to be layers are, in fact, different steps in time, "unfolded" to produce the appearance of layers.
 
@@ -197,292 +76,38 @@ The illustration to the right may be misleading to many because practical neural
 
 A stacked RNN, or deep RNN, is composed of multiple RNNs stacked one above the other. Abstractly, it is structured as follows
 Layer 1 has hidden vector 
-  
-    
-      
-        
-          h
-          
-            1
-            ,
-            t
-          
-        
-      
-    
-    {\displaystyle h_{1,t}}
-  
+$h_{1,t}$
+
 , parameters 
-  
-    
-      
-        
-          θ
-          
-            1
-          
-        
-      
-    
-    {\displaystyle \theta _{1}}
-  
+$\theta _{1}$
+
 , and maps 
-  
-    
-      
-        
-          f
-          
-            
-              θ
-              
-                1
-              
-            
-          
-        
-        :
-        (
-        
-          x
-          
-            0
-            ,
-            t
-          
-        
-        ,
-        
-          h
-          
-            1
-            ,
-            t
-          
-        
-        )
-        ↦
-        (
-        
-          x
-          
-            1
-            ,
-            t
-          
-        
-        ,
-        
-          h
-          
-            1
-            ,
-            t
-            +
-            1
-          
-        
-        )
-      
-    
-    {\displaystyle f_{\theta _{1}}:(x_{0,t},h_{1,t})\mapsto (x_{1,t},h_{1,t+1})}
-  
+$f_{\theta _{1}}:(x_{0,t},h_{1,t})\mapsto (x_{1,t},h_{1,t+1})$
+
 .
 Layer 2 has hidden vector 
-  
-    
-      
-        
-          h
-          
-            2
-            ,
-            t
-          
-        
-      
-    
-    {\displaystyle h_{2,t}}
-  
+$h_{2,t}$
+
 , parameters 
-  
-    
-      
-        
-          θ
-          
-            2
-          
-        
-      
-    
-    {\displaystyle \theta _{2}}
-  
+$\theta _{2}$
+
 , and maps 
-  
-    
-      
-        
-          f
-          
-            
-              θ
-              
-                2
-              
-            
-          
-        
-        :
-        (
-        
-          x
-          
-            1
-            ,
-            t
-          
-        
-        ,
-        
-          h
-          
-            2
-            ,
-            t
-          
-        
-        )
-        ↦
-        (
-        
-          x
-          
-            2
-            ,
-            t
-          
-        
-        ,
-        
-          h
-          
-            2
-            ,
-            t
-            +
-            1
-          
-        
-        )
-      
-    
-    {\displaystyle f_{\theta _{2}}:(x_{1,t},h_{2,t})\mapsto (x_{2,t},h_{2,t+1})}
-  
+$f_{\theta _{2}}:(x_{1,t},h_{2,t})\mapsto (x_{2,t},h_{2,t+1})$
+
 .
 ...
 Layer 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  has hidden vector 
-  
-    
-      
-        
-          h
-          
-            n
-            ,
-            t
-          
-        
-      
-    
-    {\displaystyle h_{n,t}}
-  
+$h_{n,t}$
+
 , parameters 
-  
-    
-      
-        
-          θ
-          
-            n
-          
-        
-      
-    
-    {\displaystyle \theta _{n}}
-  
+$\theta _{n}$
+
 , and maps 
-  
-    
-      
-        
-          f
-          
-            
-              θ
-              
-                n
-              
-            
-          
-        
-        :
-        (
-        
-          x
-          
-            n
-            −
-            1
-            ,
-            t
-          
-        
-        ,
-        
-          h
-          
-            n
-            ,
-            t
-          
-        
-        )
-        ↦
-        (
-        
-          x
-          
-            n
-            ,
-            t
-          
-        
-        ,
-        
-          h
-          
-            n
-            ,
-            t
-            +
-            1
-          
-        
-        )
-      
-    
-    {\displaystyle f_{\theta _{n}}:(x_{n-1,t},h_{n,t})\mapsto (x_{n,t},h_{n,t+1})}
-  
+$f_{\theta _{n}}:(x_{n-1,t},h_{n,t})\mapsto (x_{n,t},h_{n,t+1})$
+
 .
 Each layer operates as a stand-alone RNN, and each layer's output sequence is used as the input sequence to the layer above. There is no conceptual limit to the depth of stacked RNN.
 
@@ -490,263 +115,14 @@ Each layer operates as a stand-alone RNN, and each layer's output sequence is us
 
 A bidirectional RNN (biRNN) is composed of two RNNs, one processing the input sequence in one direction, and another in the opposite direction. Abstractly, it is structured as follows:
 The forward RNN processes in one direction: 
-  
-    
-      
-        
-          f
-          
-            θ
-          
-        
-        (
-        
-          x
-          
-            0
-          
-        
-        ,
-        
-          h
-          
-            0
-          
-        
-        )
-        =
-        (
-        
-          y
-          
-            0
-          
-        
-        ,
-        
-          h
-          
-            1
-          
-        
-        )
-        ,
-        
-          f
-          
-            θ
-          
-        
-        (
-        
-          x
-          
-            1
-          
-        
-        ,
-        
-          h
-          
-            1
-          
-        
-        )
-        =
-        (
-        
-          y
-          
-            1
-          
-        
-        ,
-        
-          h
-          
-            2
-          
-        
-        )
-        ,
-        …
-      
-    
-    {\displaystyle f_{\theta }(x_{0},h_{0})=(y_{0},h_{1}),f_{\theta }(x_{1},h_{1})=(y_{1},h_{2}),\dots }
-  
+$f_{\theta }(x_{0},h_{0})=(y_{0},h_{1}),f_{\theta }(x_{1},h_{1})=(y_{1},h_{2}),\dots $
 
 The backward RNN processes in the opposite direction:
-  
-    
-      
-        
-          f
-          
-            
-              θ
-              ′
-            
-          
-          ′
-        
-        (
-        
-          x
-          
-            N
-          
-        
-        ,
-        
-          h
-          
-            N
-          
-          ′
-        
-        )
-        =
-        (
-        
-          y
-          
-            N
-          
-          ′
-        
-        ,
-        
-          h
-          
-            N
-            −
-            1
-          
-          ′
-        
-        )
-        ,
-        
-          f
-          
-            
-              θ
-              ′
-            
-          
-          ′
-        
-        (
-        
-          x
-          
-            N
-            −
-            1
-          
-        
-        ,
-        
-          h
-          
-            N
-            −
-            1
-          
-          ′
-        
-        )
-        =
-        (
-        
-          y
-          
-            N
-            −
-            1
-          
-          ′
-        
-        ,
-        
-          h
-          
-            N
-            −
-            2
-          
-          ′
-        
-        )
-        ,
-        …
-      
-    
-    {\displaystyle f'_{\theta '}(x_{N},h_{N}')=(y'_{N},h_{N-1}'),f'_{\theta '}(x_{N-1},h_{N-1}')=(y'_{N-1},h_{N-2}'),\dots }
-  
+$f'_{\theta '}(x_{N},h_{N}')=(y'_{N},h_{N-1}'),f'_{\theta '}(x_{N-1},h_{N-1}')=(y'_{N-1},h_{N-2}'),\dots $
 
 The two output sequences are then concatenated to give the total output: 
-  
-    
-      
-        (
-        (
-        
-          y
-          
-            0
-          
-        
-        ,
-        
-          y
-          
-            0
-          
-          ′
-        
-        )
-        ,
-        (
-        
-          y
-          
-            1
-          
-        
-        ,
-        
-          y
-          
-            1
-          
-          ′
-        
-        )
-        ,
-        …
-        ,
-        (
-        
-          y
-          
-            N
-          
-        
-        ,
-        
-          y
-          
-            N
-          
-          ′
-        
-        )
-        )
-      
-    
-    {\displaystyle ((y_{0},y_{0}'),(y_{1},y_{1}'),\dots ,(y_{N},y_{N}'))}
-  
+$((y_{0},y_{0}'),(y_{1},y_{1}'),\dots ,(y_{N},y_{N}'))$
+
 .
 Bidirectional RNN allows the model to process a token both in the context of what came before it and what came after it. By stacking multiple bidirectional RNNs together, the model can process a token increasingly contextually. The ELMo model (2018) is a stacked bidirectional LSTM which takes character-level as inputs and produces word-level embeddings.
 
@@ -757,182 +133,23 @@ Two RNNs can be run front-to-back in an encoder-decoder configuration. The encod
 ### PixelRNN
 
 An RNN may process data with more than one dimension. PixelRNN processes two-dimensional data, with many possible directions. For example, the row-by-row direction processes an 
-  
-    
-      
-        n
-        ×
-        n
-      
-    
-    {\displaystyle n\times n}
-  
+$n\times n$
+
  grid of vectors 
-  
-    
-      
-        
-          x
-          
-            i
-            ,
-            j
-          
-        
-      
-    
-    {\displaystyle x_{i,j}}
-  
+$x_{i,j}$
+
  in the following order: 
-  
-    
-      
-        
-          x
-          
-            1
-            ,
-            1
-          
-        
-        ,
-        
-          x
-          
-            1
-            ,
-            2
-          
-        
-        ,
-        …
-        ,
-        
-          x
-          
-            1
-            ,
-            n
-          
-        
-        ,
-        
-          x
-          
-            2
-            ,
-            1
-          
-        
-        ,
-        
-          x
-          
-            2
-            ,
-            2
-          
-        
-        ,
-        …
-        ,
-        
-          x
-          
-            2
-            ,
-            n
-          
-        
-        ,
-        …
-        ,
-        
-          x
-          
-            n
-            ,
-            n
-          
-        
-      
-    
-    {\displaystyle x_{1,1},x_{1,2},\dots ,x_{1,n},x_{2,1},x_{2,2},\dots ,x_{2,n},\dots ,x_{n,n}}
-  
+$x_{1,1},x_{1,2},\dots ,x_{1,n},x_{2,1},x_{2,2},\dots ,x_{2,n},\dots ,x_{n,n}$
+
 The diagonal BiLSTM uses two LSTMs to process the same grid. One processes it from the top-left corner to the bottom-right, such that it processes 
-  
-    
-      
-        
-          x
-          
-            i
-            ,
-            j
-          
-        
-      
-    
-    {\displaystyle x_{i,j}}
-  
+$x_{i,j}$
+
  depending on its hidden state and cell state on the top and the left side: 
-  
-    
-      
-        
-          h
-          
-            i
-            −
-            1
-            ,
-            j
-          
-        
-        ,
-        
-          c
-          
-            i
-            −
-            1
-            ,
-            j
-          
-        
-      
-    
-    {\displaystyle h_{i-1,j},c_{i-1,j}}
-  
+$h_{i-1,j},c_{i-1,j}$
+
  and 
-  
-    
-      
-        
-          h
-          
-            i
-            ,
-            j
-            −
-            1
-          
-        
-        ,
-        
-          c
-          
-            i
-            ,
-            j
-            −
-            1
-          
-        
-      
-    
-    {\displaystyle h_{i,j-1},c_{i,j-1}}
-  
+$h_{i,j-1},c_{i,j-1}$
+
 . The other processes it from the top-right corner to the bottom-left.
 
 ## Architectures
@@ -953,384 +170,42 @@ Elman and Jordan networks are also known as "Simple recurrent networks" (SRN).
 
 Elman network
 
-  
-    
-      
-        
-          
-            
-              
-                
-                  h
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    h
-                  
-                
-                (
-                
-                  W
-                  
-                    h
-                  
-                
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    h
-                  
-                
-                
-                  h
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    h
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  y
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    y
-                  
-                
-                (
-                
-                  W
-                  
-                    y
-                  
-                
-                
-                  h
-                  
-                    t
-                  
-                
-                +
-                
-                  b
-                  
-                    y
-                  
-                
-                )
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}h_{t}&=\sigma _{h}(W_{h}x_{t}+U_{h}h_{t-1}+b_{h})\\y_{t}&=\sigma _{y}(W_{y}h_{t}+b_{y})\end{aligned}}}
-  
+${\begin{aligned}h_{t}&=\sigma _{h}(W_{h}x_{t}+U_{h}h_{t-1}+b_{h})\\y_{t}&=\sigma _{y}(W_{y}h_{t}+b_{y})\end{aligned}}$
 
 Jordan network
 
-  
-    
-      
-        
-          
-            
-              
-                
-                  h
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    h
-                  
-                
-                (
-                
-                  W
-                  
-                    h
-                  
-                
-                
-                  x
-                  
-                    t
-                  
-                
-                +
-                
-                  U
-                  
-                    h
-                  
-                
-                
-                  s
-                  
-                    t
-                  
-                
-                +
-                
-                  b
-                  
-                    h
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  y
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    y
-                  
-                
-                (
-                
-                  W
-                  
-                    y
-                  
-                
-                
-                  h
-                  
-                    t
-                  
-                
-                +
-                
-                  b
-                  
-                    y
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  s
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  σ
-                  
-                    s
-                  
-                
-                (
-                
-                  W
-                  
-                    s
-                    ,
-                    s
-                  
-                
-                
-                  s
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  W
-                  
-                    s
-                    ,
-                    y
-                  
-                
-                
-                  y
-                  
-                    t
-                    −
-                    1
-                  
-                
-                +
-                
-                  b
-                  
-                    s
-                  
-                
-                )
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}h_{t}&=\sigma _{h}(W_{h}x_{t}+U_{h}s_{t}+b_{h})\\y_{t}&=\sigma _{y}(W_{y}h_{t}+b_{y})\\s_{t}&=\sigma _{s}(W_{s,s}s_{t-1}+W_{s,y}y_{t-1}+b_{s})\end{aligned}}}
-  
+${\begin{aligned}h_{t}&=\sigma _{h}(W_{h}x_{t}+U_{h}s_{t}+b_{h})\\y_{t}&=\sigma _{y}(W_{y}h_{t}+b_{y})\\s_{t}&=\sigma _{s}(W_{s,s}s_{t-1}+W_{s,y}y_{t-1}+b_{s})\end{aligned}}$
 
 Variables and functions
 
-  
-    
-      
-        
-          x
-          
-            t
-          
-        
-      
-    
-    {\displaystyle x_{t}}
-  
+$x_{t}$
+
 : input vector
 
-  
-    
-      
-        
-          h
-          
-            t
-          
-        
-      
-    
-    {\displaystyle h_{t}}
-  
+$h_{t}$
+
 : hidden layer vector
 
-  
-    
-      
-        
-          s
-          
-            t
-          
-        
-      
-    
-    {\displaystyle s_{t}}
-  
+$s_{t}$
+
 : "state" vector,
 
-  
-    
-      
-        
-          y
-          
-            t
-          
-        
-      
-    
-    {\displaystyle y_{t}}
-  
+$y_{t}$
+
 : output vector
 
-  
-    
-      
-        W
-      
-    
-    {\displaystyle W}
-  
+$W$
+
 , 
-  
-    
-      
-        U
-      
-    
-    {\displaystyle U}
-  
+$U$
+
  and 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
 : parameter matrices and vector
 
-  
-    
-      
-        σ
-      
-    
-    {\displaystyle \sigma }
-  
+$\sigma $
+
 : Activation functions
 
 ### Long short-term memory
@@ -1369,253 +244,34 @@ Recurrent neural networks are Turing complete and can run arbitrary programs to 
 
 An RNN can be trained into a conditionally generative model of sequences, aka autoregression.
 Concretely, let us consider the problem of machine translation, that is, given a sequence 
-  
-    
-      
-        (
-        
-          x
-          
-            1
-          
-        
-        ,
-        
-          x
-          
-            2
-          
-        
-        ,
-        …
-        ,
-        
-          x
-          
-            n
-          
-        
-        )
-      
-    
-    {\displaystyle (x_{1},x_{2},\dots ,x_{n})}
-  
+$(x_{1},x_{2},\dots ,x_{n})$
+
  of English words, the model is to produce a sequence 
-  
-    
-      
-        (
-        
-          y
-          
-            1
-          
-        
-        ,
-        …
-        ,
-        
-          y
-          
-            m
-          
-        
-        )
-      
-    
-    {\displaystyle (y_{1},\dots ,y_{m})}
-  
+$(y_{1},\dots ,y_{m})$
+
  of French words. It is to be solved by a seq2seq model.
 Now, during training, the encoder half of the model would first ingest 
-  
-    
-      
-        (
-        
-          x
-          
-            1
-          
-        
-        ,
-        
-          x
-          
-            2
-          
-        
-        ,
-        …
-        ,
-        
-          x
-          
-            n
-          
-        
-        )
-      
-    
-    {\displaystyle (x_{1},x_{2},\dots ,x_{n})}
-  
+$(x_{1},x_{2},\dots ,x_{n})$
+
 , then the decoder half would start generating a sequence 
-  
-    
-      
-        (
-        
-          
-            
-              
-                y
-                ^
-              
-            
-          
-          
-            1
-          
-        
-        ,
-        
-          
-            
-              
-                y
-                ^
-              
-            
-          
-          
-            2
-          
-        
-        ,
-        …
-        ,
-        
-          
-            
-              
-                y
-                ^
-              
-            
-          
-          
-            l
-          
-        
-        )
-      
-    
-    {\displaystyle ({\hat {y}}_{1},{\hat {y}}_{2},\dots ,{\hat {y}}_{l})}
-  
+$({\hat {y}}_{1},{\hat {y}}_{2},\dots ,{\hat {y}}_{l})$
+
 . The problem is that if the model makes a mistake early on, say at 
-  
-    
-      
-        
-          
-            
-              
-                y
-                ^
-              
-            
-          
-          
-            2
-          
-        
-      
-    
-    {\displaystyle {\hat {y}}_{2}}
-  
+${\hat {y}}_{2}$
+
 , then subsequent tokens are likely to also be mistakes. This makes it inefficient for the model to obtain a learning signal, since the model would mostly learn to shift 
-  
-    
-      
-        
-          
-            
-              
-                y
-                ^
-              
-            
-          
-          
-            2
-          
-        
-      
-    
-    {\displaystyle {\hat {y}}_{2}}
-  
+${\hat {y}}_{2}$
+
  towards 
-  
-    
-      
-        
-          y
-          
-            2
-          
-        
-      
-    
-    {\displaystyle y_{2}}
-  
+$y_{2}$
+
 , but not the others.
 Teacher forcing makes it so that the decoder uses the correct output sequence for generating the next entry in the sequence. So for example, it would see 
-  
-    
-      
-        (
-        
-          y
-          
-            1
-          
-        
-        ,
-        …
-        ,
-        
-          y
-          
-            k
-          
-        
-        )
-      
-    
-    {\displaystyle (y_{1},\dots ,y_{k})}
-  
+$(y_{1},\dots ,y_{k})$
+
  in order to generate 
-  
-    
-      
-        
-          
-            
-              
-                y
-                ^
-              
-            
-          
-          
-            k
-            +
-            1
-          
-        
-      
-    
-    {\displaystyle {\hat {y}}_{k+1}}
-  
+${\hat {y}}_{k+1}$
+
 .
 
 ### Gradient descent
@@ -1666,42 +322,11 @@ A generative model partially overcame the vanishing gradient problem of automati
 ### Second order RNNs
 
 Second-order RNNs use higher order weights 
-  
-    
-      
-        w
-        
-          
+$w{}_{ijk}$
 
-          
-          
-            i
-            j
-            k
-          
-        
-      
-    
-    {\displaystyle w{}_{ijk}}
-  
  instead of the standard 
-  
-    
-      
-        w
-        
-          
+$w{}_{ij}$
 
-          
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle w{}_{ij}}
-  
  weights, and states can be a product. This allows a direct mapping to a finite-state machine both in training, and representation. Long short-term memory is an example of this but has no such formal mappings or proof of stability.
 
 ### Hierarchical recurrent neural network
@@ -1727,289 +352,55 @@ The evolution of these networks can be studied analytically using variations of 
 
 A continuous-time recurrent neural network (CTRNN) uses a system of ordinary differential equations to model the effects on a neuron of the incoming inputs. They are typically analyzed by dynamical systems theory. Many RNN models in neuroscience are continuous-time.
 For a neuron 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  in the network with activation 
-  
-    
-      
-        
-          y
-          
-            i
-          
-        
-      
-    
-    {\displaystyle y_{i}}
-  
+$y_{i}$
+
 , the rate of change of activation is given by:
 
-  
-    
-      
-        
-          τ
-          
-            i
-          
-        
-        
-          
-            
-              
-                y
-                ˙
-              
-            
-          
-          
-            i
-          
-        
-        =
-        −
-        
-          y
-          
-            i
-          
-        
-        +
-        
-          ∑
-          
-            j
-            =
-            1
-          
-          
-            n
-          
-        
-        
-          w
-          
-            j
-            i
-          
-        
-        σ
-        (
-        
-          y
-          
-            j
-          
-        
-        −
-        
-          Θ
-          
-            j
-          
-        
-        )
-        +
-        
-          I
-          
-            i
-          
-        
-        (
-        t
-        )
-      
-    
-    {\displaystyle \tau _{i}{\dot {y}}_{i}=-y_{i}+\sum _{j=1}^{n}w_{ji}\sigma (y_{j}-\Theta _{j})+I_{i}(t)}
-  
+$\tau _{i}{\dot {y}}_{i}=-y_{i}+\sum _{j=1}^{n}w_{ji}\sigma (y_{j}-\Theta _{j})+I_{i}(t)$
 
 Where:
 
-  
-    
-      
-        
-          τ
-          
-            i
-          
-        
-      
-    
-    {\displaystyle \tau _{i}}
-  
+$\tau _{i}$
+
  : Time constant of postsynaptic node
 
-  
-    
-      
-        
-          y
-          
-            i
-          
-        
-      
-    
-    {\displaystyle y_{i}}
-  
+$y_{i}$
+
  : Activation of postsynaptic node
 
-  
-    
-      
-        
-          
-            
-              
-                y
-                ˙
-              
-            
-          
-          
-            i
-          
-        
-      
-    
-    {\displaystyle {\dot {y}}_{i}}
-  
+${\dot {y}}_{i}$
+
  : Rate of change of activation of postsynaptic node
 
-  
-    
-      
-        w
-        
-          
+$w{}_{ji}$
 
-          
-          
-            j
-            i
-          
-        
-      
-    
-    {\displaystyle w{}_{ji}}
-  
  : Weight of connection from pre to postsynaptic node
 
-  
-    
-      
-        σ
-        (
-        x
-        )
-      
-    
-    {\displaystyle \sigma (x)}
-  
+$\sigma (x)$
+
  : Sigmoid of x e.g. 
-  
-    
-      
-        σ
-        (
-        x
-        )
-        =
-        1
-        
-          /
-        
-        (
-        1
-        +
-        
-          e
-          
-            −
-            x
-          
-        
-        )
-      
-    
-    {\displaystyle \sigma (x)=1/(1+e^{-x})}
-  
+$\sigma (x)=1/(1+e^{-x})$
+
 .
 
-  
-    
-      
-        
-          y
-          
-            j
-          
-        
-      
-    
-    {\displaystyle y_{j}}
-  
+$y_{j}$
+
  : Activation of presynaptic node
 
-  
-    
-      
-        
-          Θ
-          
-            j
-          
-        
-      
-    
-    {\displaystyle \Theta _{j}}
-  
+$\Theta _{j}$
+
  : Bias of presynaptic node
 
-  
-    
-      
-        
-          I
-          
-            i
-          
-        
-        (
-        t
-        )
-      
-    
-    {\displaystyle I_{i}(t)}
-  
+$I_{i}(t)$
+
  : Input (if any) to node
 CTRNNs have been applied to evolutionary robotics where they have been used to address vision, co-operation, and minimal cognitive behaviour.
 Note that, by the Shannon sampling theorem, discrete-time recurrent neural networks can be viewed as continuous-time recurrent neural networks where the differential equations have transformed into equivalent difference equations. This transformation can be thought of as occurring after the post-synaptic node activation functions 
-  
-    
-      
-        
-          y
-          
-            i
-          
-        
-        (
-        t
-        )
-      
-    
-    {\displaystyle y_{i}(t)}
-  
+$y_{i}(t)$
+
  have been low-pass filtered but prior to sampling.
 They are in fact recursive neural networks with a particular structure: that of a linear chain. Whereas recursive neural networks operate on any hierarchical structure, combining child representations into parent representations, recurrent neural networks operate on the linear progression of time, combining the previous time step and a hidden representation into the representation for the current time step.
 From a time-series perspective, RNNs can appear as nonlinear versions of finite impulse response and infinite impulse response filters and also as a nonlinear autoregressive exogenous model (NARX). RNN has infinite impulse response whereas convolutional neural network has finite impulse response. Both classes of networks exhibit temporal dynamic behavior. A finite impulse recurrent network is a directed acyclic graph that can be unrolled and replaced with a strictly feedforward neural network, while an infinite impulse recurrent network is a directed cyclic graph that cannot be unrolled.

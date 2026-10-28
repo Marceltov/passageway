@@ -18,2244 +18,240 @@ This section is based on the paper On the difficulty of training Recurrent Neura
 ### Recurrent network model
 
 A generic recurrent network has hidden states 
-  
-    
-      
-        
-          h
-          
-            1
-          
-        
-        ,
-        
-          h
-          
-            2
-          
-        
-        ,
-        …
-      
-    
-    {\displaystyle h_{1},h_{2},\dots }
-  
+$h_{1},h_{2},\dots $
+
 , inputs 
-  
-    
-      
-        
-          u
-          
-            1
-          
-        
-        ,
-        
-          u
-          
-            2
-          
-        
-        ,
-        …
-      
-    
-    {\displaystyle u_{1},u_{2},\dots }
-  
+$u_{1},u_{2},\dots $
+
 , and outputs 
-  
-    
-      
-        
-          x
-          
-            1
-          
-        
-        ,
-        
-          x
-          
-            2
-          
-        
-        ,
-        …
-      
-    
-    {\displaystyle x_{1},x_{2},\dots }
-  
+$x_{1},x_{2},\dots $
+
 . Let it be parameterized by 
-  
-    
-      
-        θ
-      
-    
-    {\displaystyle \theta }
-  
+$\theta $
+
 , so that the system evolves as
 
-  
-    
-      
-        (
-        
-          h
-          
-            t
-          
-        
-        ,
-        
-          x
-          
-            t
-          
-        
-        )
-        =
-        F
-        (
-        
-          h
-          
-            t
-            −
-            1
-          
-        
-        ,
-        
-          u
-          
-            t
-          
-        
-        ,
-        θ
-        )
-      
-    
-    {\displaystyle (h_{t},x_{t})=F(h_{t-1},u_{t},\theta )}
-  
+$(h_{t},x_{t})=F(h_{t-1},u_{t},\theta )$
 
 Often, the output 
-  
-    
-      
-        
-          x
-          
-            t
-          
-        
-      
-    
-    {\displaystyle x_{t}}
-  
+$x_{t}$
+
  is a function of 
-  
-    
-      
-        
-          h
-          
-            t
-          
-        
-      
-    
-    {\displaystyle h_{t}}
-  
+$h_{t}$
+
 , as some 
-  
-    
-      
-        
-          x
-          
-            t
-          
-        
-        =
-        G
-        (
-        
-          h
-          
-            t
-          
-        
-        )
-      
-    
-    {\displaystyle x_{t}=G(h_{t})}
-  
+$x_{t}=G(h_{t})$
+
 . The vanishing gradient problem already presents itself clearly when 
-  
-    
-      
-        
-          x
-          
-            t
-          
-        
-        =
-        
-          h
-          
-            t
-          
-        
-      
-    
-    {\displaystyle x_{t}=h_{t}}
-  
+$x_{t}=h_{t}$
+
 , so we simplify our notation to the special case with:
 
-  
-    
-      
-        
-          x
-          
-            t
-          
-        
-        =
-        F
-        (
-        
-          x
-          
-            t
-            −
-            1
-          
-        
-        ,
-        
-          u
-          
-            t
-          
-        
-        ,
-        θ
-        )
-      
-    
-    {\displaystyle x_{t}=F(x_{t-1},u_{t},\theta )}
-  
+$x_{t}=F(x_{t-1},u_{t},\theta )$
 
 Now, take its differential:
 
-  
-    
-      
-        
-          
-            
-              
-                d
-                
-                  x
-                  
-                    t
-                  
-                
-              
-              
-                
-                =
-                
-                  ∇
-                  
-                    θ
-                  
-                
-                F
-                (
-                
-                  x
-                  
-                    t
-                    −
-                    1
-                  
-                
-                ,
-                
-                  u
-                  
-                    t
-                  
-                
-                ,
-                θ
-                )
-                d
-                θ
-                +
-                
-                  ∇
-                  
-                    x
-                  
-                
-                F
-                (
-                
-                  x
-                  
-                    t
-                    −
-                    1
-                  
-                
-                ,
-                
-                  u
-                  
-                    t
-                  
-                
-                ,
-                θ
-                )
-                d
-                
-                  x
-                  
-                    t
-                    −
-                    1
-                  
-                
-              
-            
-            
-              
-              
-                
-                =
-                
-                  ∇
-                  
-                    θ
-                  
-                
-                F
-                (
-                
-                  x
-                  
-                    t
-                    −
-                    1
-                  
-                
-                ,
-                
-                  u
-                  
-                    t
-                  
-                
-                ,
-                θ
-                )
-                d
-                θ
-                +
-                
-                  ∇
-                  
-                    x
-                  
-                
-                F
-                (
-                
-                  x
-                  
-                    t
-                    −
-                    1
-                  
-                
-                ,
-                
-                  u
-                  
-                    t
-                  
-                
-                ,
-                θ
-                )
-                
-                  [
-                  
-                    
-                      ∇
-                      
-                        θ
-                      
-                    
-                    F
-                    (
-                    
-                      x
-                      
-                        t
-                        −
-                        2
-                      
-                    
-                    ,
-                    
-                      u
-                      
-                        t
-                        −
-                        1
-                      
-                    
-                    ,
-                    θ
-                    )
-                    d
-                    θ
-                    +
-                    
-                      ∇
-                      
-                        x
-                      
-                    
-                    F
-                    (
-                    
-                      x
-                      
-                        t
-                        −
-                        2
-                      
-                    
-                    ,
-                    
-                      u
-                      
-                        t
-                        −
-                        1
-                      
-                    
-                    ,
-                    θ
-                    )
-                    d
-                    
-                      x
-                      
-                        t
-                        −
-                        2
-                      
-                    
-                  
-                  ]
-                
-              
-            
-            
-              
-              
-                
-                
-                
-                ⋮
-              
-            
-            
-              
-              
-                
-                =
-                
-                  [
-                  
-                    
-                      ∇
-                      
-                        θ
-                      
-                    
-                    F
-                    (
-                    
-                      x
-                      
-                        t
-                        −
-                        1
-                      
-                    
-                    ,
-                    
-                      u
-                      
-                        t
-                      
-                    
-                    ,
-                    θ
-                    )
-                    +
-                    
-                      ∇
-                      
-                        x
-                      
-                    
-                    F
-                    (
-                    
-                      x
-                      
-                        t
-                        −
-                        1
-                      
-                    
-                    ,
-                    
-                      u
-                      
-                        t
-                      
-                    
-                    ,
-                    θ
-                    )
-                    
-                      ∇
-                      
-                        θ
-                      
-                    
-                    F
-                    (
-                    
-                      x
-                      
-                        t
-                        −
-                        2
-                      
-                    
-                    ,
-                    
-                      u
-                      
-                        t
-                        −
-                        1
-                      
-                    
-                    ,
-                    θ
-                    )
-                    +
-                    ⋯
-                  
-                  ]
-                
-                d
-                θ
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}dx_{t}&=\nabla _{\theta }F(x_{t-1},u_{t},\theta )d\theta +\nabla _{x}F(x_{t-1},u_{t},\theta )dx_{t-1}\\&=\nabla _{\theta }F(x_{t-1},u_{t},\theta )d\theta +\nabla _{x}F(x_{t-1},u_{t},\theta )\left[\nabla _{\theta }F(x_{t-2},u_{t-1},\theta )d\theta +\nabla _{x}F(x_{t-2},u_{t-1},\theta )dx_{t-2}\right]\\&\;\;\vdots \\&=\left[\nabla _{\theta }F(x_{t-1},u_{t},\theta )+\nabla _{x}F(x_{t-1},u_{t},\theta )\nabla _{\theta }F(x_{t-2},u_{t-1},\theta )+\cdots \right]d\theta \end{aligned}}}
-  
+${\begin{aligned}dx_{t}&=\nabla _{\theta }F(x_{t-1},u_{t},\theta )d\theta +\nabla _{x}F(x_{t-1},u_{t},\theta )dx_{t-1}\\&=\nabla _{\theta }F(x_{t-1},u_{t},\theta )d\theta +\nabla _{x}F(x_{t-1},u_{t},\theta )\left[\nabla _{\theta }F(x_{t-2},u_{t-1},\theta )d\theta +\nabla _{x}F(x_{t-2},u_{t-1},\theta )dx_{t-2}\right]\\&\;\;\vdots \\&=\left[\nabla _{\theta }F(x_{t-1},u_{t},\theta )+\nabla _{x}F(x_{t-1},u_{t},\theta )\nabla _{\theta }F(x_{t-2},u_{t-1},\theta )+\cdots \right]d\theta \end{aligned}}$
 
 Training the network requires us to define a loss function to be minimized. Let it be 
-  
-    
-      
-        L
-        (
-        
-          x
-          
-            T
-          
-        
-        ,
-        
-          u
-          
-            1
-          
-        
-        ,
-        …
-        ,
-        
-          u
-          
-            T
-          
-        
-        )
-      
-    
-    {\displaystyle L(x_{T},u_{1},\dots ,u_{T})}
-  
+$L(x_{T},u_{1},\dots ,u_{T})$
+
 , then minimizing it by gradient descent gives
 
-  
-    
-      
-        Δ
-        θ
-        =
-        −
-        η
-        ⋅
-        
-          
-            [
-            
-              
-                ∇
-                
-                  x
-                
-              
-              L
-              (
-              
-                x
-                
-                  T
-                
-              
-              )
-              
-                (
-                
-                  
-                    ∇
-                    
-                      θ
-                    
-                  
-                  F
-                  (
-                  
-                    x
-                    
-                      t
-                      −
-                      1
-                    
-                  
-                  ,
-                  
-                    u
-                    
-                      t
-                    
-                  
-                  ,
-                  θ
-                  )
-                  +
-                  
-                    ∇
-                    
-                      x
-                    
-                  
-                  F
-                  (
-                  
-                    x
-                    
-                      t
-                      −
-                      1
-                    
-                  
-                  ,
-                  
-                    u
-                    
-                      t
-                    
-                  
-                  ,
-                  θ
-                  )
-                  
-                    ∇
-                    
-                      θ
-                    
-                  
-                  F
-                  (
-                  
-                    x
-                    
-                      t
-                      −
-                      2
-                    
-                  
-                  ,
-                  
-                    u
-                    
-                      t
-                      −
-                      1
-                    
-                  
-                  ,
-                  θ
-                  )
-                  +
-                  ⋯
-                
-                )
-              
-            
-            ]
-          
-          
-            T
-          
-        
-      
-    
-    {\displaystyle \Delta \theta =-\eta \cdot \left[\nabla _{x}L(x_{T})\left(\nabla _{\theta }F(x_{t-1},u_{t},\theta )+\nabla _{x}F(x_{t-1},u_{t},\theta )\nabla _{\theta }F(x_{t-2},u_{t-1},\theta )+\cdots \right)\right]^{T}}
-  
+$\Delta \theta =-\eta \cdot \left[\nabla _{x}L(x_{T})\left(\nabla _{\theta }F(x_{t-1},u_{t},\theta )+\nabla _{x}F(x_{t-1},u_{t},\theta )\nabla _{\theta }F(x_{t-2},u_{t-1},\theta )+\cdots \right)\right]^{T}$
+
 where 
-  
-    
-      
-        η
-      
-    
-    {\displaystyle \eta }
-  
+$\eta $
+
  is the learning rate.
 The vanishing/exploding gradient problem appears because there are repeated multiplications, of the form
-  
-    
-      
-        
-          ∇
-          
-            x
-          
-        
-        F
-        (
-        
-          x
-          
-            t
-            −
-            1
-          
-        
-        ,
-        
-          u
-          
-            t
-          
-        
-        ,
-        θ
-        )
-        
-          ∇
-          
-            x
-          
-        
-        F
-        (
-        
-          x
-          
-            t
-            −
-            2
-          
-        
-        ,
-        
-          u
-          
-            t
-            −
-            1
-          
-        
-        ,
-        θ
-        )
-        
-          ∇
-          
-            x
-          
-        
-        F
-        (
-        
-          x
-          
-            t
-            −
-            3
-          
-        
-        ,
-        
-          u
-          
-            t
-            −
-            2
-          
-        
-        ,
-        θ
-        )
-        ⋯
-      
-    
-    {\displaystyle \nabla _{x}F(x_{t-1},u_{t},\theta )\nabla _{x}F(x_{t-2},u_{t-1},\theta )\nabla _{x}F(x_{t-3},u_{t-2},\theta )\cdots }
+$\nabla _{x}F(x_{t-1},u_{t},\theta )\nabla _{x}F(x_{t-2},u_{t-1},\theta )\nabla _{x}F(x_{t-3},u_{t-2},\theta )\cdots $
 
 #### Example: recurrent network with sigmoid activation
 
 For a concrete example, consider a typical recurrent network defined by
 
-  
-    
-      
-        
-          x
-          
-            t
-          
-        
-        =
-        F
-        (
-        
-          x
-          
-            t
-            −
-            1
-          
-        
-        ,
-        
-          u
-          
-            t
-          
-        
-        ,
-        θ
-        )
-        =
-        
-          W
-          
-            rec
-          
-        
-        σ
-        (
-        
-          x
-          
-            t
-            −
-            1
-          
-        
-        )
-        +
-        
-          W
-          
-            in
-          
-        
-        
-          u
-          
-            t
-          
-        
-        +
-        b
-      
-    
-    {\displaystyle x_{t}=F(x_{t-1},u_{t},\theta )=W_{\text{rec}}\sigma (x_{t-1})+W_{\text{in}}u_{t}+b}
-  
+$x_{t}=F(x_{t-1},u_{t},\theta )=W_{\text{rec}}\sigma (x_{t-1})+W_{\text{in}}u_{t}+b$
+
 where 
-  
-    
-      
-        θ
-        =
-        (
-        
-          W
-          
-            rec
-          
-        
-        ,
-        
-          W
-          
-            in
-          
-        
-        )
-      
-    
-    {\displaystyle \theta =(W_{\text{rec}},W_{\text{in}})}
-  
+$\theta =(W_{\text{rec}},W_{\text{in}})$
+
  is the network parameter, 
-  
-    
-      
-        σ
-      
-    
-    {\displaystyle \sigma }
-  
+$\sigma $
+
  is the sigmoid activation function, applied to each vector coordinate separately, and 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
  is the bias vector.
 Then, 
-  
-    
-      
-        
-          ∇
-          
-            x
-          
-        
-        F
-        (
-        
-          x
-          
-            t
-            −
-            1
-          
-        
-        ,
-        
-          u
-          
-            t
-          
-        
-        ,
-        θ
-        )
-        =
-        
-          W
-          
-            rec
-          
-        
-        diag
-        ⁡
-        (
-        
-          σ
-          ′
-        
-        (
-        
-          x
-          
-            t
-            −
-            1
-          
-        
-        )
-        )
-      
-    
-    {\displaystyle \nabla _{x}F(x_{t-1},u_{t},\theta )=W_{\text{rec}}\operatorname {diag} (\sigma '(x_{t-1}))}
-  
+$\nabla _{x}F(x_{t-1},u_{t},\theta )=W_{\text{rec}}\operatorname {diag} (\sigma '(x_{t-1}))$
+
 , and so
 
-  
-    
-      
-        
-          
-            
-              
-              
-                
-                  ∇
-                  
-                    x
-                  
-                
-                F
-                (
-                
-                  x
-                  
-                    t
-                    −
-                    1
-                  
-                
-                ,
-                
-                  u
-                  
-                    t
-                  
-                
-                ,
-                θ
-                )
-                
-                  ∇
-                  
-                    x
-                  
-                
-                F
-                (
-                
-                  x
-                  
-                    t
-                    −
-                    2
-                  
-                
-                ,
-                
-                  u
-                  
-                    t
-                    −
-                    1
-                  
-                
-                ,
-                θ
-                )
-                ⋯
-                
-                  ∇
-                  
-                    x
-                  
-                
-                F
-                (
-                
-                  x
-                  
-                    t
-                    −
-                    k
-                  
-                
-                ,
-                
-                  u
-                  
-                    t
-                    −
-                    k
-                    +
-                    1
-                  
-                
-                ,
-                θ
-                )
-              
-            
-            
-              
-              
-                
-                =
-                
-                  W
-                  
-                    rec
-                  
-                
-                diag
-                ⁡
-                (
-                
-                  σ
-                  ′
-                
-                (
-                
-                  x
-                  
-                    t
-                    −
-                    1
-                  
-                
-                )
-                )
-                
-                  W
-                  
-                    rec
-                  
-                
-                diag
-                ⁡
-                (
-                
-                  σ
-                  ′
-                
-                (
-                
-                  x
-                  
-                    t
-                    −
-                    2
-                  
-                
-                )
-                )
-                ⋯
-                
-                  W
-                  
-                    rec
-                  
-                
-                diag
-                ⁡
-                (
-                
-                  σ
-                  ′
-                
-                (
-                
-                  x
-                  
-                    t
-                    −
-                    k
-                  
-                
-                )
-                )
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}&\nabla _{x}F(x_{t-1},u_{t},\theta )\nabla _{x}F(x_{t-2},u_{t-1},\theta )\cdots \nabla _{x}F(x_{t-k},u_{t-k+1},\theta )\\&=W_{\text{rec}}\operatorname {diag} (\sigma '(x_{t-1}))W_{\text{rec}}\operatorname {diag} (\sigma '(x_{t-2}))\cdots W_{\text{rec}}\operatorname {diag} (\sigma '(x_{t-k}))\end{aligned}}}
-  
+${\begin{aligned}&\nabla _{x}F(x_{t-1},u_{t},\theta )\nabla _{x}F(x_{t-2},u_{t-1},\theta )\cdots \nabla _{x}F(x_{t-k},u_{t-k+1},\theta )\\&=W_{\text{rec}}\operatorname {diag} (\sigma '(x_{t-1}))W_{\text{rec}}\operatorname {diag} (\sigma '(x_{t-2}))\cdots W_{\text{rec}}\operatorname {diag} (\sigma '(x_{t-k}))\end{aligned}}$
 
 Since 
-  
-    
-      
-        
-          |
-          
-            σ
-            ′
-          
-          |
-        
-        ≤
-        1
-      
-    
-    {\displaystyle \left|\sigma '\right|\leq 1}
-  
+$\left|\sigma '\right|\leq 1$
+
 , the operator norm of the above multiplication is bounded above by 
-  
-    
-      
-        
-          
-            ‖
-            
-              W
-              
-                rec
-              
-            
-            ‖
-          
-          
-            k
-          
-        
-      
-    
-    {\displaystyle \left\|W_{\text{rec}}\right\|^{k}}
-  
+$\left\|W_{\text{rec}}\right\|^{k}$
+
 . So if the spectral radius of 
-  
-    
-      
-        
-          W
-          
-            rec
-          
-        
-      
-    
-    {\displaystyle W_{\text{rec}}}
-  
+$W_{\text{rec}}$
+
  is 
-  
-    
-      
-        γ
-        <
-        1
-      
-    
-    {\displaystyle \gamma <1}
-  
+$\gamma <1$
+
 , then at large 
-  
-    
-      
-        k
-      
-    
-    {\displaystyle k}
-  
+$k$
+
 , the above multiplication has operator norm bounded above by 
-  
-    
-      
-        
-          γ
-          
-            k
-          
-        
-        →
-        0
-      
-    
-    {\displaystyle \gamma ^{k}\to 0}
-  
+$\gamma ^{k}\to 0$
+
 . This is the prototypical vanishing gradient problem.
 The effect of a vanishing gradient is that the network cannot learn long-range effects. Recall Equation (loss differential):
-  
-    
-      
-        
-          ∇
-          
-            θ
-          
-        
-        L
-        =
-        
-          ∇
-          
-            x
-          
-        
-        L
-        (
-        
-          x
-          
-            T
-          
-        
-        ,
-        
-          u
-          
-            1
-          
-        
-        ,
-        …
-        ,
-        
-          u
-          
-            T
-          
-        
-        )
-        
-          [
-          
-            
-              ∇
-              
-                θ
-              
-            
-            F
-            (
-            
-              x
-              
-                t
-                −
-                1
-              
-            
-            ,
-            
-              u
-              
-                t
-              
-            
-            ,
-            θ
-            )
-            +
-            
-              ∇
-              
-                x
-              
-            
-            F
-            (
-            
-              x
-              
-                t
-                −
-                1
-              
-            
-            ,
-            
-              u
-              
-                t
-              
-            
-            ,
-            θ
-            )
-            
-              ∇
-              
-                θ
-              
-            
-            F
-            (
-            
-              x
-              
-                t
-                −
-                2
-              
-            
-            ,
-            
-              u
-              
-                t
-                −
-                1
-              
-            
-            ,
-            θ
-            )
-            +
-            ⋯
-          
-          ]
-        
-      
-    
-    {\displaystyle \nabla _{\theta }L=\nabla _{x}L(x_{T},u_{1},\dots ,u_{T})\left[\nabla _{\theta }F(x_{t-1},u_{t},\theta )+\nabla _{x}F(x_{t-1},u_{t},\theta )\nabla _{\theta }F(x_{t-2},u_{t-1},\theta )+\cdots \right]}
-  
+$\nabla _{\theta }L=\nabla _{x}L(x_{T},u_{1},\dots ,u_{T})\left[\nabla _{\theta }F(x_{t-1},u_{t},\theta )+\nabla _{x}F(x_{t-1},u_{t},\theta )\nabla _{\theta }F(x_{t-2},u_{t-1},\theta )+\cdots \right]$
+
 The components of 
-  
-    
-      
-        
-          ∇
-          
-            θ
-          
-        
-        F
-        (
-        x
-        ,
-        u
-        ,
-        θ
-        )
-      
-    
-    {\displaystyle \nabla _{\theta }F(x,u,\theta )}
-  
+$\nabla _{\theta }F(x,u,\theta )$
+
  are just components of 
-  
-    
-      
-        σ
-        (
-        x
-        )
-      
-    
-    {\displaystyle \sigma (x)}
-  
+$\sigma (x)$
+
  and 
-  
-    
-      
-        u
-      
-    
-    {\displaystyle u}
-  
+$u$
+
 , so if 
-  
-    
-      
-        
-          u
-          
-            t
-          
-        
-        ,
-        
-          u
-          
-            t
-            −
-            1
-          
-        
-        ,
-        …
-      
-    
-    {\displaystyle u_{t},u_{t-1},\dots }
-  
+$u_{t},u_{t-1},\dots $
+
  are bounded, then 
-  
-    
-      
-        
-          ‖
-          
-            
-              ∇
-              
-                θ
-              
-            
-            F
-            (
-            
-              x
-              
-                t
-                −
-                k
-                −
-                1
-              
-            
-            ,
-            
-              u
-              
-                t
-                −
-                k
-              
-            
-            ,
-            θ
-            )
-          
-          ‖
-        
-      
-    
-    {\displaystyle \left\|\nabla _{\theta }F(x_{t-k-1},u_{t-k},\theta )\right\|}
-  
+$\left\|\nabla _{\theta }F(x_{t-k-1},u_{t-k},\theta )\right\|$
+
  is also bounded by some 
-  
-    
-      
-        M
-        >
-        0
-      
-    
-    {\displaystyle M>0}
-  
+$M>0$
+
 , and so the terms in 
-  
-    
-      
-        
-          ∇
-          
-            θ
-          
-        
-        L
-      
-    
-    {\displaystyle \nabla _{\theta }L}
-  
+$\nabla _{\theta }L$
+
  decay as 
-  
-    
-      
-        M
-        
-          γ
-          
-            k
-          
-        
-      
-    
-    {\displaystyle M\gamma ^{k}}
-  
+$M\gamma ^{k}$
+
 . This means that, effectively, 
-  
-    
-      
-        
-          ∇
-          
-            θ
-          
-        
-        L
-      
-    
-    {\displaystyle \nabla _{\theta }L}
-  
+$\nabla _{\theta }L$
+
  is affected only by the first 
-  
-    
-      
-        O
-        (
-        
-          γ
-          
-            −
-            1
-          
-        
-        )
-      
-    
-    {\displaystyle O(\gamma ^{-1})}
-  
+$O(\gamma ^{-1})$
+
  terms in the sum.
 If 
-  
-    
-      
-        γ
-        ≥
-        1
-      
-    
-    {\displaystyle \gamma \geq 1}
-  
+$\gamma \geq 1$
+
 , the above analysis does not quite work. For the prototypical exploding gradient problem, the next model is clearer.
 
 ### Dynamical systems model
 
 Following (Doya, 1993), consider this one-neuron recurrent network with sigmoid activation:
 
-  
-    
-      
-        
-          x
-          
-            t
-            +
-            1
-          
-        
-        =
-        (
-        1
-        −
-        ε
-        )
-        
-          x
-          
-            t
-          
-        
-        +
-        ε
-        σ
-        (
-        w
-        
-          x
-          
-            t
-          
-        
-        +
-        b
-        )
-        +
-        ε
-        
-          w
-          ′
-        
-        
-          u
-          
-            t
-          
-        
-      
-    
-    {\displaystyle x_{t+1}=(1-\varepsilon )x_{t}+\varepsilon \sigma (wx_{t}+b)+\varepsilon w'u_{t}}
-  
+$x_{t+1}=(1-\varepsilon )x_{t}+\varepsilon \sigma (wx_{t}+b)+\varepsilon w'u_{t}$
 
 At the small 
-  
-    
-      
-        ε
-      
-    
-    {\displaystyle \varepsilon }
-  
+$\varepsilon $
+
  limit, the dynamics of the network becomes
 
-  
-    
-      
-        
-          
-            
-              d
-              x
-            
-            
-              d
-              t
-            
-          
-        
-        =
-        −
-        x
-        (
-        t
-        )
-        +
-        σ
-        (
-        w
-        x
-        (
-        t
-        )
-        +
-        b
-        )
-        +
-        
-          w
-          ′
-        
-        u
-        (
-        t
-        )
-      
-    
-    {\displaystyle {\frac {dx}{dt}}=-x(t)+\sigma (wx(t)+b)+w'u(t)}
-  
+${\frac {dx}{dt}}=-x(t)+\sigma (wx(t)+b)+w'u(t)$
 
 Consider first the autonomous case, with 
-  
-    
-      
-        u
-        =
-        0
-      
-    
-    {\displaystyle u=0}
-  
+$u=0$
+
 . Set 
-  
-    
-      
-        w
-        =
-        5.0
-      
-    
-    {\displaystyle w=5.0}
-  
+$w=5.0$
+
 , and vary 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
  in 
-  
-    
-      
-        [
-        −
-        3
-        ,
-        −
-        2
-        ]
-      
-    
-    {\displaystyle [-3,-2]}
-  
+$[-3,-2]$
+
 . As 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
  decreases, the system has 1 stable point, then has 2 stable points and 1 unstable point, and finally has 1 stable point again. Explicitly, the stable points are 
-  
-    
-      
-        (
-        x
-        ,
-        b
-        )
-        =
-        
-          (
-          
-            x
-            ,
-            ln
-            ⁡
-            
-              (
-              
-                
-                  x
-                  
-                    1
-                    −
-                    x
-                  
-                
-              
-              )
-            
-            −
-            5
-            x
-          
-          )
-        
-      
-    
-    {\displaystyle (x,b)=\left(x,\ln \left({\frac {x}{1-x}}\right)-5x\right)}
-  
+$(x,b)=\left(x,\ln \left({\frac {x}{1-x}}\right)-5x\right)$
+
 .
 Now consider 
-  
-    
-      
-        
-          
-            
-              Δ
-              x
-              (
-              T
-              )
-            
-            
-              Δ
-              x
-              (
-              0
-              )
-            
-          
-        
-      
-    
-    {\displaystyle {\frac {\Delta x(T)}{\Delta x(0)}}}
-  
+${\frac {\Delta x(T)}{\Delta x(0)}}$
+
  and 
-  
-    
-      
-        
-          
-            
-              Δ
-              x
-              (
-              T
-              )
-            
-            
-              Δ
-              b
-            
-          
-        
-      
-    
-    {\displaystyle {\frac {\Delta x(T)}{\Delta b}}}
-  
+${\frac {\Delta x(T)}{\Delta b}}$
+
 , where 
-  
-    
-      
-        T
-      
-    
-    {\displaystyle T}
-  
+$T$
+
  is large enough that the system has settled into one of the stable points.
 If 
-  
-    
-      
-        (
-        x
-        (
-        0
-        )
-        ,
-        b
-        )
-      
-    
-    {\displaystyle (x(0),b)}
-  
+$(x(0),b)$
+
  puts the system very close to an unstable point, then a tiny variation in 
-  
-    
-      
-        x
-        (
-        0
-        )
-      
-    
-    {\displaystyle x(0)}
-  
+$x(0)$
+
  or 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
  would make 
-  
-    
-      
-        x
-        (
-        T
-        )
-      
-    
-    {\displaystyle x(T)}
-  
+$x(T)$
+
  move from one stable point to the other. This makes 
-  
-    
-      
-        
-          
-            
-              Δ
-              x
-              (
-              T
-              )
-            
-            
-              Δ
-              x
-              (
-              0
-              )
-            
-          
-        
-      
-    
-    {\displaystyle {\frac {\Delta x(T)}{\Delta x(0)}}}
-  
+${\frac {\Delta x(T)}{\Delta x(0)}}$
+
  and 
-  
-    
-      
-        
-          
-            
-              Δ
-              x
-              (
-              T
-              )
-            
-            
-              Δ
-              b
-            
-          
-        
-      
-    
-    {\displaystyle {\frac {\Delta x(T)}{\Delta b}}}
-  
+${\frac {\Delta x(T)}{\Delta b}}$
+
  both very large, a case of the exploding gradient.
 If 
-  
-    
-      
-        (
-        x
-        (
-        0
-        )
-        ,
-        b
-        )
-      
-    
-    {\displaystyle (x(0),b)}
-  
+$(x(0),b)$
+
  puts the system far from an unstable point, then a small variation in 
-  
-    
-      
-        x
-        (
-        0
-        )
-      
-    
-    {\displaystyle x(0)}
-  
+$x(0)$
+
  would have no effect on 
-  
-    
-      
-        x
-        (
-        T
-        )
-      
-    
-    {\displaystyle x(T)}
-  
+$x(T)$
+
 , making 
-  
-    
-      
-        
-          
-            
-              Δ
-              x
-              (
-              T
-              )
-            
-            
-              Δ
-              x
-              (
-              0
-              )
-            
-          
-        
-        =
-        0
-      
-    
-    {\displaystyle {\frac {\Delta x(T)}{\Delta x(0)}}=0}
-  
+${\frac {\Delta x(T)}{\Delta x(0)}}=0$
+
 , a case of the vanishing gradient.
 Note that in this case, 
-  
-    
-      
-        
-          
-            
-              Δ
-              x
-              (
-              T
-              )
-            
-            
-              Δ
-              b
-            
-          
-        
-        ≈
-        
-          
-            
-              ∂
-              x
-              (
-              T
-              )
-            
-            
-              ∂
-              b
-            
-          
-        
-        =
-        
-          
-            (
-            
-              
-                
-                  1
-                  
-                    x
-                    (
-                    T
-                    )
-                    (
-                    1
-                    −
-                    x
-                    (
-                    T
-                    )
-                    )
-                  
-                
-              
-              −
-              5
-            
-            )
-          
-          
-            −
-            1
-          
-        
-      
-    
-    {\displaystyle {\frac {\Delta x(T)}{\Delta b}}\approx {\frac {\partial x(T)}{\partial b}}=\left({\frac {1}{x(T)(1-x(T))}}-5\right)^{-1}}
-  
+${\frac {\Delta x(T)}{\Delta b}}\approx {\frac {\partial x(T)}{\partial b}}=\left({\frac {1}{x(T)(1-x(T))}}-5\right)^{-1}$
+
  neither decays to zero nor blows up to infinity. Indeed, it's the only well-behaved gradient, which explains why early researches focused on learning or designing recurrent networks systems that could perform long-ranged computations (such as outputting the first input it sees at the very end of an episode) by shaping its stable attractors.
 For the general case, the intuition still holds ( Figures 3, 4, and 5).
 
 ### Geometric model
 
 Continue using the above one-neuron network, fixing 
-  
-    
-      
-        w
-        =
-        5
-        ,
-        x
-        (
-        0
-        )
-        =
-        0.5
-        ,
-        u
-        (
-        t
-        )
-        =
-        0
-      
-    
-    {\displaystyle w=5,x(0)=0.5,u(t)=0}
-  
+$w=5,x(0)=0.5,u(t)=0$
+
 , and consider a loss function defined by 
-  
-    
-      
-        L
-        (
-        x
-        (
-        T
-        )
-        )
-        =
-        (
-        0.855
-        −
-        x
-        (
-        T
-        )
-        
-          )
-          
-            2
-          
-        
-      
-    
-    {\displaystyle L(x(T))=(0.855-x(T))^{2}}
-  
+$L(x(T))=(0.855-x(T))^{2}$
+
 . This produces a rather pathological loss landscape: as 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
  approach 
-  
-    
-      
-        −
-        2.5
-      
-    
-    {\displaystyle -2.5}
-  
+$-2.5$
+
  from above, the loss approaches zero, but as soon as 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
  crosses 
-  
-    
-      
-        −
-        2.5
-      
-    
-    {\displaystyle -2.5}
-  
+$-2.5$
+
 , the attractor basin changes, and loss jumps to 0.50.
 Consequently, attempting to train 
-  
-    
-      
-        b
-      
-    
-    {\displaystyle b}
-  
+$b$
+
  by gradient descent would "hit a wall in the loss landscape", and cause exploding gradient. A slightly more complex situation is plotted in, Figures 6.
 
 ## Solutions
@@ -2266,70 +262,17 @@ To overcome this problem, several methods were proposed.
 
 For recurrent neural networks, the long short-term memory (LSTM) network was designed to solve the problem (Hochreiter & Schmidhuber, 1997).
 For the exploding gradient problem, (Pascanu et al, 2012) recommended gradient clipping, meaning dividing the gradient vector 
-  
-    
-      
-        g
-      
-    
-    {\displaystyle g}
-  
+$g$
+
  by 
-  
-    
-      
-        
-          ‖
-          g
-          ‖
-        
-        
-          /
-        
-        
-          g
-          
-            max
-          
-        
-      
-    
-    {\displaystyle \left\|g\right\|/g_{\text{max}}}
-  
+$\left\|g\right\|/g_{\text{max}}$
+
  if 
-  
-    
-      
-        
-          ‖
-          g
-          ‖
-        
-        >
-        
-          g
-          
-            max
-          
-        
-      
-    
-    {\displaystyle \left\|g\right\|>g_{\text{max}}}
-  
+$\left\|g\right\|>g_{\text{max}}$
+
 . This restricts the gradient vectors within a ball of radius 
-  
-    
-      
-        
-          g
-          
-            max
-          
-        
-      
-    
-    {\displaystyle g_{\text{max}}}
-  
+$g_{\text{max}}$
+
 .
 
 ### Batch normalization
@@ -2351,124 +294,24 @@ Hardware advances have meant that from 1991 to 2015, computer power (especially 
 ### Residual connection
 
 Residual connections, or skip connections, refers to the architectural motif of 
-  
-    
-      
-        x
-        ↦
-        f
-        (
-        x
-        )
-        +
-        x
-      
-    
-    {\displaystyle x\mapsto f(x)+x}
-  
+$x\mapsto f(x)+x$
+
 , where 
-  
-    
-      
-        f
-      
-    
-    {\displaystyle f}
-  
+$f$
+
  is an arbitrary neural network module. This gives the gradient of 
-  
-    
-      
-        ∇
-        f
-        +
-        I
-      
-    
-    {\displaystyle \nabla f+I}
-  
+$\nabla f+I$
+
 , where the identity matrix do not suffer from the vanishing or exploding gradient. During backpropagation, part of the gradient flows through the residual connections.
 Concretely, let the neural network (without residual connections) be 
-  
-    
-      
-        
-          f
-          
-            n
-          
-        
-        ∘
-        
-          f
-          
-            n
-            −
-            1
-          
-        
-        ∘
-        ⋯
-        ∘
-        
-          f
-          
-            1
-          
-        
-      
-    
-    {\displaystyle f_{n}\circ f_{n-1}\circ \cdots \circ f_{1}}
-  
+$f_{n}\circ f_{n-1}\circ \cdots \circ f_{1}$
+
 , then with residual connections, the gradient of output with respect to the activations at layer 
-  
-    
-      
-        l
-      
-    
-    {\displaystyle l}
-  
+$l$
+
  is 
-  
-    
-      
-        I
-        +
-        ∇
-        
-          f
-          
-            l
-            +
-            1
-          
-        
-        +
-        ∇
-        
-          f
-          
-            l
-            +
-            2
-          
-        
-        ∇
-        
-          f
-          
-            l
-            +
-            1
-          
-        
-        +
-        ⋯
-      
-    
-    {\displaystyle I+\nabla f_{l+1}+\nabla f_{l+2}\nabla f_{l+1}+\cdots }
-  
+$I+\nabla f_{l+1}+\nabla f_{l+2}\nabla f_{l+1}+\cdots $
+
 . The gradient thus does not vanish in arbitrarily deep networks.
 Feedforward networks with residual connections can be regarded as an ensemble of relatively shallow nets. In this perspective, they resolve the vanishing gradient problem by being equivalent to ensembles of many shallow networks, for which there is no vanishing gradient problem.
 
@@ -2480,52 +323,15 @@ Rectifiers such as ReLU suffer less from the vanishing gradient problem, because
 
 Weight initialization is another approach that has been proposed to reduce the vanishing gradient problem in deep networks.
 Kumar suggested that the distribution of initial weights should vary according to activation function used and proposed to initialize the weights in networks with the logistic activation function using a Gaussian distribution with a zero mean and a standard deviation of 
-  
-    
-      
-        3.6
-        
-          /
-        
-        
-          
-            N
-          
-        
-      
-    
-    {\displaystyle 3.6/{\sqrt {N}}}
-  
+$3.6/{\sqrt {N}}$
+
 , where 
-  
-    
-      
-        N
-      
-    
-    {\displaystyle N}
-  
+$N$
+
  is the number of neurons in a layer.
 In 2022, Yilmaz and Poli performed a theoretical analysis on how gradients are affected by the mean of the initial weights in deep neural networks using the logistic activation function and found that gradients do not vanish if the mean of the initial weights is set according to the formula: 
-  
-    
-      
-        max
-        (
-        −
-        1
-        ,
-        −
-        8
-        
-          /
-        
-        N
-        )
-      
-    
-    {\displaystyle \max(-1,-8/N)}
-  
+$\max(-1,-8/N)$
+
 . This simple strategy allows networks with 10 or 15 hidden layers to be trained very efficiently and effectively using the standard backpropagation.
 
 ### Other

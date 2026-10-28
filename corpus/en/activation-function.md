@@ -27,84 +27,14 @@ These properties do not decisively influence performance, nor are they the only 
 
 The most common activation functions can be divided into three categories: ridge functions, radial functions and fold functions.
 An activation function 
-  
-    
-      
-        f
-      
-    
-    {\displaystyle f}
-  
+$f$
+
  is saturating if 
-  
-    
-      
-        
-          lim
-          
-            
-              |
-            
-            v
-            
-              |
-            
-            →
-            ∞
-          
-        
-        
-          |
-        
-        ∇
-        f
-        (
-        v
-        )
-        
-          |
-        
-        =
-        0
-      
-    
-    {\displaystyle \lim _{|v|\to \infty }|\nabla f(v)|=0}
-  
+$\lim _{|v|\to \infty }|\nabla f(v)|=0$
+
 . It is nonsaturating if 
-  
-    
-      
-        
-          lim
-          
-            
-              |
-            
-            v
-            
-              |
-            
-            →
-            ∞
-          
-        
-        
-          |
-        
-        ∇
-        f
-        (
-        v
-        )
-        
-          |
-        
-        ≠
-        0
-      
-    
-    {\displaystyle \lim _{|v|\to \infty }|\nabla f(v)|\neq 0}
-  
+$\lim _{|v|\to \infty }|\nabla f(v)|\neq 0$
+
 . Non-saturating activation functions, such as ReLU, may be better than saturating activation functions, because they are less likely to suffer from the vanishing gradient problem.
 
 ### Ridge activation functions
@@ -112,207 +42,33 @@ An activation function
 Ridge functions are multivariate functions acting on a linear combination of the input variables. Often used examples include:
 
 Linear activation: 
-  
-    
-      
-        ϕ
-        (
-        
-          v
-        
-        )
-        =
-        a
-        +
-        
-          
-            v
-          
-          ′
-        
-        
-          b
-        
-      
-    
-    {\displaystyle \phi (\mathbf {v} )=a+\mathbf {v} '\mathbf {b} }
-  
+$\phi (\mathbf {v} )=a+\mathbf {v} '\mathbf {b} $
+
 ,
 ReLU activation: 
-  
-    
-      
-        ϕ
-        (
-        
-          v
-        
-        )
-        =
-        max
-        (
-        0
-        ,
-        a
-        +
-        
-          
-            v
-          
-          ′
-        
-        
-          b
-        
-        )
-      
-    
-    {\displaystyle \phi (\mathbf {v} )=\max(0,a+\mathbf {v} '\mathbf {b} )}
-  
+$\phi (\mathbf {v} )=\max(0,a+\mathbf {v} '\mathbf {b} )$
+
 ,
 Heaviside activation: 
-  
-    
-      
-        ϕ
-        (
-        
-          v
-        
-        )
-        =
-        
-          1
-          
-            a
-            +
-            
-              
-                v
-              
-              ′
-            
-            
-              b
-            
-            >
-            0
-          
-        
-      
-    
-    {\displaystyle \phi (\mathbf {v} )=1_{a+\mathbf {v} '\mathbf {b} >0}}
-  
+$\phi (\mathbf {v} )=1_{a+\mathbf {v} '\mathbf {b} >0}$
+
 ,
 Logistic activation: 
-  
-    
-      
-        ϕ
-        (
-        
-          v
-        
-        )
-        =
-        (
-        1
-        +
-        exp
-        ⁡
-        (
-        −
-        a
-        −
-        
-          
-            v
-          
-          ′
-        
-        
-          b
-        
-        )
-        
-          )
-          
-            −
-            1
-          
-        
-      
-    
-    {\displaystyle \phi (\mathbf {v} )=(1+\exp(-a-\mathbf {v} '\mathbf {b} ))^{-1}}
-  
+$\phi (\mathbf {v} )=(1+\exp(-a-\mathbf {v} '\mathbf {b} ))^{-1}$
+
 .
 In biologically inspired neural networks, the activation function is usually an abstraction representing the rate of action potential firing in the cell. In its simplest form, this function is binary—that is, either the neuron is firing or not.
 Neurons also cannot fire faster than a certain rate. This biological limitation motivates the use of sigmoid activation functions, whose output range is confined to a finite interval.
 The function looks like 
-  
-    
-      
-        ϕ
-        (
-        
-          v
-        
-        )
-        =
-        U
-        (
-        a
-        +
-        
-          
-            v
-          
-          ′
-        
-        
-          b
-        
-        )
-      
-    
-    {\displaystyle \phi (\mathbf {v} )=U(a+\mathbf {v} '\mathbf {b} )}
-  
+$\phi (\mathbf {v} )=U(a+\mathbf {v} '\mathbf {b} )$
+
 , where 
-  
-    
-      
-        U
-      
-    
-    {\displaystyle U}
-  
+$U$
+
  is the Heaviside step function.
 If a line has a positive slope, on the other hand, it may reflect the increase in firing rate that occurs as input current increases. Such a function would be of the form 
-  
-    
-      
-        ϕ
-        (
-        
-          v
-        
-        )
-        =
-        a
-        +
-        
-          
-            v
-          
-          ′
-        
-        
-          b
-        
-      
-    
-    {\displaystyle \phi (\mathbf {v} )=a+\mathbf {v} '\mathbf {b} }
-  
+$\phi (\mathbf {v} )=a+\mathbf {v} '\mathbf {b} $
+
 .
 
 ### Radial activation functions
@@ -320,208 +76,32 @@ If a line has a positive slope, on the other hand, it may reflect the increase i
 A special class of activation functions known as radial basis functions (RBFs) are used in RBF networks. These activation functions can take many forms, but they are usually found as one of the following functions:
 
 Gaussian: 
-  
-    
-      
-        
-        ϕ
-        (
-        
-          v
-        
-        )
-        =
-        exp
-        ⁡
-        
-          (
-          
-            −
-            
-              
-                
-                  ‖
-                  
-                    v
-                  
-                  −
-                  
-                    c
-                  
-                  
-                    ‖
-                    
-                      2
-                    
-                  
-                
-                
-                  2
-                  
-                    σ
-                    
-                      2
-                    
-                  
-                
-              
-            
-          
-          )
-        
-      
-    
-    {\displaystyle \,\phi (\mathbf {v} )=\exp \left(-{\frac {\|\mathbf {v} -\mathbf {c} \|^{2}}{2\sigma ^{2}}}\right)}
-  
+$\,\phi (\mathbf {v} )=\exp \left(-{\frac {\|\mathbf {v} -\mathbf {c} \|^{2}}{2\sigma ^{2}}}\right)$
 
 Multiquadratics: 
-  
-    
-      
-        
-        ϕ
-        (
-        
-          v
-        
-        )
-        =
-        
-          
-            ‖
-            
-              v
-            
-            −
-            
-              c
-            
-            
-              ‖
-              
-                2
-              
-            
-            +
-            
-              a
-              
-                2
-              
-            
-          
-        
-      
-    
-    {\displaystyle \,\phi (\mathbf {v} )={\sqrt {\|\mathbf {v} -\mathbf {c} \|^{2}+a^{2}}}}
-  
+$\,\phi (\mathbf {v} )={\sqrt {\|\mathbf {v} -\mathbf {c} \|^{2}+a^{2}}}$
 
 Inverse multiquadratics: 
-  
-    
-      
-        
-        ϕ
-        (
-        
-          v
-        
-        )
-        =
-        
-          
-            (
-            
-              ‖
-              
-                v
-              
-              −
-              
-                c
-              
-              
-                ‖
-                
-                  2
-                
-              
-              +
-              
-                a
-                
-                  2
-                
-              
-            
-            )
-          
-          
-            −
-            
-              
-                1
-                2
-              
-            
-          
-        
-      
-    
-    {\displaystyle \,\phi (\mathbf {v} )=\left(\|\mathbf {v} -\mathbf {c} \|^{2}+a^{2}\right)^{-{\frac {1}{2}}}}
-  
+$\,\phi (\mathbf {v} )=\left(\|\mathbf {v} -\mathbf {c} \|^{2}+a^{2}\right)^{-{\frac {1}{2}}}$
 
 Polyharmonic splines
 where 
-  
-    
-      
-        
-          c
-        
-      
-    
-    {\displaystyle \mathbf {c} }
-  
+$\mathbf {c} $
+
  is the vector representing the function center and 
-  
-    
-      
-        a
-      
-    
-    {\displaystyle a}
-  
+$a$
+
  and 
-  
-    
-      
-        σ
-      
-    
-    {\displaystyle \sigma }
-  
+$\sigma $
+
  are parameters affecting the spread of the radius.
 
 ### Other examples
 
 Periodic functions can serve as activation functions. Usually the sinusoid is used, as any periodic function is decomposable into sinusoids by the Fourier transform.
 Quadratic activation maps 
-  
-    
-      
-        x
-        ↦
-        
-          x
-          
-            2
-          
-        
-      
-    
-    {\displaystyle x\mapsto x^{2}}
-  
+$x\mapsto x^{2}$
+
 .
 
 ### Folding activation functions
@@ -535,39 +115,15 @@ The following table compares the properties of several activation functions that
 The following table lists activation functions that are not functions of a single fold x from the previous layer or layers:
 
 ^ Here, 
-  
-    
-      
-        
-          δ
-          
-            i
-            j
-          
-        
-      
-    
-    {\displaystyle \delta _{ij}}
-  
+$\delta _{ij}$
+
  is the Kronecker delta.
 ^ For instance, 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
  could be iterating through the number of kernels of the previous neural network layer while 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  iterates through the number of kernels of the current layer.
 
 ### Quantum activation functions

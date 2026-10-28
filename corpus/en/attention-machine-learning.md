@@ -68,1217 +68,181 @@ Using attention as basis of explanation for the transformers in language and vis
 ### Standard scaled dot-product attention
 
 For matrices: 
-  
-    
-      
-        Q
-        ∈
-        
-          
-            R
-          
-          
-            m
-            ×
-            
-              d
-              
-                k
-              
-            
-          
-        
-        ,
-        K
-        ∈
-        
-          
-            R
-          
-          
-            n
-            ×
-            
-              d
-              
-                k
-              
-            
-          
-        
-      
-    
-    {\displaystyle Q\in \mathbb {R} ^{m\times d_{k}},K\in \mathbb {R} ^{n\times d_{k}}}
-  
+$Q\in \mathbb {R} ^{m\times d_{k}},K\in \mathbb {R} ^{n\times d_{k}}$
+
  and 
-  
-    
-      
-        V
-        ∈
-        
-          
-            R
-          
-          
-            n
-            ×
-            
-              d
-              
-                v
-              
-            
-          
-        
-      
-    
-    {\displaystyle V\in \mathbb {R} ^{n\times d_{v}}}
-  
+$V\in \mathbb {R} ^{n\times d_{v}}$
+
 , the scaled dot-product, or QKV attention, is defined as:
 
-  
-    
-      
-        
-          Attention
-        
-        (
-        Q
-        ,
-        K
-        ,
-        V
-        )
-        =
-        
-          softmax
-        
-        
-          (
-          
-            
-              
-                Q
-                
-                  K
-                  
-                    T
-                  
-                
-              
-              
-                
-                  d
-                  
-                    k
-                  
-                
-              
-            
-          
-          )
-        
-        V
-        ∈
-        
-          
-            R
-          
-          
-            m
-            ×
-            
-              d
-              
-                v
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\text{Attention}}(Q,K,V)={\text{softmax}}\left({\frac {QK^{T}}{\sqrt {d_{k}}}}\right)V\in \mathbb {R} ^{m\times d_{v}}}
-  
+${\text{Attention}}(Q,K,V)={\text{softmax}}\left({\frac {QK^{T}}{\sqrt {d_{k}}}}\right)V\in \mathbb {R} ^{m\times d_{v}}$
 
 where 
-  
-    
-      
-        
-          
+${}^{T}$
 
-          
-          
-            T
-          
-        
-      
-    
-    {\displaystyle {}^{T}}
-  
  denotes transpose and the softmax function is applied independently to every row of its argument. The matrix 
-  
-    
-      
-        Q
-      
-    
-    {\displaystyle Q}
-  
+$Q$
+
  contains 
-  
-    
-      
-        m
-      
-    
-    {\displaystyle m}
-  
+$m$
+
  queries, while matrices 
-  
-    
-      
-        K
-        ,
-        V
-      
-    
-    {\displaystyle K,V}
-  
+$K,V$
+
  jointly contain an unordered set of 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  key-value pairs. Value vectors in matrix 
-  
-    
-      
-        V
-      
-    
-    {\displaystyle V}
-  
+$V$
+
  are weighted using the weights resulting from the softmax operation, so that the rows of the 
-  
-    
-      
-        m
-      
-    
-    {\displaystyle m}
-  
+$m$
+
 -by-
-  
-    
-      
-        
-          d
-          
-            v
-          
-        
-      
-    
-    {\displaystyle d_{v}}
-  
+$d_{v}$
+
  output matrix are confined to the convex hull of the points in 
-  
-    
-      
-        
-          
-            R
-          
-          
-            
-              d
-              
-                v
-              
-            
-          
-        
-      
-    
-    {\displaystyle \mathbb {R} ^{d_{v}}}
-  
+$\mathbb {R} ^{d_{v}}$
+
  given by the rows of 
-  
-    
-      
-        V
-      
-    
-    {\displaystyle V}
-  
+$V$
+
 .
 To understand the permutation invariance and permutation equivariance properties of QKV attention, let 
-  
-    
-      
-        A
-        ∈
-        
-          
-            R
-          
-          
-            m
-            ×
-            m
-          
-        
-      
-    
-    {\displaystyle A\in \mathbb {R} ^{m\times m}}
-  
+$A\in \mathbb {R} ^{m\times m}$
+
  and 
-  
-    
-      
-        B
-        ∈
-        
-          
-            R
-          
-          
-            n
-            ×
-            n
-          
-        
-      
-    
-    {\displaystyle B\in \mathbb {R} ^{n\times n}}
-  
+$B\in \mathbb {R} ^{n\times n}$
+
  be permutation matrices; and 
-  
-    
-      
-        D
-        ∈
-        
-          
-            R
-          
-          
-            m
-            ×
-            n
-          
-        
-      
-    
-    {\displaystyle D\in \mathbb {R} ^{m\times n}}
-  
+$D\in \mathbb {R} ^{m\times n}$
+
  an arbitrary matrix. The softmax function is permutation equivariant in the sense that:
 
-  
-    
-      
-        
-          softmax
-        
-        (
-        A
-        D
-        B
-        )
-        =
-        A
-        
-        
-          softmax
-        
-        (
-        D
-        )
-        B
-      
-    
-    {\displaystyle {\text{softmax}}(ADB)=A\,{\text{softmax}}(D)B}
-  
+${\text{softmax}}(ADB)=A\,{\text{softmax}}(D)B$
 
 By noting that the transpose of a permutation matrix is also its inverse, it follows that:
 
-  
-    
-      
-        
-          Attention
-        
-        (
-        A
-        Q
-        ,
-        B
-        K
-        ,
-        B
-        V
-        )
-        =
-        A
-        
-        
-          Attention
-        
-        (
-        Q
-        ,
-        K
-        ,
-        V
-        )
-      
-    
-    {\displaystyle {\text{Attention}}(AQ,BK,BV)=A\,{\text{Attention}}(Q,K,V)}
-  
+${\text{Attention}}(AQ,BK,BV)=A\,{\text{Attention}}(Q,K,V)$
 
 which shows that QKV attention is equivariant with respect to re-ordering the queries (rows of 
-  
-    
-      
-        Q
-      
-    
-    {\displaystyle Q}
-  
+$Q$
+
 ); and invariant to re-ordering of the key-value pairs in 
-  
-    
-      
-        K
-        ,
-        V
-      
-    
-    {\displaystyle K,V}
-  
+$K,V$
+
 . These properties are inherited when applying linear transforms to the inputs and outputs of QKV attention blocks. For example, a simple self-attention function defined as:
 
-  
-    
-      
-        X
-        ↦
-        
-          Attention
-        
-        (
-        X
-        
-          T
-          
-            q
-          
-        
-        ,
-        X
-        
-          T
-          
-            k
-          
-        
-        ,
-        X
-        
-          T
-          
-            v
-          
-        
-        )
-      
-    
-    {\displaystyle X\mapsto {\text{Attention}}(XT_{q},XT_{k},XT_{v})}
-  
-  
+$X\mapsto {\text{Attention}}(XT_{q},XT_{k},XT_{v})$
+
 is permutation equivariant with respect to re-ordering the rows of the input matrix 
-  
-    
-      
-        X
-      
-    
-    {\displaystyle X}
-  
+$X$
+
  in a non-trivial way, because every row of the output is a function of all the rows of the input. Similar properties hold for multi-head attention, which is defined below.
 
 ### Masked attention
 
 When QKV attention is used as a building block for an autoregressive decoder, and when at training time all input and output matrices have 
-  
-    
-      
-        n
-      
-    
-    {\displaystyle n}
-  
+$n$
+
  rows, a masked attention variant is used:
 
-  
-    
-      
-        
-          Attention
-        
-        (
-        Q
-        ,
-        K
-        ,
-        V
-        )
-        =
-        
-          softmax
-        
-        
-          (
-          
-            
-              
-                
-                  Q
-                  
-                    K
-                    
-                      T
-                    
-                  
-                
-                
-                  
-                    d
-                    
-                      k
-                    
-                  
-                
-              
-            
-            +
-            M
-          
-          )
-        
-        V
-      
-    
-    {\displaystyle {\text{Attention}}(Q,K,V)={\text{softmax}}\left({\frac {QK^{T}}{\sqrt {d_{k}}}}+M\right)V}
-  
+${\text{Attention}}(Q,K,V)={\text{softmax}}\left({\frac {QK^{T}}{\sqrt {d_{k}}}}+M\right)V$
 
 where the mask, 
-  
-    
-      
-        M
-        ∈
-        
-          
-            {
-            0
-            ,
-            −
-            ∞
-            }
-          
-          
-            n
-            ×
-            n
-          
-        
-      
-    
-    {\displaystyle M\in \mathbb {\{0,-\infty \}} ^{n\times n}}
-  
+$M\in \mathbb {\{0,-\infty \}} ^{n\times n}$
+
  is a strictly upper triangular matrix, with zeros on and below the diagonal and 
-  
-    
-      
-        −
-        ∞
-      
-    
-    {\displaystyle -\infty }
-  
+$-\infty $
+
  in every element above the diagonal. The softmax output, in 
-  
-    
-      
-        
-          
-            R
-          
-          
-            n
-            ×
-            n
-          
-        
-      
-    
-    {\displaystyle \mathbb {R} ^{n\times n}}
-  
+$\mathbb {R} ^{n\times n}$
+
  is then lower triangular, with zeros in all elements above the diagonal. The masking ensures that for all 
-  
-    
-      
-        1
-        ≤
-        i
-        <
-        j
-        ≤
-        n
-      
-    
-    {\displaystyle 1\leq i<j\leq n}
-  
+$1\leq i<j\leq n$
+
 , row 
-  
-    
-      
-        i
-      
-    
-    {\displaystyle i}
-  
+$i$
+
  of the attention output is independent of row 
-  
-    
-      
-        j
-      
-    
-    {\displaystyle j}
-  
+$j$
+
  of any of the three input matrices. The permutation invariance and equivariance properties of standard QKV attention do not hold for the masked variant.
 
 ### Multi-head attention
 
 Multi-head attention
 
-  
-    
-      
-        
-          MultiHead
-        
-        (
-        Q
-        ,
-        K
-        ,
-        V
-        )
-        =
-        
-          Concat
-        
-        (
-        
-          
-            head
-          
-          
-            1
-          
-        
-        ,
-        .
-        .
-        .
-        ,
-        
-          
-            head
-          
-          
-            h
-          
-        
-        )
-        
-          W
-          
-            O
-          
-        
-      
-    
-    {\displaystyle {\text{MultiHead}}(Q,K,V)={\text{Concat}}({\text{head}}_{1},...,{\text{head}}_{h})W^{O}}
-  
+${\text{MultiHead}}(Q,K,V)={\text{Concat}}({\text{head}}_{1},...,{\text{head}}_{h})W^{O}$
 
 where each head is computed with QKV attention as:
 
-  
-    
-      
-        
-          
-            head
-          
-          
-            i
-          
-        
-        =
-        
-          Attention
-        
-        (
-        Q
-        
-          W
-          
-            i
-          
-          
-            Q
-          
-        
-        ,
-        K
-        
-          W
-          
-            i
-          
-          
-            K
-          
-        
-        ,
-        V
-        
-          W
-          
-            i
-          
-          
-            V
-          
-        
-        )
-      
-    
-    {\displaystyle {\text{head}}_{i}={\text{Attention}}(QW_{i}^{Q},KW_{i}^{K},VW_{i}^{V})}
-  
+${\text{head}}_{i}={\text{Attention}}(QW_{i}^{Q},KW_{i}^{K},VW_{i}^{V})$
 
 and 
-  
-    
-      
-        
-          W
-          
-            i
-          
-          
-            Q
-          
-        
-        ,
-        
-          W
-          
-            i
-          
-          
-            K
-          
-        
-        ,
-        
-          W
-          
-            i
-          
-          
-            V
-          
-        
-      
-    
-    {\displaystyle W_{i}^{Q},W_{i}^{K},W_{i}^{V}}
-  
+$W_{i}^{Q},W_{i}^{K},W_{i}^{V}$
+
 , and 
-  
-    
-      
-        
-          W
-          
-            O
-          
-        
-      
-    
-    {\displaystyle W^{O}}
-  
+$W^{O}$
+
  are parameter matrices.
 The permutation properties of (standard, unmasked) QKV attention apply here also. For permutation matrices, 
-  
-    
-      
-        A
-        ,
-        B
-      
-    
-    {\displaystyle A,B}
-  
+$A,B$
+
 :
 
-  
-    
-      
-        
-          MultiHead
-        
-        (
-        A
-        Q
-        ,
-        B
-        K
-        ,
-        B
-        V
-        )
-        =
-        A
-        
-        
-          MultiHead
-        
-        (
-        Q
-        ,
-        K
-        ,
-        V
-        )
-      
-    
-    {\displaystyle {\text{MultiHead}}(AQ,BK,BV)=A\,{\text{MultiHead}}(Q,K,V)}
-  
+${\text{MultiHead}}(AQ,BK,BV)=A\,{\text{MultiHead}}(Q,K,V)$
 
 from which we also see that multi-head self-attention:
 
-  
-    
-      
-        X
-        ↦
-        
-          MultiHead
-        
-        (
-        X
-        
-          T
-          
-            q
-          
-        
-        ,
-        X
-        
-          T
-          
-            k
-          
-        
-        ,
-        X
-        
-          T
-          
-            v
-          
-        
-        )
-      
-    
-    {\displaystyle X\mapsto {\text{MultiHead}}(XT_{q},XT_{k},XT_{v})}
-  
-  
+$X\mapsto {\text{MultiHead}}(XT_{q},XT_{k},XT_{v})$
+
 is equivariant with respect to re-ordering of the rows of input matrix 
-  
-    
-      
-        X
-      
-    
-    {\displaystyle X}
-  
+$X$
+
 .
 
 ### Bahdanau (additive) attention
 
-Attention
-        
-        (
-        Q
-        ,
-        K
-        ,
-        V
-        )
-        =
-        
-          softmax
-        
-        (
-        tanh
-        ⁡
-        (
-        
-          W
-          
-            Q
-          
-        
-        Q
-        +
-        
-          W
-          
-            K
-          
-        
-        K
-        )
-        )
-        V
-      
-    
-    {\displaystyle {\text{Attention}}(Q,K,V)={\text{softmax}}(\tanh(W_{Q}Q+W_{K}K))V}
-  
+${\text{Attention}}(Q,K,V)={\text{softmax}}(\tanh(W_{Q}Q+W_{K}K))V$
 
 where 
-  
-    
-      
-        
-          W
-          
-            Q
-          
-        
-      
-    
-    {\displaystyle W_{Q}}
-  
+$W_{Q}$
+
  and 
-  
-    
-      
-        
-          W
-          
-            K
-          
-        
-      
-    
-    {\displaystyle W_{K}}
-  
+$W_{K}$
+
  are learnable weight matrices.
 
 ### Luong attention (general)
 
-Attention
-        
-        (
-        Q
-        ,
-        K
-        ,
-        V
-        )
-        =
-        
-          softmax
-        
-        (
-        Q
-        W
-        
-          K
-          
-            T
-          
-        
-        )
-        V
-      
-    
-    {\displaystyle {\text{Attention}}(Q,K,V)={\text{softmax}}(QWK^{T})V}
-  
+${\text{Attention}}(Q,K,V)={\text{softmax}}(QWK^{T})V$
 
 where 
-  
-    
-      
-        W
-      
-    
-    {\displaystyle W}
-  
+$W$
+
  is a learnable weight matrix.
 
 ### Self-attention
 
 Self-attention is essentially the same as cross-attention, except that query, key, and value vectors all come from the same model. Both encoder and decoder can use self-attention, but with subtle differences.
 For encoder self-attention, we can start with a simple encoder without self-attention, such as an "embedding layer", which simply converts each input word into a vector by a fixed lookup table. This gives a sequence of hidden vectors 
-  
-    
-      
-        
-          h
-          
-            0
-          
-        
-        ,
-        
-          h
-          
-            1
-          
-        
-        ,
-        …
-      
-    
-    {\displaystyle h_{0},h_{1},\dots }
-  
+$h_{0},h_{1},\dots $
+
 . These can then be applied to a dot-product attention mechanism, to obtain
-  
-    
-      
-        
-          
-            
-              
-                
-                  h
-                  
-                    0
-                  
-                  ′
-                
-              
-              
-                
-                =
-                
-                  A
-                  t
-                  t
-                  e
-                  n
-                  t
-                  i
-                  o
-                  n
-                
-                (
-                
-                  h
-                  
-                    0
-                  
-                
-                
-                  W
-                  
-                    Q
-                  
-                
-                ,
-                H
-                
-                  W
-                  
-                    K
-                  
-                
-                ,
-                H
-                
-                  W
-                  
-                    V
-                  
-                
-                )
-              
-            
-            
-              
-                
-                  h
-                  
-                    1
-                  
-                  ′
-                
-              
-              
-                
-                =
-                
-                  A
-                  t
-                  t
-                  e
-                  n
-                  t
-                  i
-                  o
-                  n
-                
-                (
-                
-                  h
-                  
-                    1
-                  
-                
-                
-                  W
-                  
-                    Q
-                  
-                
-                ,
-                H
-                
-                  W
-                  
-                    K
-                  
-                
-                ,
-                H
-                
-                  W
-                  
-                    V
-                  
-                
-                )
-              
-            
-            
-              
-              
-                
-                
-                
-                ⋮
-              
-            
-          
-        
-      
-    
-    {\displaystyle {\begin{aligned}h_{0}'&=\mathrm {Attention} (h_{0}W^{Q},HW^{K},HW^{V})\\h_{1}'&=\mathrm {Attention} (h_{1}W^{Q},HW^{K},HW^{V})\\&\;\,\vdots \end{aligned}}}
-  
+${\begin{aligned}h_{0}'&=\mathrm {Attention} (h_{0}W^{Q},HW^{K},HW^{V})\\h_{1}'&=\mathrm {Attention} (h_{1}W^{Q},HW^{K},HW^{V})\\&\;\,\vdots \end{aligned}}$
+
 or more succinctly, 
-  
-    
-      
-        
-          H
-          ′
-        
-        =
-        
-          A
-          t
-          t
-          e
-          n
-          t
-          i
-          o
-          n
-        
-        (
-        H
-        
-          W
-          
-            Q
-          
-        
-        ,
-        H
-        
-          W
-          
-            K
-          
-        
-        ,
-        H
-        
-          W
-          
-            V
-          
-        
-        )
-      
-    
-    {\displaystyle H'=\mathrm {Attention} (HW^{Q},HW^{K},HW^{V})}
-  
+$H'=\mathrm {Attention} (HW^{Q},HW^{K},HW^{V})$
+
 . This can be applied repeatedly, to obtain a multilayered encoder. This is the "encoder self-attention", sometimes called the "all-to-all attention", as the vector at every position can attend to every other.
 
 ### Masking
 
 For decoder self-attention, all-to-all attention is inappropriate, because during the autoregressive decoding process, the decoder cannot attend to future outputs that has yet to be decoded. This can be solved by forcing the attention weights 
-  
-    
-      
-        
-          w
-          
-            i
-            j
-          
-        
-        =
-        0
-      
-    
-    {\displaystyle w_{ij}=0}
-  
+$w_{ij}=0$
+
  for all 
-  
-    
-      
-        i
-        <
-        j
-      
-    
-    {\displaystyle i<j}
-  
+$i<j$
+
 , called "causal masking". This attention mechanism is the "causally masked self-attention".

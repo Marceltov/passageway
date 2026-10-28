@@ -32,217 +32,23 @@ For a binary classification task, training data can be divided into positive exa
 An early example uses a pair of 1-dimensional convolutional neural networks to process a pair of images and maximize their agreement.
 Contrastive Language-Image Pre-training (CLIP) allows joint pretraining of a text encoder and an image encoder, such that a matching image-text pair have image encoding vector and text encoding vector that span a small angle (having a large cosine similarity).
 InfoNCE (Noise-Contrastive Estimation) is a method to optimize two models jointly, based on Noise Contrastive Estimation (NCE). Given a set 
-  
-    
-      
-        X
-        =
-        
-          {
-          
-            
-              x
-              
-                1
-              
-            
-            ,
-            …
-            
-              x
-              
-                N
-              
-            
-          
-          }
-        
-      
-    
-    {\displaystyle X=\left\{x_{1},\ldots x_{N}\right\}}
-  
+$X=\left\{x_{1},\ldots x_{N}\right\}$
+
  of 
-  
-    
-      
-        N
-      
-    
-    {\displaystyle N}
-  
+$N$
+
  random samples containing one positive sample from 
-  
-    
-      
-        p
-        
-          (
-          
-            
-              x
-              
-                t
-                +
-                k
-              
-            
-            ∣
-            
-              c
-              
-                t
-              
-            
-          
-          )
-        
-      
-    
-    {\displaystyle p\left(x_{t+k}\mid c_{t}\right)}
-  
+$p\left(x_{t+k}\mid c_{t}\right)$
+
  and 
-  
-    
-      
-        N
-        −
-        1
-      
-    
-    {\displaystyle N-1}
-  
+$N-1$
+
  negative samples from the 'proposal' distribution 
-  
-    
-      
-        p
-        
-          (
-          
-            x
-            
-              t
-              +
-              k
-            
-          
-          )
-        
-      
-    
-    {\displaystyle p\left(x_{t+k}\right)}
-  
+$p\left(x_{t+k}\right)$
+
 , it minimizes the following loss function:
 
-  
-    
-      
-        
-          
-            
-              L
-            
-          
-          
-            
-              N
-            
-          
-        
-        =
-        −
-        
-          
-            E
-          
-          
-            X
-          
-        
-        
-          [
-          
-            log
-            ⁡
-            
-              
-                
-                  
-                    f
-                    
-                      k
-                    
-                  
-                  
-                    (
-                    
-                      
-                        x
-                        
-                          t
-                          +
-                          k
-                        
-                      
-                      ,
-                      
-                        c
-                        
-                          t
-                        
-                      
-                    
-                    )
-                  
-                
-                
-                  
-                    ∑
-                    
-                      
-                        x
-                        
-                          j
-                        
-                      
-                      ∈
-                      X
-                    
-                  
-                  
-                    f
-                    
-                      k
-                    
-                  
-                  
-                    (
-                    
-                      
-                        x
-                        
-                          j
-                        
-                      
-                      ,
-                      
-                        c
-                        
-                          t
-                        
-                      
-                    
-                    )
-                  
-                
-              
-            
-          
-          ]
-        
-      
-    
-    {\displaystyle {\mathcal {L}}_{\mathrm {N} }=-\mathbb {E} _{X}\left[\log {\frac {f_{k}\left(x_{t+k},c_{t}\right)}{\sum _{x_{j}\in X}f_{k}\left(x_{j},c_{t}\right)}}\right]}
+${\mathcal {L}}_{\mathrm {N} }=-\mathbb {E} _{X}\left[\log {\frac {f_{k}\left(x_{t+k},c_{t}\right)}{\sum _{x_{j}\in X}f_{k}\left(x_{j},c_{t}\right)}}\right]$
 
 ### Non-contrastive self-supervised learning
 

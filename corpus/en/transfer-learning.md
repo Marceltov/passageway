@@ -22,459 +22,78 @@ In the 2020 paper, "Rethinking Pre-Training and self-training", Zoph et al. repo
 ## Definition
 
 The definition of transfer learning is given in terms of domains and tasks. A domain 
-  
-    
-      
-        
-          
-            D
-          
-        
-      
-    
-    {\displaystyle {\mathcal {D}}}
-  
+${\mathcal {D}}$
+
  consists of: a feature space 
-  
-    
-      
-        
-          
-            X
-          
-        
-      
-    
-    {\displaystyle {\mathcal {X}}}
-  
+${\mathcal {X}}$
+
  and a marginal probability distribution 
-  
-    
-      
-        P
-        (
-        X
-        )
-      
-    
-    {\displaystyle P(X)}
-  
+$P(X)$
+
 , where 
-  
-    
-      
-        X
-        =
-        {
-        
-          x
-          
-            1
-          
-        
-        ,
-        .
-        .
-        .
-        ,
-        
-          x
-          
-            n
-          
-        
-        }
-        ∈
-        
-          
-            X
-          
-        
-      
-    
-    {\displaystyle X=\{x_{1},...,x_{n}\}\in {\mathcal {X}}}
-  
+$X=\{x_{1},...,x_{n}\}\in {\mathcal {X}}$
+
 . Given a specific domain, 
-  
-    
-      
-        
-          
-            D
-          
-        
-        =
-        {
-        
-          
-            X
-          
-        
-        ,
-        P
-        (
-        X
-        )
-        }
-      
-    
-    {\displaystyle {\mathcal {D}}=\{{\mathcal {X}},P(X)\}}
-  
+${\mathcal {D}}=\{{\mathcal {X}},P(X)\}$
+
 , a task consists of two components: a label space 
-  
-    
-      
-        
-          
-            Y
-          
-        
-      
-    
-    {\displaystyle {\mathcal {Y}}}
-  
+${\mathcal {Y}}$
+
  and an objective predictive function 
-  
-    
-      
-        f
-        :
-        
-          
-            X
-          
-        
-        →
-        
-          
-            Y
-          
-        
-      
-    
-    {\displaystyle f:{\mathcal {X}}\rightarrow {\mathcal {Y}}}
-  
+$f:{\mathcal {X}}\rightarrow {\mathcal {Y}}$
+
 . The function 
-  
-    
-      
-        f
-      
-    
-    {\displaystyle f}
-  
+$f$
+
  is used to predict the corresponding label 
-  
-    
-      
-        f
-        (
-        x
-        )
-      
-    
-    {\displaystyle f(x)}
-  
+$f(x)$
+
  of a new instance 
-  
-    
-      
-        x
-      
-    
-    {\displaystyle x}
-  
+$x$
+
 . This task, denoted by 
-  
-    
-      
-        
-          
-            T
-          
-        
-        =
-        {
-        
-          
-            Y
-          
-        
-        ,
-        f
-        (
-        x
-        )
-        }
-      
-    
-    {\displaystyle {\mathcal {T}}=\{{\mathcal {Y}},f(x)\}}
-  
+${\mathcal {T}}=\{{\mathcal {Y}},f(x)\}$
+
 , is learned from the training data consisting of pairs 
-  
-    
-      
-        {
-        
-          x
-          
-            i
-          
-        
-        ,
-        
-          y
-          
-            i
-          
-        
-        }
-      
-    
-    {\displaystyle \{x_{i},y_{i}\}}
-  
+$\{x_{i},y_{i}\}$
+
 , where 
-  
-    
-      
-        
-          x
-          
-            i
-          
-        
-        ∈
-        
-          
-            X
-          
-        
-      
-    
-    {\displaystyle x_{i}\in {\mathcal {X}}}
-  
+$x_{i}\in {\mathcal {X}}$
+
  and 
-  
-    
-      
-        
-          y
-          
-            i
-          
-        
-        ∈
-        
-          
-            Y
-          
-        
-      
-    
-    {\displaystyle y_{i}\in {\mathcal {Y}}}
-  
+$y_{i}\in {\mathcal {Y}}$
+
 .
 Given a source domain 
-  
-    
-      
-        
-          
-            
-              D
-            
-          
-          
-            S
-          
-        
-      
-    
-    {\displaystyle {\mathcal {D}}_{S}}
-  
+${\mathcal {D}}_{S}$
+
  and learning task 
-  
-    
-      
-        
-          
-            
-              T
-            
-          
-          
-            S
-          
-        
-      
-    
-    {\displaystyle {\mathcal {T}}_{S}}
-  
+${\mathcal {T}}_{S}$
+
 , a target domain 
-  
-    
-      
-        
-          
-            
-              D
-            
-          
-          
-            T
-          
-        
-      
-    
-    {\displaystyle {\mathcal {D}}_{T}}
-  
+${\mathcal {D}}_{T}$
+
  and learning task 
-  
-    
-      
-        
-          
-            
-              T
-            
-          
-          
-            T
-          
-        
-      
-    
-    {\displaystyle {\mathcal {T}}_{T}}
-  
+${\mathcal {T}}_{T}$
+
 , where 
-  
-    
-      
-        
-          
-            
-              D
-            
-          
-          
-            S
-          
-        
-        ≠
-        
-          
-            
-              D
-            
-          
-          
-            T
-          
-        
-      
-    
-    {\displaystyle {\mathcal {D}}_{S}\neq {\mathcal {D}}_{T}}
-  
+${\mathcal {D}}_{S}\neq {\mathcal {D}}_{T}$
+
 , or 
-  
-    
-      
-        
-          
-            
-              T
-            
-          
-          
-            S
-          
-        
-        ≠
-        
-          
-            
-              T
-            
-          
-          
-            T
-          
-        
-      
-    
-    {\displaystyle {\mathcal {T}}_{S}\neq {\mathcal {T}}_{T}}
-  
+${\mathcal {T}}_{S}\neq {\mathcal {T}}_{T}$
+
 , transfer learning aims to help improve the learning of the target predictive function 
-  
-    
-      
-        
-          f
-          
-            T
-          
-        
-        (
-        ⋅
-        )
-      
-    
-    {\displaystyle f_{T}(\cdot )}
-  
+$f_{T}(\cdot )$
+
  in 
-  
-    
-      
-        
-          
-            
-              D
-            
-          
-          
-            T
-          
-        
-      
-    
-    {\displaystyle {\mathcal {D}}_{T}}
-  
+${\mathcal {D}}_{T}$
+
  using the knowledge in 
-  
-    
-      
-        
-          
-            
-              D
-            
-          
-          
-            S
-          
-        
-      
-    
-    {\displaystyle {\mathcal {D}}_{S}}
-  
+${\mathcal {D}}_{S}$
+
  and 
-  
-    
-      
-        
-          
-            
-              T
-            
-          
-          
-            S
-          
-        
-      
-    
-    {\displaystyle {\mathcal {T}}_{S}}
-  
+${\mathcal {T}}_{S}$
+
 .
 
 ## Applications

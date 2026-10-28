@@ -21,249 +21,37 @@ Das Training der beiden Netzwerke erfolgt gleichzeitig. Wie im maschinellen Lern
 Das ursprüngliche GAN ist als das folgende Spiel definiert:
 
 Jeder Wahrscheinlichkeitsraum 
-  
-    
-      
-        (
-        Ω
-        ,
-        
-          μ
-          
-            r
-            e
-            f
-          
-        
-        )
-      
-    
-    {\displaystyle (\Omega ,\mu _{ref})}
-  
+$(\Omega ,\mu _{ref})$
+
  definiert ein GAN-Spiel.
 Es gibt 2 Spieler: Generator und Diskriminator.
 Die Strategiemenge des Generators ist 
-  
-    
-      
-        
-          
-            P
-          
-        
-        (
-        Ω
-        )
-      
-    
-    {\displaystyle {\mathcal {P}}(\Omega )}
-  
+${\mathcal {P}}(\Omega )$
+
 , die Menge aller Wahrscheinlichkeitsmaße 
-  
-    
-      
-        
-          μ
-          
-            G
-          
-        
-      
-    
-    {\displaystyle \mu _{G}}
-  
+$\mu _{G}$
+
  auf 
-  
-    
-      
-        (
-        Ω
-        )
-      
-    
-    {\displaystyle (\Omega )}
-  
+$(\Omega )$
+
 .
 Die Strategiemenge des Diskriminators ist die Menge der Markov-Kerne 
-  
-    
-      
-        
-          μ
-          
-            D
-          
-        
-        :
-        Ω
-        →
-        
-          
-            P
-          
-        
-        [
-        0
-        ,
-        1
-        ]
-      
-    
-    {\displaystyle \mu _{D}:\Omega \to {\mathcal {P}}[0,1]}
-  
+$\mu _{D}:\Omega \to {\mathcal {P}}[0,1]$
+
 , wobei 
-  
-    
-      
-        
-          
-            P
-          
-        
-        [
-        0
-        ,
-        1
-        ]
-      
-    
-    {\displaystyle {\mathcal {P}}[0,1]}
-  
+${\mathcal {P}}[0,1]$
+
  die Menge der Wahrscheinlichkeitsmaße auf 
-  
-    
-      
-        [
-        0
-        ,
-        1
-        ]
-      
-    
-    {\displaystyle [0,1]}
-  
+$[0,1]$
+
 .
 Das GAN-Spiel ist ein Nullsummenspiel, mit der Zielfunktion 
-  
-    
-      
-        L
-        (
-        
-          μ
-          
-            G
-          
-        
-        ,
-        
-          μ
-          
-            D
-          
-        
-        )
-        :=
-        
-          
-            E
-          
-          
-            x
-            ∼
-            
-              μ
-              
-                r
-                e
-                f
-              
-            
-            ,
-            y
-            ∼
-            
-              μ
-              
-                D
-              
-            
-            (
-            x
-            )
-          
-        
-        [
-        ln
-        ⁡
-        y
-        ]
-        +
-        
-          
-            E
-          
-          
-            x
-            ∼
-            
-              μ
-              
-                G
-              
-            
-            ,
-            y
-            ∼
-            
-              μ
-              
-                D
-              
-            
-            (
-            x
-            )
-          
-        
-        [
-        ln
-        ⁡
-        (
-        1
-        −
-        y
-        )
-        ]
-      
-    
-    {\displaystyle L(\mu _{G},\mu _{D}):=\mathbb {E} _{x\sim \mu _{ref},y\sim \mu _{D}(x)}[\ln y]+\mathbb {E} _{x\sim \mu _{G},y\sim \mu _{D}(x)}[\ln(1-y)]}
-  
+$L(\mu _{G},\mu _{D}):=\mathbb {E} _{x\sim \mu _{ref},y\sim \mu _{D}(x)}[\ln y]+\mathbb {E} _{x\sim \mu _{G},y\sim \mu _{D}(x)}[\ln(1-y)]$
 
 Der Generator zielt darauf ab, das Ziel zu minimieren, und der Diskriminator zielt darauf ab, das Ziel zu maximieren.
 Intuitiv gesprochen, besteht die Aufgabe des Generators darin, sich 
-  
-    
-      
-        
-          μ
-          
-            G
-          
-        
-        ≈
-        
-          μ
-          
-            r
-            e
-            f
-          
-        
-      
-    
-    {\displaystyle \mu _{G}\approx \mu _{ref}}
-  
+$\mu _{G}\approx \mu _{ref}$
+
 , d. h., seine eigene Ausgangsverteilung so weit wie möglich an die Referenzverteilung anzugleichen; die Aufgabe des Diskriminators besteht darin, einen Wert nahe 1 auszugeben, wenn die Eingabe aus der Referenzverteilung zu stammen scheint, und einen Wert nahe 0 auszugeben, wenn die Eingabe so aussieht, als stamme sie aus der Generatorverteilung.
 
 ### Probleme

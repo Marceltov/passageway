@@ -19,122 +19,33 @@ Deep learning is a form of machine learning that transforms a set of inputs into
 ### Reinforcement learning
 
 Reinforcement learning is a process in which an agent learns to make decisions through trial and error. This problem is often modeled mathematically as a Markov decision process (MDP), where an agent at every timestep is in a state 
-  
-    
-      
-        s
-      
-    
-    {\displaystyle s}
-  
+$s$
+
 , takes action 
-  
-    
-      
-        a
-      
-    
-    {\displaystyle a}
-  
+$a$
+
 , receives a scalar reward and transitions to the next state 
-  
-    
-      
-        
-          s
-          ′
-        
-      
-    
-    {\displaystyle s'}
-  
+$s'$
+
  according to environment dynamics 
-  
-    
-      
-        p
-        (
-        
-          s
-          ′
-        
-        
-          |
-        
-        s
-        ,
-        a
-        )
-      
-    
-    {\displaystyle p(s'|s,a)}
-  
+$p(s'|s,a)$
+
 . The agent attempts to learn a policy 
-  
-    
-      
-        π
-        (
-        a
-        
-          |
-        
-        s
-        )
-      
-    
-    {\displaystyle \pi (a|s)}
-  
+$\pi (a|s)$
+
 , or map from observations to actions, in order to maximize its returns (expected sum of rewards). In reinforcement learning (as opposed to optimal control) the algorithm only has access to the dynamics 
-  
-    
-      
-        p
-        (
-        
-          s
-          ′
-        
-        
-          |
-        
-        s
-        ,
-        a
-        )
-      
-    
-    {\displaystyle p(s'|s,a)}
-  
+$p(s'|s,a)$
+
  through sampling.
 
 ### Deep reinforcement learning
 
 In many practical decision-making problems, the states 
-  
-    
-      
-        s
-      
-    
-    {\displaystyle s}
-  
+$s$
+
  of the MDP are high-dimensional (e.g., images from a camera or the raw sensor stream from a robot) and cannot be solved by traditional RL algorithms. Deep reinforcement learning algorithms incorporate deep learning to solve such MDPs, often representing the policy 
-  
-    
-      
-        π
-        (
-        a
-        
-          |
-        
-        s
-        )
-      
-    
-    {\displaystyle \pi (a|s)}
-  
+$\pi (a|s)$
+
  or other learned functions as a neural network and developing specialized algorithms that perform well in this setting.
 
 ## History
@@ -151,53 +62,17 @@ Deep reinforcement learning has also been applied to many domains beyond games. 
 Various techniques exist to train policies to solve tasks with deep reinforcement learning algorithms, each having their own benefits. At the highest level, there is a distinction between model-based and model-free reinforcement learning, which refers to whether the algorithm attempts to learn a forward model of the environment dynamics.
 In model-based deep reinforcement learning algorithms, a forward model of the environment dynamics is estimated, usually by supervised learning using a neural network. Then, actions are obtained by using model predictive control using the learned model. Since the true environment dynamics will usually diverge from the learned dynamics, the agent re-plans often when carrying out actions in the environment. The actions selected may be optimized using Monte Carlo methods such as the cross-entropy method, or a combination of model-learning with model-free methods.
 In model-free deep reinforcement learning algorithms, a policy 
-  
-    
-      
-        π
-        (
-        a
-        
-          |
-        
-        s
-        )
-      
-    
-    {\displaystyle \pi (a|s)}
-  
+$\pi (a|s)$
+
  is learned without explicitly modeling the forward dynamics. A policy can be optimized to maximize returns by directly estimating the policy gradient but suffers from high variance, making it impractical for use with function approximation in deep RL. Subsequent algorithms have been developed for more stable learning and widely applied. Another class of model-free deep reinforcement learning algorithms rely on dynamic programming, inspired by temporal difference learning and Q-learning. In discrete action spaces, these algorithms usually learn a neural network Q-function 
-  
-    
-      
-        Q
-        (
-        s
-        ,
-        a
-        )
-      
-    
-    {\displaystyle Q(s,a)}
-  
+$Q(s,a)$
+
  that estimates the future returns taking action 
-  
-    
-      
-        a
-      
-    
-    {\displaystyle a}
-  
+$a$
+
  from state 
-  
-    
-      
-        s
-      
-    
-    {\displaystyle s}
-  
+$s$
+
 . In continuous spaces, these algorithms often learn both a value estimate and a policy.
 
 ## Research
@@ -219,32 +94,11 @@ Inverse RL refers to inferring the reward function of an agent given the agent's
 ### Goal-conditioned reinforcement learning
 
 Another active area of research is in learning goal-conditioned policies, also called contextual or universal policies 
-  
-    
-      
-        π
-        (
-        a
-        
-          |
-        
-        s
-        ,
-        g
-        )
-      
-    
-    {\displaystyle \pi (a|s,g)}
-  
+$\pi (a|s,g)$
+
  that take in an additional goal 
-  
-    
-      
-        g
-      
-    
-    {\displaystyle g}
-  
+$g$
+
  as input to communicate a desired aim to the agent. Hindsight experience replay is a method for goal-conditioned RL that involves storing and learning from previous failed attempts to complete a task. While a failed attempt may not have reached the intended goal, it can serve as a lesson for how achieve the unintended result through hindsight relabeling.
 
 ### Multi-agent reinforcement learning
