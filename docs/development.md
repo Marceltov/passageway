@@ -28,6 +28,8 @@ uvx --with mkdocs-material==9.7.7 --with 'mkdocs<2' mkdocs build --strict   # wh
 
 Every change starts from an issue and goes through a pull request; the CI build must pass, including the strict docs build. Decisions that future contributors will ask about get an ADR in `docs/adr/`.
 
+Dependabot keeps the dependencies and the GitHub Actions current (`.github/dependabot.yml`): security updates arrive at once; everything else waits two weeks after a release and comes grouped on Monday mornings, with the `Dependencies:` prefix instead of an issue number. Patch and minor bumps merge by themselves once the required checks are green; majors wait for review. A scheduled audit (`.github/workflows/audit.yml`) checks the locked runtime dependencies for known vulnerabilities every day.
+
 ## Releasing
 
 A release is a tag. Bump `version` in the root `pyproject.toml`, merge it, then tag the commit:

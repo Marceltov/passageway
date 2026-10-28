@@ -7,14 +7,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
       - run: uv sync --frozen --all-packages
       - run: uv run pytest -q
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
       # mkdocs<2: Material 9 isn't compatible with MkDocs 2.0. --strict fails on broken links.
       - run: uvx --with mkdocs-material==9.7.7 --with 'mkdocs<2' mkdocs build --strict
