@@ -18,6 +18,10 @@ PASSAGEWAY_LIVE=1 uv run pytest connectors/wikipedia/tests/test_wikipedia_live.p
 - CI is the gate, and I decide when a branch is finished and when it is merged. A `/ccp:ship-pr` request is the go-ahead for push and PR only, not for the merge. Merge only when I say "merge". The one exception: Dependabot's patch and minor bumps merge by themselves once CI is green (`.github/workflows/dependabot-automerge.yml`); its majors wait for me like any other PR.
 - Never print or write a secret into a file, a log or a commit. Credentials live in 1Password; GitHub secrets are set by piping from there.
 
+## Roadmap
+
+The plan for where passageway is going, and for how trilium-recall folds into it, is `docs/roadmap.md`. Keep it true: tick a step in the pull request that finishes it, and change the page in the pull request that changes the plan.
+
 ## Releases
 
 A `vX.Y.Z` tag is a release and must equal the version in `pyproject.toml`. The Release workflow creates the GitHub release and posts its notes to the notefeed feed; see `docs/development.md`.
