@@ -68,3 +68,13 @@ def test_the_example_connector_in_the_guide_passes_the_contract(tmp_path):
     connector = Connector("folder", [sys.executable, str(script)], env={"FOLDER": str(notes)})
     check_connector(connector)
     assert {i.title for i in connector.fetch(["a.txt", "sub/b.txt"])} == {"a", "b"}
+
+
+def test_every_entry_point_in_the_agents_table_is_a_link():
+    guide = (ROOT / "docs" / "guides" / "agents.md").read_text()
+    table = guide.split("| Entry point |", 1)[1].split("\n\n", 1)[0]
+    rows = [line for line in table.splitlines()[2:] if line.startswith("|")]  # skip the header's separator row
+    assert len(rows) >= 3, "the table must list the entry points"
+    for row in rows:
+        first_cell = row.split("|")[1]
+        assert re.search(r"\]\(https://passageway\.marceltov\.de/\S+\)", first_cell), f"no link in: {first_cell.strip()}"

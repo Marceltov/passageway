@@ -5,7 +5,7 @@ passageway publishes three entry points for an AI agent, all built from this rep
 | Entry point | What it is | Use it when |
 |---|---|---|
 | [`/SKILL.md`](https://passageway.marceltov.de/SKILL.md) | A general guide for agents: what passageway is, how to install and run it, which route to take for what the human wants. The plugin installs it as the skill `/passageway` | You tell any agent that can fetch a URL: "Read passageway.marceltov.de/SKILL.md and help me set up passageway" |
-| The plugin skill `/create-passageway-connector` | A step-by-step skill for writing, testing and registering a connector | You use Claude Code and want a connector for a new source |
+| The plugin skill [`/create-passageway-connector`](https://passageway.marceltov.de/skills/create-passageway-connector/SKILL.md) | A step-by-step skill for writing, testing and registering a connector | You use Claude Code and want a connector for a new source |
 | [`/llms.txt`](https://passageway.marceltov.de/llms.txt) and [`/llms-full.txt`](https://passageway.marceltov.de/llms-full.txt) | An index of the pages, and the whole documentation as one file | An agent should have all the details in its context |
 
 ## Install the plugin in Claude Code
