@@ -20,8 +20,8 @@ The repository is a uv workspace: the core package `passageway` at the root and 
 ## Docs
 
 ```bash
-uvx --with mkdocs-material==9.7.7 --with 'mkdocs<2' mkdocs serve           # live preview
-uvx --with mkdocs-material==9.7.7 --with 'mkdocs<2' mkdocs build --strict   # what CI runs
+uvx --with mkdocs-material==9.7.7 --with mkdocs-llmstxt==0.5.1 --with 'mkdocs<2' mkdocs serve           # live preview
+uvx --with mkdocs-material==9.7.7 --with mkdocs-llmstxt==0.5.1 --with 'mkdocs<2' mkdocs build --strict   # what CI runs
 ```
 
 ## Changes

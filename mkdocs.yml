@@ -18,6 +18,7 @@ nav:
       - How it works: how-it-works.md
   - Guides:
       - Write a connector: guides/write-a-connector.md
+      - Work with an AI agent: guides/agents.md
   - Reference:
       - Connector protocol: reference/connector-protocol.md
   - Connectors:
@@ -64,6 +65,19 @@ theme:
 
 extra_css:
   - stylesheets/extra.css
+
+plugins:
+  - search
+  - llmstxt:
+      full_output: llms-full.txt
+      sections:
+        Start: [index.md, install.md, configuration.md]
+        Concepts: [how-it-works.md]
+        Guides: ["guides/*.md"]
+        Reference: ["reference/*.md"]
+        Connectors: ["connectors/*.md"]
+        Contributing: [development.md]
+        Decisions: ["adr/*.md"]
 
 markdown_extensions:
   - admonition

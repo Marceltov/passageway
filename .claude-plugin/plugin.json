@@ -1,0 +1,18 @@
+{
+  "name": "passageway",
+  "version": "0.1.0",
+  "description": "Retrieval for Claude over MCP: connectors feed passages, a relevance gate keeps it quiet when nothing fits. Ships the skills /passageway (a general guide) and /create-passageway-connector (write a connector).",
+  "author": {
+    "name": "Marcel Bruckner"
+  },
+  "homepage": "https://passageway.marceltov.de/",
+  "repository": "https://github.com/Marceltov/passageway",
+  "license": "AGPL-3.0-or-later",
+  "keywords": [
+    "mcp",
+    "retrieval",
+    "rag",
+    "connectors",
+    "skills"
+  ]
+}

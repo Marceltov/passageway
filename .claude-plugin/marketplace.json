@@ -1,0 +1,14 @@
+{
+  "name": "passageway",
+  "description": "Claude Code plugin: write connectors for passageway.",
+  "owner": {
+    "name": "Marcel Bruckner (Marceltov)"
+  },
+  "plugins": [
+    {
+      "name": "passageway",
+      "source": "./",
+      "description": "Skills for passageway: create a connector that feeds a source into passageway's index."
+    }
+  ]
+}
