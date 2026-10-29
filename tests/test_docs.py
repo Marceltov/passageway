@@ -151,6 +151,13 @@ def test_the_cases_example_in_the_evaluation_guide_is_a_valid_cases_file(tmp_pat
     assert any(not c.answerable for c in cases) and any(c.answerable for c in cases)
 
 
+def test_the_evaluation_guide_states_what_a_reader_could_get_wrong():
+    guide = (ROOT / "docs" / "guides" / "evaluate.md").read_text()
+    for needle in ("three or more words", "group labels", "live data folder", "on a line of its own",
+                   "version", "has no `[targets]`"):
+        assert needle in guide, f"the evaluation guide should say: {needle}"
+
+
 def test_the_guide_names_every_option_of_the_command():
     from passageway.eval.cli import _parser
     guide = (ROOT / "docs" / "guides" / "evaluate.md").read_text()

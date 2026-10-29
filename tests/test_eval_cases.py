@@ -96,3 +96,16 @@ def test_expect_id_matches_the_exact_id_only():
 def test_either_kind_of_entry_accepts_a_hit():
     case = Case("q", ("nothing like this",), ("backpropagation.md",), None)
     assert matches(hit(), case)
+
+
+@pytest.mark.parametrize("value", ["nan", "inf", "-inf"])
+def test_targets_must_be_finite_numbers(tmp_path, value):
+    with pytest.raises(CasesError, match="hit_at_3"):
+        load_cases(write(tmp_path, f'[[case]]\nquery = "q"\n[targets]\nhit_at_3 = {value}'))
+    with pytest.raises(CasesError, match="p95_ms"):
+        load_cases(write(tmp_path, f'[[case]]\nquery = "q"\n[targets]\np95_ms = {value}'))
+
+
+def test_a_cases_path_that_is_a_folder_is_a_cases_error(tmp_path):
+    with pytest.raises(CasesError, match="folder|directory|read"):
+        load_cases(tmp_path)

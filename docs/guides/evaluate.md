@@ -1,6 +1,6 @@
 # Measure retrieval quality
 
-`passageway eval` asks your sources the questions you care about and reports how often the right passage comes back, and how often passageway correctly stays silent when nothing fits. Run it before you change the embedding model or the relevance threshold, and in CI to catch a regression. The numbers it prints are yours to publish: by default a report contains no question, no title and no address from your sources.
+`passageway eval` asks your sources the questions you care about and reports how often the right passage comes back, and how often passageway correctly stays silent when nothing fits. Run it before you change the embedding model or the relevance threshold, and in CI to catch a regression. The numbers it prints are yours to publish: by default a report contains no question, no title and no address from your sources (it does carry the source names and group labels you chose, see below).
 
 ## Write the questions
 
@@ -44,12 +44,12 @@ It reads your `passageway.toml` and the embedding model like the server does (`P
 | Option | What it does |
 |---|---|
 | `--config PATH`, `--model-dir DIR` | Use another `passageway.toml` or model than the environment names |
-| `--data-dir DIR` | Keep the index in `DIR` and reuse it on the next run, which is faster while you refine questions. An index built with another embedding model is refused |
+| `--data-dir DIR` | Keep the index in `DIR` and reuse it on the next run, which is faster while you refine questions. An index built with another embedding model is refused. Do not point it at your server's live data folder: eval would sync that index while the server is using it |
 | `--threshold X` | Use `X` as the relevance threshold (`min_similarity`) for this run |
 | `--sweep 0.80,0.84,0.88` | Also run at each of these thresholds and show them side by side. The index is built once, so a sweep costs little. This is how you choose a threshold for a model |
-| `--enforce` | Exit 1 when a value in `[targets]` is not met, for CI |
+| `--enforce` | Exit 1 when a value in `[targets]` is not met, for CI. A cases file that has no `[targets]` gives a warning and exit 0, because there is nothing to check |
 | `--out DIR` | Write `report.json` (for machines) and `report.md` into `DIR` |
-| `--write PAGE` | Update the block between `<!-- passageway:results:start -->` and `<!-- passageway:results:end -->` in your own page, and keep a history of runs next to it |
+| `--write PAGE` | Update the block between `<!-- passageway:results:start -->` and `<!-- passageway:results:end -->` in your own page, and keep a history of runs next to it. The page is checked before the run, so a missing marker does not cost a measurement |
 | `--include-cases` | Also report every question, what was found and its rank. This quotes your sources, so leave it off for anything you publish |
 
 Exit codes: 0 for a finished run, 1 for `--enforce` below the targets or a source that failed to sync (a partial index would give misleading numbers), 2 for a bad cases file, option or configuration.
@@ -68,17 +68,21 @@ A metric with no question behind it shows `n/a` and fails a target on it: with n
 
 Silence and false silence pull against each other as the threshold moves, and `--sweep` shows where they cross for your sources and your model.
 
+One rule limits what a threshold can do: a passage that shares **three or more words** with the question is returned whatever its similarity (the keyword rescue in [How it works](../how-it-works.md)). A long, specific question therefore stays found at any threshold, and a sweep silences only short or loosely worded ones. Word your unanswerable questions the way a user would, not as strings of rare words, or they will not measure the threshold.
+
+A target is compared with the value the report shows: two of three questions is 66.7%, which meets a target of 0.667.
+
 ## Publish the numbers
 
-Put the two markers in a page of your docs, say `docs/measurements.md`, and run:
+Put the two markers, each **on a line of its own**, in a page of your docs, say `docs/measurements.md`, and run:
 
 ```bash
 passageway eval cases.toml --write docs/measurements.md
 ```
 
-The block between the markers is replaced with the run, the metrics, the groups and the targets, followed by a table of the last ten runs. Running it again with the same date, model and threshold replaces that run instead of adding one. The history lives in `docs/measurements.history.json` and belongs in version control.
+The block between the markers is replaced with the run, the metrics, the groups and the targets, followed by a table of the last ten runs. Markers inside a code block are ignored, so a page can explain them, and the page keeps its line endings. Running it again with the same date, model, threshold and passageway version replaces that run instead of adding one. The history lives in `docs/measurements.history.json` and belongs in version control.
 
-The report records the date, the passageway version, the embedding model, the threshold, the number of items and sections per source, and a machine line (operating system, processor architecture and Python version, so that latencies can be put in context). It never records a host name.
+The report records the date, the passageway version, the embedding model, the threshold, the number of items and sections per source (under the source names from your `passageway.toml`), the **group labels** you chose, and a machine line (operating system, processor architecture and Python version, so that latencies can be put in context). It never records a host name. The source names and group labels are your own words, so pick ones you are happy to publish.
 
 To fail a CI job on a regression, put `[targets]` in the cases file and add `--enforce`.
 

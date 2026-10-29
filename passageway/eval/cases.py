@@ -1,5 +1,6 @@
 """The cases file: questions with the answers that count as right, and optional targets for --enforce."""
 
+import math
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
@@ -58,8 +59,8 @@ def _targets(raw: object) -> dict[str, float]:
     for key, value in raw.items():
         if key not in RATIO_TARGETS + MS_TARGETS:
             raise CasesError(f"[targets]: unknown target {key!r} (known: {', '.join(RATIO_TARGETS + MS_TARGETS)})")
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
-            raise CasesError(f"[targets]: {key} must be a number")
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+            raise CasesError(f"[targets]: {key} must be a finite number")
         if value < 0 or (key in RATIO_TARGETS and value > 1):
             raise CasesError(f"[targets]: {key} must be {'between 0 and 1' if key in RATIO_TARGETS else 'at least 0'}")
         targets[key] = float(value)
@@ -71,6 +72,8 @@ def load_cases(path: Path) -> tuple[list[Case], dict[str, float]]:
         data = tomllib.loads(Path(path).read_text(encoding="utf-8"))
     except FileNotFoundError:
         raise CasesError(f"{path} not found") from None
+    except OSError as e:  # a folder, no permission
+        raise CasesError(f"cannot read {path}: {e.strerror}") from None
     except (tomllib.TOMLDecodeError, UnicodeDecodeError) as e:
         raise CasesError(f"{path}: {e}") from None
     unknown = set(data) - {"case", "targets"}

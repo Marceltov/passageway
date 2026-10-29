@@ -150,3 +150,78 @@ def test_a_page_without_both_markers_in_order_is_refused_and_left_alone(tmp_path
 def test_a_missing_page_is_a_report_error(tmp_path):
     with pytest.raises(ReportError, match="not found"):
         write_block(tmp_path / "nope.md", report())
+
+
+# ---- review findings ------------------------------------------------------------------------------
+
+def test_the_targets_table_shows_the_measured_value_the_way_the_metrics_table_does():
+    md = render_markdown(report(targets={"hit_at_3": 0.667, "p95_ms": 100.0}))
+    row = next(line for line in md.splitlines() if line.startswith("| hit_at_3"))
+    assert "50.0%" in row and "66.7%" in row and "0.3333" not in md and "0.5000" not in md
+    assert "12.5 ms" in next(line for line in md.splitlines() if line.startswith("| p95_ms"))
+
+
+def test_the_sweep_table_says_that_three_shared_words_pass_any_threshold():
+    md = render_markdown(report(sweep=[(0.8, results())]))
+    assert "three or more words" in md
+
+
+def test_a_crlf_page_stays_crlf(page):
+    page.write_bytes(PAGE.replace("\n", "\r\n").encode())
+    write_block(page, report())
+    raw = page.read_bytes()
+    assert b"\r\n" in raw and b"\n" not in raw.replace(b"\r\n", b"")
+    assert raw.startswith(b"# Measurements\r\n\r\nIntro text.")
+
+
+def test_markers_inside_a_code_fence_are_documentation_not_the_place_for_the_results(tmp_path):
+    path = tmp_path / "page.md"
+    path.write_text("How to use it:\n\n```markdown\n<!-- passageway:results:start -->\n<!-- passageway:results:end -->\n```\n\n"
+                    "<!-- passageway:results:start -->\n<!-- passageway:results:end -->\n")
+    write_block(path, report())
+    text = path.read_text()
+    assert "```markdown\n<!-- passageway:results:start -->\n<!-- passageway:results:end -->\n```" in text
+    assert text.index("hash-test") > text.index("```\n\n<!--")
+
+
+def test_a_second_pair_of_markers_is_an_error_not_silently_ignored(tmp_path):
+    path = tmp_path / "page.md"
+    twice = "<!-- passageway:results:start -->\n<!-- passageway:results:end -->\n"
+    path.write_text(twice + "\n" + twice)
+    with pytest.raises(ReportError, match="more than once"):
+        write_block(path, report())
+    assert path.read_text() == twice + "\n" + twice
+
+
+def test_an_end_marker_before_the_start_does_not_hide_a_valid_pair(tmp_path):
+    path = tmp_path / "page.md"
+    path.write_text("<!-- passageway:results:end -->\ntext\n<!-- passageway:results:start -->\n<!-- passageway:results:end -->\n")
+    write_block(path, report())
+    assert "hash-test" in path.read_text()
+
+
+def test_a_page_that_is_a_folder_is_a_report_error(tmp_path):
+    with pytest.raises(ReportError, match="read"):
+        write_block(tmp_path, report())
+
+
+@pytest.mark.parametrize("content", ['{"a": 1}', '[{"date": "2026-01-01"}]', '[1, 2]', '"text"'])
+def test_a_history_file_of_the_wrong_shape_is_a_report_error_and_is_left_alone(page, content):
+    history = page.parent / "measurements.history.json"
+    history.write_text(content)
+    with pytest.raises(ReportError, match="history"):
+        write_block(page, report())
+    assert history.read_text() == content and page.read_text() == PAGE
+
+
+def test_a_page_that_cannot_be_written_leaves_no_history_behind(page):
+    import os
+    if os.geteuid() == 0:
+        pytest.skip("root can write anything")
+    page.chmod(0o444)
+    try:
+        with pytest.raises(ReportError, match="write"):
+            write_block(page, report())
+    finally:
+        page.chmod(0o644)
+    assert not (page.parent / "measurements.history.json").exists()

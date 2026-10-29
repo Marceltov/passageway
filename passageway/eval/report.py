@@ -1,7 +1,9 @@
 """Reports: a JSON document for machines, markdown for people, and a block that keeps a page of yours up to date."""
 
 import json
+import os
 import platform
+import re
 from pathlib import Path
 
 from passageway.eval.run import CaseResult, check_targets, group_scores, score
@@ -47,6 +49,14 @@ def _num(value: float | None, digits: int = 3) -> str:
     return "n/a" if value is None else f"{value:.{digits}f}"
 
 
+def _fmt(name: str, value: float | None) -> str:
+    if value is None:
+        return "n/a"
+    if name.endswith("_ms"):
+        return f"{value} ms"
+    return _num(value) if name == "mrr" else _pct(value)
+
+
 def _cell(text: object) -> str:
     return str(text).replace("|", "\\|").replace("\n", " ")
 
@@ -74,7 +84,7 @@ def render_markdown(report: dict, *, heading: bool = True, history: list[dict] |
     if report["targets"]:
         out += [f"{sub} Targets", ""]
         out += _table(["Target", "Limit", "Required", "Measured", "Result"], [
-            [t["name"], t["limit"], t["target"], "n/a" if t["value"] is None else t["value"],
+            [t["name"], t["limit"], _fmt(t["name"], t["target"]), _fmt(t["name"], t["value"]),
              "pass" if t["passed"] else "fail"] for t in report["targets"]])
     if report.get("sweep"):
         out += [f"{sub} Relevance threshold", ""]
@@ -82,6 +92,8 @@ def render_markdown(report: dict, *, heading: bool = True, history: list[dict] |
             [row["threshold"], _pct(row["metrics"]["hit_at_1"]), _pct(row["metrics"]["hit_at_3"]),
              _num(row["metrics"]["mrr"]), _pct(row["metrics"]["silence"]), _pct(row["metrics"]["false_silence"]),
              f"{row['metrics']['p95_ms']} ms"] for row in report["sweep"]])
+        out += ["A passage that shares three or more words with the question is returned whatever the threshold "
+                "(see How it works), so a high threshold only silences short or loosely worded questions.", ""]
     if report["groups"]:
         out += [f"{sub} Groups", ""]
         out += _table(["Group", "Questions", "Hit@3", "Silence"], [
@@ -102,6 +114,10 @@ def render_markdown(report: dict, *, heading: bool = True, history: list[dict] |
 
 # -- the page you keep up to date ------------------------------------------------------------------
 
+HISTORY_KEYS = ("date", "embedder", "threshold", "passageway", "cases", "hit_at_3", "silence", "p95_ms")
+_FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
+
+
 def _history_file(page: Path) -> Path:
     return page.with_name(page.stem + ".history.json")
 
@@ -117,17 +133,73 @@ def _key(entry: dict) -> tuple:
     return entry["date"], entry["embedder"], entry["threshold"], entry["passageway"]
 
 
+def _markers(text: str) -> tuple[int, int] | None:
+    """Where the results go: the end of the start marker's line and the start of the end marker, for markers that sit on
+    lines of their own outside code blocks (a page that explains the markers in a code block has them there too)."""
+    starts: list[int] = []
+    ends: list[int] = []
+    fence, offset = "", 0
+    for line in text.splitlines(keepends=True):
+        match = _FENCE.match(line)
+        if fence:
+            if match and match.group(1)[0] == fence[0] and len(match.group(1)) >= len(fence):
+                fence = ""
+        elif match:
+            fence = match.group(1)
+        elif line.strip() == START:
+            starts.append(offset + line.index(START) + len(START))
+        elif line.strip() == END and starts:
+            ends.append(offset + line.index(END))
+        offset += len(line)
+    if len(starts) > 1 or len(ends) > 1:
+        raise ReportError("the markers appear more than once outside code blocks: use exactly one pair")
+    return (starts[0], ends[0]) if starts and ends else None
+
+
 def check_page(page: Path) -> tuple[str, int, int]:
     """The page's text and where its markers are; raises ReportError if it cannot take the results (checked before
     a long measurement, so that a typo in the page does not cost a run)."""
     try:
-        text = page.read_text(encoding="utf-8")
+        with open(page, encoding="utf-8", newline="") as f:  # newline="": keep the page's own line endings
+            text = f.read()
     except FileNotFoundError:
         raise ReportError(f"{page} not found: create the page with the markers {START} and {END} in it") from None
-    start, end = text.find(START), text.find(END)
-    if start < 0 or end < start:
-        raise ReportError(f"{page} needs the markers {START} and {END}, in this order, around where the results go")
-    return text, start, end
+    except (OSError, UnicodeDecodeError) as e:
+        raise ReportError(f"cannot read {page}: {getattr(e, 'strerror', None) or e}") from None
+    try:
+        found = _markers(text)
+    except ReportError as e:
+        raise ReportError(f"{page}: {e}") from None
+    if found is None:
+        raise ReportError(f"{page} needs the markers {START} and {END}, on lines of their own and in this order, "
+                          "around where the results go")
+    if not os.access(page, os.W_OK):
+        raise ReportError(f"cannot write {page}: it is read-only")
+    return text, *found
+
+
+def _read_history(history_file: Path) -> list[dict]:
+    if not history_file.exists():
+        return []
+    try:
+        history = json.loads(history_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError) as e:
+        raise ReportError(f"{history_file}: {e}") from None
+    if not isinstance(history, list) or not all(isinstance(e, dict) and all(k in e for k in HISTORY_KEYS) for e in history):
+        raise ReportError(f"{history_file} is not a history written by passageway eval: move it away or fix it")
+    return history
+
+
+def _write(path: Path, text: str) -> None:
+    """Whole or not at all: a half-written page or history would be worse than the old one."""
+    tmp = path.with_name(path.name + ".tmp")
+    try:
+        with open(tmp, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
+        os.replace(tmp, path)
+    except OSError as e:
+        tmp.unlink(missing_ok=True)
+        raise ReportError(f"cannot write {path}: {e.strerror}") from None
 
 
 def write_block(page: Path, report: dict) -> None:
@@ -135,12 +207,9 @@ def write_block(page: Path, report: dict) -> None:
     <page>.history.json (one entry per date, embedder, threshold and version: a repeated run replaces it)."""
     text, start, end = check_page(page)
     history_file = _history_file(page)
-    try:
-        history = json.loads(history_file.read_text(encoding="utf-8")) if history_file.exists() else []
-    except (json.JSONDecodeError, UnicodeDecodeError) as e:
-        raise ReportError(f"{history_file}: {e}") from None
     entry = _entry(report)
-    history = sorted([e for e in history if _key(e) != _key(entry)] + [entry], key=_key)
+    history = sorted([e for e in _read_history(history_file) if _key(e) != _key(entry)] + [entry], key=_key)
+    newline = "\r\n" if "\r\n" in text else "\n"
     body = render_markdown(report, heading=False, history=list(reversed(history))[:HISTORY_ROWS]).rstrip("\n")
-    history_file.write_text(json.dumps(history, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    page.write_text(text[:start + len(START)] + "\n" + body + "\n" + text[end:], encoding="utf-8")
+    _write(page, text[:start] + newline + body.replace("\n", newline) + newline + text[end:])
+    _write(history_file, json.dumps(history, indent=2, ensure_ascii=False) + "\n")

@@ -46,4 +46,4 @@ flowchart LR
 
 ## Coming
 
-These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): a choice of embedding models, a model comparison for the evaluation harness, a container image, a Claude Code plugin for the prompt hook, and connectors for Trilium, Confluence and folders of markdown files.
+These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): a choice of embedding models, a model comparison for the evaluation harness, a container image, a Claude Code plugin for the prompt hook, and connectors for Trilium and Confluence.

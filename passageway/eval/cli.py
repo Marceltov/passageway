@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import logging
 import os
 import shutil
 import sys
@@ -69,9 +70,10 @@ def _run(args, env: Mapping[str, str], embedder, targets, cases) -> tuple[dict, 
         data_dir.mkdir(parents=True, exist_ok=True)
         engine = Engine(replace(config, data_dir=data_dir), embedder)
         for name, syncer in engine.syncers.items():  # a kept index of another model cannot be compared with this one
-            if syncer.index.counts()[0] > 0 and syncer.index.needs_rebuild():
-                raise UsageError(f"the index of {name!r} in {data_dir} was built with {syncer.index.stored_embedder()!r}, "
-                                 f"not {embedder.name!r}: use a fresh --data-dir")
+            stored = syncer.index.stored_embedder()
+            if syncer.index.counts()[0] > 0 and stored not in (None, embedder.name):
+                raise UsageError(f"the index of {name!r} in {data_dir} was built with {stored!r}, not {embedder.name!r}: "
+                                 "use a fresh --data-dir")
         started = time.perf_counter()
         engine.sync_all_once()
         index_seconds = round(time.perf_counter() - started, 1)
@@ -83,7 +85,7 @@ def _run(args, env: Mapping[str, str], embedder, targets, cases) -> tuple[dict, 
         threshold = engine.params.min_cos
         results = run_cases(engine, cases)
         sweep = []
-        for value in sorted({_threshold(t, "--sweep") for t in args.sweep.split(",")}) if args.sweep else []:
+        for value in sorted({_threshold(t, "--sweep") for t in args.sweep.split(",")}) if args.sweep is not None else []:
             engine.params = replace(engine.params, min_cos=value)
             sweep.append((value, run_cases(engine, cases)))
         run = {"date": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"), "passageway": version("passageway"),
@@ -101,6 +103,11 @@ class SyncFailed(Exception):
     pass
 
 
+def _folder(path: Path | None, option: str) -> None:
+    if path is not None and path.exists() and not path.is_dir():
+        raise UsageError(f"{option}: {path} exists and is not a folder")
+
+
 def main(argv: list[str] | None = None, *, env: Mapping[str, str] | None = None, embedder=None,
          stdout=None, stderr=None) -> int:
     stdout, stderr = stdout or sys.stdout, stderr or sys.stderr
@@ -110,32 +117,44 @@ def main(argv: list[str] | None = None, *, env: Mapping[str, str] | None = None,
         env["PASSAGEWAY_CONFIG"] = str(args.config)
     if args.model_dir:
         env["PASSAGEWAY_MODEL_DIR"] = str(args.model_dir)
+    sync_log = logging.getLogger("passageway.sync")
+    level = sync_log.level
+    sync_log.setLevel(logging.CRITICAL)  # a failing source is reported once, below, not with the server's traceback
     try:
-        if args.threshold is not None:
-            args.threshold = _threshold(str(args.threshold), "--threshold")
-        for t in args.sweep.split(",") if args.sweep else []:
-            _threshold(t, "--sweep")
-        cases, targets = load_cases(args.cases)
-        if args.write:
-            check_page(args.write)
-        report, _ = _run(args, env, embedder, targets, cases)
-    except (UsageError, CasesError, ConfigError, ReportError) as e:
-        print(f"eval: {e}", file=stderr)
-        return 2
-    except SyncFailed as e:
-        print(f"eval: a source failed to sync, so the index would be incomplete: {e}", file=stderr)
-        return 1
-    if args.out:
-        args.out.mkdir(parents=True, exist_ok=True)
-        (args.out / "report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        (args.out / "report.md").write_text(render_markdown(report), encoding="utf-8")
-    if args.write:
         try:
-            write_block(args.write, report)
-        except ReportError as e:
+            if args.threshold is not None:
+                args.threshold = _threshold(str(args.threshold), "--threshold")
+            for t in args.sweep.split(",") if args.sweep is not None else []:
+                _threshold(t, "--sweep")
+            _folder(args.data_dir, "--data-dir")
+            _folder(args.out, "--out")
+            cases, targets = load_cases(args.cases)
+            if args.write:
+                try:
+                    check_page(args.write)
+                except ReportError as e:
+                    raise UsageError(f"--write: {e}") from None
+            report, _ = _run(args, env, embedder, targets, cases)
+        except (UsageError, CasesError, ConfigError, ReportError) as e:
             print(f"eval: {e}", file=stderr)
             return 2
-    print(render_markdown(report), end="", file=stdout)
-    if args.enforce and not report["targets"]:
-        print("eval: --enforce has nothing to check: the cases file has no [targets]", file=stderr)
-    return 1 if args.enforce and not all(t["passed"] for t in report["targets"]) else 0
+        except SyncFailed as e:
+            print(f"eval: a source failed to sync, so the index would be incomplete: {e}", file=stderr)
+            return 1
+        print(render_markdown(report), end="", file=stdout)  # first: whatever happens to the files, the run is not lost
+        try:
+            if args.out:
+                args.out.mkdir(parents=True, exist_ok=True)
+                (args.out / "report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n",
+                                                      encoding="utf-8")
+                (args.out / "report.md").write_text(render_markdown(report), encoding="utf-8")
+            if args.write:
+                write_block(args.write, report)
+        except (OSError, ReportError) as e:
+            print(f"eval: the report could not be saved: {e}", file=stderr)
+            return 2
+        if args.enforce and not report["targets"]:
+            print("eval: --enforce has nothing to check: the cases file has no [targets]", file=stderr)
+        return 1 if args.enforce and not all(t["passed"] for t in report["targets"]) else 0
+    finally:
+        sync_log.setLevel(level)

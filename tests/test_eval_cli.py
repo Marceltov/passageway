@@ -212,3 +212,57 @@ def test_passageway_eval_is_dispatched_by_the_server_entry_point(monkeypatch):
 def test_help_is_available_as_a_module():
     out = subprocess.run([sys.executable, "-m", "passageway.eval", "--help"], capture_output=True, text=True)
     assert out.returncode == 0 and "--sweep" in out.stdout and "--include-cases" in out.stdout
+
+
+# ---- review findings ------------------------------------------------------------------------------
+
+def test_paths_that_cannot_work_exit_2_before_the_run_not_with_a_traceback(s, tmp_path):
+    a_file = tmp_path / "a-file"
+    a_file.write_text("x")
+    folder = tmp_path / "a-folder"
+    folder.mkdir()
+    for args, message in ((["--data-dir", a_file], "--data-dir"), (["--out", a_file], "--out"),
+                          (["--write", folder], "--write")):
+        code, out, err = s.run(*args)
+        assert code == 2 and message in err and out == "", args
+    code, _, err = s.run(cases=folder)
+    assert code == 2 and "eval:" in err
+
+
+def test_a_page_that_cannot_be_written_is_found_before_the_run(s, tmp_path):
+    import os
+    if os.geteuid() == 0:
+        pytest.skip("root can write anything")
+    page = tmp_path / "ro.md"
+    page.write_text("<!-- passageway:results:start -->\n<!-- passageway:results:end -->\n")
+    page.chmod(0o444)
+    s.config.write_text(s.config.read_text().replace("FAKE_ITEMS =", 'FAKE_FAIL = "list", FAKE_ITEMS ='))
+    try:
+        code, _, err = s.run("--write", page)
+    finally:
+        page.chmod(0o644)
+    assert code == 2 and "write" in err and "fake failure" not in err  # refused before any source was built
+
+
+def test_an_empty_sweep_is_an_error(s):
+    code, _, err = s.run("--sweep", "")
+    assert code == 2 and "--sweep" in err
+
+
+def test_a_kept_index_of_the_same_model_is_reused_even_if_it_must_be_rebuilt_for_another_reason(s, tmp_path):
+    keep = tmp_path / "keep"
+    assert s.run("--data-dir", keep)[0] == 0
+    code, _, err = s.run("--data-dir", keep, embedder=HashEmbedder(dim=128))  # same name, other dimension: rebuilt
+    assert code == 0, err
+
+
+def test_the_servers_own_sync_logging_does_not_add_a_traceback_to_the_error(s, caplog):
+    s.config.write_text(s.config.read_text().replace("FAKE_ITEMS =", 'FAKE_FAIL = "list", FAKE_ITEMS ='))
+    assert s.run()[0] == 1
+    assert not [r for r in caplog.records if r.name == "passageway.sync"]
+
+
+def test_the_report_is_printed_before_the_files_are_written(s, tmp_path):
+    out_dir = tmp_path / "r"
+    code, out, _ = s.run("--out", out_dir)
+    assert code == 0 and out.startswith("# Retrieval evaluation") and (out_dir / "report.md").is_file()

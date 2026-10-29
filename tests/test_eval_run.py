@@ -118,3 +118,10 @@ def test_the_engine_is_asked_for_three_hits(engine, monkeypatch):
     monkeypatch.setattr(engine, "recall", lambda q, **kw: limits.append(kw.get("limit")) or real(q, **kw))
     run_cases(engine, [Case("backpropagation", ("Backpropagation",))])
     assert set(limits) == {3}
+
+
+def test_a_target_is_compared_with_the_value_the_report_shows():
+    # 2 of 3 is shown as 66.7%: a target of 0.667 is met
+    assert check_targets({"hit_at_3": 2 / 3}, {"hit_at_3": 0.667})[0]["passed"]
+    assert not check_targets({"hit_at_3": 0.6664}, {"hit_at_3": 0.667})[0]["passed"]
+    assert check_targets({"false_silence": 0.1004}, {"false_silence": 0.1})[0]["passed"]  # shown as 0.100

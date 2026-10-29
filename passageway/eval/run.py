@@ -92,6 +92,8 @@ def check_targets(metrics: dict, targets: dict[str, float]) -> list[dict]:
     checks = []
     for name, target in targets.items():
         value = metrics.get(name)
+        if value is not None:
+            value = round(value, 3)  # compare what the report shows: 2 of 3 is 66.7% and meets a target of 0.667
         at_most = name in AT_MOST
         passed = value is not None and (value <= target if at_most else value >= target)
         checks.append({"name": name, "target": target, "limit": "at most" if at_most else "at least",
