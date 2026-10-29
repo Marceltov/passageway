@@ -90,4 +90,4 @@ To fail a CI job on a regression, put `[targets]` in the cases file and add `--e
 
 ## Not yet
 
-Comparing several embedding models on the same index (`passageway eval compare`) comes with the choice of embedders, and the public question set for the [sample corpus](../reference/corpus.md) and its first published measurements follow. The [roadmap](../roadmap.md) has the order.
+Comparing several embedding models on the same index (`passageway eval compare`) comes with the choice of embedders. The [sample corpus](../reference/corpus.md) has a public set of 100 questions and the first [published measurements](../measurements.md), which show the whole sweep. The [roadmap](../roadmap.md) has the order.

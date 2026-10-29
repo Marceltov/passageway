@@ -10,19 +10,9 @@
 
 items:
   # ---- open ------------------------------------------------------------------------------------------------------------
-  - id: eval-questions
+  - id: embedders
     status: next
     when: Next
-    icon: chart-box-outline
-    title: Questions and first measurements
-    summary: A public question set for the sample corpus, and the numbers it gives.
-    details: |
-      - About 60 questions in English and German for the [sample corpus](https://passageway.marceltov.de/reference/corpus/), with unanswerable ones. Questions are asked without naming a source, since one `recall` searches every source; a question's expected answers list the articles of both languages that explain it.
-      - The first published measurements with the multilingual e5-small model, written to a page of these docs with `passageway eval --write`, and a relevance threshold chosen from a sweep.
-
-  - id: embedders
-    status: later
-    when: Later
     icon: cube-outline
     title: Embedders
     summary: Choose the embedding model, or bring your own.
@@ -30,7 +20,7 @@ items:
       The built-in `onnx` embedder generalised with presets (the multilingual e5-small as the default, a German-focused model such as Jina v2 base de) and a `device` setting (`auto`, `cpu`, `coreml`).
       - An out-of-process `command` embedder (one long-lived process, JSON Lines) and a bundled OpenAI-compatible one, which covers Ollama, vLLM, OpenAI and Voyage.
       - `passageway eval compare` runs the questions with several embedding models on a copy of the index and reports quality, model load time and index time.
-      - Relevance thresholds are recalibrated with the harness on the public corpus, not carried over from earlier measurements.
+      - Relevance thresholds are recalibrated with the harness on the public corpus, not carried over from earlier measurements. The [first measurements](https://passageway.marceltov.de/measurements/) are the baseline: hit@3 80% and silence 80% at the default threshold, with reworded questions (56%), questions across the language (62%) and near-topic questions (60% silent) as the weak spots.
 
   - id: trilium-connector
     status: later
@@ -79,6 +69,16 @@ items:
       - configuration moves to `passageway.toml`.
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: eval-questions
+    status: done
+    date: 2026-10-29
+    icon: chart-box-outline
+    title: Questions and first measurements
+    summary: 100 public questions for the sample corpus, and the numbers they give with the multilingual e5-small model.
+    links:
+      - {label: "Measurements", url: "https://passageway.marceltov.de/measurements/"}
+      - {label: "PR #37", url: "https://github.com/Marceltov/passageway/pull/37"}
+
   - id: eval-harness
     status: done
     date: 2026-10-29
