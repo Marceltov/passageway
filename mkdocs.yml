@@ -33,6 +33,7 @@ nav:
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
       - Markdown: connectors/markdown.md
+      - Trilium: connectors/trilium.md
   - Embedders:
       - OpenAI-compatible: embedders/openai.md
   - Contributing:
@@ -42,6 +43,7 @@ nav:
       - adr/0001-out-of-process-connectors.md
       - adr/0002-connectors-as-workspace-packages.md
       - adr/0003-json-lines-over-a-subprocess-stays.md
+      - adr/0004-no-summary-for-source-substitution.md
 
 theme:
   name: material

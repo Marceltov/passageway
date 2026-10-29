@@ -35,11 +35,12 @@ packages = ["passageway"]
 mcp-login-oauth = { git = "https://github.com/Marceltov/mcp-login-oauth", rev = "v0.1.1" }
 passageway-connector-wikipedia = { workspace = true }
 passageway-connector-markdown = { workspace = true }
+passageway-connector-trilium = { workspace = true }
 passageway-embedder-openai = { workspace = true }
 passageway-sdk = { workspace = true }
 
 [dependency-groups]
-dev = ["jsonschema>=4.23", "pytest>=8.3", "pytest-asyncio>=0.24", "passageway-connector-wikipedia", "passageway-connector-markdown", "passageway-embedder-openai", "passageway-sdk"]
+dev = ["jsonschema>=4.23", "pytest>=8.3", "pytest-asyncio>=0.24", "passageway-connector-wikipedia", "passageway-connector-markdown", "passageway-connector-trilium", "passageway-embedder-openai", "passageway-sdk"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

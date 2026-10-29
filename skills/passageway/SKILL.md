@@ -17,7 +17,7 @@ passageway indexes what **connectors** report and serves the best few passages f
 |---|---|
 | **Understand what passageway is** | Explain it from this page; point to https://passageway.marceltov.de/how-it-works/ for the details. |
 | **Install and run it** | Follow [Install and run](#install-and-run). |
-| **Index a source** | Check whether a bundled connector fits (today: Wikipedia, https://passageway.marceltov.de/connectors/wikipedia/, and a folder of markdown files, https://passageway.marceltov.de/connectors/markdown/). Otherwise write one. |
+| **Index a source** | Check whether a bundled connector fits (today: Wikipedia, https://passageway.marceltov.de/connectors/wikipedia/, a folder of markdown files, https://passageway.marceltov.de/connectors/markdown/, and Trilium Notes, https://passageway.marceltov.de/connectors/trilium/). Otherwise write one. |
 | **Write a connector** | Use the skill `create-passageway-connector`: https://passageway.marceltov.de/skills/create-passageway-connector/SKILL.md (or install the plugin, see below). |
 | **Fix something that does not work** | Start with `curl http://127.0.0.1:8082/health`, see [Tips for agents](#tips-for-agents). |
 | **Measure retrieval quality** | `passageway eval cases.toml` runs a TOML file of questions against the configured sources and reports hit@1, hit@3, MRR, silence and latency; see https://passageway.marceltov.de/guides/evaluate/. `passageway eval compare cases.toml` runs them with several embedding models side by side (https://passageway.marceltov.de/guides/evaluate/#compare-embedding-models). |
