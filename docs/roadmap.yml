@@ -57,6 +57,16 @@ items:
       - configuration moves to `passageway.toml`.
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: embedders
+    status: done
+    date: 2026-10-29
+    icon: cube-outline
+    title: Embedders, the rest
+    summary: An adapter for OpenAI-compatible services and Voyage; three built-in presets with a checksummed download and a measured gate each; CoreML measured and left opt-in; the models compared on the corpus.
+    links:
+      - {label: "Choosing a model", url: "https://passageway.marceltov.de/models/"}
+      - {label: "PR #50", url: "https://github.com/Marceltov/passageway/pull/50"}
+
   - id: trilium-connector
     status: done
     date: 2026-10-29
