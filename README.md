@@ -2,7 +2,7 @@
 
 Retrieval for Claude over MCP. passageway indexes what your **connectors** report, finds the best short passages for a question with keyword plus embedding search, and serves them as one `recall` tool. It stays silent when nothing is relevant enough. It does no generation: the calling model reads the passages.
 
-The core knows no source. A connector is any executable that lists items and returns their text as JSON Lines; anyone can write one. An eval harness (coming) measures retrieval quality on your own questions so you can publish the numbers.
+The core knows no source. A connector is any executable that lists items and returns their text as JSON Lines; anyone can write one. An [eval harness](docs/guides/evaluate.md) (`passageway eval`) measures retrieval quality on your own questions so you can publish the numbers.
 
 - [Install and run](docs/install.md) and [configuration](docs/configuration.md)
 - [How it works](docs/how-it-works.md)

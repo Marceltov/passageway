@@ -10,17 +10,15 @@
 
 items:
   # ---- open ------------------------------------------------------------------------------------------------------------
-  - id: eval-harness
+  - id: eval-questions
     status: next
-    when: Then
+    when: Next
     icon: chart-box-outline
-    title: Evaluation harness
-    summary: Measure retrieval quality on your own questions, and publish the numbers.
+    title: Questions and first measurements
+    summary: A public question set for the sample corpus, and the numbers it gives.
     details: |
-      `passageway eval` reports hit@1, hit@3, MRR, silence on unanswerable questions and latency.
-      - `--sweep` repeats the run over relevance thresholds, `compare` runs several embedding models on a copy of the index, and `--enforce` makes a CI job fail below targets.
-      - Reports are aggregate-only by default, with no questions and no titles, and `--write` puts them into the reader's own docs.
-      - A public question set for the corpus. Questions are asked in English or German without naming a source, since one `recall` searches every source; a question's expected answers list the articles of both languages that explain it.
+      - About 60 questions in English and German for the [sample corpus](https://passageway.marceltov.de/reference/corpus/), with unanswerable ones. Questions are asked without naming a source, since one `recall` searches every source; a question's expected answers list the articles of both languages that explain it.
+      - The first published measurements with the multilingual e5-small model, written to a page of these docs with `passageway eval --write`, and a relevance threshold chosen from a sweep.
 
   - id: embedders
     status: later
@@ -31,6 +29,7 @@ items:
     details: |
       The built-in `onnx` embedder generalised with presets (the multilingual e5-small as the default, a German-focused model such as Jina v2 base de) and a `device` setting (`auto`, `cpu`, `coreml`).
       - An out-of-process `command` embedder (one long-lived process, JSON Lines) and a bundled OpenAI-compatible one, which covers Ollama, vLLM, OpenAI and Voyage.
+      - `passageway eval compare` runs the questions with several embedding models on a copy of the index and reports quality, model load time and index time.
       - Relevance thresholds are recalibrated with the harness on the public corpus, not carried over from earlier measurements.
 
   - id: trilium-connector
@@ -80,6 +79,16 @@ items:
       - configuration moves to `passageway.toml`.
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: eval-harness
+    status: done
+    date: 2026-10-29
+    icon: chart-box-outline
+    title: Evaluation harness
+    summary: "`passageway eval` measures retrieval quality on your own questions and builds reports you can publish."
+    links:
+      - {label: "Guide", url: "https://passageway.marceltov.de/guides/evaluate/"}
+      - {label: "PR #35", url: "https://github.com/Marceltov/passageway/pull/35"}
+
   - id: frozen-corpus
     status: done
     date: 2026-10-28

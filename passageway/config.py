@@ -141,9 +141,10 @@ def _load_toml(path: Path, env: Mapping[str, str]) -> tuple[list[ConnectorConfig
     return connectors, float(threshold) if threshold is not None else None
 
 
-def load_config(env: Mapping[str, str]) -> Config:
+def load_config(env: Mapping[str, str], *, require_password: bool = True) -> Config:
+    """require_password=False is for commands that do not serve (the evaluation): nobody logs in to them."""
     password = env.get("PASSAGEWAY_LOGIN_PASSWORD", "").strip()
-    if not password:
+    if require_password and not password:
         raise ConfigError("PASSAGEWAY_LOGIN_PASSWORD is not set: clients authenticate with it, "
                           "so the engine refuses to start without it")
     base_url = env.get("PASSAGEWAY_BASE_URL", "").strip().rstrip("/") or None

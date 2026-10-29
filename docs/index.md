@@ -42,7 +42,8 @@ flowchart LR
 - The [Wikipedia connector](connectors/wikipedia.md), in English and German
 - The [Markdown connector](connectors/markdown.md), for a folder of markdown files with front matter
 - Hybrid search with a relevance gate, described in [How it works](how-it-works.md)
+- An [evaluation harness](guides/evaluate.md), `passageway eval`, that measures retrieval quality on your own questions and builds a report you can publish
 
 ## Coming
 
-These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): a choice of embedding models, a full evaluation harness that measures retrieval quality on your own questions and builds a report you can publish (a basic scorer, `passageway.eval`, exists today), a container image, a Claude Code plugin for the prompt hook, and connectors for Trilium, Confluence and folders of markdown files.
+These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): a choice of embedding models, a model comparison for the evaluation harness, a container image, a Claude Code plugin for the prompt hook, and connectors for Trilium, Confluence and folders of markdown files.

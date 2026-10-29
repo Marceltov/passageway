@@ -137,3 +137,24 @@ def test_the_corpus_licence_is_stated_where_the_code_licence_is():
     import tomllib
     build = tomllib.loads((ROOT / "pyproject.toml").read_text())["tool"]["hatch"]["build"]["targets"]
     assert "corpus" in build["sdist"]["exclude"]  # the AGPL package does not carry the CC BY-SA text
+
+
+def test_the_cases_example_in_the_evaluation_guide_is_a_valid_cases_file(tmp_path):
+    from passageway.eval.cases import load_cases
+    guide = (ROOT / "docs" / "guides" / "evaluate.md").read_text()
+    blocks = re.findall(r"```toml\n(.*?)```", guide, re.S)
+    example = next(b for b in blocks if "[[case]]" in b)
+    path = tmp_path / "cases.toml"
+    path.write_text(example)
+    cases, targets = load_cases(path)
+    assert len(cases) >= 3 and targets, "the guide's example shows questions, one that must stay silent, and targets"
+    assert any(not c.answerable for c in cases) and any(c.answerable for c in cases)
+
+
+def test_the_guide_names_every_option_of_the_command():
+    from passageway.eval.cli import _parser
+    guide = (ROOT / "docs" / "guides" / "evaluate.md").read_text()
+    options = [o for a in _parser()._actions for o in a.option_strings if o.startswith("--") and o != "--help"]
+    assert len(options) >= 8
+    for option in options:
+        assert f"`{option}" in guide, f"{option} is an option of passageway eval but the guide does not mention it"

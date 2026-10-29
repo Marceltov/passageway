@@ -1,0 +1,87 @@
+# Measure retrieval quality
+
+`passageway eval` asks your sources the questions you care about and reports how often the right passage comes back, and how often passageway correctly stays silent when nothing fits. Run it before you change the embedding model or the relevance threshold, and in CI to catch a regression. The numbers it prints are yours to publish: by default a report contains no question, no title and no address from your sources.
+
+## Write the questions
+
+A cases file is TOML. Each `[[case]]` is a question and the answers that count as right.
+
+```toml
+[targets]            # optional: what --enforce checks
+hit_at_3 = 0.8
+silence = 0.8
+p95_ms = 300
+
+[[case]]
+query = "what is the vanishing gradient problem"
+expect = ["Vanishing gradient problem"]
+
+[[case]]
+query = "wie funktioniert Backpropagation"
+expect = ["Backpropagation"]          # matches the English and the German article
+group = "german questions"
+
+[[case]]
+query = "what is on the cafeteria menu"   # no expect: nothing should be found
+```
+
+- **`expect`** lists texts that must be part of a hit's title, heading or address (case does not matter). Any one of them in any of the top three hits counts as a hit. A title that exists in two languages is matched by one entry.
+- **`expect_id`** lists exact item ids, for a title that is ambiguous.
+- **No `expect` at all** marks a question the index must stay silent about. Any hit counts against the silence score.
+- **`group`** is an optional label; the report shows the scores per group.
+- Questions never say which source to search, because `recall` searches all of them.
+
+A typo in a key is an error (it would otherwise silently turn a question into one that must stay silent).
+
+## Run it
+
+```bash
+passageway eval cases.toml
+```
+
+It reads your `passageway.toml` and the embedding model like the server does (`PASSAGEWAY_CONFIG` and `PASSAGEWAY_MODEL_DIR`), builds every source into a **throwaway index** so it measures a fresh build and never touches your live one, asks the questions in-process, and prints a report. No server, token or password is needed.
+
+| Option | What it does |
+|---|---|
+| `--config PATH`, `--model-dir DIR` | Use another `passageway.toml` or model than the environment names |
+| `--data-dir DIR` | Keep the index in `DIR` and reuse it on the next run, which is faster while you refine questions. An index built with another embedding model is refused |
+| `--threshold X` | Use `X` as the relevance threshold (`min_similarity`) for this run |
+| `--sweep 0.80,0.84,0.88` | Also run at each of these thresholds and show them side by side. The index is built once, so a sweep costs little. This is how you choose a threshold for a model |
+| `--enforce` | Exit 1 when a value in `[targets]` is not met, for CI |
+| `--out DIR` | Write `report.json` (for machines) and `report.md` into `DIR` |
+| `--write PAGE` | Update the block between `<!-- passageway:results:start -->` and `<!-- passageway:results:end -->` in your own page, and keep a history of runs next to it |
+| `--include-cases` | Also report every question, what was found and its rank. This quotes your sources, so leave it off for anything you publish |
+
+Exit codes: 0 for a finished run, 1 for `--enforce` below the targets or a source that failed to sync (a partial index would give misleading numbers), 2 for a bad cases file, option or configuration.
+
+## Read the report
+
+| Metric | Meaning |
+|---|---|
+| Hit@1, Hit@3 | Share of answerable questions whose first, or one of the first three, hits is accepted |
+| MRR | Mean of 1 / rank of the first accepted hit; 1.0 means always first |
+| Silence | Share of unanswerable questions for which nothing was returned. Low silence means noise reaches the model |
+| False silence | Share of answerable questions for which nothing was returned. High means the threshold is too strict |
+| Latency p50 / p95 | Time to answer, including embedding the question; the report also shows the embedding's share. A warm-up question is not counted |
+
+A metric with no question behind it shows `n/a` and fails a target on it: with no unanswerable question, silence is not 100%, it is unknown.
+
+Silence and false silence pull against each other as the threshold moves, and `--sweep` shows where they cross for your sources and your model.
+
+## Publish the numbers
+
+Put the two markers in a page of your docs, say `docs/measurements.md`, and run:
+
+```bash
+passageway eval cases.toml --write docs/measurements.md
+```
+
+The block between the markers is replaced with the run, the metrics, the groups and the targets, followed by a table of the last ten runs. Running it again with the same date, model and threshold replaces that run instead of adding one. The history lives in `docs/measurements.history.json` and belongs in version control.
+
+The report records the date, the passageway version, the embedding model, the threshold, the number of items and sections per source, and a machine line (operating system, processor architecture and Python version, so that latencies can be put in context). It never records a host name.
+
+To fail a CI job on a regression, put `[targets]` in the cases file and add `--enforce`.
+
+## Not yet
+
+Comparing several embedding models on the same index (`passageway eval compare`) comes with the choice of embedders, and the public question set for the [sample corpus](../reference/corpus.md) and its first published measurements follow. The [roadmap](../roadmap.md) has the order.

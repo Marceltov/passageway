@@ -278,6 +278,10 @@ def build_error_app(message: str) -> Starlette:
 
 
 def main() -> None:
+    if sys.argv[1:2] == ["eval"]:  # passageway eval cases.toml: measure retrieval quality instead of serving
+        from passageway.eval.cli import main as eval_main
+
+        sys.exit(eval_main(sys.argv[2:]))
     import uvicorn
 
     from passageway.embed import OnnxEmbedder
