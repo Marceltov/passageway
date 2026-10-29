@@ -14,6 +14,7 @@ exclude_docs: |
 
 nav:
   - Home: index.md
+  - What passageway stands for: values.md
   - Start:
       - Install and run: install.md
       - Configuration: configuration.md
@@ -83,7 +84,7 @@ plugins:
   - llmstxt:
       full_output: llms-full.txt
       sections:
-        Start: [index.md, install.md, configuration.md]
+        Start: [index.md, values.md, install.md, configuration.md]
         Concepts: [how-it-works.md]
         Guides: ["guides/*.md"]
         Reference: ["reference/*.md", measurements.md]
