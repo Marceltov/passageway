@@ -44,10 +44,11 @@ Before anything else, [what passageway stands for](values.md): the lines it does
 - The [Wikipedia connector](connectors/wikipedia.md), in English and German
 - The [Markdown connector](connectors/markdown.md), for a folder of markdown files with front matter
 - The [Trilium connector](connectors/trilium.md), the notes of a Trilium server with the LLM-wiki structure of trilium-recall
+- The [Confluence connector](connectors/confluence.md), the pages of chosen spaces of a Confluence Data Center
 - Hybrid search with a relevance gate, described in [How it works](how-it-works.md)
 - An [evaluation harness](guides/evaluate.md), `passageway eval`, that measures retrieval quality on your own questions, compares embedding models and builds a report you can publish
 - Three built-in models (`passageway model list`), fetched pinned and checksummed; any other through the [embedder protocol](reference/embedder-protocol.md) or the bundled [OpenAI-compatible embedder](embedders/openai.md)
 
 ## Coming
 
-These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): a container image, a Claude Code plugin for the prompt hook, and a connector for Confluence. [Choosing a model](models.md) compares the built-in models on the sample corpus.
+These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): a container image, and a Claude Code plugin for the prompt hook. [Choosing a model](models.md) compares the built-in models on the sample corpus.

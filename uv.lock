@@ -894,6 +894,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "jsonschema" },
+    { name = "passageway-connector-confluence" },
     { name = "passageway-connector-markdown" },
     { name = "passageway-connector-trilium" },
     { name = "passageway-connector-wikipedia" },
@@ -921,6 +922,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "jsonschema", specifier = ">=4.23" },
+    { name = "passageway-connector-confluence", editable = "connectors/confluence" },
     { name = "passageway-connector-markdown", editable = "connectors/markdown" },
     { name = "passageway-connector-trilium", editable = "connectors/trilium" },
     { name = "passageway-connector-wikipedia", editable = "connectors/wikipedia" },

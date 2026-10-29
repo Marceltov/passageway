@@ -10,7 +10,7 @@ uv tool install \
   git+https://github.com/Marceltov/passageway
 ```
 
-This installs passageway and the Wikipedia connector into one environment. A connector is a separate package, so add `--with` for every bundled connector you want to run. The [Markdown](connectors/markdown.md) and [Trilium](connectors/trilium.md) connectors are installed the same way, with `connectors/markdown` or `connectors/trilium` as the subdirectory and the packages `passageway-connector-markdown` and `passageway-connector-trilium`.
+This installs passageway and the Wikipedia connector into one environment. A connector is a separate package, so add `--with` for every bundled connector you want to run. The [Markdown](connectors/markdown.md), [Trilium](connectors/trilium.md) and [Confluence](connectors/confluence.md) connectors are installed the same way, with `connectors/markdown`, `connectors/trilium` or `connectors/confluence` as the subdirectory and the packages `passageway-connector-markdown`, `passageway-connector-trilium` and `passageway-connector-confluence`.
 
 ## 2. The embedding model
 
