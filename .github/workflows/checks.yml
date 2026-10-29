@@ -30,11 +30,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Build the sidecar image and start it once
+      - name: Build the sidecar image
+        run: docker build -t passageway:ci .
+      - name: Start it with one fake source and ask it something
         run: |
-          docker build -t passageway:ci .
-          docker run -d --name pw -e PASSAGEWAY_LOGIN_PASSWORD=ci-only -p 8082:8082 passageway:ci
-          for i in $(seq 1 60); do curl -sf http://localhost:8082/health && break; sleep 2; done
-          curl -sf http://localhost:8082/health | grep -q '"status"'   # it serves; a missing passageway.toml is its error, not a crash
-          docker logs pw | tail -5
+          mkdir -p ci-config
+          echo '[{"id": "a", "title": "Lighthouses", "url": "http://x/a", "version": "1", "sections": [{"heading": null, "text": "Lighthouses guide ships safely into the harbour at night."}]}]' > ci-config/items.json
+          printf '[[connector]]\nname = "fake"\ncommand = ["python", "-m", "passageway.testing.fake_connector"]\nenv = { FAKE_ITEMS = "/config/items.json" }\n' > ci-config/passageway.toml
+          docker run -d --name pw -e PASSAGEWAY_LOGIN_PASSWORD=ci-only -p 8082:8082 -v "$PWD/ci-config:/config:ro" passageway:ci
+          for i in $(seq 1 60); do curl -s http://localhost:8082/health | grep -q '"status": "ok"' && break; sleep 2; done
+          curl -s http://localhost:8082/health | grep -q '"status": "ok"' || { docker logs pw; exit 1; }
+          curl -sf -H "Authorization: Bearer ci-only" -H "Content-Type: application/json" \
+            -d '{"prompt": "which lighthouses guide ships into the harbour at night"}' http://localhost:8082/recall | grep -q Lighthouses \
+            || { docker logs pw; exit 1; }
           docker rm -f pw

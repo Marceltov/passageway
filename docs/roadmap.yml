@@ -15,9 +15,10 @@ items:
     when: Next
     icon: swap-horizontal
     title: trilium-recall adopts passageway
-    summary: After parity, trilium-recall points here.
+    summary: After parity, trilium-recall points here. The pull request with the migration guide is open there, for the owner's review.
     links:
       - {label: "#45", url: "https://github.com/Marceltov/passageway/issues/45"}
+      - {label: "trilium-recall PR #11", url: "https://github.com/Marceltov/trilium-recall/pull/11"}
       - {label: "V5", url: "https://passageway.marceltov.de/values/#v5-the-index-is-disposable-the-sources-stay-the-truth"}
       - {label: "V11", url: "https://passageway.marceltov.de/values/#v11-one-honest-page-beats-three-vague-ones"}
     details: |
