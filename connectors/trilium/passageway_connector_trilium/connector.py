@@ -10,7 +10,7 @@ import json
 import re
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from urllib.parse import urlparse
 
 import httpx
@@ -25,7 +25,7 @@ SCOPE_SINCE = "note.utcDateModified >= '{since}' and (" + SCOPE + ")"
 CLASSIFY = {"wiki": "wiki", "sources": "source", "locks": None, "templates": None, "views": None, "schema": "wiki"}
 WEIGHTS = {"wiki": 1.0, "source": 0.8, "journal": 0.6, "other": 0.6}
 LINK_RELATIONS = ("internalLink", "relatesTo", "wikiSource")
-TEXT_LINK = re.compile(r'href="#root/([A-Za-z0-9_]+)"')  # a link in the note's text (Trilium derives internalLink from it on save)
+TEXT_LINK = re.compile(r'href="#root/(?:[A-Za-z0-9_]+/)*([A-Za-z0-9_]+)[?"]')  # a link in the note's text, the last id of its path
 MAX_PATH = 4
 
 
@@ -35,10 +35,13 @@ class Settings:
     web_url: str
     token: str
     timeout: float
+    max_note_bytes: int
 
 
 def parse_settings(env: Mapping[str, str]) -> Settings:
     url = env.get("URL", "").strip().rstrip("/")
+    if url.endswith("/etapi"):
+        url = url[: -len("/etapi")]  # the connector adds it
     if not url or urlparse(url).scheme not in ("http", "https") or not urlparse(url).hostname:
         raise SettingsError(f"URL must be the Trilium server's http(s) address, got {url!r}")
     token = env.get("TOKEN", "").strip()
@@ -53,7 +56,10 @@ def parse_settings(env: Mapping[str, str]) -> Settings:
         raise SettingsError(f"TIMEOUT must be a number of seconds, got {env.get('TIMEOUT')!r}") from None
     if timeout <= 0:
         raise SettingsError("TIMEOUT must be greater than 0")
-    return Settings(url, web_url, token, timeout)
+    raw = env.get("MAX_NOTE_BYTES", "").strip()
+    if raw and (not raw.isdecimal() or int(raw) < 1):
+        raise SettingsError(f"MAX_NOTE_BYTES must be a whole number from 1, got {raw!r}")
+    return Settings(url, web_url, token, timeout, int(raw) if raw else 1024 * 1024)
 
 
 class Etapi:
@@ -65,6 +71,8 @@ class Etapi:
 
     def _get(self, path: str, **params) -> httpx.Response:
         response = self._http.get(path, params=params)
+        if response.status_code == 401:
+            raise SourceError("Trilium answered HTTP 401: check TOKEN (an ETAPI token from Options › ETAPI)")
         if response.status_code >= 400:
             raise SourceError(f"Trilium answered HTTP {response.status_code} to GET {path}")
         return response
@@ -112,7 +120,7 @@ class Scan:
 
 class Trilium(Connector):
     name = "trilium connector"
-    expected_errors = (httpx.HTTPError, ValueError, KeyError)
+    expected_errors = (httpx.HTTPError, ValueError, KeyError, TypeError)
 
     def __init__(self, env: Mapping[str, str]):
         self.settings = parse_settings(env)
@@ -150,10 +158,13 @@ class Trilium(Connector):
         return Scan(in_scope, {nid: area.get(nid, "other") for nid in in_scope}, set(roots) | ({journal} if journal else set()),
                     reverse)
 
-    @staticmethod
-    def _version(note: dict, area: str) -> str:
+    def _version(self, note: dict, scan: "Scan") -> str:
+        """Changes with the content (blobId) and with everything else the item carries: attributes, title, parents, area,
+        the summaries that cite it and the titles on its path."""
         attrs = sorted((a["type"], a["name"], a["value"]) for a in note["attributes"])
-        payload = json.dumps([attrs, note["title"], sorted(note["parentNoteIds"]), area])
+        nid = note["noteId"]
+        payload = json.dumps([attrs, note["title"], sorted(note["parentNoteIds"]), scan.area[nid],
+                              sorted(scan.reverse.get(nid, [])), self._path(note, scan)])
         return f"{note['blobId']}:{hashlib.sha256(payload.encode()).hexdigest()[:12]}"
 
     def _path(self, note: dict, scan: Scan) -> list[str]:
@@ -170,15 +181,18 @@ class Trilium(Connector):
         content = self.client.content(nid)
         if content is None:  # gone since the listing: the next reconcile settles it
             return None
+        if len(content.encode()) > self.settings.max_note_bytes:
+            self.warn(f"skipped {note['title']!r} ({nid}): larger than MAX_NOTE_BYTES ({self.settings.max_note_bytes})")
+            return None
         sections = [{"heading": " › ".join(s.heading_path) or None, "text": s.text}
                     for s in html_to_sections(content, plain=note["type"] == "code")]
         labels = [f"area:{area}"] + [f"type:{t}" for t in _labels(note, "wikiType")[:1]] + \
                  [f"topic:{t}" for t in _labels(note, "wikiTopic")] + [f"status:{s}" for s in _labels(note, "wikiStatus")[:1]]
         links = [a["value"] for a in note["attributes"] if a["type"] == "relation" and a["name"] in LINK_RELATIONS
                  and a["noteId"] == nid] + (TEXT_LINK.findall(content) if note["type"] != "code" else []) + scan.reverse.get(nid, [])
-        links = [i for i in dict.fromkeys(links) if i in scan.notes and i != nid]
+        links = [i for i in dict.fromkeys(links) if i != nid]  # the core shows those that are indexed
         item = {"id": nid, "title": note["title"], "url": f"{self.settings.web_url}/#root/{nid}",
-                "version": self._version(note, area), "sections": sections, "weight": WEIGHTS[area],
+                "version": self._version(note, scan), "sections": sections, "weight": WEIGHTS[area],
                 "labels": labels, "updated": _iso(note["utcDateModified"])}
         if path := self._path(note, scan):
             item["path"] = path
@@ -190,7 +204,7 @@ class Trilium(Connector):
 
     def versions(self) -> dict[str, str]:
         scan = self._scan()
-        return {nid: self._version(note, scan.area[nid]) for nid, note in scan.notes.items()}
+        return {nid: self._version(note, scan) for nid, note in scan.notes.items()}
 
     def fetch(self, ids: list[str]) -> Iterator[dict]:
         scan = self._scan()
@@ -199,10 +213,12 @@ class Trilium(Connector):
                 yield item
 
     def changed(self, since: datetime) -> Iterator[dict]:
-        stamp = since.strftime("%Y-%m-%d %H:%M:%S")
-        full = self._scan()  # paths and links need every note
-        changed = self._scan(SCOPE_SINCE.format(since=stamp))
-        for nid in changed.notes:
+        stamp = since.astimezone(UTC).strftime("%Y-%m-%d %H:%M:%S")
+        modified = [n["noteId"] for n in self.client.search(SCOPE_SINCE.format(since=stamp))]
+        if not modified:  # an idle poll is this one request
+            return
+        full = self._scan()  # paths, areas and links need every note; the scan also applies the exclusions
+        for nid in modified:
             if nid in full.notes and (item := self._item(full.notes[nid], full)):
                 yield item
 

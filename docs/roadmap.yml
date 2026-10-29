@@ -78,7 +78,7 @@ items:
     date: 2026-10-29
     icon: puzzle-outline
     title: Trilium connector
-    summary: The trilium-recall sync as a connector. On trilium-recall's public fixture it scores hit@3 0.92 and silence 1.0 against the published 0.83 and 1.0.
+    summary: The trilium-recall sync as a connector. On trilium-recall's public fixture (its synthetic wiki, the real model, an in-test ETAPI) it scores hit@3 0.92 and silence 1.0 against the published 0.83 and 1.0; the check against a live Trilium and the private question set is still the owner's to run.
     links:
       - {label: "Connector", url: "https://passageway.marceltov.de/connectors/trilium/"}
       - {label: "ADR 0004", url: "https://passageway.marceltov.de/adr/0004-no-summary-for-source-substitution/"}

@@ -20,7 +20,7 @@ trilium-recall showed a note's summary in place of its source note when the summ
 
 Chosen option: "both are items that link each other", because the first option is a field only one connector would use and ranking code that behaves differently for one source's notion of a summary, which V1 rules out, and the second loses the source's detail. The summary carries a `wikiSource` relation to its source, and the connector adds the reverse link to the source, so a hit on either shows the other among its related items.
 
-The cost is measured, not assumed: on trilium-recall's public fixture the connector scores hit@3 0.92 and silence 1.0 against trilium-recall's published 0.83 and 1.0; the one miss is the fixture's summary question, which the old rule had answered through the summary. If a real question set shows the loss to matter, a generic mechanism (an item's `weight` already exists; a "prefer the shorter of two linked items" rule would be the next candidate) is the way to bring it back, for every source.
+The cost is measured, not assumed: on trilium-recall's public fixture the connector scores hit@3 0.92 and silence 1.0 against trilium-recall's published 0.83 and 1.0. The one miss is the fixture's German summary question, for which nothing passes the gate at all, not even the source, so the old rule (which only swapped a summary in for a source that was already a hit) would not have answered it either; the fixture does not show the rule's loss. If a real question set shows the loss to matter, a generic mechanism (an item's `weight` already exists; a "prefer the shorter of two linked items" rule would be the next candidate) is the way to bring it back, for every source.
 
 ### Consequences
 

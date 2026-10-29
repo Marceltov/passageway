@@ -67,12 +67,6 @@ def test_a_summary_links_its_source_and_the_source_links_back(world):
     assert got["fxSrcArticle"]["links"] == ["fxSumArticle"]  # the source has no relation of its own: the reverse is added
 
 
-def test_links_point_only_at_notes_in_scope(world):
-    world.etapi.notes["fxBackups"].attrs.append(("relation", "relatesTo", "fxLockClaim", True))
-    world.etapi.notes["fxBackups"].attrs.append(("relation", "relatesTo", "nope", True))
-    assert set(world.fetch("fxBackups")["fxBackups"]["links"]) == {"fxRestic", "fxLxcMemory"}
-
-
 def test_a_code_note_is_split_at_blank_lines_not_parsed_as_html(world):
     sections = world.fetch("fxCode")["fxCode"]["sections"]
     assert [s["text"] for s in sections] == ["#!/bin/sh\nrestic backup /data\necho done"]  # small paragraphs share a passage
@@ -155,3 +149,68 @@ def test_every_setting_is_in_the_readme():
     readme = README.read_text()
     for name in names:
         assert f"`{name}`" in readme, f"{name} is read by the Trilium connector but missing from its README"
+
+
+# ---- review findings ------------------------------------------------------------------------------
+
+def test_a_note_over_the_size_limit_is_skipped_at_fetch_with_a_warning_not_fatal(world):
+    big = world.etapi.add("Huge log", parent="fxHubHomelab", type="code", content="x" * 5000)
+    assert big in world.ids()  # the size is only known with the content
+    code, records, err = world.call("fetch", f'{{"id": "{big}"}}\n{{"id": "fxBackups"}}\n', MAX_NOTE_BYTES="4000")
+    assert code == 0 and [r["id"] for r in records] == ["fxBackups"] and "Huge log" in err and "MAX_NOTE_BYTES" in err
+    assert big in world.fetch(big)  # the default limit (1 MiB) keeps it
+
+
+def test_an_idle_poll_is_one_small_request(world):
+    world.etapi.requests.clear()
+    code, records, _ = world.call("changed", extra=["--since", "2099-01-01T00:00:00Z"])
+    assert code == 0 and records == [] and len(world.etapi.requests) == 1
+
+
+def test_a_poll_with_changes_scans_once_not_twice(world):
+    world.etapi.set_content("fxBridges", "<p>changed</p>")
+    world.etapi.requests.clear()
+    world.call("changed", extra=["--since", "2026-10-25T00:00:00Z"])
+    searches = [q for m, p, q in world.etapi.requests if p.endswith("/notes")]
+    assert sum(1 for q in searches if "utcDateModified" in q.get("search", "")) == 1
+    assert sum(1 for q in searches if q.get("search") == "note.type = text or note.type = code" and "ancestorNoteId" not in q) == 1
+
+
+def test_links_are_kept_as_written_so_a_target_that_appears_later_is_found(world):
+    world.etapi.notes["fxBackups"].attrs.append(("relation", "relatesTo", "fxLater", True))
+    assert "fxLater" in world.fetch("fxBackups")["fxBackups"]["links"]  # the core joins links against what is indexed
+
+
+def test_the_version_changes_when_a_summary_starts_to_cite_a_source_or_an_ancestor_is_renamed(world):
+    before = world.ids()
+    world.etapi.add("Second summary", parent="fxHubHomelab", content="<p>s</p>", relations=[("wikiSource", "fxSrcClip")])
+    assert world.ids()["fxSrcClip"] != before["fxSrcClip"]
+    world.etapi.notes["fxHubHomelab"].title = "Home lab"
+    assert world.ids()["fxBackups"] != before["fxBackups"]
+
+
+def test_text_links_with_a_full_path_or_a_query_are_matched(world):
+    nid = world.etapi.add("Linky", parent="fxHubHomelab",
+                          content='<a href="#root/fxWiki/fxHubHomelab/fxRestic">restic</a> and <a href="#root/fxBridges?viewMode=x">b</a>')
+    assert set(world.fetch(nid)[nid]["links"]) == {"fxRestic", "fxBridges"}
+
+
+def test_since_is_taken_as_the_time_it_is_not_as_utc(world):
+    world.etapi.set_content("fxBridges", "<p>changed</p>")
+    world.etapi.requests.clear()
+    world.call("changed", extra=["--since", "2026-10-25T05:00:00+05:00"])
+    query = next(q["search"] for m, p, q in world.etapi.requests if "utcDateModified" in q.get("search", ""))
+    assert "2026-10-25 00:00:00" in query
+
+
+def test_a_wrongly_typed_answer_is_a_one_line_error(world):
+    world.etapi.notes = {}
+    world.etapi.respond = lambda method, path, q, auth: (200, b'{"results": null}', "application/json")
+    code, records, err = world.call("list")
+    assert code == 1 and records == [] and "Traceback" not in err
+
+
+def test_a_401_tells_the_user_to_check_the_token_and_a_url_with_etapi_is_corrected(world):
+    code, _, err = world.call("list", TOKEN="nope")
+    assert code == 1 and "TOKEN" in err
+    assert world.ids(URL=world.url + "/etapi")  # a URL that already ends in /etapi works

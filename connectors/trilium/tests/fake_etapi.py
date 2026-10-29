@@ -52,14 +52,12 @@ class FakeEtapi:
         n = self.notes[nid]
         n.content, n.blob, n.modified = content, next(_ids), self.tick()
 
-    def add_label(self, nid, name, value):
+    def add_label(self, nid, name, value):  # no modified bump: real Trilium does not count an attribute change
         n = self.notes[nid]
         n.attrs = [a for a in n.attrs if a[1] != name] + [("label", name, value, True)]
-        n.modified = self.tick()
 
-    def move(self, nid, under):
+    def move(self, nid, under):  # nor a branch change
         self.notes[nid].parents = [under]
-        self.notes[nid].modified = self.tick()
 
     def delete(self, nid):
         del self.notes[nid]
