@@ -8,17 +8,17 @@ It is written for you, if you are deciding whether to trust passageway with your
 
 These three come first. When a feature would be easier, or would read better in a benchmark, by bending one of them, the feature changes or is not built.
 
-### V1. The core knows no source and no model
+### V1. The core knows no source, and no model beyond its default
 
-The core speaks two protocols and nothing else: connectors tell it what exists and what the text is, embedders turn text into vectors. A connector or an embedder is a program of its own, in any language, and a bundled one has no privileges a third-party one lacks. Knowledge of a particular source (how Trilium nests notes, how Confluence pages are typed) reaches the core only as the plain fields of the item record: weight, path, labels, links.
+The core speaks two protocols and nothing else: connectors tell it what exists and what the text is, embedders turn text into vectors. A connector is a program of its own, in any language, and a bundled one has no privileges a third-party one lacks. Knowledge of a particular source (how Trilium nests notes, how Confluence pages are typed) reaches the core only as the plain fields of the item record: weight, path, labels, links. The core ships one built-in embedder, the multilingual e5-small model, as a default that works offline; it sits behind the same interface as a program speaking the embedder protocol, and any other model replaces it with one line of configuration.
 
-**Rules out:** a source-specific import in the core, a branch for a bundled connector, ranking code that knows the model's name, a protocol field only one connector understands.
+**Rules out:** a source-specific import in the core, a branch for a bundled connector, ranking code that behaves differently for one model by name, a protocol field only one connector understands.
 
 **ADRs:** 0001, 0002, 0003.
 
 ### V2. Nothing leaves your machine unless you send it
 
-The built-in model runs locally and the index is a file next to your sources. Text and questions go to a third party only when you configure an embedder that does, and the documentation says what it sends. passageway reports nothing home, keeps no statistics about you, and never logs a prompt. A measurement report holds no question, title or address from your sources unless you ask for them.
+The built-in model runs locally and the index is a local file in passageway's data folder. Text and questions go to a third party only when you configure an embedder that does, and the documentation says what it sends. passageway reports nothing home and never logs a prompt: a recall leaves one log line with the number of hits and the time, nothing of the question. A measurement report holds no question, title or address from your sources unless you ask for them.
 
 **Rules out:** telemetry, a cloud model as the default, a report that quotes sources by default, logging prompts or passages, a check that calls a server to see whether a version is current.
 
@@ -26,9 +26,9 @@ The built-in model runs locally and the index is a file next to your sources. Te
 
 ### V3. Numbers are measured, never tuned
 
-Retrieval quality is measured with a public harness on a public corpus and a public question set, and published with its confidence interval and the whole threshold sweep, not the best row. A question or a number is never changed to improve a result; when a published figure turns out to be wrong, the correction is its own visible commit, and the page says what changed. What the numbers cannot show is said next to them.
+Retrieval quality is measured with a public harness on a public corpus and a public question set. The headline rates are published with their confidence intervals, and the whole threshold sweep is shown, not the best row. The question set and the measurements page are in git, so every change to a question or a number is visible; when a published figure turns out to be wrong, the correction is its own commit and the page says what changed. What the numbers cannot show is said next to them.
 
-**Rules out:** a threshold chosen without showing the sweep, a question set edited after seeing results, a rate without its interval, a measurement page that hides its history, a claim about quality that no published run supports.
+**Rules out:** a threshold chosen without showing the sweep, a question changed after seeing a result without a commit that says so, a headline rate without its interval, a measurement page that hides its history, a claim about quality that no published run supports.
 
 **ADRs:** none yet; the [measurements page](measurements.md) is the practice.
 
@@ -38,7 +38,7 @@ Why you can trust passageway between your sources and your model: what it return
 
 ### V4. Passages, not answers
 
-passageway returns short passages, each with its title, its place in the source and its link, and up to three of them. The model that asked writes the answer; passageway never does. When nothing passes the relevance gate, the answer is silence, which the hook and the tool treat as "the sources have nothing", not as an error.
+passageway returns short passages, each with its title, its place in the source and its link, and up to three of them. The model that asked writes the answer; passageway never does. When nothing passes the relevance gate, the answer is silence, which the `/recall` endpoint and the tool report as "the sources have nothing", not as an error.
 
 **Rules out:** generation or summarisation inside passageway, a "best guess" below the gate, a passage without its source, more than a page of context per question.
 
@@ -46,15 +46,15 @@ passageway returns short passages, each with its title, its place in the source 
 
 ### V5. The index is disposable, the sources stay the truth
 
-Everything indexed can be rebuilt from the connectors, so deleting an index file loses nothing, and passageway never writes to a source. A connector's listing decides what exists; a listing that would delete most of a source is refused, because it is more likely incomplete than true.
+Everything indexed can be rebuilt from the connectors, so deleting an index file loses nothing, and passageway never writes to a source. A connector's listing decides what exists; a listing that would delete more than a configured share of a source (30 % by default), or all of it, is refused, because it is more likely incomplete than true.
 
 **Rules out:** an index as the only copy of anything, a connector that writes, a migration that cannot be redone from the sources, silently emptying a source.
 
-**ADRs:** 0001 (the deletion guard is part of the protocol).
+**ADRs:** 0001 records the deletion guard.
 
 ### V6. A broken piece breaks only itself
 
-One connector hanging, one source failing to sync or one embedder dying does not stop the others or the server, and it does not hide: `/health` names what is failing, the already indexed items keep serving, and an embedder that cannot answer makes `recall` fail rather than fall silent, because silence would look like "nothing relevant".
+One source failing to sync fails only its own sync, and a hanging connector delays the others until its timeout; neither stops the server, and nothing hides: `/health` names what is failing, the already indexed items keep serving, and the embedder failing makes `recall` fail rather than fall silent, because silence would look like "nothing relevant".
 
 **Rules out:** a server that crashes because a program it started misbehaved, errors swallowed into empty answers, a health check that says "ok" while a part is failing.
 
@@ -62,7 +62,7 @@ One connector hanging, one source failing to sync or one embedder dying does not
 
 ### V7. Secrets are references
 
-Configuration holds `env:NAME` references, never values. Each connector and embedder runs with an empty environment plus its own settings and the secrets it names; it never sees another's, nor the server's password. Secrets are masked in logs and errors, and nothing in the documentation asks anyone to print one.
+Secrets in the configuration are `env:NAME` references, never values. Each connector and embedder runs with only `PATH` and `HOME` from the server's environment, plus its own settings and the secrets it names; it never sees another's, nor the server's password. Secrets are masked in logs and errors, and nothing in the documentation asks anyone to print one.
 
 **Rules out:** a secret in `passageway.toml`, a connector that can read another's token, credentials in an error message or a log line, a setup step that pastes a key into a chat.
 
@@ -74,7 +74,7 @@ passageway is AGPL-3.0-or-later and everything in its documentation runs on your
 
 **Rules out:** a feature that only a hosted version has, a license check, a dependency on a service of the author's, content whose license is not stated.
 
-**ADRs:** 0002.
+**ADRs:** none yet; the licence files are the practice.
 
 ## Principles that follow
 
@@ -92,11 +92,11 @@ A connector is any executable that prints JSON Lines, and the documentation alwa
 
 **Rules out:** a connector that must import the core, an SDK-only feature, a guide whose example does not run as a plain script.
 
-**ADRs:** 0002, 0003.
+**ADRs:** 0001, 0003.
 
 ### V11. One honest page beats three vague ones
 
-The documentation says what exists today and what is coming, and tests keep it true: every example runs, every option is documented, every setting of a connector is in its README, and the agent files say the same as the pages. When the roadmap and a page disagree, the page about what exists wins.
+The documentation says what exists today and what is coming, and tests keep the main things true: the connector and embedder examples in the guides run and pass the contract checks, every environment variable and every option of `passageway eval` is documented, the bundled connectors' and embedders' settings are in their READMEs, and the agent files say the same as the pages. When the roadmap and a page disagree, the page about what exists wins.
 
 **Rules out:** documenting a planned feature as existing, an example that is not tested, a skill that denies what exists, a measurement quoted without its page.
 

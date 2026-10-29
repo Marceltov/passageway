@@ -18,7 +18,7 @@ items:
     summary: Ready-made adapters and presets, so that choosing a model is a line of configuration.
     links:
       - {label: "#41", url: "https://github.com/Marceltov/passageway/issues/41"}
-      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model"}
+      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model-beyond-its-default"}
       - {label: "V2", url: "https://passageway.marceltov.de/values/#v2-nothing-leaves-your-machine-unless-you-send-it"}
       - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
     details: |
@@ -34,13 +34,13 @@ items:
     summary: The trilium-recall features as a connector, with ranking quality at least as good as before.
     links:
       - {label: "#42", url: "https://github.com/Marceltov/passageway/issues/42"}
-      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model"}
+      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model-beyond-its-default"}
       - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
     details: |
       `trilium.py`, the sync logic, the area and label handling and the HTML-to-sections code leave the engine; they can be recovered from the tag `trilium-engine-import`.
       The wiki-aware ranking is expressed through the item fields: `weight` for the wiki, source and journal areas, `path` for the page trail, `labels` for type, topics and status, `links` for related notes.
       - **Open design question:** trilium-recall shows a note's summary in place of its source note when the summary matches almost as well. Fields alone cannot express that.
-      - **Parity target:** ranking quality at least as good as trilium-recall on the same notes (its private evaluation: hit@3 0.86, silence 0.92), shown with fake-ETAPI fixtures and an opt-in live test against a throwaway Trilium.
+      - **Parity target:** ranking quality at least as good as trilium-recall on the same notes (published on its measurements page from a private question set: hit@3 0.86, silence 0.92), shown with fake-ETAPI fixtures and an opt-in live test against a throwaway Trilium.
 
   - id: confluence-connector
     status: later
@@ -50,7 +50,7 @@ items:
     summary: Index Confluence spaces. Written from the public REST documentation.
     links:
       - {label: "#43", url: "https://github.com/Marceltov/passageway/issues/43"}
-      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model"}
+      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model-beyond-its-default"}
       - {label: "V7", url: "https://passageway.marceltov.de/values/#v7-secrets-are-references"}
     details: |
       A decision is needed first: **Cloud, Data Center or both**, because authentication and API paths differ.
