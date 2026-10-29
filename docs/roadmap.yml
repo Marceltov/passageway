@@ -14,13 +14,12 @@ items:
     status: next
     when: Next
     icon: cube-outline
-    title: Embedders
-    summary: Choose the embedding model, or bring your own.
+    title: Embedders, the rest
+    summary: Ready-made adapters and presets, so that choosing a model is a line of configuration.
     details: |
-      The built-in `onnx` embedder generalised with presets (the multilingual e5-small as the default, a German-focused model such as Jina v2 base de) and a `device` setting (`auto`, `cpu`, `coreml`).
-      - An out-of-process `command` embedder (one long-lived process, JSON Lines) and a bundled OpenAI-compatible one, which covers Ollama, vLLM, OpenAI and Voyage.
-      - `passageway eval compare` runs the questions with several embedding models on a copy of the index and reports quality, model load time and index time.
-      - Relevance thresholds are recalibrated with the harness on the public corpus, not carried over from earlier measurements. The [first measurements](https://passageway.marceltov.de/measurements/) are the baseline: hit@3 89% and silence 80% at the default threshold, with reworded questions (61%) and near-topic questions (60% silent) as the weak spots.
+      - A bundled adapter for OpenAI-compatible services, which covers Ollama, LM Studio, vLLM, OpenAI and Voyage. It speaks the embedder protocol, so it needs no change in the core. Cloud models send all indexed text and queries to a third party; the default stays local and the docs say so.
+      - The built-in `onnx` embedder generalised with presets (the multilingual e5-small as the default, a German-focused model such as Jina v2 base de), a `device` setting (`auto`, `cpu`, `coreml`) and an automatic, checksummed model download in place of the manual step in the install guide.
+      - Relevance thresholds are recalibrated with `passageway eval compare` on the public corpus, not carried over from earlier measurements. The [first measurements](https://passageway.marceltov.de/measurements/) are the baseline: hit@3 89% and silence 80% at the default threshold, with reworded questions (61%) and near-topic questions (60% silent) as the weak spots.
 
   - id: trilium-connector
     status: later
@@ -69,6 +68,16 @@ items:
       - configuration moves to `passageway.toml`.
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: embedder-protocol
+    status: done
+    date: 2026-10-29
+    icon: swap-horizontal
+    title: Any embedding model, and a model comparison
+    summary: "`kind = \"command\"` runs any program that speaks the embedder protocol, and `passageway eval compare` puts several models side by side."
+    links:
+      - {label: "Protocol", url: "https://passageway.marceltov.de/reference/embedder-protocol/"}
+      - {label: "PR #39", url: "https://github.com/Marceltov/passageway/pull/39"}
+
   - id: eval-questions
     status: done
     date: 2026-10-29

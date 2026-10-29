@@ -284,16 +284,14 @@ def main() -> None:
         sys.exit(eval_main(sys.argv[2:]))
     import uvicorn
 
-    from passageway.embed import OnnxEmbedder
+    from passageway.embed import build_embedder
 
     logging.basicConfig(level=os.environ.get("PASSAGEWAY_LOG_LEVEL", "INFO"),
                         format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)  # one line per request drowns the log
     try:
         config = load_config(os.environ)
-        if not (config.model_dir / "model.onnx").exists():
-            raise ConfigError(f"embedding model not found in {config.model_dir} (see docs/install.md)")
-        app = build_app(Engine(config, OnnxEmbedder(config.model_dir)))
+        app = build_app(Engine(config, build_embedder(config.embedder, config.model_dir)))
         host, port = config.host, config.port
     except (ConfigError, OSError) as e:
         log.error("startup failed: %s", e)

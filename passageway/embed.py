@@ -1,11 +1,16 @@
-"""Text embedders: the real ONNX model, and a deterministic hashing stand-in for tests."""
+"""Text embedders: the built-in ONNX model, any program speaking the embedder protocol, and a hashing stand-in for tests."""
 
 import hashlib
+import logging
 import re
 from pathlib import Path
 from typing import Protocol
 
 import numpy as np
+
+from passageway.config import ConfigError, EmbedderConfig
+
+log = logging.getLogger(__name__)
 
 
 class Embedder(Protocol):
@@ -116,3 +121,23 @@ class HashEmbedder:
 
     embed_queries = _embed
     embed_passages = _embed
+
+
+def build_embedder(cfg: EmbedderConfig, default_model_dir: Path, label: str = "default") -> Embedder:
+    """The embedder a configuration describes. A model or program that is not there is a ConfigError, so that a server
+    can start in its error mode and say what is wrong instead of crashing."""
+    if cfg.kind == "command":
+        from passageway.embed_command import CommandEmbedder, EmbedderError
+
+        if cfg.min_similarity is None:
+            log.warning("embedder %r has no min_similarity: the relevance gate of the built-in model applies, which is "
+                        "probably wrong for this one; find a value with `passageway eval --sweep`", label)
+        try:
+            return CommandEmbedder(label, cfg.command, env=cfg.env, secrets=cfg.secrets, batch_size=cfg.batch_size,
+                                   timeout=cfg.timeout)
+        except EmbedderError as e:
+            raise ConfigError(str(e)) from None
+    model_dir = cfg.model_dir or default_model_dir
+    if not (model_dir / "model.onnx").exists():
+        raise ConfigError(f"embedding model not found in {model_dir} (see docs/install.md)")
+    return OnnxEmbedder(model_dir)

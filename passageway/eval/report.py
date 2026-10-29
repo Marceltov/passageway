@@ -39,6 +39,20 @@ def build_report(*, run: dict, results: list[CaseResult], targets: dict[str, flo
     return report
 
 
+def build_comparison(*, run: dict, questions: dict, candidates: list[dict]) -> dict:
+    """One entry per embedder: who it is, what loading and indexing took, and the same metrics as a single run.
+    Each candidate dict: label, embedder, dim, threshold, load_seconds, index_seconds, sources, results, sweep."""
+    entries = []
+    for c in candidates:
+        entry = {k: c[k] for k in ("label", "embedder", "dim", "threshold", "load_seconds", "index_seconds", "sources")}
+        entry["metrics"] = score(c["results"])
+        entry["groups"] = group_scores(c["results"])
+        if c["sweep"]:
+            entry["sweep"] = [{"threshold": t, "metrics": score(rs)} for t, rs in c["sweep"]]
+        entries.append(entry)
+    return {"schema": SCHEMA, "kind": "compare", "run": run, "questions": questions, "candidates": entries}
+
+
 # -- markdown ------------------------------------------------------------------------------------
 
 def _pct(value: float | None) -> str:
@@ -74,7 +88,50 @@ def _table(header: list[str], rows: list[list[object]]) -> list[str]:
     return lines + ["| " + " | ".join(_cell(c) for c in row) + " |" for row in rows] + [""]
 
 
+_INTERVAL_NOTE = ("In brackets: the 95% interval of a rate, the range that holds the true rate in 95 of 100 repetitions with "
+                  "other questions of the same kind. Overlapping intervals are a warning against over-reading a difference, "
+                  "not a test of it. The tables below show point values only.")
+
+
+def _sweep_table(sweep: list[dict]) -> list[str]:
+    return _table(["Threshold", "Hit@1", "Hit@3", "MRR", "Silence", "False silence", "p95"], [
+        [row["threshold"], _pct(row["metrics"]["hit_at_1"]), _pct(row["metrics"]["hit_at_3"]), _num(row["metrics"]["mrr"]),
+         _pct(row["metrics"]["silence"]), _pct(row["metrics"]["false_silence"]), f"{row['metrics']['p95_ms']} ms"]
+        for row in sweep])
+
+
+def _history_table(history: list[dict], sub: str) -> list[str]:
+    return [f"{sub} History", ""] + _table(["Date", "Embedder", "Threshold", "Questions", "Hit@3", "Silence", "p95"], [
+        [e["date"], e["embedder"], e["threshold"], e["cases"], _pct(e["hit_at_3"]), _pct(e["silence"]), f"{e['p95_ms']} ms"]
+        for e in history])
+
+
+def render_comparison(report: dict, *, heading: bool = True, history: list[dict] | None = None) -> str:
+    run, q = report["run"], report["questions"]
+    sub = "##" if heading else "###"
+    out = ["# Embedder comparison", ""] if heading else []
+    out += [f"{run['date'][:10]} · passageway {run['passageway']} · {q['cases']} questions "
+            f"({q['answerable']} answerable, {q['unanswerable']} unanswerable) · {run['machine']}", "",
+            "Each embedder ran with its own fresh index and its own relevance threshold, because similarity scales differ "
+            "between models. Load is the time to start the model, Index the time to embed all sources.", ""]
+    out += _table(["Embedder", "Dimensions", "Threshold", "Load", "Index", "Hit@1", "Hit@3", "MRR", "Silence", "False silence",
+                   "p50 / p95"], [
+        [f"{c['label']}: {c['embedder']}", c["dim"], c["threshold"], f"{c['load_seconds']} s", f"{c['index_seconds']} s",
+         _rate(c["metrics"], "hit_at_1"), _rate(c["metrics"], "hit_at_3"), _num(c["metrics"]["mrr"]),
+         _rate(c["metrics"], "silence"), _rate(c["metrics"], "false_silence"),
+         f"{c['metrics']['p50_ms']} / {c['metrics']['p95_ms']} ms"] for c in report["candidates"]])
+    out += [_INTERVAL_NOTE, ""]
+    for c in report["candidates"]:
+        if c.get("sweep"):
+            out += [f"{sub} Relevance threshold: {c['label']}", ""] + _sweep_table(c["sweep"])
+    if history:
+        out += _history_table(history, sub)
+    return "\n".join(out).rstrip() + "\n"
+
+
 def render_markdown(report: dict, *, heading: bool = True, history: list[dict] | None = None) -> str:
+    if report.get("kind") == "compare":
+        return render_comparison(report, heading=heading, history=history)
     run, m = report["run"], report["metrics"]
     sub = "##" if heading else "###"
     sources = ", ".join(f"{name}: {s['items']} items, {s['sections']} sections" for name, s in run["sources"].items())
@@ -89,9 +146,7 @@ def render_markdown(report: dict, *, heading: bool = True, history: list[dict] |
         ["False silence on answerable questions", _rate(m, "false_silence")],
         ["Latency p50 / p95", f"{m['p50_ms']} ms / {m['p95_ms']} ms"],
         ["Embedding the question", f"{m['embed_ms']} ms ({_pct(m['embed_share'])} of the latency)"]])
-    out += ["In brackets: the 95% interval of a rate, the range that holds the true rate in 95 of 100 repetitions with "
-            "other questions of the same kind. Overlapping intervals are a warning against over-reading a difference, "
-            "not a test of it. The tables below show point values only.", ""]
+    out += [_INTERVAL_NOTE, ""]
     if report["targets"]:
         out += [f"{sub} Targets", ""]
         out += _table(["Target", "Limit", "Required", "Measured", "Result"], [
@@ -99,10 +154,7 @@ def render_markdown(report: dict, *, heading: bool = True, history: list[dict] |
              "pass" if t["passed"] else "fail"] for t in report["targets"]])
     if report.get("sweep"):
         out += [f"{sub} Relevance threshold", ""]
-        out += _table(["Threshold", "Hit@1", "Hit@3", "MRR", "Silence", "False silence", "p95"], [
-            [row["threshold"], _pct(row["metrics"]["hit_at_1"]), _pct(row["metrics"]["hit_at_3"]),
-             _num(row["metrics"]["mrr"]), _pct(row["metrics"]["silence"]), _pct(row["metrics"]["false_silence"]),
-             f"{row['metrics']['p95_ms']} ms"] for row in report["sweep"]])
+        out += _sweep_table(report["sweep"])
         out += ["A passage that shares three or more words with the question is returned whatever the threshold "
                 "(see How it works), so a high threshold only silences short or loosely worded questions.", ""]
     if report["groups"]:
@@ -116,10 +168,7 @@ def render_markdown(report: dict, *, heading: bool = True, history: list[dict] |
              "; ".join(f"{h['title']} › {h['heading']}" if h["heading"] else h["title"] for h in c["hits"]) or "–",
              c["ms"]] for c in report["cases"]])
     if history:
-        out += [f"{sub} History", ""]
-        out += _table(["Date", "Embedder", "Threshold", "Questions", "Hit@3", "Silence", "p95"], [
-            [e["date"], e["embedder"], e["threshold"], e["cases"], _pct(e["hit_at_3"]), _pct(e["silence"]),
-             f"{e['p95_ms']} ms"] for e in history])
+        out += _history_table(history, sub)
     return "\n".join(out).rstrip() + "\n"
 
 
@@ -133,11 +182,14 @@ def _history_file(page: Path) -> Path:
     return page.with_name(page.stem + ".history.json")
 
 
-def _entry(report: dict) -> dict:
-    run, m = report["run"], report["metrics"]
-    return {"date": run["date"][:10], "embedder": run["embedder"], "threshold": run["threshold"],
-            "passageway": run["passageway"], "cases": m["cases"], "hit_at_3": m["hit_at_3"], "silence": m["silence"],
-            "p95_ms": m["p95_ms"]}
+def _entries(report: dict) -> list[dict]:
+    """The history lines of a run: one, or one per embedder of a comparison."""
+    run = report["run"]
+    parts = [(c["embedder"], c["threshold"], c["metrics"]) for c in report["candidates"]] if report.get("kind") == "compare" \
+        else [(run["embedder"], run["threshold"], report["metrics"])]
+    return [{"date": run["date"][:10], "embedder": name, "threshold": threshold, "passageway": run["passageway"],
+             "cases": m["cases"], "hit_at_3": m["hit_at_3"], "silence": m["silence"], "p95_ms": m["p95_ms"]}
+            for name, threshold, m in parts]
 
 
 def _key(entry: dict) -> tuple:
@@ -218,8 +270,9 @@ def write_block(page: Path, report: dict) -> None:
     <page>.history.json (one entry per date, embedder, threshold and version: a repeated run replaces it)."""
     text, start, end = check_page(page)
     history_file = _history_file(page)
-    entry = _entry(report)
-    history = sorted([e for e in _read_history(history_file) if _key(e) != _key(entry)] + [entry], key=_key)
+    entries = _entries(report)
+    replaced = {_key(e) for e in entries}
+    history = sorted([e for e in _read_history(history_file) if _key(e) not in replaced] + entries, key=_key)
     newline = "\r\n" if "\r\n" in text else "\n"
     body = render_markdown(report, heading=False, history=list(reversed(history))[:HISTORY_ROWS]).rstrip("\n")
     _write(page, text[:start] + newline + body.replace("\n", newline) + newline + text[end:])

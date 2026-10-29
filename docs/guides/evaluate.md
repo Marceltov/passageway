@@ -88,6 +88,25 @@ The report records the date, the passageway version, the embedding model, the th
 
 To fail a CI job on a regression, put `[targets]` in the cases file and add `--enforce`.
 
+## Compare embedding models
+
+```bash
+passageway eval compare cases.toml
+```
+
+runs the same questions once per embedder and puts them side by side. The candidates are the `[embedders.NAME]` tables of your `passageway.toml` (see [Configuration](../configuration.md#the-embedder)), and `default` is the `[embedder]` the server uses. Each candidate gets its **own fresh index** and runs at **its own `min_similarity`**, because similarity scales differ between models; comparing them at one shared threshold would favour whichever model that value happens to suit. The report names the threshold of each.
+
+| Option | What it does |
+|---|---|
+| `--embedder NAME` | Compare only these candidates; repeat it. At least two are needed. Default: `default` and every `[embedders.NAME]` |
+| `--config PATH`, `--model-dir DIR` | As for a single run |
+| `--threshold X` | Use one threshold for every candidate instead of their own |
+| `--sweep 0.80,0.84,0.88` | Also show every candidate at these thresholds, one table each |
+| `--out DIR` | Write `report.json` (`"kind": "compare"`, one entry per candidate) and `report.md` |
+| `--write PAGE` | Update the marked block of your page with the comparison, and add one history line per embedder |
+
+Each row shows the model's name and dimensions, the **load** time (starting the model) and the **index** time (embedding every source), then the quality metrics with their intervals. Exit codes: 0 for a finished comparison, 1 for a source that failed to sync, 2 for bad input or an embedder that cannot start. The comparison holds no question, title or address.
+
 ## Not yet
 
-Comparing several embedding models on the same index (`passageway eval compare`) comes with the choice of embedders. The [sample corpus](../reference/corpus.md) has a public set of 100 questions and the first [published measurements](../measurements.md), which show the whole sweep. The [roadmap](../roadmap.md) has the order.
+The [sample corpus](../reference/corpus.md) has a public set of 100 questions and the first [published measurements](../measurements.md), which show the whole sweep. The [roadmap](../roadmap.md) has the order of what comes next.
