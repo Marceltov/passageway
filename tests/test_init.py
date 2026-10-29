@@ -34,3 +34,18 @@ def test_the_server_reads_the_password_from_the_file(tmp_path):
     with pytest.raises(ConfigError, match="PASSAGEWAY_LOGIN_PASSWORD_FILE"):
         load_config({"PASSAGEWAY_CONFIG": str(config), "PASSAGEWAY_LOGIN_PASSWORD_FILE": str(tmp_path / "nope"),
                      "PASSAGEWAY_DATA_DIR": str(tmp_path)})
+
+
+def test_init_fixes_the_mode_of_a_kept_password_and_refuses_an_empty_one(tmp_path):
+    config = tmp_path / "passageway.toml"
+    config.write_text('[[connector]]\nname = "n"\ncommand = ["x"]\n')
+    password = tmp_path / "password"
+    password.write_text("kept\n")
+    password.chmod(0o644)
+    assert main([], env={"PASSAGEWAY_CONFIG": str(config)}, stdout=io.StringIO()) == 0
+    assert stat.S_IMODE(password.stat().st_mode) == 0o600 and password.read_text() == "kept\n"
+    password.write_text("")
+    with pytest.raises(ConfigError, match="empty"):
+        load_config({"PASSAGEWAY_CONFIG": str(config), "PASSAGEWAY_LOGIN_PASSWORD_FILE": str(password), "PASSAGEWAY_DATA_DIR": str(tmp_path)})
+    assert main(["--help"], env={"PASSAGEWAY_CONFIG": str(config)}, stdout=io.StringIO()) == 0
+    assert main(["--bogus"], env={"PASSAGEWAY_CONFIG": str(config)}, stdout=io.StringIO()) == 2

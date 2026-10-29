@@ -16,11 +16,11 @@ This gives you the hook, the `/passageway-setup` skill that connects it, the `/p
 
 ## How the hook behaves
 
-- It reads `passageway.json` (`{"url", "token"}`) from the plugin data folder, `${CLAUDE_CONFIG_DIR:-~/.claude}/plugin-data/passageway/`, readable only by you. A `recall.json` left by trilium-recall is used until it is replaced.
-- It posts the prompt (the first 20,000 characters), the session id and the working directory to `POST /recall`, with the password in an `Authorization` header that goes through a curl config on stdin, never on a command line.
+- It reads `passageway.json` (`{"url", "token"}`) from the plugin's data folder or from `${CLAUDE_CONFIG_DIR:-~/.claude}/plugin-data/passageway/`, where the setup skill writes it, readable only by you. A `recall.json` left by trilium-recall is used until it is replaced.
+- It posts the prompt (the first 20,000 characters), the session id and the working directory to `POST /recall`. The password and the prompt go through files only you can read, never on a command line.
 - It waits at most 1.5 s. A slow or broken server, no config, a bad answer: no output, exit 0. It never blocks a prompt.
 - What comes back is the rendered passages (`context`), which it hands to Claude as additional context. The server remembers per session what it already showed, so a passage is not repeated.
-- `bash "$CLAUDE_PLUGIN_ROOT/scripts/test-recall-hook.sh"` checks all of that against a stub server; `scripts/test-recall-hook.sh` in the repository is the same file.
+- `bash "$CLAUDE_PLUGIN_ROOT/scripts/test-recall-hook.sh"` checks the hook against a stub server: a hit, no hit, errors, a slow server, a huge prompt, both config folders, and that neither the password nor the prompt shows up in the process table; `scripts/test-recall-hook.sh` in the repository is the same file.
 
 ## Without the plugin
 

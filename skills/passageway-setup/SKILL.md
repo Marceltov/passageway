@@ -24,25 +24,23 @@ There is no hook and no `claude` CLI there. Add a custom connector (*Customize â
 
 1. Ask for the server URL (for example `http://127.0.0.1:8082` for a local server, or `https://passageway.example` for a sidecar, no path) and the `PASSAGEWAY_LOGIN_PASSWORD` the server was started with. A local server set up with `passageway init` keeps it in `~/.config/passageway/password`: read it from there with a command, do not ask the user to paste it. If the user does not know it, it is in the server's environment (its compose file or secret store).
 2. Check it: `curl -s <url>/health`. Expect JSON with `"status": "ok"` (or `"starting"` while the first index build runs). `"error"` names the misconfiguration; stop and report it.
-3. Write the hook config, readable only by the user. The plugin data folder is `$CLAUDE_PLUGIN_DATA`, falling back to `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/passageway`:
+3. Write the hook config, readable only by the user, into `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/passageway/` (the hook reads this folder as well as the plugin's own data folder). Put the password in a file first (`passageway init` already did, at `~/.config/passageway/password`), and read it from there, so that it is never typed:
 
    ```bash
-   dir="${CLAUDE_PLUGIN_DATA:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/passageway}"
-   mkdir -p "$dir" && umask 077 && python3 -c 'import json,sys; json.dump({"url": sys.argv[1], "token": sys.argv[2]}, open(sys.argv[3], "w"))' "<url>" "<password>" "$dir/passageway.json"
+   dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/passageway"
+   (umask 077 && mkdir -p "$dir" && python3 -c 'import json,sys; json.dump({"url": sys.argv[1], "token": open(sys.argv[2]).read().strip()}, open(sys.argv[3], "w"))' "<url>" "$HOME/.config/passageway/password" "$dir/passageway.json" && chmod 600 "$dir/passageway.json")
    ```
-
-   Pass the password through a variable or a file, never typed into the command line of the transcript.
-4. Register the MCP server (user scope):
+4. Register the MCP server (user scope), again reading the password from the file:
 
    ```bash
-   claude mcp add --transport http passageway "<url>/mcp" -H "Authorization: Bearer <password>" -s user
+   claude mcp add --transport http passageway "<url>/mcp" -H "Authorization: Bearer $(cat ~/.config/passageway/password)" -s user
    ```
 
 5. Tell the user: the hook works from the next prompt in a new session; `recall` is available as a tool right away. A trilium-recall hook config (`plugin-data/trilium-recall/recall.json`) keeps working until it is replaced.
 
 ## Check
 
-`curl -s <url>/health` for the server; `cat "$dir/passageway.json"` exists (do not print the token); `claude mcp list` shows `passageway`. Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/test-recall-hook.sh"` to check the hook itself against a stub.
+`curl -s <url>/health` for the server; `test -f "$dir/passageway.json"` (do not print it); `claude mcp list` shows `passageway`. Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/test-recall-hook.sh"` to check the hook itself against a stub.
 
 ## Remove
 

@@ -55,13 +55,33 @@ mkdir -p "$CLAUDE_PLUGIN_DATA" && printf '{"url": "http://127.0.0.1:%s", "token"
 expected='{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": "Recall (notes) — hit"}}'
 check "a hit becomes additionalContext" "$expected" context
 grep -q '"auth": "Bearer s3cret"' "$tmp/last-request" && grep -q '"cwd": "/root/notes"' "$tmp/last-request" && echo "ok   token in the header, cwd in the body" || { echo "FAIL request"; fail=1; }
+grep -q '"path": "/recall"' "$tmp/last-request" && grep -q '"session_id": "sess-1"' "$tmp/last-request" && echo "ok   posts to /recall with the session id" || { echo "FAIL request shape"; fail=1; }
 check "no hit → nothing" "" empty
 check "server error → nothing" "" error
 check "garbage → nothing" "" garbage
 check "slow server → nothing within the limit" "" slow
+# a trailing slash in the url, a prompt cut at 20000 characters, a huge prompt drained
+printf '{"url": "http://127.0.0.1:%s/", "token": "s3cret"}' "$port" > "$CLAUDE_PLUGIN_DATA/passageway.json"
+echo context > "$tmp/mode"
+big=$(python3 -c 'import json; print(json.dumps({"session_id": "s", "prompt": "needle " + "x" * 3000000}))')
+out=$(printf '%s' "$big" | bash "$hook")
+python3 -c 'import json, sys; r = json.load(open(sys.argv[1])); assert r["path"] == "/recall" and len(r["body"]["prompt"]) == 20000' "$tmp/last-request" \
+  && same "$out" "$expected" && echo "ok   trailing slash, the cut at 20000 and a 3 MB prompt" || { echo "FAIL big prompt: got '${out:0:80}'"; fail=1; }
+# the token and the prompt are never on a command line: sample the process table while the hook is still running
+echo slow > "$tmp/mode"
+printf '{"session_id": "s", "prompt": "zebra-marker-prompt"}' | bash "$hook" >/dev/null & hook_pid=$!
+sleep 1
+if ps -eo args= | grep -v grep | grep -Eq "s3cret|zebra-marker-prompt"; then echo "FAIL token or prompt on a command line"; fail=1; else echo "ok   the token and the prompt are never on a command line"; fi
+wait "$hook_pid" 2>/dev/null
+echo context > "$tmp/mode"
 # a legacy trilium-recall config is still read
 rm "$CLAUDE_PLUGIN_DATA/passageway.json"; mkdir -p "$tmp/plugin-data/../trilium-recall" 2>/dev/null; mkdir -p "$(dirname "$CLAUDE_PLUGIN_DATA")/trilium-recall"
 printf '{"url": "http://127.0.0.1:%s", "token": "s3cret"}' "$port" > "$(dirname "$CLAUDE_PLUGIN_DATA")/trilium-recall/recall.json"
 check "a trilium-recall config still works" "$expected" context
-ps -o args= -p "$stub_pid" >/dev/null && grep -q s3cret <(ps -eo args= | grep -v grep | grep recall-hook || true) && { echo "FAIL token on a command line"; fail=1; } || echo "ok   the token is never on a command line"
+# the fallback folder is read too, when the plugin data variable points at an empty folder
+rm -f "$(dirname "$CLAUDE_PLUGIN_DATA")/trilium-recall/recall.json"
+export CLAUDE_CONFIG_DIR="$tmp/claude-config"
+mkdir -p "$CLAUDE_CONFIG_DIR/plugin-data/passageway"
+printf '{"url": "http://127.0.0.1:%s", "token": "s3cret"}' "$port" > "$CLAUDE_CONFIG_DIR/plugin-data/passageway/passageway.json"
+check "the fallback folder is found when the plugin data folder is empty" "$expected" context
 exit $fail

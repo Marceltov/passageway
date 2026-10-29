@@ -13,8 +13,5 @@ skills
 hooks
 scripts
 .claude-plugin
-*.md
-!README.md
-!connectors/*/README.md
-!embedders/*/README.md
-!sdk/README.md
+CLAUDE.md
+CHANGELOG.md

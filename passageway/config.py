@@ -234,6 +234,8 @@ def load_config(env: Mapping[str, str], *, require_password: bool = True) -> Con
             password = Path(password_file).read_text().strip()
         except OSError as e:
             raise ConfigError(f"PASSAGEWAY_LOGIN_PASSWORD_FILE={password_file}: {e.strerror or e}") from None
+        if not password:
+            raise ConfigError(f"PASSAGEWAY_LOGIN_PASSWORD_FILE={password_file} is empty")
     if require_password and not password:
         raise ConfigError("PASSAGEWAY_LOGIN_PASSWORD is not set (nor PASSAGEWAY_LOGIN_PASSWORD_FILE): clients authenticate "
                           "with it, so the engine refuses to start without it; `passageway init` generates one")

@@ -20,6 +20,10 @@ SAMPLE = '''# passageway.toml: one [[connector]] per source. Secrets are referen
 def main(argv: list[str], env=None, stdout=None) -> int:
     env = os.environ if env is None else env
     stdout = stdout or sys.stdout
+    if argv:
+        print("usage: passageway init  (creates the configuration folder with a generated password and a passageway.toml "
+              "to fill in; it keeps what is there)", file=stdout)
+        return 0 if argv in (["--help"], ["-h"]) else 2
     config = Path(env.get("PASSAGEWAY_CONFIG") or default_config_path())
     folder = config.parent
     folder.mkdir(parents=True, exist_ok=True)
@@ -29,7 +33,8 @@ def main(argv: list[str], env=None, stdout=None) -> int:
         pass
     password = folder / "password"
     if password.exists():
-        print(f"{password}: already there, kept", file=stdout)
+        os.chmod(password, 0o600)
+        print(f"{password}: already there, kept (readable only by you)", file=stdout)
     else:
         with open(os.open(password, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "w") as f:
             f.write(secrets.token_hex(24) + "\n")

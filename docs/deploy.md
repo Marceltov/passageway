@@ -33,7 +33,7 @@ Save this as `~/Library/LaunchAgents/de.marceltov.passageway.plist`, with the pa
   <key>EnvironmentVariables</key>
   <dict>
     <key>PASSAGEWAY_LOGIN_PASSWORD_FILE</key><string>/Users/you/.config/passageway/password</string>
-    <key>PATH</key><string>/usr/local/bin:/usr/bin:/bin</string>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
   </dict>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
@@ -43,11 +43,11 @@ Save this as `~/Library/LaunchAgents/de.marceltov.passageway.plist`, with the pa
 </plist>
 ```
 
-Then `launchctl load ~/Library/LaunchAgents/de.marceltov.passageway.plist`. The connectors run with an empty environment plus `PATH` and `HOME`, so the `PATH` above must reach the interpreter named in your `passageway.toml`. On Linux, a systemd user unit with the same two environment variables does the same.
+Then `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/de.marceltov.passageway.plist`. The connectors run with an empty environment plus `PATH` and `HOME`, so the `PATH` above must reach the interpreter named in your `passageway.toml`. On Linux, a systemd user unit with the same two environment variables does the same.
 
 ## As a container
 
-The image `ghcr.io/marceltov/passageway` is built from the repository's `Dockerfile` on every release: the server with every bundled connector and embedder, and the default model baked in and verified by checksum, so the container never fetches anything at start.
+The image `ghcr.io/marceltov/passageway` is built from the repository's `Dockerfile` on every release, for amd64 and arm64: the server with every bundled connector and embedder, and the default model baked in and verified by checksum, so the container fetches nothing at start as long as it uses the default model (another preset is fetched into `/data/models` once). It runs as an unprivileged user.
 
 ```yaml
 services:
@@ -67,4 +67,4 @@ volumes:
 
 Inside the container the defaults are `PASSAGEWAY_HOST=0.0.0.0`, `PASSAGEWAY_DATA_DIR=/data`, `PASSAGEWAY_CONFIG=/config/passageway.toml` and `PASSAGEWAY_MODEL_DIR=/models/e5-small`; the health check calls `/health` every minute. The bundled connectors are installed, so a `command` of `["python", "-m", "passageway_connector_trilium"]` works as written (the venv's `python` is first on the `PATH`). A connector of your own needs a derived image that adds it, or a mount.
 
-`:latest` moves only on version tags, so a watcher that pulls `latest` installs each release on its own. The image is about 1 GB, most of it the model and the ONNX runtime.
+`:latest` moves only on pushed version tags, so a watcher that pulls `latest` installs each release on its own. The image is a few hundred megabytes, most of it the model and the ONNX runtime.

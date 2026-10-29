@@ -275,7 +275,7 @@ def test_the_image_bakes_the_model_in_and_serves_on_all_interfaces():
     assert "PASSAGEWAY_MODEL_DIR=/models/e5-small" in text and "PASSAGEWAY_HOST=0.0.0.0" in text and "HEALTHCHECK" in text
     assert "PASSWORD" not in text.replace("PASSAGEWAY_LOGIN_PASSWORD=...", "")  # no secret baked in
     release = (ROOT / ".github" / "workflows" / "release.yml").read_text()
-    assert "ghcr.io" in release and "packages: write" in release and "docker push" in release
+    assert "ghcr.io" in release and "packages: write" in release and "--push" in release and "linux/arm64" in release
     checks = (ROOT / ".github" / "workflows" / "checks.yml").read_text()
     assert "docker build" in checks
 
