@@ -35,3 +35,11 @@ def test_list_names_every_preset_and_the_default(capsys):
     assert models.main(["list"]) == 0
     out = capsys.readouterr().out
     assert all(name in out for name in models.PRESETS) and "(default)" in out and "not measured" in out
+
+
+def test_the_command_looks_where_the_server_looks_for_the_default_preset(tmp_path, monkeypatch, capsys):
+    monkeypatch.delenv("PASSAGEWAY_MODEL_DIR", raising=False)
+    monkeypatch.setenv("PASSAGEWAY_DATA_DIR", str(tmp_path))
+    code = models.main(["verify"])
+    out = capsys.readouterr().out
+    assert code == 1 and str(tmp_path / "models" / "e5-small") in out

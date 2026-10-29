@@ -108,3 +108,25 @@ def test_a_preset_without_a_measured_gate_warns(tmp_path, caplog, monkeypatch):
     with caplog.at_level(logging.WARNING, logger="passageway.embed"):
         build_embedder(EmbedderConfig(model="multilingual-e5-base"), config)
     assert any("min_similarity" in r.getMessage() for r in caplog.records)
+
+
+def test_a_download_error_of_any_kind_is_a_config_error(tmp_path, monkeypatch):
+    from passageway.models import ModelError
+    monkeypatch.setattr("passageway.embed.files_missing", lambda preset, folder: ["model.onnx"])
+    monkeypatch.setattr("passageway.embed.verify", lambda preset, folder: [])
+
+    def boom(preset, folder, **kw):
+        raise ModelError("disk full")
+    monkeypatch.setattr("passageway.embed.download", boom)
+    with pytest.raises(ConfigError, match="disk full"):
+        build_embedder(EmbedderConfig(), Config(password="", connectors=[], data_dir=tmp_path, model_dir=tmp_path / "e5"))
+
+
+def test_the_warning_for_an_unmeasured_gate_says_what_it_means(tmp_path, caplog, monkeypatch):
+    monkeypatch.setattr("passageway.embed.files_missing", lambda preset, folder: [])
+    monkeypatch.setattr("passageway.embed.verify", lambda preset, folder: [])
+    monkeypatch.setattr("passageway.embed.OnnxEmbedder", lambda folder, preset, device: type("E", (), {"min_similarity": None})())
+    with caplog.at_level(logging.WARNING, logger="passageway.embed"):
+        build_embedder(EmbedderConfig(model="jina-v2-base-de"), Config(password="", connectors=[], data_dir=tmp_path, model_dir=tmp_path / "e5"))
+    message = next(r.getMessage() for r in caplog.records)
+    assert "almost nothing" in message and "min_similarity" in message and "--sweep" in message

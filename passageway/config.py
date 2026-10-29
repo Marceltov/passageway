@@ -147,7 +147,7 @@ def _embedder(name: str, raw: object, env: Mapping[str, str]) -> EmbedderConfig:
         if model_dir is not None and not isinstance(model_dir, str):
             raise ConfigError(f"{where}: 'model_dir' must be a path")
         model = raw.get("model", "multilingual-e5-small")
-        if model not in PRESETS:
+        if not isinstance(model, str) or model not in PRESETS:
             raise ConfigError(f"{where}: 'model' must be one of the presets {', '.join(PRESETS)}, got {model!r} "
                               "(another model runs as kind = \"command\")")
         device = raw.get("device", "auto")

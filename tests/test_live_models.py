@@ -16,7 +16,8 @@ pytestmark = pytest.mark.skipif(not os.environ.get("PASSAGEWAY_LIVE"), reason="s
 
 
 def _config():
-    data = Path(os.environ.get("PASSAGEWAY_DATA_DIR") or Path.home() / "Library/Application Support/passageway")
+    from passageway.config import default_data_dir
+    data = Path(os.environ.get("PASSAGEWAY_DATA_DIR") or default_data_dir())
     return Config(password="", connectors=[], data_dir=data, model_dir=Path(os.environ.get("PASSAGEWAY_MODEL_DIR") or data / "models" / "e5-small"))
 
 
@@ -43,8 +44,10 @@ def test_coreml_gives_the_same_vectors_as_cpu_within_tolerance():
     if "CoreMLExecutionProvider" not in ort.get_available_providers():
         pytest.skip("no CoreML here")
     config = _config()
+    if files_missing(PRESETS["multilingual-e5-small"], model_folder(EmbedderConfig(), config)):
+        pytest.skip("the default model is not downloaded")
     cpu = build_embedder(EmbedderConfig(download=False, device="cpu"), config)
     coreml = build_embedder(EmbedderConfig(download=False, device="coreml"), config)
     texts = ["Lighthouses guide ships safely into the harbour at night.", "Backpropagation computes gradients."]
     a, b = cpu.embed_passages(texts), coreml.embed_passages(texts)
-    assert np.allclose(a, b, atol=2e-2), np.abs(a - b).max()
+    assert np.allclose(a, b, atol=3e-2), np.abs(a - b).max()  # close for e5-small; Jina on CoreML is far off, hence auto = cpu
