@@ -167,7 +167,7 @@ def test_the_connector_skill_points_to_the_sdk():
 def test_the_general_skill_does_not_deny_what_exists():
     text = GENERAL.read_text()
     assert "passageway eval" in text and "/recall" in text, "the evaluation command and the hook endpoint exist and must be named"
-    assert "exists today" in text or "What exists today" in text
+    assert "not available yet" not in text, "everything the skill describes exists now; say so without denial"
 
 
 def test_the_secrets_rule_names_who_handles_the_password():
