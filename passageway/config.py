@@ -49,7 +49,7 @@ class ConnectorConfig:
 
 
 EMBEDDER_KINDS = ("onnx", "command")
-_ONNX_KEYS = {"kind", "min_similarity", "model_dir"}
+_ONNX_KEYS = {"kind", "min_similarity", "model", "model_dir", "device", "download"}
 _COMMAND_KEYS = {"kind", "command", "env", "secrets", "min_similarity", "batch_size", "timeout"}
 
 
@@ -63,7 +63,10 @@ class EmbedderConfig:
     min_similarity: float | None = None  # the relevance gate of this model; None keeps the built-in default
     batch_size: int = 32  # texts per request
     timeout: float = 60.0  # seconds per request
-    model_dir: Path | None = None  # onnx only; None: PASSAGEWAY_MODEL_DIR
+    model_dir: Path | None = None  # onnx only; None: <data dir>/models/<model>
+    model: str = "multilingual-e5-small"  # onnx only: a preset of passageway.models
+    device: str = "auto"  # onnx only: auto | cpu | coreml
+    download: bool = True  # onnx only: fetch the pinned, checksummed files when they are missing
 
 
 @dataclass
@@ -138,10 +141,23 @@ def _embedder(name: str, raw: object, env: Mapping[str, str]) -> EmbedderConfig:
             raise ConfigError(f"{where}: 'min_similarity' must be a number from 0 to 1")
         gate = float(gate)
     if kind == "onnx":
+        from passageway.models import DEVICES, PRESETS
+
         model_dir = raw.get("model_dir")
         if model_dir is not None and not isinstance(model_dir, str):
             raise ConfigError(f"{where}: 'model_dir' must be a path")
-        return EmbedderConfig("onnx", min_similarity=gate, model_dir=Path(model_dir) if model_dir else None)
+        model = raw.get("model", "multilingual-e5-small")
+        if model not in PRESETS:
+            raise ConfigError(f"{where}: 'model' must be one of the presets {', '.join(PRESETS)}, got {model!r} "
+                              "(another model runs as kind = \"command\")")
+        device = raw.get("device", "auto")
+        if device not in DEVICES:
+            raise ConfigError(f"{where}: 'device' must be one of {', '.join(DEVICES)}, got {device!r}")
+        auto = raw.get("download", True)
+        if not isinstance(auto, bool):
+            raise ConfigError(f"{where}: 'download' must be true or false")
+        return EmbedderConfig("onnx", min_similarity=gate, model_dir=Path(model_dir) if model_dir else None, model=model,
+                              device=device, download=auto)
     command = raw.get("command")
     if not isinstance(command, list) or not command or not all(isinstance(c, str) for c in command):
         raise ConfigError(f"{where}: 'command' must be a non-empty list of strings")

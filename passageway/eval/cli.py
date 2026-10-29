@@ -45,7 +45,7 @@ def _run(args, env: Mapping[str, str], embedder, targets, cases) -> tuple[dict, 
     if embedder is None:
         from passageway.embed import build_embedder
 
-        embedder = build_embedder(config.embedder, config.model_dir)
+        embedder = build_embedder(config.embedder, config)
     load_seconds = round(time.perf_counter() - started, 1)
     try:
         done = measure(config, embedder, cases, data_dir=args.data_dir, threshold=args.threshold, sweep=sweep_values(args.sweep))

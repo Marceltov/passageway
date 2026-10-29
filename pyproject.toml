@@ -18,6 +18,7 @@ dependencies = [
     "sentencepiece>=0.2.2",
     "sqlite-vec>=0.1.6",
     "starlette>=0.40",
+    "tokenizers>=0.20",
     "uvicorn>=0.30",
 ]
 

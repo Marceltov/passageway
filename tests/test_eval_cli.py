@@ -41,7 +41,7 @@ class Setup:
         (tmp_path / "items.json").write_text(json.dumps(DOCS))
         self.config = tmp_path / "passageway.toml"
         self.config.write_text(
-            '[embedder]\nmin_similarity = 0.3\n\n[[connector]]\nname = "notes"\n'
+            '[embedder]\nmin_similarity = 0.3\ndownload = false\n\n[[connector]]\nname = "notes"\n'
             f'command = ["{sys.executable}", "-m", "passageway.testing.fake_connector"]\n'
             f'env = {{ FAKE_ITEMS = "{tmp_path / "items.json"}" }}\n')
         self.cases = tmp_path / "cases.toml"
