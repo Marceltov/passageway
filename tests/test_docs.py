@@ -153,7 +153,7 @@ def test_the_cases_example_in_the_evaluation_guide_is_a_valid_cases_file(tmp_pat
 
 def test_the_evaluation_guide_states_what_a_reader_could_get_wrong():
     guide = (ROOT / "docs" / "guides" / "evaluate.md").read_text()
-    for needle in ("three or more words", "group labels", "live data folder", "on a line of its own",
+    for needle in ("three or more words", "group labels", "live data folder", "on a line of its own", "95% interval",
                    "version", "has no `[targets]`"):
         assert needle in guide, f"the evaluation guide should say: {needle}"
 

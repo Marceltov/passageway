@@ -58,6 +58,20 @@ def _percentile(values: list[float], p: float) -> float:
     return ordered[min(len(ordered) - 1, max(0, math.ceil(p * len(ordered)) - 1))] if ordered else 0.0
 
 
+Z95 = 1.959964
+
+
+def wilson_interval(successes: int, total: int) -> tuple[float, float] | None:
+    """The 95% Wilson interval of a rate: where the true rate could lie, given this many questions."""
+    if not total:
+        return None
+    p = successes / total
+    denominator = 1 + Z95 ** 2 / total
+    centre = (p + Z95 ** 2 / (2 * total)) / denominator
+    half = Z95 * math.sqrt(p * (1 - p) / total + Z95 ** 2 / (4 * total ** 2)) / denominator
+    return round(max(0.0, centre - half), 3), round(min(1.0, centre + half), 3)
+
+
 def _share(count: int, total: int) -> float | None:
     return count / total if total else None  # nothing behind it: not a perfect score
 
@@ -68,6 +82,11 @@ def score(results: list[CaseResult]) -> dict:
     ms = [r.ms for r in results]
     mean_ms = sum(ms) / len(ms) if ms else 0.0
     mean_embed = sum(r.embed_ms for r in results) / len(results) if results else 0.0
+    counts = {
+        "hit_at_1": (sum(r.rank == 1 for r in answerable), len(answerable)),
+        "hit_at_3": (sum(r.rank is not None and r.rank <= 3 for r in answerable), len(answerable)),
+        "silence": (sum(not r.hits for r in unanswerable), len(unanswerable)),
+        "false_silence": (sum(not r.hits for r in answerable), len(answerable))}
     return {
         "cases": len(results), "answerable": len(answerable), "unanswerable": len(unanswerable),
         "hit_at_1": _share(sum(r.rank == 1 for r in answerable), len(answerable)),
@@ -77,6 +96,7 @@ def score(results: list[CaseResult]) -> dict:
         "false_silence": _share(sum(not r.hits for r in answerable), len(answerable)),
         "p50_ms": round(_percentile(ms, 0.5), 1), "p95_ms": round(_percentile(ms, 0.95), 1),
         "embed_ms": round(mean_embed, 1), "embed_share": round(mean_embed / mean_ms, 3) if mean_ms else None,
+        "intervals": {name: list(wilson_interval(k, n)) for name, (k, n) in counts.items() if n},
     }
 
 

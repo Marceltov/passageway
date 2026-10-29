@@ -225,3 +225,15 @@ def test_a_page_that_cannot_be_written_leaves_no_history_behind(page):
     finally:
         page.chmod(0o644)
     assert not (page.parent / "measurements.history.json").exists()
+
+
+def test_the_markdown_shows_the_interval_next_to_each_rate_and_json_keeps_it():
+    r = report()
+    assert r["metrics"]["intervals"]["hit_at_3"]
+    md = render_markdown(r)
+    row = next(line for line in md.splitlines() if line.startswith("| Hit@3"))
+    assert "50.0%" in row and "(" in row and "–" in row and row.rstrip().endswith("%) |")
+    assert "95%" in md  # the table says what the brackets are
+    group_row = next(line for line in md.splitlines() if line.startswith("| animals"))
+    assert "(" in group_row  # a group of two questions: the interval is the point
+    assert "MRR | 0.500 |" in md  # not a proportion: no interval

@@ -6,7 +6,7 @@ import pytest
 from passageway.config import Config, ConnectorConfig
 from passageway.embed import HashEmbedder
 from passageway.eval.cases import Case
-from passageway.eval.run import CaseResult, TimedEmbedder, check_targets, group_scores, run_cases, score
+from passageway.eval.run import CaseResult, TimedEmbedder, check_targets, group_scores, run_cases, score, wilson_interval
 from passageway.rank import Hit, RankParams
 from passageway.server import Engine
 
@@ -125,3 +125,29 @@ def test_a_target_is_compared_with_the_value_the_report_shows():
     assert check_targets({"hit_at_3": 2 / 3}, {"hit_at_3": 0.667})[0]["passed"]
     assert not check_targets({"hit_at_3": 0.6664}, {"hit_at_3": 0.667})[0]["passed"]
     assert check_targets({"false_silence": 0.1004}, {"false_silence": 0.1})[0]["passed"]  # shown as 0.100
+
+
+# ---- confidence intervals ------------------------------------------------------------------------
+
+@pytest.mark.parametrize("successes,total,expected", [
+    (85, 100, (0.767, 0.907)), (0, 10, (0.0, 0.278)), (10, 10, (0.722, 1.0)), (1, 1, (0.207, 1.0)), (34, 40, (0.709, 0.929))])
+def test_the_wilson_interval_matches_the_textbook_values(successes, total, expected):
+    assert wilson_interval(successes, total) == expected
+
+
+def test_no_questions_no_interval():
+    assert wilson_interval(0, 0) is None
+
+
+def test_the_rates_come_with_an_interval_and_mrr_does_not():
+    results = [result(["A"], [hit(title="A")]) for _ in range(34)] + [result(["A"], []) for _ in range(6)] + \
+              [result([], []) for _ in range(9)] + [result([], [hit()])]
+    m = score(results)
+    assert m["intervals"]["hit_at_3"] == [0.709, 0.929] and m["intervals"]["hit_at_1"] == [0.709, 0.929]
+    assert m["intervals"]["false_silence"][0] < 0.15 < m["intervals"]["false_silence"][1]
+    assert m["intervals"]["silence"] == list(wilson_interval(9, 10))
+    assert "mrr" not in m["intervals"] and "p95_ms" not in m["intervals"]
+
+
+def test_a_rate_with_no_questions_behind_it_has_no_interval():
+    assert score([result([], [])])["intervals"].keys() == {"silence"}

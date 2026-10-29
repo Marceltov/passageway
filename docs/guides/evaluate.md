@@ -64,6 +64,8 @@ Exit codes: 0 for a finished run, 1 for `--enforce` below the targets or a sourc
 | False silence | Share of answerable questions for which nothing was returned. High means the threshold is too strict |
 | Latency p50 / p95 | Time to answer, including embedding the question; the report also shows the embedding's share. A warm-up question is not counted |
 
+Every rate is followed by its **95% interval** in brackets, for example `85.0% (77–91%)`: given this many questions, the true rate could lie anywhere in it (a Wilson interval; it is also in `report.json` under `intervals`). Two runs whose rates differ by less than their intervals have not been shown to differ. With 40 answerable questions a rate of 85% has an interval of about ±11 points, with 100 about ±7, and a group of 8 questions is only a hint.
+
 A metric with no question behind it shows `n/a` and fails a target on it: with no unanswerable question, silence is not 100%, it is unknown.
 
 Silence and false silence pull against each other as the threshold moves, and `--sweep` shows where they cross for your sources and your model.
