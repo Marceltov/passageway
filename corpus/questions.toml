@@ -1,0 +1,494 @@
+# Questions for the sample corpus (corpus/en and corpus/de): 100 questions, 70 with accepted answers and 30 that nothing in
+# the corpus answers. Run them with corpus/measure.sh. They never name a language or a source: one `recall` searches every
+# source, so a question in one language may be answered by an article in the other, and an accepted answer lists the
+# articles of both languages that explain it (`expect_id` is the file name; the comment names the articles).
+#
+# Groups: definition (what is X), how-why (how or why does X work), paraphrase (hardly any words in common with the
+# article), cross-language (the only good article is in the other language), near-topic (a technique the corpus does not
+# cover) and off-topic (nothing to do with machine learning). The unanswerable ones have no `expect_id`: any hit is noise.
+#
+# The questions were written, and every accepted answer checked against the text of the articles, before the first
+# measurement; a question that turns out wrong is fixed in its own, visible commit, never to improve the numbers.
+
+
+# ---- definition ------------------------------------------------------------------------------------------
+
+[[case]]
+query = "What is deep learning?"
+expect_id = ["deep-learning.md"]   # Deep learning (en) / Deep Learning (de)
+group = "definition"
+
+[[case]]
+query = "Was ist ein Autoencoder?"
+expect_id = ["autoencoder.md"]   # Autoencoder (en) / Autoencoder (de)
+group = "definition"
+
+[[case]]
+query = "What is backpropagation?"
+expect_id = ["backpropagation.md"]   # Backpropagation (en) / Backpropagation (de)
+group = "definition"
+
+[[case]]
+query = "Was versteht man unter einem Convolutional Neural Network?"
+expect_id = ["convolutional-neural-network.md"]   # Convolutional neural network (en) / Convolutional Neural Network (de)
+group = "definition"
+
+[[case]]
+query = "What is a recurrent neural network?"
+expect_id = ["recurrent-neural-network.md", "rekurrentes-neuronales-netz.md"]   # Recurrent neural network (en); Rekurrentes neuronales Netz (de)
+group = "definition"
+
+[[case]]
+query = "Was ist Long short-term memory?"
+expect_id = ["long-short-term-memory.md"]   # Long short-term memory (en) / Long short-term memory (de)
+group = "definition"
+
+[[case]]
+query = "What is a generative adversarial network?"
+expect_id = ["generative-adversarial-network.md", "generative-adversarial-networks.md"]   # Generative adversarial network (en); Generative Adversarial Networks (de)
+group = "definition"
+
+[[case]]
+query = "Was ist ein Perzeptron?"
+expect_id = ["perzeptron.md", "perceptron.md"]   # Perzeptron (de); Perceptron (en)
+group = "definition"
+
+[[case]]
+query = "What is overfitting?"
+expect_id = ["overfitting.md", "überanpassung.md"]   # Overfitting (en); Überanpassung (de)
+group = "definition"
+
+[[case]]
+query = "Was ist ein großes Sprachmodell?"
+expect_id = ["large-language-model.md"]   # Large language model (en) / Large Language Model (de)
+group = "definition"
+
+[[case]]
+query = "What is a transformer in machine learning?"
+expect_id = ["transformer-deep-learning.md", "transformer-maschinelles-lernen.md"]   # Transformer (deep learning) (en); Transformer (Maschinelles Lernen) (de)
+group = "definition"
+
+[[case]]
+query = "Was bedeutet selbstüberwachtes Lernen?"
+expect_id = ["selbstüberwachtes-lernen.md", "self-supervised-learning.md"]   # Selbstüberwachtes Lernen (de); Self-supervised learning (en)
+group = "definition"
+
+[[case]]
+query = "What is transfer learning?"
+expect_id = ["transfer-learning.md"]   # Transfer learning (en)
+group = "definition"
+
+[[case]]
+query = "Was ist Wissensdestillation?"
+expect_id = ["wissensdestillation.md", "knowledge-distillation.md"]   # Wissensdestillation (de); Knowledge distillation (en)
+group = "definition"
+
+[[case]]
+query = "What is a word embedding?"
+expect_id = ["word-embedding.md"]   # Word embedding (en)
+group = "definition"
+
+[[case]]
+query = "Was ist ein künstliches Neuron?"
+expect_id = ["künstliches-neuron.md"]   # Künstliches Neuron (de)
+group = "definition"
+
+[[case]]
+query = "What is an activation function?"
+expect_id = ["activation-function.md", "künstliches-neuron.md"]   # Activation function (en); Künstliches Neuron (de)
+group = "definition"
+
+[[case]]
+query = "Was ist Retrieval-Augmented Generation?"
+expect_id = ["retrieval-augmented-generation.md", "large-language-model.md"]   # Retrieval-Augmented Generation (de); Large language model (en) / Large Language Model (de)
+group = "definition"
+
+[[case]]
+query = "What is supervised learning?"
+expect_id = ["überwachtes-lernen.md", "neural-network-machine-learning.md"]   # Überwachtes Lernen (de); Neural network (machine learning) (en)
+group = "definition"
+
+[[case]]
+query = "What is a multilayer perceptron?"
+expect_id = ["multilayer-perceptron.md", "multi-layer-perzeptron.md"]   # Multilayer perceptron (en); Multi-Layer-Perzeptron (de)
+group = "definition"
+
+# ---- how-why ---------------------------------------------------------------------------------------------
+
+[[case]]
+query = "How does backpropagation compute the gradients?"
+expect_id = ["backpropagation.md"]   # Backpropagation (en) / Backpropagation (de)
+group = "how-why"
+
+[[case]]
+query = "Wie lernt ein neuronales Netz mit dem Gradientenverfahren?"
+expect_id = ["gradientenverfahren.md", "stochastic-gradient-descent.md"]   # Gradientenverfahren (de); Stochastic gradient descent (en)
+group = "how-why"
+
+[[case]]
+query = "Why do LSTMs avoid the vanishing gradient problem?"
+expect_id = ["long-short-term-memory.md", "vanishing-gradient-problem.md"]   # Long short-term memory (en) / Long short-term memory (de); Vanishing gradient problem (en)
+group = "how-why"
+
+[[case]]
+query = "Wie funktioniert die Selbstaufmerksamkeit in einem Transformer?"
+expect_id = ["transformer-maschinelles-lernen.md", "transformer-deep-learning.md", "attention-machine-learning.md", "attention-is-all-you-need.md"]   # Transformer (Maschinelles Lernen) (de); Transformer (deep learning) (en); Attention (machine learning) (en); Attention Is All You Need (de)
+group = "how-why"
+
+[[case]]
+query = "How does a convolutional neural network detect features in an image?"
+expect_id = ["convolutional-neural-network.md"]   # Convolutional neural network (en) / Convolutional Neural Network (de)
+group = "how-why"
+
+[[case]]
+query = "Warum neigen große Netze zur Überanpassung und was hilft dagegen?"
+expect_id = ["überanpassung.md", "overfitting.md", "dropout-neural-networks.md"]   # Überanpassung (de); Overfitting (en); Dropout (neural networks) (en)
+group = "how-why"
+
+[[case]]
+query = "How are generative adversarial networks trained?"
+expect_id = ["generative-adversarial-network.md", "generative-adversarial-networks.md"]   # Generative adversarial network (en); Generative Adversarial Networks (de)
+group = "how-why"
+
+[[case]]
+query = "Wie funktioniert Fine-Tuning bei einem vortrainierten Modell?"
+expect_id = ["fine-tuning-künstliche-intelligenz.md", "fine-tuning-deep-learning.md", "transfer-learning.md"]   # Fine-Tuning (Künstliche Intelligenz) (de); Fine-tuning (deep learning) (en); Transfer learning (en)
+group = "how-why"
+
+[[case]]
+query = "How is a large language model trained?"
+expect_id = ["large-language-model.md"]   # Large language model (en) / Large Language Model (de)
+group = "how-why"
+
+[[case]]
+query = "Wie rekonstruiert ein Autoencoder seine Eingabe?"
+expect_id = ["autoencoder.md"]   # Autoencoder (en) / Autoencoder (de)
+group = "how-why"
+
+[[case]]
+query = "How does a diffusion model generate an image?"
+expect_id = ["diffusion-model.md"]   # Diffusion model (en)
+group = "how-why"
+
+[[case]]
+query = "Wie lernt ein Agent beim bestärkenden Lernen?"
+expect_id = ["bestärkendes-lernen.md", "deep-reinforcement-learning.md"]   # Bestärkendes Lernen (de); Deep reinforcement learning (en)
+group = "how-why"
+
+[[case]]
+query = "How does batch normalization speed up training?"
+expect_id = ["batch-normalization.md"]   # Batch normalization (en)
+group = "how-why"
+
+[[case]]
+query = "Wie ist ein mehrlagiges Perzeptron aufgebaut?"
+expect_id = ["multi-layer-perzeptron.md", "multilayer-perceptron.md"]   # Multi-Layer-Perzeptron (de); Multilayer perceptron (en)
+group = "how-why"
+
+[[case]]
+query = "How do residual connections help train very deep networks?"
+expect_id = ["residual-neural-network.md"]   # Residual neural network (en)
+group = "how-why"
+
+[[case]]
+query = "Wie funktioniert eine Boltzmann-Maschine?"
+expect_id = ["boltzmann-maschine.md"]   # Boltzmann-Maschine (de)
+group = "how-why"
+
+[[case]]
+query = "How does knowledge distillation transfer what a large model knows to a small one?"
+expect_id = ["knowledge-distillation.md", "wissensdestillation.md"]   # Knowledge distillation (en); Wissensdestillation (de)
+group = "how-why"
+
+[[case]]
+query = "Wofür braucht man die ReLU-Funktion in einem neuronalen Netz?"
+expect_id = ["rectified-linear-unit.md", "künstliches-neuron.md"]   # Rectified linear unit (en); Künstliches Neuron (de)
+group = "how-why"
+
+[[case]]
+query = "Wie speichert ein Hopfield-Netz Muster?"
+expect_id = ["hopfield-netz.md"]   # Hopfield-Netz (de)
+group = "how-why"
+
+# ---- paraphrase ------------------------------------------------------------------------------------------
+
+[[case]]
+query = "My model memorises the training examples but gets new ones wrong. What is this called and what causes it?"
+expect_id = ["overfitting.md", "überanpassung.md"]   # Overfitting (en); Überanpassung (de)
+group = "paraphrase"
+
+[[case]]
+query = "The layers far from the output stop learning because the learning signal becomes tiny. Why does that happen?"
+expect_id = ["vanishing-gradient-problem.md"]   # Vanishing gradient problem (en)
+group = "paraphrase"
+
+[[case]]
+query = "Randomly switching off units while training so that the network cannot rely on any single one"
+expect_id = ["dropout-neural-networks.md"]   # Dropout (neural networks) (en)
+group = "paraphrase"
+
+[[case]]
+query = "Rescaling the inputs of every layer to keep their distribution steady while training"
+expect_id = ["batch-normalization.md"]   # Batch normalization (en)
+group = "paraphrase"
+
+[[case]]
+query = "Two networks play a game: one fabricates samples and the other tries to spot the fakes"
+expect_id = ["generative-adversarial-network.md", "generative-adversarial-networks.md"]   # Generative adversarial network (en); Generative Adversarial Networks (de)
+group = "paraphrase"
+
+[[case]]
+query = "A network that squeezes its input into a small code and then rebuilds it"
+expect_id = ["autoencoder.md"]   # Autoencoder (en) / Autoencoder (de)
+group = "paraphrase"
+
+[[case]]
+query = "Making a small, fast model imitate the answers of a big, slow one"
+expect_id = ["knowledge-distillation.md", "wissensdestillation.md"]   # Knowledge distillation (en); Wissensdestillation (de)
+group = "paraphrase"
+
+[[case]]
+query = "Mapping words to points in space so that words with similar meanings lie close together"
+expect_id = ["word-embedding.md"]   # Word embedding (en)
+group = "paraphrase"
+
+[[case]]
+query = "Generating new pictures by learning to undo gradual noise"
+expect_id = ["diffusion-model.md"]   # Diffusion model (en)
+group = "paraphrase"
+
+[[case]]
+query = "Ein kleines Filter wird über ein Bild geschoben, um Kanten und Muster zu finden"
+expect_id = ["convolutional-neural-network.md"]   # Convolutional neural network (en) / Convolutional Neural Network (de)
+group = "paraphrase"
+
+[[case]]
+query = "Ein Modell lernt aus unbeschrifteten Daten, indem es verdeckte Teile der Eingabe selbst vorhersagt"
+expect_id = ["selbstüberwachtes-lernen.md", "self-supervised-learning.md"]   # Selbstüberwachtes Lernen (de); Self-supervised learning (en)
+group = "paraphrase"
+
+[[case]]
+query = "Ein bereits trainiertes Netz wird mit wenigen Beispielen an eine neue Aufgabe angepasst"
+expect_id = ["fine-tuning-künstliche-intelligenz.md", "fine-tuning-deep-learning.md", "transfer-learning.md"]   # Fine-Tuning (Künstliche Intelligenz) (de); Fine-tuning (deep learning) (en); Transfer learning (en)
+group = "paraphrase"
+
+[[case]]
+query = "Der Fehler am Ausgang wird rückwärts durch das Netz gereicht, um die Gewichte der früheren Schichten zu korrigieren"
+expect_id = ["backpropagation.md"]   # Backpropagation (en) / Backpropagation (de)
+group = "paraphrase"
+
+[[case]]
+query = "Zellen mit Gattern entscheiden, was aus einer Folge behalten und was vergessen wird"
+expect_id = ["long-short-term-memory.md", "gated-recurrent-unit.md"]   # Long short-term memory (en) / Long short-term memory (de); Gated recurrent unit (en)
+group = "paraphrase"
+
+[[case]]
+query = "Das Modell richtet seine Aufmerksamkeit auf die wichtigsten Wörter eines Satzes"
+expect_id = ["transformer-maschinelles-lernen.md", "attention-is-all-you-need.md", "attention-machine-learning.md", "transformer-deep-learning.md"]   # Transformer (Maschinelles Lernen) (de); Attention Is All You Need (de); Attention (machine learning) (en); Transformer (deep learning) (en)
+group = "paraphrase"
+
+[[case]]
+query = "Verknüpfungen, die eine Schicht überspringen, damit sehr tiefe Netze trainierbar bleiben"
+expect_id = ["residual-neural-network.md"]   # Residual neural network (en)
+group = "paraphrase"
+
+[[case]]
+query = "A system is shown huge amounts of text and learns to continue it one word at a time"
+expect_id = ["large-language-model.md"]   # Large language model (en) / Large Language Model (de)
+group = "paraphrase"
+
+[[case]]
+query = "A program that learns by trial and error, collecting rewards for good actions"
+expect_id = ["deep-reinforcement-learning.md", "bestärkendes-lernen.md"]   # Deep reinforcement learning (en); Bestärkendes Lernen (de)
+group = "paraphrase"
+
+# ---- cross-language --------------------------------------------------------------------------------------
+
+[[case]]
+query = "Was ist das Problem der verschwindenden Gradienten?"
+expect_id = ["vanishing-gradient-problem.md"]   # Vanishing gradient problem (en)
+group = "cross-language"
+
+[[case]]
+query = "Wie hilft Dropout gegen Überanpassung?"
+expect_id = ["dropout-neural-networks.md"]   # Dropout (neural networks) (en)
+group = "cross-language"
+
+[[case]]
+query = "Was ist Batch-Normalisierung?"
+expect_id = ["batch-normalization.md"]   # Batch normalization (en)
+group = "cross-language"
+
+[[case]]
+query = "Wie funktioniert ein Diffusionsmodell?"
+expect_id = ["diffusion-model.md"]   # Diffusion model (en)
+group = "cross-language"
+
+[[case]]
+query = "Was sind Word Embeddings?"
+expect_id = ["word-embedding.md"]   # Word embedding (en)
+group = "cross-language"
+
+[[case]]
+query = "Was ist ein Residual Network?"
+expect_id = ["residual-neural-network.md"]   # Residual neural network (en)
+group = "cross-language"
+
+[[case]]
+query = "Was ist eine Gated Recurrent Unit?"
+expect_id = ["gated-recurrent-unit.md"]   # Gated recurrent unit (en)
+group = "cross-language"
+
+[[case]]
+query = "Was sind Hyperparameter?"
+expect_id = ["hyperparameter-machine-learning.md"]   # Hyperparameter (machine learning) (en)
+group = "cross-language"
+
+[[case]]
+query = "What is a Hopfield network?"
+expect_id = ["hopfield-netz.md"]   # Hopfield-Netz (de)
+group = "cross-language"
+
+[[case]]
+query = "What is a Boltzmann machine?"
+expect_id = ["boltzmann-maschine.md"]   # Boltzmann-Maschine (de)
+group = "cross-language"
+
+[[case]]
+query = "What is a self-organizing map?"
+expect_id = ["selbstorganisierende-karte.md"]   # Selbstorganisierende Karte (de)
+group = "cross-language"
+
+[[case]]
+query = "What is prompt engineering?"
+expect_id = ["prompt-engineering.md"]   # Prompt-Engineering (de)
+group = "cross-language"
+
+[[case]]
+query = "What is model collapse when models are trained on AI-generated data?"
+expect_id = ["modellkollaps.md"]   # Modellkollaps (de)
+group = "cross-language"
+
+# ---- near-topic (nothing in the corpus answers these) ----------------------------------------
+
+[[case]]
+query = "How does the naive Bayes classifier work?"
+group = "near-topic"
+
+[[case]]
+query = "How does gradient boosting build its ensemble of trees?"
+group = "near-topic"
+
+[[case]]
+query = "What is the k-nearest neighbours algorithm?"
+group = "near-topic"
+
+[[case]]
+query = "Wie funktioniert der DBSCAN-Algorithmus?"
+group = "near-topic"
+
+[[case]]
+query = "How does the DBSCAN algorithm find clusters of arbitrary shape?"
+group = "near-topic"
+
+[[case]]
+query = "What is the Apriori algorithm for association rules?"
+group = "near-topic"
+
+[[case]]
+query = "How does t-SNE visualise high-dimensional data?"
+group = "near-topic"
+
+[[case]]
+query = "What is the difference between a B-tree and a binary search tree?"
+group = "near-topic"
+
+[[case]]
+query = "How does the A* algorithm find the shortest path?"
+group = "near-topic"
+
+[[case]]
+query = "What is the Viterbi algorithm?"
+group = "near-topic"
+
+[[case]]
+query = "What is Gaussian process regression?"
+group = "near-topic"
+
+[[case]]
+query = "Wie funktioniert der Apriori-Algorithmus für Assoziationsregeln?"
+group = "near-topic"
+
+[[case]]
+query = "Was ist ein Kalman-Filter?"
+group = "near-topic"
+
+[[case]]
+query = "Was ist der Simplex-Algorithmus der linearen Optimierung?"
+group = "near-topic"
+
+[[case]]
+query = "Wie berechnet man die Levenshtein-Distanz zwischen zwei Wörtern?"
+group = "near-topic"
+
+# ---- off-topic (nothing in the corpus answers these) ----------------------------------------
+
+[[case]]
+query = "What is on the cafeteria menu today?"
+group = "off-topic"
+
+[[case]]
+query = "Who won the football World Cup in 2014?"
+group = "off-topic"
+
+[[case]]
+query = "How do I bake sourdough bread?"
+group = "off-topic"
+
+[[case]]
+query = "What is the capital of Australia?"
+group = "off-topic"
+
+[[case]]
+query = "How fast does light travel?"
+group = "off-topic"
+
+[[case]]
+query = "How do I fix a flat bicycle tire?"
+group = "off-topic"
+
+[[case]]
+query = "What are the best sights to see in Lisbon?"
+group = "off-topic"
+
+[[case]]
+query = "How many moons does Mars have?"
+group = "off-topic"
+
+[[case]]
+query = "Wie backe ich ein Sauerteigbrot?"
+group = "off-topic"
+
+[[case]]
+query = "Wie hoch ist die Zugspitze?"
+group = "off-topic"
+
+[[case]]
+query = "Wie lange dauert die Zugfahrt von Hamburg nach München?"
+group = "off-topic"
+
+[[case]]
+query = "Wie koche ich einen Kartoffelsalat?"
+group = "off-topic"
+
+[[case]]
+query = "Welche Sehenswürdigkeiten gibt es in Köln?"
+group = "off-topic"
+
+[[case]]
+query = "Wie funktioniert die gesetzliche Rentenversicherung?"
+group = "off-topic"
+
+[[case]]
+query = "Wie wechsle ich einen Reifen am Auto?"
+group = "off-topic"

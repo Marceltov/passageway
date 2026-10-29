@@ -27,6 +27,7 @@ nav:
       - Connector protocol: reference/connector-protocol.md
       - Connector SDK: reference/sdk.md
       - Sample corpus: reference/corpus.md
+      - Measurements: measurements.md
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
       - Markdown: connectors/markdown.md
