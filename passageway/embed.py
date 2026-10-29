@@ -9,7 +9,7 @@ from typing import Protocol
 import numpy as np
 
 from passageway.config import ConfigError, EmbedderConfig
-from passageway.models import DEFAULT_PRESET, PRESETS, ModelError, download, files_missing, verify
+from passageway.models import DEFAULT_PRESET, PRESETS, ModelError, download, files_missing, model_folder_for, verify
 
 log = logging.getLogger(__name__)
 
@@ -165,13 +165,13 @@ class HashEmbedder:
 
 
 def model_folder(cfg: EmbedderConfig, config) -> Path:
-    """Where a preset's files live: an explicit model_dir, else PASSAGEWAY_MODEL_DIR for the default preset (as before),
-    else <data dir>/models/<preset>."""
+    """Where a preset's files live: one rule with `passageway model` (models.model_folder_for); config.model_dir is the
+    server's resolved PASSAGEWAY_MODEL_DIR for the default preset."""
     if cfg.model_dir:
         return cfg.model_dir
     if cfg.model == DEFAULT_PRESET:
         return config.model_dir
-    return config.data_dir / "models" / cfg.model
+    return model_folder_for(cfg.model, config.data_dir, None)
 
 
 def build_embedder(cfg: EmbedderConfig, config, label: str = "default") -> Embedder:
@@ -196,17 +196,18 @@ def build_embedder(cfg: EmbedderConfig, config, label: str = "default") -> Embed
             what = f"missing {', '.join(missing)}" if missing else f"a wrong checksum for {', '.join(wrong)}"
             raise ConfigError(f"the model {cfg.model!r} in {folder} has {what}: run `passageway model download {cfg.model}` "
                               "(download = true in [embedder] does it at start)")
-        log.info("fetching the model %s (%d MB) from huggingface.co into %s, pinned and checksummed", cfg.model,
-                 preset.size_mb, folder)
+        log.info("fetching the model %s (%d MB) from huggingface.co into %s, pinned and checksummed; the server answers "
+                 "once it is there", cfg.model, preset.size_mb, folder)
         try:
             download(preset, folder, report=lambda m: log.info("%s", m))
-        except ModelError as e:
+        except (ModelError, OSError) as e:
             raise ConfigError(f"could not fetch the model {cfg.model!r}: {e}") from None
     try:
         embedder = OnnxEmbedder(folder, preset, cfg.device)
     except ModelError as e:
         raise ConfigError(str(e)) from None
     if cfg.min_similarity is None and getattr(embedder, "min_similarity", None) is None:
-        log.warning("the model %r has no measured min_similarity yet: the default of the built-in model applies; measure "
-                    "one with `passageway eval --sweep`", cfg.model)
+        log.warning("the model %r has no measured min_similarity yet, so the default gate of the built-in model (0.845) "
+                    "applies, and on another similarity scale almost nothing will pass it: set min_similarity under "
+                    "[embedder] from a run of `passageway eval --sweep`", cfg.model)
     return embedder

@@ -52,9 +52,9 @@ timeout = 60                    # seconds per request
 | `kind` | both | `onnx` is the built-in model; `command` runs your program as one long-lived process |
 | `min_similarity` | both | The relevance gate, from 0 to 1. Similarity scales differ between models, so measure it with [`passageway eval --sweep`](guides/evaluate.md); a `command` embedder without it gets the built-in model's value and a warning |
 | `model` | `onnx` | A built-in preset: `multilingual-e5-small` (the default), `multilingual-e5-base`, `jina-v2-base-de`; `passageway model list` shows them with their measured relevance gate |
-| `device` | `onnx` | `auto` (CoreML on an Apple-silicon Mac, else CPU), `cpu` or `coreml` |
-| `download` | `onnx` | `true` fetches the preset's files from huggingface.co when they are missing or fail their checksum, once; `false` makes a missing model an error, with `passageway model download <preset>` as the step to run |
-| `model_dir` | `onnx` | Where the preset's files are. Default: `PASSAGEWAY_MODEL_DIR` for the default preset, else `<data dir>/models/<preset>`. Set, it wins over `PASSAGEWAY_MODEL_DIR` and `--model-dir` |
+| `device` | `onnx` | `auto` (CPU) or `cpu`; `coreml` is opt-in on a Mac, measured four times slower on these int8 models and giving different vectors, so only for your own experiments |
+| `download` | `onnx` | `true` fetches the preset's files from huggingface.co (or the mirror in `PASSAGEWAY_MODEL_HUB`) when they are missing or fail their checksum, once, before the server answers; `false` makes a missing model an error, with `passageway model download <preset>` as the step to run |
+| `model_dir` | `onnx` | Where the preset's files are. Default: `PASSAGEWAY_MODEL_DIR` for the default preset (itself `<data dir>/models/e5-small`), else `<data dir>/models/<preset>`; `passageway model` uses the same rule. Set, it wins over `PASSAGEWAY_MODEL_DIR` and `--model-dir` |
 | `command`, `env`, `secrets` | `command` | The program, its settings and named secrets (references to environment variables), run with an empty environment like a connector |
 | `batch_size`, `timeout` | `command` | At most this many texts per request (1 to 1024); seconds per request, after which the process is killed. The first request, which loads the model, is under the same limit |
 

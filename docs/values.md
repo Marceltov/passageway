@@ -18,7 +18,7 @@ The core speaks two protocols and nothing else: connectors tell it what exists a
 
 ### V2. Nothing leaves your machine unless you send it
 
-The built-in model runs locally and the index is a local file in passageway's data folder. Text and questions go to a third party only when you configure an embedder that does, and the documentation says what it sends. passageway reports nothing home and never logs a prompt: a recall leaves one log line with the number of hits and the time, nothing of the question. A measurement report holds no question, title or address from your sources unless you ask for them.
+The built-in model runs locally and the index is a local file in passageway's data folder. The first start fetches the built-in model from huggingface.co, pinned to a revision and checksummed; that request tells Hugging Face your address and which model you chose, and nothing of your text or questions. Set `download = false` and copy the files in yourself to keep the server from ever contacting it. Text and questions go to a third party only when you configure an embedder that does, and the documentation says what it sends. passageway reports nothing home and never logs a prompt: a recall leaves one log line with the number of hits and the time, nothing of the question. A measurement report holds no question, title or address from your sources unless you ask for them.
 
 **Rules out:** telemetry, a cloud model as the default, a report that quotes sources by default, logging prompts or passages, a check that calls a server to see whether a version is current.
 

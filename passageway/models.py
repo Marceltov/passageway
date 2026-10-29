@@ -79,15 +79,34 @@ def verify(preset: Preset, folder: Path) -> list[str]:
     return [name for name, (_, sha) in preset.files.items() if (folder / name).is_file() and _sha256(folder / name) != sha]
 
 
-def download(preset: Preset, folder: Path, *, base_url: str = HUB, report=None) -> bool:
-    """Fetch the preset's files into `folder` unless they are all there and right. Everything goes to a temporary folder
-    first and is verified; only a complete, verified set is moved into place. Returns True when something was fetched."""
+def model_folder_for(preset: str, data_dir: Path, explicit: Path | None) -> Path:
+    """One rule for the server and the command: an explicit folder wins; the default preset keeps PASSAGEWAY_MODEL_DIR
+    (and the old folder name e5-small); every other preset lives in <data dir>/models/<preset>."""
+    import os
+
+    if explicit:
+        return Path(explicit)
+    if preset == DEFAULT_PRESET:
+        return Path(os.environ.get("PASSAGEWAY_MODEL_DIR") or data_dir / "models" / "e5-small")
+    return Path(data_dir) / "models" / preset
+
+
+def download(preset: Preset, folder: Path, *, base_url: str | None = None, report=None) -> bool:
+    """Fetch the preset's files into `folder` unless they are all there and right. Each file goes to a temporary folder
+    first and is verified; only verified files are moved into place, one by one, and nothing else in the folder is
+    touched. Returns True when something was fetched."""
+    import os
+    import tempfile
+
+    base_url = base_url or os.environ.get("PASSAGEWAY_MODEL_HUB") or HUB
     folder = Path(folder)
     if not files_missing(preset, folder) and not verify(preset, folder):
         return False
-    tmp = folder.with_name(folder.name + ".tmp")
-    shutil.rmtree(tmp, ignore_errors=True)
-    tmp.mkdir(parents=True)
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+        tmp = Path(tempfile.mkdtemp(prefix=folder.name + ".", dir=folder.parent))  # unique: two starts do not collide
+    except OSError as e:
+        raise ModelError(f"cannot write to {folder.parent}: {e.strerror or e}") from None
     try:
         for name, (remote, sha) in preset.files.items():
             url = f"{base_url}/{preset.repo}/resolve/{preset.revision}/{remote}"
@@ -101,28 +120,30 @@ def download(preset: Preset, folder: Path, *, base_url: str = HUB, report=None) 
             except urllib.error.HTTPError as e:
                 raise ModelError(f"{url}: HTTP {e.code}") from None
             except (urllib.error.URLError, OSError, TimeoutError) as e:
-                raise ModelError(f"{url}: {getattr(e, 'reason', e)}") from None
+                raise ModelError(f"{url}: {getattr(e, 'reason', None) or getattr(e, 'strerror', None) or e}") from None
             if expected and (tmp / name).stat().st_size != int(expected):
                 raise ModelError(f"{url}: the download ended after {(tmp / name).stat().st_size} of {expected} bytes")
             if _sha256(tmp / name) != sha:
                 raise ModelError(f"{url}: the checksum does not match the one pinned for {preset.name}; the file was not kept")
-        if folder.exists():
-            shutil.rmtree(folder)
-        tmp.rename(folder)
+        try:
+            for name in preset.files:
+                os.replace(tmp / name, folder / name)  # atomic per file; another start's identical file is just replaced
+        except OSError as e:
+            raise ModelError(f"cannot write to {folder}: {e.strerror or e}") from None
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return True
 
 
 def choose_device(device: str, available: list[str], system: str | None = None, machine: str | None = None) -> list[str]:
-    """The onnxruntime providers for a device setting. `auto` is CoreML on an Apple-silicon Mac when the runtime has it."""
+    """The onnxruntime providers for a device setting. `auto` is CPU; `coreml` is opt-in."""
     system = system or sys.platform
     machine = machine or platform.machine()
     coreml = "CoreMLExecutionProvider" in available
     if device == "coreml" and not coreml:
         raise ModelError("device = \"coreml\" needs the CoreML provider, which this onnxruntime does not have")
-    apple = system.startswith("darwin") and machine in ("arm64", "aarch64")
-    if device == "coreml" or (device == "auto" and apple and coreml):
+    # auto is CPU: CoreML was measured 4x slower on the int8 models and gives different vectors (far off for Jina).
+    if device == "coreml":
         return ["CoreMLExecutionProvider", "CPUExecutionProvider"]
     return ["CPUExecutionProvider"]
 
@@ -155,11 +176,10 @@ def main(argv: list[str]) -> int:
         return 2
     preset = PRESETS[args.preset]
     data_dir = Path(os.environ.get("PASSAGEWAY_DATA_DIR") or default_data_dir())
-    folder = args.model_dir or (Path(os.environ["PASSAGEWAY_MODEL_DIR"]) if args.preset == DEFAULT_PRESET
-                                and os.environ.get("PASSAGEWAY_MODEL_DIR") else data_dir / "models" / args.preset)
+    folder = model_folder_for(args.preset, data_dir, args.model_dir)
     if args.command == "download":
         try:
-            fetched = download(preset, folder, base_url=os.environ.get("PASSAGEWAY_MODEL_HUB", HUB), report=print)
+            fetched = download(preset, folder, report=print)
         except ModelError as e:
             print(f"model: {e}", file=sys.stderr)
             return 1

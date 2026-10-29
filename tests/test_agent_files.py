@@ -189,7 +189,7 @@ def test_the_connector_skill_says_how_passageway_becomes_importable_in_the_tests
 
 def test_the_general_skill_links_the_install_page_and_names_the_source_of_the_model():
     text = GENERAL.read_text()
-    assert "https://passageway.marceltov.de/install/" in text and "fetch-model.sh" in text
+    assert "https://passageway.marceltov.de/install/" in text and "passageway model download" in text
 
 
 def test_the_pinning_example_is_not_a_dead_url():
