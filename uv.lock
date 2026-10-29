@@ -12,6 +12,7 @@ members = [
     "passageway",
     "passageway-connector-markdown",
     "passageway-connector-wikipedia",
+    "passageway-embedder-openai",
     "passageway-sdk",
 ]
 
@@ -830,6 +831,7 @@ dev = [
     { name = "jsonschema" },
     { name = "passageway-connector-markdown" },
     { name = "passageway-connector-wikipedia" },
+    { name = "passageway-embedder-openai" },
     { name = "passageway-sdk" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -854,6 +856,7 @@ dev = [
     { name = "jsonschema", specifier = ">=4.23" },
     { name = "passageway-connector-markdown", editable = "connectors/markdown" },
     { name = "passageway-connector-wikipedia", editable = "connectors/wikipedia" },
+    { name = "passageway-embedder-openai", editable = "embedders/openai" },
     { name = "passageway-sdk", editable = "sdk" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-asyncio", specifier = ">=0.24" },
@@ -913,6 +916,29 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "jsonschema", specifier = ">=4.23" },
+    { name = "passageway", editable = "." },
+    { name = "pytest", specifier = ">=8.3" },
+]
+
+[[package]]
+name = "passageway-embedder-openai"
+version = "0.1.0"
+source = { editable = "embedders/openai" }
+dependencies = [
+    { name = "httpx" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "passageway" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "httpx", specifier = ">=0.28.1" }]
+
+[package.metadata.requires-dev]
+dev = [
     { name = "passageway", editable = "." },
     { name = "pytest", specifier = ">=8.3" },
 ]

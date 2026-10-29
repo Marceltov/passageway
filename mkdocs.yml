@@ -33,6 +33,8 @@ nav:
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
       - Markdown: connectors/markdown.md
+  - Embedders:
+      - OpenAI-compatible: embedders/openai.md
   - Contributing:
       - Development: development.md
       - Roadmap: roadmap.md
@@ -89,6 +91,7 @@ plugins:
         Guides: ["guides/*.md"]
         Reference: ["reference/*.md", measurements.md]
         Connectors: ["connectors/*.md"]
+        Embedders: ["embedders/*.md"]
         Contributing: [development.md, roadmap.md]
         Decisions: ["adr/*.md"]
 

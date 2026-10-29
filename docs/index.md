@@ -45,8 +45,8 @@ Before anything else, [what passageway stands for](values.md): the lines it does
 - The [Markdown connector](connectors/markdown.md), for a folder of markdown files with front matter
 - Hybrid search with a relevance gate, described in [How it works](how-it-works.md)
 - An [evaluation harness](guides/evaluate.md), `passageway eval`, that measures retrieval quality on your own questions, compares embedding models and builds a report you can publish
-- Any embedding model through the [embedder protocol](reference/embedder-protocol.md): a program that turns texts into vectors
+- Any embedding model through the [embedder protocol](reference/embedder-protocol.md), and a bundled [OpenAI-compatible embedder](embedders/openai.md) for Ollama, LM Studio, vLLM, OpenAI and Voyage
 
 ## Coming
 
-These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): presets and an automatic download for the built-in model family, an embedder for OpenAI-compatible services, a container image, a Claude Code plugin for the prompt hook, and connectors for Trilium and Confluence.
+These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): presets and an automatic download for the built-in model family, a container image, a Claude Code plugin for the prompt hook, and connectors for Trilium and Confluence.

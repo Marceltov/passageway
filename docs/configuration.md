@@ -25,7 +25,7 @@ See the [connector protocol](reference/connector-protocol.md) for what a connect
 
 ## The embedder
 
-Without an `[embedder]` section passageway uses its built-in model, the multilingual e5-small in `PASSAGEWAY_MODEL_DIR`. To use another model, point `[embedder]` at a program that speaks the [embedder protocol](reference/embedder-protocol.md):
+Without an `[embedder]` section passageway uses its built-in model, the multilingual e5-small in `PASSAGEWAY_MODEL_DIR`. To use another model, point `[embedder]` at a program that speaks the [embedder protocol](reference/embedder-protocol.md); the bundled [OpenAI-compatible embedder](embedders/openai.md) is one, for Ollama, LM Studio, vLLM, OpenAI and Voyage:
 
 ```toml
 [embedder]
