@@ -21,12 +21,18 @@ class FakeApi:
         self.status_errors: list[int] = []  # answer the next requests with these statuses
         self.retry_after = "0"
         self.models = {"nomic-embed-text", "text-embedding-3-small", "voyage-3"}
+        self.ignore_dimensions = False  # like a service that does not know the field
+        self.echo_auth = False  # answer 401 with the Authorization header quoted, like some gateways do
+        self.redirect_to = None  # answer 301 to this address
+        self.bad_body = None  # answer 200 with this raw body
 
-    def respond(self, body: dict) -> tuple[int, dict]:
+    def respond(self, body: dict, headers: dict) -> tuple[int, dict]:
+        if self.echo_auth:
+            return 401, {"error": {"message": f"bad key {headers.get('Authorization', '')}"}}
         if body.get("model") not in self.models:
             return 404, {"error": {"message": f"model '{body.get('model')}' not found", "type": "invalid_request_error"}}
         texts = body["input"] if isinstance(body["input"], list) else [body["input"]]
-        dim = int(body.get("dimensions") or self.dim)
+        dim = int(body.get("dimensions") or self.dim) if not self.ignore_dimensions else self.dim
         data = [{"object": "embedding", "index": i, "embedding": vector(t, dim)} for i, t in enumerate(texts)]
         data.reverse()  # out of order, as the API may answer: the client must sort by index
         return 200, {"object": "list", "data": data, "model": body["model"], "usage": {"prompt_tokens": 1, "total_tokens": 1}}
@@ -43,8 +49,16 @@ def serve(api: FakeApi):
                 self.send_header("Retry-After", api.retry_after)
                 self.end_headers()
                 return
-            status, reply = api.respond(body)
-            payload = json.dumps(reply).encode()
+            if api.redirect_to:
+                self.send_response(301)
+                self.send_header("Location", api.redirect_to)
+                self.end_headers()
+                return
+            if api.bad_body is not None:
+                status, payload = 200, api.bad_body
+            else:
+                status, reply = api.respond(body, dict(self.headers))
+                payload = json.dumps(reply).encode()
             self.send_response(status)
             self.send_header("Content-Type", "application/json")
             self.end_headers()

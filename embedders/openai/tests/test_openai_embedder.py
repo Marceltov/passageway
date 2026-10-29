@@ -27,7 +27,8 @@ def env(api_server):
 def test_info_learns_the_dimension_by_embedding_a_probe_and_names_model_and_host(env, api_server):
     _, api = api_server
     code, replies, _ = run(env, [{"op": "info"}])
-    assert code == 0 and replies == [{"name": f"openai:nomic-embed-text@127.0.0.1", "dim": 16, "protocol": "1"}]
+    assert code == 0 and replies[0]["dim"] == 16 and replies[0]["protocol"] == "1"
+    assert replies[0]["name"].startswith("openai:nomic-embed-text@127.0.0.1:")
     assert len(api.requests) == 1 and api.requests[0]["body"]["input"] == ["passageway"]
 
 
@@ -105,7 +106,7 @@ def test_429_and_5xx_are_retried_with_backoff_and_retry_after(env, api_server):
 def test_giving_up_after_five_attempts_is_an_error_reply(env, api_server):
     _, api = api_server
     api.status_errors = [503] * 5
-    _, replies, _ = run(env, [{"op": "embed", "kind": "query", "texts": ["x"]}])
+    _, replies, _ = run({**env, "TIMEOUT": "1000"}, [{"op": "embed", "kind": "query", "texts": ["x"]}])
     assert "error" in replies[0] and "503" in replies[0]["error"] and len(api.requests) == 5
 
 
@@ -157,3 +158,123 @@ def test_the_contract_check_passes_as_a_real_subprocess(api_server):
         assert embedder.dim == 16
     finally:
         embedder.close()
+
+
+# ---- review findings ------------------------------------------------------------------------------
+
+def test_dimensions_is_checked_against_what_the_service_really_returns(env, api_server):
+    _, api = api_server
+    api.ignore_dimensions = True
+    _, replies, _ = run({**env, "DIMENSIONS": "8"}, [{"op": "info"}, {"op": "embed", "kind": "query", "texts": ["x"]}])
+    assert replies[0]["dim"] == 8 and "error" in replies[1] and "8" in replies[1]["error"] and "16" in replies[1]["error"]
+
+
+def test_voyage_sends_output_dimension_not_dimensions(env, api_server):
+    _, api = api_server
+    run({**env, "PROVIDER": "voyage", "MODEL": "voyage-3", "DIMENSIONS": "8"}, [{"op": "embed", "kind": "query", "texts": ["x"]}])
+    body = api.requests[-1]["body"]
+    assert body.get("output_dimension") == 8 and "dimensions" not in body
+
+
+def test_the_whole_request_including_retries_stays_within_timeout(env, api_server):
+    _, api = api_server
+    api.status_errors = [503] * 5
+    api.retry_after = "100"
+    waited = []
+    stdin = io.StringIO('{"op": "embed", "kind": "query", "texts": ["x"]}\n')
+    out, err = io.StringIO(), io.StringIO()
+    Embedder.run({**env, "TIMEOUT": "2"}, stdin, out, err, sleep=lambda s: waited.append(s))
+    reply = json.loads(out.getvalue())
+    assert "error" in reply and "503" in reply["error"]
+    assert sum(waited) <= 2 and len(api.requests) <= 3  # it gave up within the budget, not after five long waits
+
+
+def test_retry_after_is_honoured_and_clamped(env, api_server):
+    _, api = api_server
+    api.status_errors = [429]
+    api.retry_after = "3"
+    waited = []
+    stdin = io.StringIO('{"op": "embed", "kind": "query", "texts": ["x"]}\n')
+    Embedder.run({**env, "TIMEOUT": "30"}, stdin, io.StringIO(), io.StringIO(), sleep=lambda s: waited.append(s))
+    assert waited == [3.0]
+    for value in ("-5", "nan", "Wed, 21 Oct 2015 07:28:00 GMT"):
+        api.status_errors = [429]
+        api.retry_after = value
+        waited.clear()
+        stdin = io.StringIO('{"op": "embed", "kind": "query", "texts": ["x"]}\n')
+        out = io.StringIO()
+        Embedder.run({**env, "TIMEOUT": "30"}, stdin, out, io.StringIO(), sleep=lambda s: waited.append(s))
+        assert "vectors" in json.loads(out.getvalue()) and len(waited) == 1 and 0 <= waited[0] <= 30
+
+
+def test_a_connection_error_is_retried_but_a_read_timeout_is_not(env, api_server, monkeypatch):
+    import httpx
+    calls = []
+
+    class Client:
+        def __init__(self, *a, **k): pass
+        def post(self, url, json, timeout=None):
+            calls.append(json)
+            raise (httpx.ConnectError("refused") if len(calls) < 3 else httpx.ReadTimeout("slow"))
+    monkeypatch.setattr(httpx, "Client", Client)
+    _, replies, _ = run(env, [{"op": "embed", "kind": "query", "texts": ["x"]}])
+    assert "error" in replies[0] and "ReadTimeout" in replies[0]["error"] and len(calls) == 3  # 2 retries, then no retry
+
+
+def test_a_key_quoted_by_the_service_is_masked(env, api_server):
+    _, api = api_server
+    api.echo_auth = True
+    _, replies, _ = run({**env, "API_KEY": "sk-secret"}, [{"op": "embed", "kind": "query", "texts": ["x"]}])
+    assert "sk-secret" not in json.dumps(replies) and "***" in replies[0]["error"]
+
+
+def test_credentials_in_the_base_url_are_refused():
+    out, err = io.StringIO(), io.StringIO()
+    assert Embedder.run({"MODEL": "m", "BASE_URL": "http://user:pw@localhost:11434/v1"}, io.StringIO('{"op":"info"}\n'), out, err) == 2
+    assert "API_KEY" in err.getvalue() and "pw" not in err.getvalue().replace("API_KEY", "")
+
+
+@pytest.mark.parametrize("env_extra,message", [
+    ({"DIMENSIONS": "²"}, "DIMENSIONS"), ({"TIMEOUT": "nan"}, "TIMEOUT"), ({"TIMEOUT": "inf"}, "TIMEOUT"),
+    ({"API_KEY": "sk-’"}, "API_KEY"),
+])
+def test_more_settings_that_must_be_refused_cleanly(env_extra, message):
+    out, err = io.StringIO(), io.StringIO()
+    env = {"MODEL": "m", "BASE_URL": "http://localhost:11434/v1", **env_extra}
+    assert Embedder.run(env, io.StringIO('{"op":"info"}\n'), out, err) == 2 and message in err.getvalue()
+
+
+def test_a_redirect_and_a_base_url_ending_in_embeddings_give_clear_answers(env, api_server):
+    url, api = api_server
+    api.redirect_to = "https://elsewhere.example/v1/embeddings"
+    _, replies, _ = run(env, [{"op": "info"}])
+    assert "redirect" in replies[0]["error"] and "elsewhere.example" in replies[0]["error"]
+    api.redirect_to = None
+    from passageway_embedder_openai.embedder import parse_settings
+    assert parse_settings({**env, "BASE_URL": url + "/embeddings"}).base_url == url
+
+
+@pytest.mark.parametrize("body", [b'{"data": [{"index": 0, "embedding": "abc"}]}', b'{"data": [{"index": 0, "embedding": null}]}',
+                                  b'{"data": [{"index": 0, "embedding": [NaN, 1.0]}]}', b'{"data": [{"index": 0, "embedding": []}]}',
+                                  b"[" * 100000])
+def test_a_service_answer_that_is_not_vectors_is_an_error_reply_not_a_crash(env, api_server, body):
+    _, api = api_server
+    api.bad_body = body
+    code, replies, _ = run(env, [{"op": "embed", "kind": "query", "texts": ["x"]}, {"op": "info"}])
+    assert code == 0 and len(replies) == 2 and all("error" in r for r in replies)
+
+
+@pytest.mark.parametrize("request_", ['{"op": "embed", "kind": "query", "texts": "abc"}', '{"op": "embed", "kind": "other", "texts": ["a"]}',
+                                      "[" * 100000])
+def test_a_bad_request_line_is_an_error_reply_and_the_process_goes_on(env, request_):
+    stdin = io.StringIO(request_ + '\n{"op": "info"}\n')
+    out = io.StringIO()
+    assert Embedder.run(env, stdin, out, io.StringIO(), sleep=lambda s: None) == 0
+    replies = [json.loads(line) for line in out.getvalue().splitlines()]
+    assert "error" in replies[0] and "dim" in replies[1]
+
+
+def test_the_name_changes_with_the_prefixes_and_carries_the_port(env):
+    plain = run(env, [{"op": "info"}])[1][0]["name"]
+    prefixed = run({**env, "QUERY_PREFIX": "search_query: "}, [{"op": "info"}])[1][0]["name"]
+    assert plain != prefixed and plain.startswith("openai:nomic-embed-text@127.0.0.1:") and prefixed.startswith(plain)

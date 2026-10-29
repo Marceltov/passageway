@@ -22,7 +22,7 @@ items:
       - {label: "V2", url: "https://passageway.marceltov.de/values/#v2-nothing-leaves-your-machine-unless-you-send-it"}
       - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
     details: |
-      - A bundled adapter for OpenAI-compatible services, which covers Ollama, LM Studio, vLLM, OpenAI and Voyage. It speaks the embedder protocol, so it needs no change in the core. Cloud models send all indexed text and queries to a third party; the default stays local and the docs say so.
+      - **Done:** a bundled adapter for OpenAI-compatible services, which covers Ollama, LM Studio, vLLM, OpenAI and Voyage ([docs](https://passageway.marceltov.de/embedders/openai/)). It speaks the embedder protocol, so it needed no change in the core. Cloud models send all indexed text and queries to a third party; the default stays local and the docs say so.
       - The built-in `onnx` embedder generalised with presets (the multilingual e5-small as the default, a German-focused model such as Jina v2 base de), a `device` setting (`auto`, `cpu`, `coreml`) and an automatic, checksummed model download in place of the manual step in the install guide.
       - Relevance thresholds are recalibrated with `passageway eval compare` on the public corpus, not carried over from earlier measurements. The [first measurements](https://passageway.marceltov.de/measurements/) are the baseline: hit@3 89% and silence 80% at the default threshold, with reworded questions (61%) and near-topic questions (60% silent) as the weak spots.
 
