@@ -2,7 +2,7 @@
 
 How well passageway finds the right passage and stays silent when there is none, measured with `passageway eval` on the [sample corpus](reference/corpus.md): 60 Wikipedia articles on deep learning and neighbouring topics, 30 in English and 30 in German, indexed by the [markdown connector](connectors/markdown.md) as two sources. The 100 questions are in [`corpus/questions.toml`](https://github.com/Marceltov/passageway/blob/main/corpus/questions.toml): 70 have accepted answers and 30 do not, and none of them names a language or a source, because one `recall` searches every source. [Measure retrieval quality](guides/evaluate.md) explains the metrics and the options.
 
-Reproduce a run with `corpus/measure.sh` (it needs the embedding model, see [Install](install.md)). The block below is written by that script. The history at the end of it gets one line per day, model, threshold and passageway version; a repeated run replaces its line.
+The three built-in models are compared on the same questions in [Choosing a model](models.md). Reproduce a run with `corpus/measure.sh` (it needs the embedding model, see [Install](install.md)). The block below is written by that script. The history at the end of it gets one line per day, model, threshold and passageway version; a repeated run replaces its line.
 
 ## How to read this
 

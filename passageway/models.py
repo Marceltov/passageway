@@ -31,7 +31,7 @@ class Preset:
     max_tokens: int
     pooling: str  # "mean"
     dim: int
-    min_similarity: float | None  # the relevance gate measured for this model on the sample corpus; None: not yet
+    min_similarity: float | None  # the relevance gate measured on the sample corpus (docs/models.md); None: not yet
     label: str  # the embedder name the index records
 
     @property
@@ -52,13 +52,13 @@ PRESETS: dict[str, Preset] = {
         "multilingual-e5-base", "Xenova/multilingual-e5-base", "1ec9243030a27d1a115d5c340572074c125b58b2",
         {"model.onnx": ("onnx/model_int8.onnx", "9ddfd8b45086dabc59a7e1bb00463225dace8954962418b240840f2153bc87da"),
          "sentencepiece.bpe.model": ("sentencepiece.bpe.model", SENTENCEPIECE)},
-        "sentencepiece", "query: ", "passage: ", 512, "mean", 768, None, "multilingual-e5-base-int8"),
+        "sentencepiece", "query: ", "passage: ", 512, "mean", 768, 0.83, "multilingual-e5-base-int8"),
     "jina-v2-base-de": Preset(
         "jina-v2-base-de", "jinaai/jina-embeddings-v2-base-de", "3f9eede875721714945b6a99a3198299243cf2be",
         {"model.onnx": ("onnx/model_quantized.onnx", "b19a38d186594d9784e6a2c8954035a6928b5da1df402e7942d25021cf488b6b"),
          "tokenizer.json": ("tokenizer.json", "376c53a06d6911569afc19f584002a11dbcd6b871afb6d96b8600eb3c4e7e7a7"),
          "config.json": ("config.json", "8d4c498741937d1467af5be739dc0fbcc4d033eb1fb93ece4f1c9c6bbdd37ec5")},
-        "tokenizers", "", "", 512, "mean", 768, None, "jina-embeddings-v2-base-de-int8"),
+        "tokenizers", "", "", 512, "mean", 768, 0.56, "jina-embeddings-v2-base-de-int8"),
 }
 
 

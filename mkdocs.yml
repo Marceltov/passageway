@@ -30,6 +30,7 @@ nav:
       - Connector SDK: reference/sdk.md
       - Sample corpus: reference/corpus.md
       - Measurements: measurements.md
+      - Choosing a model: models.md
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
       - Markdown: connectors/markdown.md
@@ -91,7 +92,7 @@ plugins:
         Start: [index.md, values.md, install.md, configuration.md]
         Concepts: [how-it-works.md]
         Guides: ["guides/*.md"]
-        Reference: ["reference/*.md", measurements.md]
+        Reference: ["reference/*.md", measurements.md, models.md]
         Connectors: ["connectors/*.md"]
         Embedders: ["embedders/*.md"]
         Contributing: [development.md, roadmap.md]

@@ -50,4 +50,4 @@ Before anything else, [what passageway stands for](values.md): the lines it does
 
 ## Coming
 
-These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): a container image, a Claude Code plugin for the prompt hook, and a connector for Confluence.
+These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): a container image, a Claude Code plugin for the prompt hook, and a connector for Confluence. [Choosing a model](models.md) compares the built-in models on the sample corpus.

@@ -34,7 +34,7 @@ def test_download_and_verify_through_the_command(hub, tmp_path, monkeypatch, cap
 def test_list_names_every_preset_and_the_default(capsys):
     assert models.main(["list"]) == 0
     out = capsys.readouterr().out
-    assert all(name in out for name in models.PRESETS) and "(default)" in out and "not measured" in out
+    assert all(name in out for name in models.PRESETS) and "(default)" in out and "min_similarity 0.56" in out
 
 
 def test_the_command_looks_where_the_server_looks_for_the_default_preset(tmp_path, monkeypatch, capsys):

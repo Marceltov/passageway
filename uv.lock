@@ -10,6 +10,7 @@ resolution-markers = [
 [manifest]
 members = [
     "passageway",
+    "passageway-connector-confluence",
     "passageway-connector-markdown",
     "passageway-connector-trilium",
     "passageway-connector-wikipedia",
@@ -874,7 +875,7 @@ wheels = [
 
 [[package]]
 name = "passageway"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastmcp" },
@@ -927,6 +928,37 @@ dev = [
     { name = "passageway-sdk", editable = "sdk" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-asyncio", specifier = ">=0.24" },
+]
+
+[[package]]
+name = "passageway-connector-confluence"
+version = "0.1.0"
+source = { editable = "connectors/confluence" }
+dependencies = [
+    { name = "httpx" },
+    { name = "passageway-sdk" },
+    { name = "selectolax" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "jsonschema" },
+    { name = "passageway" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "passageway-sdk", editable = "sdk" },
+    { name = "selectolax", specifier = ">=0.3.21" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "jsonschema", specifier = ">=4.23" },
+    { name = "passageway", editable = "." },
+    { name = "pytest", specifier = ">=8.3" },
 ]
 
 [[package]]
@@ -1043,7 +1075,7 @@ dev = [
 
 [[package]]
 name = "passageway-sdk"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "sdk" }
 
 [package.dev-dependencies]

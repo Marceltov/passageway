@@ -24,6 +24,7 @@ def test_every_preset_pins_a_revision_and_a_checksum_for_every_file():
         labels.add(preset.label)
     assert PRESETS["multilingual-e5-small"].label == "multilingual-e5-small-int8"  # the name the index already records
     assert PRESETS["multilingual-e5-small"].min_similarity == 0.845
+    assert all(p.min_similarity is not None for p in PRESETS.values()), "every preset's gate is measured (docs/models.md)"
 
 
 # ---- a fake huggingface.co ----------------------------------------------------------------------

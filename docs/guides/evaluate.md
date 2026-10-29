@@ -109,4 +109,4 @@ Each row shows the model's name and dimensions, the **load** time (starting the 
 
 ## Not yet
 
-The [sample corpus](../reference/corpus.md) has a public set of 100 questions and the first [published measurements](../measurements.md), which show the whole sweep. The [roadmap](../roadmap.md) has the order of what comes next.
+The [sample corpus](../reference/corpus.md) has a public set of 100 questions, the [published measurements](../measurements.md), which show the whole sweep, and a [comparison of the built-in models](../models.md). The [roadmap](../roadmap.md) has the order of what comes next.

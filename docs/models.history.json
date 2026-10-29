@@ -1,0 +1,38 @@
+[
+  {
+    "date": "2026-10-29",
+    "embedder": "jina-embeddings-v2-base-de-int8",
+    "threshold": 0.845,
+    "passageway": "0.2.0",
+    "cases": 100,
+    "hit_at_3": 0.44285714285714284,
+    "silence": 0.9666666666666667,
+    "p95_ms": 22.6,
+    "dim": 768,
+    "label": "jina-de"
+  },
+  {
+    "date": "2026-10-29",
+    "embedder": "multilingual-e5-base-int8",
+    "threshold": 0.845,
+    "passageway": "0.2.0",
+    "cases": 100,
+    "hit_at_3": 0.7571428571428571,
+    "silence": 0.8666666666666667,
+    "p95_ms": 22.6,
+    "dim": 768,
+    "label": "e5-base"
+  },
+  {
+    "date": "2026-10-29",
+    "embedder": "multilingual-e5-small-int8",
+    "threshold": 0.845,
+    "passageway": "0.2.0",
+    "cases": 100,
+    "hit_at_3": 0.8857142857142857,
+    "silence": 0.8,
+    "p95_ms": 11.4,
+    "dim": 384,
+    "label": "default"
+  }
+]
