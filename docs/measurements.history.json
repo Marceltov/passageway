@@ -5,8 +5,8 @@
     "threshold": 0.845,
     "passageway": "0.1.0",
     "cases": 100,
-    "hit_at_3": 0.8,
+    "hit_at_3": 0.8857142857142857,
     "silence": 0.8,
-    "p95_ms": 14.4
+    "p95_ms": 14.0
   }
 ]

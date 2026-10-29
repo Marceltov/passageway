@@ -20,7 +20,7 @@ items:
       The built-in `onnx` embedder generalised with presets (the multilingual e5-small as the default, a German-focused model such as Jina v2 base de) and a `device` setting (`auto`, `cpu`, `coreml`).
       - An out-of-process `command` embedder (one long-lived process, JSON Lines) and a bundled OpenAI-compatible one, which covers Ollama, vLLM, OpenAI and Voyage.
       - `passageway eval compare` runs the questions with several embedding models on a copy of the index and reports quality, model load time and index time.
-      - Relevance thresholds are recalibrated with the harness on the public corpus, not carried over from earlier measurements. The [first measurements](https://passageway.marceltov.de/measurements/) are the baseline: hit@3 80% and silence 80% at the default threshold, with reworded questions (56%), questions across the language (62%) and near-topic questions (60% silent) as the weak spots.
+      - Relevance thresholds are recalibrated with the harness on the public corpus, not carried over from earlier measurements. The [first measurements](https://passageway.marceltov.de/measurements/) are the baseline: hit@3 89% and silence 80% at the default threshold, with reworded questions (61%) and near-topic questions (60% silent) as the weak spots.
 
   - id: trilium-connector
     status: later
