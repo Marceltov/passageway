@@ -88,7 +88,7 @@ def test_no_public_file_names_the_work_project():
     """The employer's internal project must never appear in the repository (code, docs, skills, workflows, issues' source)."""
     needle = "cq" + "se"  # spelled in two parts so that this file does not match itself
     public = [*ROOT.glob("docs/**/*.md"), *ROOT.glob("docs/**/*.yml"), *ROOT.glob("docs/**/*.json"), *ROOT.glob("tests/**/*.py"), *ROOT.glob("docs_hooks/*.py"), *ROOT.glob("skills/**/*.md"), *ROOT.glob("connectors/**/*.md"),
-              *ROOT.glob("connectors/**/*.py"), *ROOT.glob("passageway/**/*.py"), *ROOT.glob("sdk/**/*.py"), *ROOT.glob("sdk/**/*.md"), *ROOT.glob("corpus/*.md"), *ROOT.glob("corpus/*.py"), *ROOT.glob("corpus/tests/*.py"), *ROOT.glob("scripts/*"),
+              *ROOT.glob("connectors/**/*.py"), *ROOT.glob("passageway/**/*.py"), *ROOT.glob("sdk/**/*.py"), *ROOT.glob("sdk/**/*.md"), *ROOT.glob("corpus/*.md"), *ROOT.glob("corpus/*.py"), *ROOT.glob("corpus/*.toml"), *ROOT.glob("corpus/*.sh"), *ROOT.glob("corpus/tests/*.py"), *ROOT.glob("scripts/*"),
               *ROOT.glob(".github/**/*.yml"), ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "pyproject.toml", ROOT / "mkdocs.yml"]
     offenders = [str(p.relative_to(ROOT)) for p in public
                  if p.is_file() and "superpowers" not in p.parts and needle in p.read_text(errors="ignore").lower()]

@@ -89,8 +89,9 @@ def render_markdown(report: dict, *, heading: bool = True, history: list[dict] |
         ["False silence on answerable questions", _rate(m, "false_silence")],
         ["Latency p50 / p95", f"{m['p50_ms']} ms / {m['p95_ms']} ms"],
         ["Embedding the question", f"{m['embed_ms']} ms ({_pct(m['embed_share'])} of the latency)"]])
-    out += ["In brackets: the 95% interval the true rate lies in, given this many questions. A difference between two "
-            "runs that stays inside the intervals is not a difference.", ""]
+    out += ["In brackets: the 95% interval of a rate, the range that holds the true rate in 95 of 100 repetitions with "
+            "other questions of the same kind. Overlapping intervals are a warning against over-reading a difference, "
+            "not a test of it. The tables below show point values only.", ""]
     if report["targets"]:
         out += [f"{sub} Targets", ""]
         out += _table(["Target", "Limit", "Required", "Measured", "Result"], [

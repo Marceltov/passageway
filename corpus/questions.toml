@@ -9,6 +9,14 @@
 #
 # The questions were written, and every accepted answer checked against the text of the articles, before the first
 # measurement; a question that turns out wrong is fixed in its own, visible commit, never to improve the numbers.
+#
+# An independent review after the first run found accepted answers that were incomplete and six questions called
+# cross-language that were not (the other language explains the topic too). Those were corrected in their own commit and
+# the first run was repeated; the git history shows both.
+#
+# An independent review after the first run found accepted answers that were incomplete and six questions that were called
+# cross-language but were not (the other language explains the topic too). They were corrected in their own commit and
+# the first run was repeated; the git history shows both.
 
 
 # ---- definition ------------------------------------------------------------------------------------------
@@ -105,7 +113,32 @@ group = "definition"
 
 [[case]]
 query = "What is supervised learning?"
-expect_id = ["überwachtes-lernen.md", "neural-network-machine-learning.md"]   # Überwachtes Lernen (de); Neural network (machine learning) (en)
+expect_id = ["überwachtes-lernen.md", "neural-network-machine-learning.md", "maschinelles-lernen.md"]   # Überwachtes Lernen (de); Neural network (machine learning) (en); Maschinelles Lernen (de)
+group = "definition"
+
+[[case]]
+query = "Was ist das Problem der verschwindenden Gradienten?"
+expect_id = ["vanishing-gradient-problem.md", "long-short-term-memory.md"]   # Vanishing gradient problem (en); Long short-term memory (en) / Long short-term memory (de)
+group = "definition"
+
+[[case]]
+query = "Was sind Word Embeddings?"
+expect_id = ["word-embedding.md"]   # Word embedding (en)
+group = "definition"
+
+[[case]]
+query = "Was ist eine Gated Recurrent Unit?"
+expect_id = ["gated-recurrent-unit.md", "long-short-term-memory.md"]   # Gated recurrent unit (en); Long short-term memory (en) / Long short-term memory (de)
+group = "definition"
+
+[[case]]
+query = "What is a Hopfield network?"
+expect_id = ["hopfield-netz.md", "recurrent-neural-network.md"]   # Hopfield-Netz (de); Recurrent neural network (en)
+group = "definition"
+
+[[case]]
+query = "What is prompt engineering?"
+expect_id = ["prompt-engineering.md", "large-language-model.md"]   # Prompt-Engineering (de); Large language model (en) / Large Language Model (de)
 group = "definition"
 
 [[case]]
@@ -122,7 +155,7 @@ group = "how-why"
 
 [[case]]
 query = "Wie lernt ein neuronales Netz mit dem Gradientenverfahren?"
-expect_id = ["gradientenverfahren.md", "stochastic-gradient-descent.md"]   # Gradientenverfahren (de); Stochastic gradient descent (en)
+expect_id = ["gradientenverfahren.md", "stochastic-gradient-descent.md", "künstliches-neuronales-netz.md"]   # Gradientenverfahren (de); Stochastic gradient descent (en); Künstliches neuronales Netz (de)
 group = "how-why"
 
 [[case]]
@@ -172,7 +205,7 @@ group = "how-why"
 
 [[case]]
 query = "Wie lernt ein Agent beim bestärkenden Lernen?"
-expect_id = ["bestärkendes-lernen.md", "deep-reinforcement-learning.md"]   # Bestärkendes Lernen (de); Deep reinforcement learning (en)
+expect_id = ["bestärkendes-lernen.md", "deep-reinforcement-learning.md", "maschinelles-lernen.md", "künstliches-neuronales-netz.md"]   # Bestärkendes Lernen (de); Deep reinforcement learning (en); Maschinelles Lernen (de); Künstliches neuronales Netz (de)
 group = "how-why"
 
 [[case]]
@@ -182,12 +215,17 @@ group = "how-why"
 
 [[case]]
 query = "Wie ist ein mehrlagiges Perzeptron aufgebaut?"
-expect_id = ["multi-layer-perzeptron.md", "multilayer-perceptron.md"]   # Multi-Layer-Perzeptron (de); Multilayer perceptron (en)
+expect_id = ["multi-layer-perzeptron.md", "multilayer-perceptron.md", "perzeptron.md"]   # Multi-Layer-Perzeptron (de); Multilayer perceptron (en); Perzeptron (de)
 group = "how-why"
 
 [[case]]
 query = "How do residual connections help train very deep networks?"
 expect_id = ["residual-neural-network.md"]   # Residual neural network (en)
+group = "how-why"
+
+[[case]]
+query = "Wie hilft Dropout gegen Überanpassung?"
+expect_id = ["dropout-neural-networks.md", "convolutional-neural-network.md"]   # Dropout (neural networks) (en); Convolutional neural network (en) / Convolutional Neural Network (de)
 group = "how-why"
 
 [[case]]
@@ -219,12 +257,12 @@ group = "paraphrase"
 
 [[case]]
 query = "The layers far from the output stop learning because the learning signal becomes tiny. Why does that happen?"
-expect_id = ["vanishing-gradient-problem.md"]   # Vanishing gradient problem (en)
+expect_id = ["vanishing-gradient-problem.md", "long-short-term-memory.md"]   # Vanishing gradient problem (en); Long short-term memory (en) / Long short-term memory (de)
 group = "paraphrase"
 
 [[case]]
 query = "Randomly switching off units while training so that the network cannot rely on any single one"
-expect_id = ["dropout-neural-networks.md"]   # Dropout (neural networks) (en)
+expect_id = ["dropout-neural-networks.md", "convolutional-neural-network.md"]   # Dropout (neural networks) (en); Convolutional neural network (en) / Convolutional Neural Network (de)
 group = "paraphrase"
 
 [[case]]
@@ -274,7 +312,7 @@ group = "paraphrase"
 
 [[case]]
 query = "Der Fehler am Ausgang wird rückwärts durch das Netz gereicht, um die Gewichte der früheren Schichten zu korrigieren"
-expect_id = ["backpropagation.md"]   # Backpropagation (en) / Backpropagation (de)
+expect_id = ["backpropagation.md", "multi-layer-perzeptron.md"]   # Backpropagation (en) / Backpropagation (de); Multi-Layer-Perzeptron (de)
 group = "paraphrase"
 
 [[case]]
@@ -299,20 +337,10 @@ group = "paraphrase"
 
 [[case]]
 query = "A program that learns by trial and error, collecting rewards for good actions"
-expect_id = ["deep-reinforcement-learning.md", "bestärkendes-lernen.md"]   # Deep reinforcement learning (en); Bestärkendes Lernen (de)
+expect_id = ["deep-reinforcement-learning.md", "bestärkendes-lernen.md", "maschinelles-lernen.md", "künstliches-neuronales-netz.md"]   # Deep reinforcement learning (en); Bestärkendes Lernen (de); Maschinelles Lernen (de); Künstliches neuronales Netz (de)
 group = "paraphrase"
 
 # ---- cross-language --------------------------------------------------------------------------------------
-
-[[case]]
-query = "Was ist das Problem der verschwindenden Gradienten?"
-expect_id = ["vanishing-gradient-problem.md"]   # Vanishing gradient problem (en)
-group = "cross-language"
-
-[[case]]
-query = "Wie hilft Dropout gegen Überanpassung?"
-expect_id = ["dropout-neural-networks.md"]   # Dropout (neural networks) (en)
-group = "cross-language"
 
 [[case]]
 query = "Was ist Batch-Normalisierung?"
@@ -325,28 +353,13 @@ expect_id = ["diffusion-model.md"]   # Diffusion model (en)
 group = "cross-language"
 
 [[case]]
-query = "Was sind Word Embeddings?"
-expect_id = ["word-embedding.md"]   # Word embedding (en)
-group = "cross-language"
-
-[[case]]
 query = "Was ist ein Residual Network?"
 expect_id = ["residual-neural-network.md"]   # Residual neural network (en)
 group = "cross-language"
 
 [[case]]
-query = "Was ist eine Gated Recurrent Unit?"
-expect_id = ["gated-recurrent-unit.md"]   # Gated recurrent unit (en)
-group = "cross-language"
-
-[[case]]
 query = "Was sind Hyperparameter?"
 expect_id = ["hyperparameter-machine-learning.md"]   # Hyperparameter (machine learning) (en)
-group = "cross-language"
-
-[[case]]
-query = "What is a Hopfield network?"
-expect_id = ["hopfield-netz.md"]   # Hopfield-Netz (de)
 group = "cross-language"
 
 [[case]]
@@ -360,12 +373,8 @@ expect_id = ["selbstorganisierende-karte.md"]   # Selbstorganisierende Karte (de
 group = "cross-language"
 
 [[case]]
-query = "What is prompt engineering?"
-expect_id = ["prompt-engineering.md"]   # Prompt-Engineering (de)
-group = "cross-language"
-
-[[case]]
 query = "What is model collapse when models are trained on AI-generated data?"
+expect = ["de.wikipedia.org/wiki/Large_Language_Model"]   # the section Kollaps of the German Large Language Model article
 expect_id = ["modellkollaps.md"]   # Modellkollaps (de)
 group = "cross-language"
 
@@ -380,7 +389,7 @@ query = "How does gradient boosting build its ensemble of trees?"
 group = "near-topic"
 
 [[case]]
-query = "What is the k-nearest neighbours algorithm?"
+query = "What is the Metropolis-Hastings algorithm?"
 group = "near-topic"
 
 [[case]]
