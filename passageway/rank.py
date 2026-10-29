@@ -86,8 +86,14 @@ def _passage(text: str, words: list[str]) -> str:
     return ("…" if start > 0 else "") + text[start:end].strip() + ("…" if end < len(text) else "")
 
 
-def _gather(index: Index, embedder: Embedder, query: str, params: RankParams) -> tuple[dict[int, _Candidate], np.ndarray]:
-    qvec = embedder.embed_queries([query[:EMBED_QUERY_CHARS]])[0]
+def embed_query(embedder: Embedder, query: str) -> np.ndarray:
+    return embedder.embed_queries([query[:EMBED_QUERY_CHARS]])[0]
+
+
+def _gather(index: Index, embedder: Embedder, query: str, params: RankParams,
+            qvec: np.ndarray | None = None) -> tuple[dict[int, _Candidate], np.ndarray]:
+    if qvec is None:
+        qvec = embed_query(embedder, query)
     candidates: dict[int, _Candidate] = {}
     for rank_, hit in enumerate(index.fts_search(query, params.candidates)):
         c = candidates.setdefault(hit.section_id, _Candidate(hit))
@@ -104,9 +110,9 @@ def _gather(index: Index, embedder: Embedder, query: str, params: RankParams) ->
 
 
 def rank(source: str, index: Index, embedder: Embedder, query: str, cwd: str | None = None,
-         params: RankParams = RankParams(), limit: int = 3) -> list[Hit]:
+         params: RankParams = RankParams(), limit: int = 3, qvec: np.ndarray | None = None) -> list[Hit]:
     words = query_terms(query)
-    candidates, _ = _gather(index, embedder, query, params)
+    candidates, _ = _gather(index, embedder, query, params, qvec)
     if not candidates:
         return []
     ctx = context_terms(cwd)

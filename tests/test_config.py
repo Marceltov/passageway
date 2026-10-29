@@ -110,3 +110,93 @@ def test_the_password_is_optional_for_commands_that_do_not_serve(tmp_path):
     assert config.password == "" and config.connectors[0].name == "n"
     with pytest.raises(ConfigError, match="PASSAGEWAY_LOGIN_PASSWORD"):
         load_config({"PASSAGEWAY_CONFIG": str(path), "PASSAGEWAY_DATA_DIR": str(tmp_path)})
+
+
+# ---- embedders ------------------------------------------------------------------------------------
+
+def embedder_env(tmp_path, embedder_toml, **extra):
+    return env_for(tmp_path, embedder_toml + '\n[[connector]]\nname = "n"\ncommand = ["x"]\n', **extra)
+
+
+def test_without_an_embedder_section_the_onnx_model_stays_the_default(tmp_path):
+    cfg = load_config(env_for(tmp_path, '[[connector]]\nname = "n"\ncommand = ["x"]\n'))
+    assert cfg.embedder.kind == "onnx" and cfg.embedder.min_similarity is None and cfg.embedders == {}
+
+
+def test_min_similarity_alone_keeps_the_onnx_kind(tmp_path):
+    cfg = load_config(env_for(tmp_path))
+    assert cfg.embedder.kind == "onnx" and cfg.embedder.min_similarity == 0.7 == cfg.min_similarity
+
+
+def test_a_command_embedder_is_configured_with_command_env_secrets_and_limits(tmp_path):
+    cfg = load_config(embedder_env(tmp_path, '''
+[embedder]
+kind = "command"
+command = ["/usr/bin/python3", "-m", "my_embedder"]
+env = { MODEL = "bge" }
+secrets = { API_KEY = "env:EMBED_KEY" }
+min_similarity = 0.8
+batch_size = 16
+timeout = 30
+''', EMBED_KEY="sekret"))
+    e = cfg.embedder
+    assert (e.kind, e.command, e.env, e.secrets, e.min_similarity, e.batch_size, e.timeout) == (
+        "command", ("/usr/bin/python3", "-m", "my_embedder"), {"MODEL": "bge"}, {"API_KEY": "sekret"}, 0.8, 16, 30.0)
+    assert cfg.min_similarity == 0.8  # the engine reads the gate from here
+
+
+def test_a_command_embedder_has_sensible_defaults(tmp_path):
+    e = load_config(embedder_env(tmp_path, '[embedder]\nkind = "command"\ncommand = ["x"]\n')).embedder
+    assert (e.batch_size, e.timeout, e.min_similarity, e.env, e.secrets) == (32, 60.0, None, {}, {})
+
+
+def test_candidates_for_compare_are_named_tables(tmp_path):
+    cfg = load_config(embedder_env(tmp_path, '''
+[embedders.e5]
+kind = "onnx"
+model_dir = "/models/e5"
+
+[embedders.bge]
+kind = "command"
+command = ["x", "--model", "bge"]
+min_similarity = 0.8
+'''))
+    assert set(cfg.embedders) == {"e5", "bge"}
+    assert str(cfg.embedders["e5"].model_dir) == "/models/e5" and cfg.embedders["bge"].command == ("x", "--model", "bge")
+    assert cfg.embedder.kind == "onnx"  # the server's own embedder is unaffected
+
+
+@pytest.mark.parametrize("toml,message", [
+    ('[embedder]\nkind = "magic"', "kind"),
+    ('[embedder]\nkind = "command"', "command"),
+    ('[embedder]\nkind = "command"\ncommand = []', "command"),
+    ('[embedder]\nkind = "command"\ncommand = ["x", 3]', "command"),
+    ('[embedder]\nkind = "onnx"\ncommand = ["x"]', "command"),
+    ('[embedder]\nmin_similiarity = 0.8', "min_similiarity"),
+    ('[embedder]\nmin_similarity = 1.5', "min_similarity"),
+    ('[embedder]\nmin_similarity = "high"', "min_similarity"),
+    ('[embedder]\nkind = "command"\ncommand = ["x"]\nbatch_size = 0', "batch_size"),
+    ('[embedder]\nkind = "command"\ncommand = ["x"]\nbatch_size = 2000', "batch_size"),
+    ('[embedder]\nkind = "command"\ncommand = ["x"]\ntimeout = 0', "timeout"),
+    ('[embedder]\nkind = "command"\ncommand = ["x"]\nsecrets = { K = "literal" }', "secrets"),
+    ('[embedder]\nkind = "command"\ncommand = ["x"]\nsecrets = { K = "env:NOT_SET_ANYWHERE" }', "NOT_SET_ANYWHERE"),
+    ('[embedders."Bad Name"]\nkind = "onnx"', "name"),
+    ('[embedders.default]\nkind = "onnx"', "default"),
+    ('embedders = "nope"', "embedders"),
+    ('[embedders.x]\nkind = "command"', "command"),
+])
+def test_a_bad_embedder_section_is_refused_with_a_message_that_names_the_problem(tmp_path, toml, message):
+    with pytest.raises(ConfigError, match=message):
+        load_config(embedder_env(tmp_path, toml))
+
+
+@pytest.mark.parametrize("value", ["nan", "inf", "1e12"])
+def test_an_embedder_timeout_must_be_a_usable_number_of_seconds(tmp_path, value):
+    with pytest.raises(ConfigError, match="timeout"):
+        load_config(embedder_env(tmp_path, f'[embedder]\nkind = "command"\ncommand = ["x"]\ntimeout = {value}'))
+
+
+@pytest.mark.parametrize("value", ["nan", "1e12"])
+def test_a_connector_timeout_must_be_a_usable_number_of_seconds(tmp_path, value):
+    with pytest.raises(ConfigError, match="timeout"):
+        load_config(env_for(tmp_path, f'[[connector]]\nname = "n"\ncommand = ["x"]\ntimeout = {value}\n'))

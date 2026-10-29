@@ -266,3 +266,17 @@ def test_the_report_is_printed_before_the_files_are_written(s, tmp_path):
     out_dir = tmp_path / "r"
     code, out, _ = s.run("--out", out_dir)
     assert code == 0 and out.startswith("# Retrieval evaluation") and (out_dir / "report.md").is_file()
+
+
+def test_an_embedder_that_fails_on_queries_fails_the_run_instead_of_reporting_silence(s, tmp_path):
+    class FailingQueries(HashEmbedder):
+        def embed_queries(self, texts):
+            raise RuntimeError("rate limited")
+
+    code, out, err = s.run("--out", tmp_path / "r", embedder=FailingQueries())
+    assert code == 1 and "rate limited" in err and out == "" and not (tmp_path / "r").exists()
+
+
+def test_help_mentions_the_compare_command():
+    out = subprocess.run([sys.executable, "-m", "passageway.eval", "--help"], capture_output=True, text=True)
+    assert "compare" in out.stdout

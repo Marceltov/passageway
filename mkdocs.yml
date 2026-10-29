@@ -25,6 +25,7 @@ nav:
       - Work with an AI agent: guides/agents.md
   - Reference:
       - Connector protocol: reference/connector-protocol.md
+      - Embedder protocol: reference/embedder-protocol.md
       - Connector SDK: reference/sdk.md
       - Sample corpus: reference/corpus.md
       - Measurements: measurements.md

@@ -14,6 +14,8 @@ This installs passageway and the Wikipedia connector into one environment. A con
 
 ## 2. The embedding model
 
+This is the built-in model. To use another one, see [the embedder](configuration.md#the-embedder).
+
 passageway embeds text with the multilingual `e5-small` model in ONNX form. Put `model.onnx` and `sentencepiece.bpe.model` in the model directory (`<data dir>/models/e5-small` by default, or `PASSAGEWAY_MODEL_DIR`). Until the embedder work adds an automatic download, take both files from [trilium-recall](https://github.com/Marceltov/trilium-recall)'s `scripts/fetch-model.sh`.
 
 ## 3. Say what to index

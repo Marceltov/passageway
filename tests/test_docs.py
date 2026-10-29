@@ -158,6 +158,43 @@ def test_the_evaluation_guide_states_what_a_reader_could_get_wrong():
         assert needle in guide, f"the evaluation guide should say: {needle}"
 
 
+def test_the_embedder_example_in_the_protocol_reference_passes_the_contract(tmp_path):
+    import sys
+
+    from passageway.embed_command import CommandEmbedder
+    from passageway.testing.embedder_contract import check_embedder
+
+    page = (ROOT / "docs" / "reference" / "embedder-protocol.md").read_text()
+    script = next(b for b in re.findall(r"```python\n(.*?)```", page, re.S) if "def embed(" in b)
+    assert len([line for line in script.splitlines() if line.strip()]) <= 30
+    path = tmp_path / "my_embedder.py"
+    path.write_text(script)
+    embedder = CommandEmbedder("example", [sys.executable, str(path)])
+    try:
+        check_embedder(embedder)
+        assert (embedder.name, embedder.dim) == ("toy-hash-64", 64)
+    finally:
+        embedder.close()
+
+
+def test_the_configuration_page_documents_every_key_of_an_embedder():
+    from passageway.config import _COMMAND_KEYS, _ONNX_KEYS
+    page = (ROOT / "docs" / "configuration.md").read_text()
+    for key in sorted(_COMMAND_KEYS | _ONNX_KEYS):
+        assert f"`{key}`" in page, f"the embedder key {key} is not documented in docs/configuration.md"
+    assert "[embedders." in page and "embedder-protocol.md" in page
+
+
+def test_the_guide_names_every_option_of_the_compare_command():
+    from passageway.eval.compare import _parser as compare_parser
+    guide = (ROOT / "docs" / "guides" / "evaluate.md").read_text()
+    section = guide.split("## Compare embedding models")[1].split("\n## ")[0]
+    options = [o for a in compare_parser()._actions for o in a.option_strings if o.startswith("--") and o != "--help"]
+    assert len(options) >= 6
+    for option in options:
+        assert f"`{option}" in section, f"{option} is an option of passageway eval compare but the guide does not mention it"
+
+
 def test_the_guide_names_every_option_of_the_command():
     from passageway.eval.cli import _parser
     guide = (ROOT / "docs" / "guides" / "evaluate.md").read_text()

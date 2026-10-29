@@ -23,6 +23,43 @@ A connector runs with an empty environment (only `PATH` and `HOME`, plus its `en
 
 See the [connector protocol](reference/connector-protocol.md) for what a connector prints and the [Wikipedia connector](connectors/wikipedia.md) for a bundled one.
 
+## The embedder
+
+Without an `[embedder]` section passageway uses its built-in model, the multilingual e5-small in `PASSAGEWAY_MODEL_DIR`. To use another model, point `[embedder]` at a program that speaks the [embedder protocol](reference/embedder-protocol.md):
+
+```toml
+[embedder]
+kind = "command"                # "onnx" (the default) or "command"
+command = ["/path/to/python", "/path/to/my_embedder.py"]
+env = { MODEL = "bge-m3" }
+secrets = { API_KEY = "env:EMBED_KEY" }
+min_similarity = 0.80           # the relevance gate for this model
+batch_size = 32                 # texts per request
+timeout = 60                    # seconds per request
+```
+
+| Key | Kinds | Meaning |
+|---|---|---|
+| `kind` | both | `onnx` is the built-in model; `command` runs your program as one long-lived process |
+| `min_similarity` | both | The relevance gate, from 0 to 1. Similarity scales differ between models, so measure it with [`passageway eval --sweep`](guides/evaluate.md); a `command` embedder without it gets the built-in model's value and a warning |
+| `model_dir` | `onnx` | Where the built-in model is. Set, it wins over `PASSAGEWAY_MODEL_DIR` and `--model-dir` |
+| `command`, `env`, `secrets` | `command` | The program, its settings and named secrets (references to environment variables), run with an empty environment like a connector |
+| `batch_size`, `timeout` | `command` | At most this many texts per request (1 to 1024); seconds per request, after which the process is killed. The first request, which loads the model, is under the same limit |
+
+A typo in a key is an error. Changing the embedder rebuilds every index at the next start, because vectors of different models cannot be compared.
+
+To compare models, add `[embedders.NAME]` tables with the same keys. The server ignores them; [`passageway eval compare`](guides/evaluate.md#compare-embedding-models) runs your questions with each:
+
+```toml
+[embedders.e5]
+kind = "onnx"
+
+[embedders.bge]
+kind = "command"
+command = ["/path/to/python", "/path/to/my_embedder.py"]
+min_similarity = 0.80
+```
+
 ## Environment
 
 | Variable | Default | Meaning |

@@ -42,8 +42,9 @@ flowchart LR
 - The [Wikipedia connector](connectors/wikipedia.md), in English and German
 - The [Markdown connector](connectors/markdown.md), for a folder of markdown files with front matter
 - Hybrid search with a relevance gate, described in [How it works](how-it-works.md)
-- An [evaluation harness](guides/evaluate.md), `passageway eval`, that measures retrieval quality on your own questions and builds a report you can publish
+- An [evaluation harness](guides/evaluate.md), `passageway eval`, that measures retrieval quality on your own questions, compares embedding models and builds a report you can publish
+- Any embedding model through the [embedder protocol](reference/embedder-protocol.md): a program that turns texts into vectors
 
 ## Coming
 
-These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): a choice of embedding models, a model comparison for the evaluation harness, a container image, a Claude Code plugin for the prompt hook, and connectors for Trilium and Confluence.
+These are planned and **not available yet** (the [roadmap](roadmap.md) has the order and the open decisions): presets and an automatic download for the built-in model family, an embedder for OpenAI-compatible services, a container image, a Claude Code plugin for the prompt hook, and connectors for Trilium and Confluence.
