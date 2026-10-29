@@ -18,9 +18,11 @@ nav:
   - Start:
       - Install and run: install.md
       - Configuration: configuration.md
+      - Run it: deploy.md
   - Concepts:
       - How it works: how-it-works.md
   - Guides:
+      - Claude Code, the hook and the plugin: guides/claude-code.md
       - Write a connector: guides/write-a-connector.md
       - Measure retrieval quality: guides/evaluate.md
       - Work with an AI agent: guides/agents.md
@@ -91,7 +93,7 @@ plugins:
   - llmstxt:
       full_output: llms-full.txt
       sections:
-        Start: [index.md, values.md, install.md, configuration.md]
+        Start: [index.md, values.md, install.md, configuration.md, deploy.md]
         Concepts: [how-it-works.md]
         Guides: ["guides/*.md"]
         Reference: ["reference/*.md", measurements.md, models.md]

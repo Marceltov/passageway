@@ -228,9 +228,15 @@ def _load_toml(path: Path, env: Mapping[str, str]) -> tuple[list[ConnectorConfig
 def load_config(env: Mapping[str, str], *, require_password: bool = True) -> Config:
     """require_password=False is for commands that do not serve (the evaluation): nobody logs in to them."""
     password = env.get("PASSAGEWAY_LOGIN_PASSWORD", "").strip()
+    password_file = env.get("PASSAGEWAY_LOGIN_PASSWORD_FILE", "").strip()
+    if not password and password_file:  # a file the service manager can point at (passageway init writes one)
+        try:
+            password = Path(password_file).read_text().strip()
+        except OSError as e:
+            raise ConfigError(f"PASSAGEWAY_LOGIN_PASSWORD_FILE={password_file}: {e.strerror or e}") from None
     if require_password and not password:
-        raise ConfigError("PASSAGEWAY_LOGIN_PASSWORD is not set: clients authenticate with it, "
-                          "so the engine refuses to start without it")
+        raise ConfigError("PASSAGEWAY_LOGIN_PASSWORD is not set (nor PASSAGEWAY_LOGIN_PASSWORD_FILE): clients authenticate "
+                          "with it, so the engine refuses to start without it; `passageway init` generates one")
     base_url = env.get("PASSAGEWAY_BASE_URL", "").strip().rstrip("/") or None
     if base_url:
         try:

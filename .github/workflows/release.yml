@@ -24,6 +24,7 @@ concurrency:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   release:
@@ -66,3 +67,26 @@ jobs:
         run: |
           gh release view "$TAG" --json body,url --jq '.body + "\n\n[The release on GitHub](" + .url + ")\n"' > notefeed.md
           scripts/post-to-notefeed.sh "$TAG" notefeed.md
+
+  image:
+    # The sidecar image, tagged with the version and as latest; latest moves only on version tags.
+    runs-on: ubuntu-latest
+    needs: release
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        run: |
+          image=ghcr.io/${{ github.repository_owner }}/passageway
+          image=$(echo "$image" | tr '[:upper:]' '[:lower:]')
+          docker build --build-arg APP_VERSION="${TAG#v}" -t "$image:${TAG#v}" -t "$image:latest" .
+          docker push "$image:${TAG#v}"
+          docker push "$image:latest"

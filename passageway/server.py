@@ -297,6 +297,10 @@ def main() -> None:
         from passageway.eval.cli import main as eval_main
 
         sys.exit(eval_main(sys.argv[2:]))
+    if sys.argv[1:2] == ["init"]:  # passageway init: the configuration folder with a generated password
+        from passageway.init import main as init_main
+
+        sys.exit(init_main(sys.argv[2:]))
     if sys.argv[1:2] == ["model"]:  # passageway model list|download|verify
         from passageway.models import main as model_main
 

@@ -26,3 +26,15 @@ jobs:
           grep -q "Write a connector" site/llms-full.txt && grep -q "CATEGORY_DEPTH" site/llms-full.txt   # the Wikipedia include made it in
           grep -q "pw-timeline" site/roadmap/index.html && grep -q "Markdown connector" site/llms-full.txt   # the roadmap timeline
           grep -q "pw-header-links" site/index.html && grep -q "passageway.marceltov.de/llms-full.txt" site/index.html   # the header links
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the sidecar image and start it once
+        run: |
+          docker build -t passageway:ci .
+          docker run -d --name pw -e PASSAGEWAY_LOGIN_PASSWORD=ci-only -p 8082:8082 passageway:ci
+          for i in $(seq 1 60); do curl -sf http://localhost:8082/health && break; sleep 2; done
+          curl -sf http://localhost:8082/health | grep -q '"status"'   # it serves; a missing passageway.toml is its error, not a crash
+          docker logs pw | tail -5
+          docker rm -f pw
