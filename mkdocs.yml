@@ -21,6 +21,7 @@ nav:
       - How it works: how-it-works.md
   - Guides:
       - Write a connector: guides/write-a-connector.md
+      - Measure retrieval quality: guides/evaluate.md
       - Work with an AI agent: guides/agents.md
   - Reference:
       - Connector protocol: reference/connector-protocol.md

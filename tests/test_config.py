@@ -101,3 +101,12 @@ def test_bad_numbers_are_config_errors(tmp_path, line):
 def test_a_single_connector_table_is_a_config_error_not_a_traceback(tmp_path):
     with pytest.raises(ConfigError, match=r"\[\[connector\]\]"):
         load_config(env_for(tmp_path, TOML.replace("[[connector]]", "[connector]")))
+
+
+def test_the_password_is_optional_for_commands_that_do_not_serve(tmp_path):
+    path = tmp_path / "passageway.toml"
+    path.write_text('[[connector]]\nname = "n"\ncommand = ["x"]\n')
+    config = load_config({"PASSAGEWAY_CONFIG": str(path), "PASSAGEWAY_DATA_DIR": str(tmp_path)}, require_password=False)
+    assert config.password == "" and config.connectors[0].name == "n"
+    with pytest.raises(ConfigError, match="PASSAGEWAY_LOGIN_PASSWORD"):
+        load_config({"PASSAGEWAY_CONFIG": str(path), "PASSAGEWAY_DATA_DIR": str(tmp_path)})

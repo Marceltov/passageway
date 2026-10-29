@@ -130,6 +130,9 @@ class Index:
     def needs_rebuild(self) -> bool:
         return self._stored_meta() != self._meta
 
+    def stored_embedder(self) -> str | None:
+        return self._stored_meta().get("embedder")
+
     def reset(self) -> None:
         self._create()
 
