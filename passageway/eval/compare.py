@@ -86,7 +86,7 @@ def compare_main(argv: list[str], *, env: Mapping[str, str], stdout, stderr) -> 
                 for name in names:  # every embedder first: one that cannot start must not waste the others' indexing
                     cfg = config.embedder if name == DEFAULT else config.embedders[name]
                     started = time.perf_counter()
-                    embedders[name] = (build_embedder(cfg, config.model_dir, label=name),
+                    embedders[name] = (build_embedder(cfg, config, label=name),
                                        round(time.perf_counter() - started, 1))
                 results = []
                 for name in names:

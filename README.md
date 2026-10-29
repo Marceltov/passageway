@@ -7,8 +7,9 @@ The core knows no source. A connector is any executable that lists items and ret
 - [Install and run](docs/install.md) and [configuration](docs/configuration.md)
 - [How it works](docs/how-it-works.md)
 - [What passageway stands for](docs/values.md): the yardstick for every change
+- [Run it](docs/deploy.md) as a local service or as the container `ghcr.io/marceltov/passageway`; [Claude Code](docs/guides/claude-code.md) gets the prompt hook and the setup skill from the plugin
 - [Write a connector](docs/guides/write-a-connector.md), the [connector protocol](docs/reference/connector-protocol.md) and the [Python SDK](docs/reference/sdk.md) that does its plumbing
-- Bundled connectors: [Wikipedia](connectors/wikipedia/README.md), [Markdown](connectors/markdown/README.md)
+- Bundled connectors: [Wikipedia](connectors/wikipedia/README.md), [Markdown](connectors/markdown/README.md), [Trilium](connectors/trilium/README.md), [Confluence](connectors/confluence/README.md); bundled embedder: [OpenAI-compatible](embedders/openai/README.md)
 - For AI agents: [skills and `llms-full.txt`](docs/guides/agents.md); in Claude Code, `/plugin marketplace add Marceltov/passageway` gives you `/create-passageway-connector`
 
 Documentation: the pages in `docs/`, will be published at https://passageway.marceltov.de.

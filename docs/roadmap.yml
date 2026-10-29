@@ -10,75 +10,15 @@
 
 items:
   # ---- open ------------------------------------------------------------------------------------------------------------
-  - id: embedders
+  - id: trilium-recall-adopts
     status: next
     when: Next
-    icon: cube-outline
-    title: Embedders, the rest
-    summary: Ready-made adapters and presets, so that choosing a model is a line of configuration.
-    links:
-      - {label: "#41", url: "https://github.com/Marceltov/passageway/issues/41"}
-      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model-beyond-its-default"}
-      - {label: "V2", url: "https://passageway.marceltov.de/values/#v2-nothing-leaves-your-machine-unless-you-send-it"}
-      - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
-    details: |
-      - A bundled adapter for OpenAI-compatible services, which covers Ollama, LM Studio, vLLM, OpenAI and Voyage. It speaks the embedder protocol, so it needs no change in the core. Cloud models send all indexed text and queries to a third party; the default stays local and the docs say so.
-      - The built-in `onnx` embedder generalised with presets (the multilingual e5-small as the default, a German-focused model such as Jina v2 base de), a `device` setting (`auto`, `cpu`, `coreml`) and an automatic, checksummed model download in place of the manual step in the install guide.
-      - Relevance thresholds are recalibrated with `passageway eval compare` on the public corpus, not carried over from earlier measurements. The [first measurements](https://passageway.marceltov.de/measurements/) are the baseline: hit@3 89% and silence 80% at the default threshold, with reworded questions (61%) and near-topic questions (60% silent) as the weak spots.
-
-  - id: trilium-connector
-    status: later
-    when: Later
-    icon: puzzle-outline
-    title: Trilium connector
-    summary: The trilium-recall features as a connector, with ranking quality at least as good as before.
-    links:
-      - {label: "#42", url: "https://github.com/Marceltov/passageway/issues/42"}
-      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model-beyond-its-default"}
-      - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
-    details: |
-      `trilium.py`, the sync logic, the area and label handling and the HTML-to-sections code leave the engine; they can be recovered from the tag `trilium-engine-import`.
-      The wiki-aware ranking is expressed through the item fields: `weight` for the wiki, source and journal areas, `path` for the page trail, `labels` for type, topics and status, `links` for related notes.
-      - **Open design question:** trilium-recall shows a note's summary in place of its source note when the summary matches almost as well. Fields alone cannot express that.
-      - **Parity target:** ranking quality at least as good as trilium-recall on the same notes (published on its measurements page from a private question set: hit@3 0.86, silence 0.92), shown with fake-ETAPI fixtures and an opt-in live test against a throwaway Trilium.
-
-  - id: confluence-connector
-    status: later
-    when: Later
-    icon: puzzle-outline
-    title: Confluence connector
-    summary: Index Confluence spaces. Written from the public REST documentation.
-    links:
-      - {label: "#43", url: "https://github.com/Marceltov/passageway/issues/43"}
-      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model-beyond-its-default"}
-      - {label: "V7", url: "https://passageway.marceltov.de/values/#v7-secrets-are-references"}
-    details: |
-      A decision is needed first: **Cloud, Data Center or both**, because authentication and API paths differ.
-
-  - id: hook-plugin-image
-    status: later
-    when: Later
-    icon: docker
-    title: Hook, plugin, sidecar image, quickstart
-    summary: What is still to move over from trilium-recall.
-    links:
-      - {label: "#44", url: "https://github.com/Marceltov/passageway/issues/44"}
-      - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
-      - {label: "V8", url: "https://passageway.marceltov.de/values/#v8-self-hosted-and-open"}
-    details: |
-      The `/recall` endpoint with its skip rules and per-session memory exists. Still to move over:
-      - the `UserPromptSubmit` hook script and its self-test, and the setup skill;
-      - the sidecar Docker image: a multi-stage build, the model baked in and verified by checksum, a health check, memory settings;
-      - a minimal local quickstart: a generated password in the config directory and a documented launchd example.
-
-  - id: trilium-recall-adopts
-    status: later
-    when: Later
     icon: swap-horizontal
     title: trilium-recall adopts passageway
-    summary: After parity, trilium-recall points here.
+    summary: After parity, trilium-recall points here. The pull request with the migration guide is open there, for the owner's review.
     links:
       - {label: "#45", url: "https://github.com/Marceltov/passageway/issues/45"}
+      - {label: "trilium-recall PR #11", url: "https://github.com/Marceltov/trilium-recall/pull/11"}
       - {label: "V5", url: "https://passageway.marceltov.de/values/#v5-the-index-is-disposable-the-sources-stay-the-truth"}
       - {label: "V11", url: "https://passageway.marceltov.de/values/#v11-one-honest-page-beats-three-vague-ones"}
     details: |
@@ -89,6 +29,49 @@ items:
       - configuration moves to `passageway.toml`.
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: hook-plugin-image
+    status: done
+    date: 2026-10-29
+    icon: docker
+    title: Hook, plugin, sidecar image, quickstart
+    summary: The prompt hook with its self-test and the setup skill in the plugin, the image with the model baked in, and `passageway init` with a launchd example.
+    links:
+      - {label: "Claude Code", url: "https://passageway.marceltov.de/guides/claude-code/"}
+      - {label: "Run it", url: "https://passageway.marceltov.de/deploy/"}
+      - {label: "PR #52", url: "https://github.com/Marceltov/passageway/pull/52"}
+
+  - id: confluence-connector
+    status: done
+    date: 2026-10-29
+    icon: puzzle-outline
+    title: Confluence connector
+    summary: The pages of chosen spaces of a Confluence Data Center, with a personal access token, written from the public REST documentation and tested against a fake of it; Cloud later (ADR 0005).
+    links:
+      - {label: "Connector", url: "https://passageway.marceltov.de/connectors/confluence/"}
+      - {label: "ADR 0005", url: "https://passageway.marceltov.de/adr/0005-confluence-data-center-first/"}
+      - {label: "PR #51", url: "https://github.com/Marceltov/passageway/pull/51"}
+
+  - id: embedders
+    status: done
+    date: 2026-10-29
+    icon: cube-outline
+    title: Embedders, the rest
+    summary: An adapter for OpenAI-compatible services and Voyage; three built-in presets with a checksummed download and a measured gate each; CoreML measured and left opt-in; the models compared on the corpus.
+    links:
+      - {label: "Choosing a model", url: "https://passageway.marceltov.de/models/"}
+      - {label: "PR #50", url: "https://github.com/Marceltov/passageway/pull/50"}
+
+  - id: trilium-connector
+    status: done
+    date: 2026-10-29
+    icon: puzzle-outline
+    title: Trilium connector
+    summary: The trilium-recall sync as a connector. On trilium-recall's public fixture (its synthetic wiki, the real model, an in-test ETAPI) it scores hit@3 0.92 and silence 1.0 against the published 0.83 and 1.0; the check against a live Trilium and the private question set is still the owner's to run.
+    links:
+      - {label: "Connector", url: "https://passageway.marceltov.de/connectors/trilium/"}
+      - {label: "ADR 0004", url: "https://passageway.marceltov.de/adr/0004-no-summary-for-source-substitution/"}
+      - {label: "PR #49", url: "https://github.com/Marceltov/passageway/pull/49"}
+
   - id: embedder-protocol
     status: done
     date: 2026-10-29

@@ -25,7 +25,16 @@ See the [connector protocol](reference/connector-protocol.md) for what a connect
 
 ## The embedder
 
-Without an `[embedder]` section passageway uses its built-in model, the multilingual e5-small in `PASSAGEWAY_MODEL_DIR`. To use another model, point `[embedder]` at a program that speaks the [embedder protocol](reference/embedder-protocol.md):
+Without an `[embedder]` section passageway uses its built-in default, the multilingual e5-small, and fetches it once (pinned to a revision, every file verified by checksum) when it is missing. `model` picks another built-in preset:
+
+```toml
+[embedder]
+model = "jina-v2-base-de"       # see `passageway model list`
+device = "auto"                 # auto | cpu | coreml
+download = true                 # fetch the pinned files when missing (false for an air-gapped machine)
+```
+
+ To use another model, point `[embedder]` at a program that speaks the [embedder protocol](reference/embedder-protocol.md); the bundled [OpenAI-compatible embedder](embedders/openai.md) is one, for Ollama, LM Studio, vLLM, OpenAI and Voyage:
 
 ```toml
 [embedder]
@@ -42,7 +51,10 @@ timeout = 60                    # seconds per request
 |---|---|---|
 | `kind` | both | `onnx` is the built-in model; `command` runs your program as one long-lived process |
 | `min_similarity` | both | The relevance gate, from 0 to 1. Similarity scales differ between models, so measure it with [`passageway eval --sweep`](guides/evaluate.md); a `command` embedder without it gets the built-in model's value and a warning |
-| `model_dir` | `onnx` | Where the built-in model is. Set, it wins over `PASSAGEWAY_MODEL_DIR` and `--model-dir` |
+| `model` | `onnx` | A built-in preset: `multilingual-e5-small` (the default), `multilingual-e5-base`, `jina-v2-base-de`; `passageway model list` shows them with their measured relevance gate |
+| `device` | `onnx` | `auto` (CPU) or `cpu`; `coreml` is opt-in on a Mac, measured four times slower on these int8 models and giving different vectors, so only for your own experiments |
+| `download` | `onnx` | `true` fetches the preset's files from huggingface.co (or the mirror in `PASSAGEWAY_MODEL_HUB`) when they are missing or fail their checksum, once, before the server answers; `false` makes a missing model an error, with `passageway model download <preset>` as the step to run |
+| `model_dir` | `onnx` | Where the preset's files are. Default: `PASSAGEWAY_MODEL_DIR` for the default preset (itself `<data dir>/models/e5-small`), else `<data dir>/models/<preset>`; `passageway model` uses the same rule. Set, it wins over `PASSAGEWAY_MODEL_DIR` and `--model-dir` |
 | `command`, `env`, `secrets` | `command` | The program, its settings and named secrets (references to environment variables), run with an empty environment like a connector |
 | `batch_size`, `timeout` | `command` | At most this many texts per request (1 to 1024); seconds per request, after which the process is killed. The first request, which loads the model, is under the same limit |
 
@@ -65,6 +77,7 @@ min_similarity = 0.80
 | Variable | Default | Meaning |
 |---|---|---|
 | `PASSAGEWAY_LOGIN_PASSWORD` | required | Static Bearer token, and the OAuth login page's password |
+| `PASSAGEWAY_LOGIN_PASSWORD_FILE` | unset | A file holding the password, read when the variable is unset; `passageway init` writes one (see [Run it](deploy.md)) |
 | `PASSAGEWAY_CONFIG` | `~/.config/passageway/passageway.toml` | Connector file |
 | `PASSAGEWAY_BASE_URL` | unset | Public https URL; set, it turns on OAuth for `/mcp` |
 | `PASSAGEWAY_DATA_DIR` | `~/Library/Application Support/passageway` on macOS, `~/.local/share/passageway` elsewhere | Index files and OAuth state |

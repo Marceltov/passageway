@@ -47,7 +47,8 @@ class Engine:
     def __init__(self, config: Config, embedder: Embedder, connectors: dict[str, Connector] | None = None):
         self.config = config
         self.embedder = embedder
-        self.params = RankParams(min_cos=config.min_similarity) if config.min_similarity is not None else RankParams()
+        gate = config.min_similarity if config.min_similarity is not None else getattr(embedder, "min_similarity", None)
+        self.params = RankParams(min_cos=gate) if gate is not None else RankParams()
         self.embedder_error: str | None = None
         self.sessions = SessionMemory()
         self.syncers: dict[str, Syncer] = {}
@@ -296,6 +297,14 @@ def main() -> None:
         from passageway.eval.cli import main as eval_main
 
         sys.exit(eval_main(sys.argv[2:]))
+    if sys.argv[1:2] == ["init"]:  # passageway init: the configuration folder with a generated password
+        from passageway.init import main as init_main
+
+        sys.exit(init_main(sys.argv[2:]))
+    if sys.argv[1:2] == ["model"]:  # passageway model list|download|verify
+        from passageway.models import main as model_main
+
+        sys.exit(model_main(sys.argv[2:]))
     import uvicorn
 
     from passageway.embed import build_embedder
@@ -305,7 +314,7 @@ def main() -> None:
     logging.getLogger("httpx").setLevel(logging.WARNING)  # one line per request drowns the log
     try:
         config = load_config(os.environ)
-        app = build_app(Engine(config, build_embedder(config.embedder, config.model_dir)))
+        app = build_app(Engine(config, build_embedder(config.embedder, config)))
         host, port = config.host, config.port
     except (ConfigError, OSError) as e:
         log.error("startup failed: %s", e)

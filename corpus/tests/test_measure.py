@@ -21,3 +21,10 @@ def test_the_example_that_shows_every_question_does_not_rewrite_the_published_pa
 def test_the_sweep_includes_the_default_threshold_and_the_page_is_written_by_default():
     text = SCRIPT.read_text()
     assert "0.84,0.845,0.85" in text and "--write docs/measurements.md" in text
+
+
+def test_the_compare_script_writes_its_own_page_and_sweeps_both_scales():
+    text = (SCRIPT.with_name("compare.sh")).read_text()
+    assert "--write docs/models.md" in text and "--no-write" in text
+    assert "0.5," in text and "0.845" in text  # Jina's scale and e5's
+    assert (SCRIPT.parents[1] / "docs" / "models.md").read_text().count("passageway:results:") == 2

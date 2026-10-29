@@ -200,3 +200,28 @@ def test_an_embedder_timeout_must_be_a_usable_number_of_seconds(tmp_path, value)
 def test_a_connector_timeout_must_be_a_usable_number_of_seconds(tmp_path, value):
     with pytest.raises(ConfigError, match="timeout"):
         load_config(env_for(tmp_path, f'[[connector]]\nname = "n"\ncommand = ["x"]\ntimeout = {value}\n'))
+
+
+# ---- presets ----------------------------------------------------------------------------------------
+
+def test_the_onnx_embedder_takes_a_preset_a_device_and_the_download_switch(tmp_path):
+    e = load_config(embedder_env(tmp_path, '[embedder]\nmodel = "jina-v2-base-de"\ndevice = "cpu"\ndownload = false\n')).embedder
+    assert (e.kind, e.model, e.device, e.download) == ("onnx", "jina-v2-base-de", "cpu", False)
+    e = load_config(embedder_env(tmp_path, '[embedder]\nmin_similarity = 0.8\n')).embedder
+    assert (e.model, e.device, e.download) == ("multilingual-e5-small", "auto", True)
+
+
+@pytest.mark.parametrize("toml,message", [
+    ('[embedder]\nmodel = "gpt-9"', "model"),
+    ('[embedder]\ndevice = "gpu"', "device"),
+    ('[embedder]\ndownload = "yes"', "download"),
+    ('[embedder]\nkind = "command"\ncommand = ["x"]\nmodel = "jina-v2-base-de"', "model"),
+])
+def test_bad_preset_settings_are_refused(tmp_path, toml, message):
+    with pytest.raises(ConfigError, match=message):
+        load_config(embedder_env(tmp_path, toml))
+
+
+def test_a_model_that_is_not_a_string_is_a_config_error(tmp_path):
+    with pytest.raises(ConfigError, match="model"):
+        load_config(embedder_env(tmp_path, '[embedder]\nmodel = ["x"]'))

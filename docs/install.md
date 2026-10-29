@@ -10,13 +10,23 @@ uv tool install \
   git+https://github.com/Marceltov/passageway
 ```
 
-This installs passageway and the Wikipedia connector into one environment. A connector is a separate package, so add `--with` for every bundled connector you want to run. The [Markdown connector](connectors/markdown.md) is installed the same way, with `connectors/markdown` as the subdirectory and the package `passageway-connector-markdown`.
+This installs passageway and the Wikipedia connector into one environment. A connector is a separate package, so add `--with` for every bundled connector you want to run. The [Markdown](connectors/markdown.md), [Trilium](connectors/trilium.md) and [Confluence](connectors/confluence.md) connectors are installed the same way, with `connectors/markdown`, `connectors/trilium` or `connectors/confluence` as the subdirectory and the packages `passageway-connector-markdown`, `passageway-connector-trilium` and `passageway-connector-confluence`.
 
 ## 2. The embedding model
 
+(`passageway init` prepares the configuration folder with a generated password; [Run it](deploy.md) has the service and container setups.)
+
 This is the built-in model. To use another one, see [the embedder](configuration.md#the-embedder).
 
-passageway embeds text with the multilingual `e5-small` model in ONNX form. Put `model.onnx` and `sentencepiece.bpe.model` in the model directory (`<data dir>/models/e5-small` by default, or `PASSAGEWAY_MODEL_DIR`). Until the embedder work adds an automatic download, take both files from [trilium-recall](https://github.com/Marceltov/trilium-recall)'s `scripts/fetch-model.sh`.
+passageway embeds text with the multilingual `e5-small` model in ONNX form, about 120 MB. The server fetches it on first start when it is missing, pinned to a revision and verified by checksum, into `<data dir>/models/e5-small` (or `PASSAGEWAY_MODEL_DIR`). The first start waits for that download before it answers, so `/health` is reachable only afterwards. To fetch it yourself, or to prepare a machine without network access (download on another machine, copy the folder over, set `download = false`):
+
+```bash
+passageway model list                 # the built-in presets
+passageway model download             # the default, multilingual-e5-small
+passageway model download jina-v2-base-de
+```
+
+Another preset or model is a line in `passageway.toml`, see [the embedder](configuration.md#the-embedder).
 
 ## 3. Say what to index
 

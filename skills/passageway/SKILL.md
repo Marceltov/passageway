@@ -1,6 +1,6 @@
 ---
 name: passageway
-version: 0.1.0
+version: 0.2.0
 description: "Retrieval for Claude over MCP. Use when the user wants to install, configure, run or extend passageway: index their sources with connectors, ask the recall tool a question, or write a new connector."
 homepage: https://passageway.marceltov.de/
 ---
@@ -17,12 +17,12 @@ passageway indexes what **connectors** report and serves the best few passages f
 |---|---|
 | **Understand what passageway is** | Explain it from this page; point to https://passageway.marceltov.de/how-it-works/ for the details. |
 | **Install and run it** | Follow [Install and run](#install-and-run). |
-| **Index a source** | Check whether a bundled connector fits (today: Wikipedia, https://passageway.marceltov.de/connectors/wikipedia/, and a folder of markdown files, https://passageway.marceltov.de/connectors/markdown/). Otherwise write one. |
+| **Index a source** | Check whether a bundled connector fits (today: Wikipedia, https://passageway.marceltov.de/connectors/wikipedia/, a folder of markdown files, https://passageway.marceltov.de/connectors/markdown/, Trilium Notes, https://passageway.marceltov.de/connectors/trilium/, and Confluence Data Center, https://passageway.marceltov.de/connectors/confluence/). Otherwise write one. |
 | **Write a connector** | Use the skill `create-passageway-connector`: https://passageway.marceltov.de/skills/create-passageway-connector/SKILL.md (or install the plugin, see below). |
 | **Fix something that does not work** | Start with `curl http://127.0.0.1:8082/health`, see [Tips for agents](#tips-for-agents). |
 | **Measure retrieval quality** | `passageway eval cases.toml` runs a TOML file of questions against the configured sources and reports hit@1, hit@3, MRR, silence and latency; see https://passageway.marceltov.de/guides/evaluate/. `passageway eval compare cases.toml` runs them with several embedding models side by side (https://passageway.marceltov.de/guides/evaluate/#compare-embedding-models). |
-| **Use another embedding model** | Any model, as a program that speaks the embedder protocol: `kind = "command"` under `[embedder]` in `passageway.toml`, see https://passageway.marceltov.de/reference/embedder-protocol/ and https://passageway.marceltov.de/configuration/#the-embedder. A bundled adapter for OpenAI-compatible services and presets for other ONNX models are planned and **not available yet**; say so. |
-| **Run it in a container, install a prompt hook** | A container image and a plugin that installs the prompt hook are planned and **not available yet**; say so. What exists today: the `POST /recall` hook endpoint (https://passageway.marceltov.de/how-it-works/#the-hook-endpoint). |
+| **Use another embedding model** | Any model, as a program that speaks the embedder protocol: `kind = "command"` under `[embedder]` in `passageway.toml`, see https://passageway.marceltov.de/reference/embedder-protocol/ and https://passageway.marceltov.de/configuration/#the-embedder. The bundled adapter for Ollama, LM Studio, vLLM, OpenAI and Voyage is https://passageway.marceltov.de/embedders/openai/. Built-in presets: `multilingual-e5-small` (default), `multilingual-e5-base`, `jina-v2-base-de`, chosen with `model = ...` under `[embedder]` (`passageway model list`). |
+| **Run it in a container, as a service, install the prompt hook** | The image `ghcr.io/marceltov/passageway` and `passageway init` plus a launchd example: https://passageway.marceltov.de/deploy/. The prompt hook (it calls `POST /recall`) and the setup skill come with this plugin: run `/passageway-setup` (https://passageway.marceltov.de/guides/claude-code/). |
 
 If the intent is unclear, ask which of these they want.
 
@@ -34,7 +34,7 @@ uv tool install \
   git+https://github.com/Marceltov/passageway
 ```
 
-1. Put the embedding model (`model.onnx` and `sentencepiece.bpe.model`, the multilingual e5-small) in `<data dir>/models/e5-small` or the directory named by `PASSAGEWAY_MODEL_DIR`. Until the embedder work adds an automatic download, both files come from trilium-recall's `scripts/fetch-model.sh`; https://passageway.marceltov.de/install/ has the steps.
+1. The embedding model (the multilingual e5-small) is fetched on first start, pinned and checksummed; `passageway model download` does it ahead of time. It lives in `<data dir>/models/e5-small` or the directory named by `PASSAGEWAY_MODEL_DIR`.sh`; https://passageway.marceltov.de/install/ has the steps.
 2. Create `~/.config/passageway/passageway.toml` with one `[[connector]]` per source. Secrets are references such as `env:NAME`, never values. A connector runs with an empty environment except `PATH` and `HOME`, so use the interpreter of the tool environment, `$(uv tool dir)/passageway/bin/python`.
 3. The human starts the server in their own shell or service manager, with `PASSAGEWAY_LOGIN_PASSWORD` set to a password they choose, by running `passageway`. You do not need that password and must not handle it.
 4. Check `GET http://127.0.0.1:8082/health`: `ok` is ready, `starting` is still building, `degraded` means a source is failing. The error text is shown only to a caller sending `Authorization: Bearer <password>`: the human runs that request and tells you what it says.

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "passageway"
-version = "0.1.0"
+version = "0.2.0"
 description = "Retrieval for Claude over MCP: connectors feed passages, an eval harness keeps them honest"
 requires-python = ">=3.12"
 license = "AGPL-3.0-or-later"
@@ -18,6 +18,7 @@ dependencies = [
     "sentencepiece>=0.2.2",
     "sqlite-vec>=0.1.6",
     "starlette>=0.40",
+    "tokenizers>=0.20",
     "uvicorn>=0.30",
 ]
 
@@ -34,16 +35,19 @@ packages = ["passageway"]
 mcp-login-oauth = { git = "https://github.com/Marceltov/mcp-login-oauth", rev = "v0.1.1" }
 passageway-connector-wikipedia = { workspace = true }
 passageway-connector-markdown = { workspace = true }
+passageway-connector-trilium = { workspace = true }
+passageway-connector-confluence = { workspace = true }
+passageway-embedder-openai = { workspace = true }
 passageway-sdk = { workspace = true }
 
 [dependency-groups]
-dev = ["jsonschema>=4.23", "pytest>=8.3", "pytest-asyncio>=0.24", "passageway-connector-wikipedia", "passageway-connector-markdown", "passageway-sdk"]
+dev = ["jsonschema>=4.23", "pytest>=8.3", "pytest-asyncio>=0.24", "passageway-connector-wikipedia", "passageway-connector-markdown", "passageway-connector-trilium", "passageway-connector-confluence", "passageway-embedder-openai", "passageway-sdk"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
-testpaths = ["tests", "connectors", "sdk", "corpus"]
+testpaths = ["tests", "connectors", "sdk", "corpus", "embedders"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.uv.workspace]
-members = ["connectors/*", "sdk"]
+members = ["connectors/*", "sdk", "embedders/*"]

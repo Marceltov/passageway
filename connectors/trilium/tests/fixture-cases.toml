@@ -1,0 +1,64 @@
+# trilium-recall's public fixture cases (engine/eval/fixture-cases.yaml), against the synthetic wiki of fake_etapi.seed_fixture.
+# Published reference, trilium-recall 0.5.0 on the same notes: hit@3 0.83, silence 1.0. Questions never name a source.
+[[case]]
+query = "how much RAM does CT 101 have and is there swap"
+expect_id = ["fxLxcMemory"]
+
+[[case]]
+query = "the database container keeps getting OOM killed"
+expect_id = ["fxLxcMemory"]
+
+[[case]]
+query = "which bridge carries the IoT VLAN"
+expect_id = ["fxBridges"]
+
+[[case]]
+query = "vmbr1 mtu"
+expect_id = ["fxBridges"]
+
+[[case]]
+query = "when do the guest backups run and how long are they kept"
+expect_id = ["fxBackups"]
+
+[[case]]
+query = "where does the offsite backup copy go"
+expect_id = ["fxBackups", "fxRestic"]
+
+[[case]]
+query = "how do I restore a trilium backup"
+expect_id = ["fxTrBackup"]
+
+[[case]]
+query = "where do I create an ETAPI token"
+expect_id = ["fxEtapi"]
+
+[[case]]
+query = "Lohnt sich der JR Pass für meine Japanreise?"
+expect_id = ["fxJrPass"]
+
+[[case]]
+query = "Was muss ich für Japan einpacken?"
+expect_id = ["fxPackliste"]
+
+[[case]]
+query = "Wie viel Speicher braucht ein Datenbank-Container?"
+expect_id = ["fxSumArticle", "fxLxcMemory"]
+
+[[case]]
+query = "nginx ingress upload limit annotation"
+expect_id = ["fxSrcClip"]
+
+[[case]]
+query = "best sourdough hydration for a beginner loaf"
+
+[[case]]
+query = "who won the 1998 football world cup"
+
+[[case]]
+query = "how do I center a div in css"
+
+[[case]]
+query = "Wie backe ich einen Apfelkuchen?"
+
+[[case]]
+query = "zebra iptables legacy rules"
