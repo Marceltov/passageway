@@ -167,7 +167,7 @@ def test_the_connector_skill_points_to_the_sdk():
 def test_the_general_skill_does_not_deny_what_exists():
     text = GENERAL.read_text()
     assert "passageway eval" in text and "/recall" in text, "the evaluation command and the hook endpoint exist and must be named"
-    assert "exists today" in text or "What exists today" in text
+    assert "not available yet" not in text, "everything the skill describes exists now; say so without denial"
 
 
 def test_the_secrets_rule_names_who_handles_the_password():
@@ -244,3 +244,46 @@ def test_the_header_copy_names_the_material_version_it_was_copied_from_and_it_is
 def test_the_stylesheet_hides_the_links_where_the_header_has_no_room():
     css = (ROOT / "docs" / "stylesheets" / "extra.css").read_text()
     assert ".pw-header-links" in css and "min-width" in css.split(".pw-header-links", 1)[1]
+
+
+# ---- the hook, the setup skill, the image ----------------------------------------------------------
+
+def test_the_plugin_registers_the_prompt_hook_and_the_script_exists():
+    hooks = json.loads((ROOT / "hooks" / "hooks.json").read_text())
+    entry = hooks["hooks"]["UserPromptSubmit"][0]["hooks"][0]
+    assert entry["type"] == "command" and "scripts/recall-hook.sh" in entry["command"] and entry["timeout"] <= 5
+    assert os.access(ROOT / "scripts" / "recall-hook.sh", os.X_OK)
+
+
+def test_the_hook_self_test_passes():
+    out = subprocess.run(["bash", str(ROOT / "scripts" / "test-recall-hook.sh")], capture_output=True, text=True, timeout=120)
+    assert out.returncode == 0, out.stdout + out.stderr
+    assert "FAIL" not in out.stdout
+
+
+def test_the_setup_skill_has_frontmatter_and_never_asks_to_paste_the_password():
+    skill = ROOT / "skills" / "passageway-setup" / "SKILL.md"
+    meta = frontmatter(skill)
+    assert meta["name"] == "passageway-setup" and meta["description"]
+    text = skill.read_text()
+    assert "Never print the password" in text and "/health" in text and "claude mcp add" in text
+
+
+def test_the_image_bakes_the_model_in_and_serves_on_all_interfaces():
+    text = (ROOT / "Dockerfile").read_text()
+    assert "passageway model download --model-dir /models/e5-small" in text
+    assert "PASSAGEWAY_MODEL_DIR=/models/e5-small" in text and "PASSAGEWAY_HOST=0.0.0.0" in text and "HEALTHCHECK" in text
+    assert "PASSWORD" not in text.replace("PASSAGEWAY_LOGIN_PASSWORD=...", "")  # no secret baked in
+    release = (ROOT / ".github" / "workflows" / "release.yml").read_text()
+    assert "ghcr.io" in release and "packages: write" in release and "--push" in release and "linux/arm64" in release
+    checks = (ROOT / ".github" / "workflows" / "checks.yml").read_text()
+    assert "docker build" in checks
+
+
+def test_the_launchd_example_in_the_deploy_page_is_a_valid_plist():
+    import plistlib
+    page = (ROOT / "docs" / "deploy.md").read_text()
+    xml = re.search(r"```xml\n(.*?)```", page, re.S).group(1)
+    plist = plistlib.loads(xml.encode())
+    assert plist["Label"] == "de.marceltov.passageway" and plist["KeepAlive"] is True
+    assert "PASSAGEWAY_LOGIN_PASSWORD_FILE" in plist["EnvironmentVariables"]

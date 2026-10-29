@@ -14,6 +14,8 @@ This installs passageway and the Wikipedia connector into one environment. A con
 
 ## 2. The embedding model
 
+(`passageway init` prepares the configuration folder with a generated password; [Run it](deploy.md) has the service and container setups.)
+
 This is the built-in model. To use another one, see [the embedder](configuration.md#the-embedder).
 
 passageway embeds text with the multilingual `e5-small` model in ONNX form, about 120 MB. The server fetches it on first start when it is missing, pinned to a revision and verified by checksum, into `<data dir>/models/e5-small` (or `PASSAGEWAY_MODEL_DIR`). The first start waits for that download before it answers, so `/health` is reachable only afterwards. To fetch it yourself, or to prepare a machine without network access (download on another machine, copy the folder over, set `download = false`):

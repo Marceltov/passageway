@@ -77,6 +77,7 @@ min_similarity = 0.80
 | Variable | Default | Meaning |
 |---|---|---|
 | `PASSAGEWAY_LOGIN_PASSWORD` | required | Static Bearer token, and the OAuth login page's password |
+| `PASSAGEWAY_LOGIN_PASSWORD_FILE` | unset | A file holding the password, read when the variable is unset; `passageway init` writes one (see [Run it](deploy.md)) |
 | `PASSAGEWAY_CONFIG` | `~/.config/passageway/passageway.toml` | Connector file |
 | `PASSAGEWAY_BASE_URL` | unset | Public https URL; set, it turns on OAuth for `/mcp` |
 | `PASSAGEWAY_DATA_DIR` | `~/Library/Application Support/passageway` on macOS, `~/.local/share/passageway` elsewhere | Index files and OAuth state |

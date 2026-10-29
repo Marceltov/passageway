@@ -10,30 +10,15 @@
 
 items:
   # ---- open ------------------------------------------------------------------------------------------------------------
-  - id: hook-plugin-image
+  - id: trilium-recall-adopts
     status: next
     when: Next
-    icon: docker
-    title: Hook, plugin, sidecar image, quickstart
-    summary: What is still to move over from trilium-recall.
-    links:
-      - {label: "#44", url: "https://github.com/Marceltov/passageway/issues/44"}
-      - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
-      - {label: "V8", url: "https://passageway.marceltov.de/values/#v8-self-hosted-and-open"}
-    details: |
-      The `/recall` endpoint with its skip rules and per-session memory exists. Still to move over:
-      - the `UserPromptSubmit` hook script and its self-test, and the setup skill;
-      - the sidecar Docker image: a multi-stage build, the model baked in and verified by checksum, a health check, memory settings;
-      - a minimal local quickstart: a generated password in the config directory and a documented launchd example.
-
-  - id: trilium-recall-adopts
-    status: later
-    when: Later
     icon: swap-horizontal
     title: trilium-recall adopts passageway
-    summary: After parity, trilium-recall points here.
+    summary: After parity, trilium-recall points here. The pull request with the migration guide is open there, for the owner's review.
     links:
       - {label: "#45", url: "https://github.com/Marceltov/passageway/issues/45"}
+      - {label: "trilium-recall PR #11", url: "https://github.com/Marceltov/trilium-recall/pull/11"}
       - {label: "V5", url: "https://passageway.marceltov.de/values/#v5-the-index-is-disposable-the-sources-stay-the-truth"}
       - {label: "V11", url: "https://passageway.marceltov.de/values/#v11-one-honest-page-beats-three-vague-ones"}
     details: |
@@ -44,6 +29,17 @@ items:
       - configuration moves to `passageway.toml`.
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: hook-plugin-image
+    status: done
+    date: 2026-10-29
+    icon: docker
+    title: Hook, plugin, sidecar image, quickstart
+    summary: The prompt hook with its self-test and the setup skill in the plugin, the image with the model baked in, and `passageway init` with a launchd example.
+    links:
+      - {label: "Claude Code", url: "https://passageway.marceltov.de/guides/claude-code/"}
+      - {label: "Run it", url: "https://passageway.marceltov.de/deploy/"}
+      - {label: "PR #52", url: "https://github.com/Marceltov/passageway/pull/52"}
+
   - id: confluence-connector
     status: done
     date: 2026-10-29
