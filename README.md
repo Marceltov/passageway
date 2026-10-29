@@ -6,6 +6,7 @@ The core knows no source. A connector is any executable that lists items and ret
 
 - [Install and run](docs/install.md) and [configuration](docs/configuration.md)
 - [How it works](docs/how-it-works.md)
+- [What passageway stands for](docs/values.md): the yardstick for every change
 - [Write a connector](docs/guides/write-a-connector.md), the [connector protocol](docs/reference/connector-protocol.md) and the [Python SDK](docs/reference/sdk.md) that does its plumbing
 - Bundled connectors: [Wikipedia](connectors/wikipedia/README.md), [Markdown](connectors/markdown/README.md)
 - For AI agents: [skills and `llms-full.txt`](docs/guides/agents.md); in Claude Code, `/plugin marketplace add Marceltov/passageway` gives you `/create-passageway-connector`

@@ -10,9 +10,13 @@ What is planned and what has shipped, from the [trilium-recall](https://github.c
 
 <!-- roadmap -->
 
-## Not goals
+## Parked
 
-Generation (passageway returns passages only), a reranker, stdio MCP, per-connector access control, charts in evaluation reports, and a service installer in v1.
+Considered and wanted, not needed yet: publishing the SDK and the connectors to PyPI ([#28](https://github.com/Marceltov/passageway/issues/28), waits for a dependency that is not on PyPI), and cleaning the formulas in the live Wikipedia connector the way the sample corpus does ([#33](https://github.com/Marceltov/passageway/issues/33)).
+
+## Decided against
+
+Generation or summarisation inside passageway (it returns passages only: [V4](values.md#v4-passages-not-answers)); a reranker and charts in evaluation reports, until a measurement shows what they would add ([V3](values.md#v3-numbers-are-measured-never-tuned)); stdio MCP, because the index and the sync loop must outlive a client session; per-connector access control, because everything indexed is searchable by every caller of `recall` ([V2](values.md#v2-nothing-leaves-your-machine-unless-you-send-it): index only what every caller may see); a service installer in v1.
 
 ## Keep it true
 

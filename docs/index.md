@@ -36,6 +36,8 @@ flowchart LR
   B -- "recall tool" --> C[Claude]
 ```
 
+Before anything else, [what passageway stands for](values.md): the lines it does not cross and what you can rely on.
+
 ## Available today
 
 - The [connector protocol](reference/connector-protocol.md) and a [guide to writing a connector](guides/write-a-connector.md)

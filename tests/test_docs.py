@@ -202,3 +202,53 @@ def test_the_guide_names_every_option_of_the_command():
     assert len(options) >= 8
     for option in options:
         assert f"`{option}" in guide, f"{option} is an option of passageway eval but the guide does not mention it"
+
+
+# ---- the values page (a standing rule: docs/values.md is the yardstick every change is judged against) ----------------
+
+def test_the_values_page_has_numbered_points_in_three_groups_each_with_what_it_rules_out():
+    page = (ROOT / "docs" / "values.md").read_text()
+    assert page.startswith("# What passageway stands for")
+    for group in ("## Lines never crossed", "## What you can rely on", "## Principles that follow", "## Changing this page"):
+        assert group in page, f"the values page needs the section {group}"
+    points = re.findall(r"^### V(\d+)\. (.+)$", page, re.M)
+    numbers = [int(n) for n, _ in points]
+    assert numbers == list(range(1, len(numbers) + 1)) and len(numbers) >= 8, "points are numbered V1, V2, … across the groups"
+    sections = re.split(r"^### V\d+\. .+$", page, flags=re.M)[1:]
+    for (number, title), body in zip(points, sections):
+        assert "**Rules out:**" in body, f"V{number} {title!r} has no Rules out line"
+        assert "**ADRs:**" in body, f"V{number} {title!r} has no ADRs line"
+    adrs = {p.stem.split("-")[0] for p in (ROOT / "docs" / "adr").glob("*.md")}
+    for cited in re.findall(r"\*\*ADRs:\*\* ([^\n]+)", page):
+        for number in re.findall(r"\b(\d{4})\b", cited):
+            assert number in adrs, f"the values page cites ADR {number}, which does not exist"
+
+
+def test_the_values_page_is_right_after_home_in_the_nav_and_in_the_llms_file():
+    config = (ROOT / "mkdocs.yml").read_text()
+    nav = config.split("nav:")[1].split("theme:")[0]
+    assert re.search(r"- Home: index\.md\n\s+- [^\n]*values\.md", nav), "values.md comes right after Home"
+    assert re.search(r"Start: \[index\.md, values\.md", config)
+
+
+def test_claude_md_says_changes_are_judged_against_the_values():
+    text = (ROOT / "CLAUDE.md").read_text()
+    assert "docs/values.md" in text and "names the point" in text
+
+
+def test_every_open_roadmap_item_links_its_issue_and_the_value_it_serves():
+    import yaml
+    data = yaml.safe_load((ROOT / "docs" / "roadmap.yml").read_text())
+    values = (ROOT / "docs" / "values.md").read_text()
+    anchors = {f"v{n}-" + re.sub(r"[^a-z0-9 -]", "", title.lower()).replace(" ", "-")
+               for n, title in re.findall(r"^### V(\d+)\. (.+)$", values, re.M)}
+    for entry in data["items"]:
+        if entry["status"] == "done":
+            continue
+        labels = [link["label"] for link in entry.get("links", [])]
+        assert any(label.startswith("#") for label in labels), f"roadmap item {entry['id']} links no issue"
+        value_links = [link for link in entry.get("links", []) if re.fullmatch(r"V\d+", link["label"])]
+        assert value_links, f"roadmap item {entry['id']} names no value it serves"
+        for link in value_links:
+            anchor = link["url"].split("#")[-1]
+            assert anchor in anchors, f"roadmap item {entry['id']} links {link['url']}, but no value heading gives that anchor"

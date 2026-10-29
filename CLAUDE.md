@@ -13,6 +13,7 @@ PASSAGEWAY_LIVE=1 uv run pytest connectors/wikipedia/tests/test_wikipedia_live.p
 
 ## Working in this repository
 
+- Every change is judged against `docs/values.md`, what passageway stands for; a review names the point it touches ("this breaks V2"). A change to that page needs my approval and says why.
 - Every change starts from an issue. Branches, commits and pull request titles carry `PASSAGEWAY #<issue>:` (the `/ccp:ship-pr` flow). Dependabot's carry `Dependencies:` instead.
 - Tests first: write the failing test, watch it fail, then the code. `tests/test_docs.py` keeps the docs in step with the code.
 - CI is the gate, and I decide when a branch is finished and when it is merged. A `/ccp:ship-pr` request is the go-ahead for push and PR only, not for the merge. Merge only when I say "merge". The one exception: Dependabot's patch and minor bumps merge by themselves once CI is green (`.github/workflows/dependabot-automerge.yml`); its majors wait for me like any other PR.

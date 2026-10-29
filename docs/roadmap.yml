@@ -16,6 +16,11 @@ items:
     icon: cube-outline
     title: Embedders, the rest
     summary: Ready-made adapters and presets, so that choosing a model is a line of configuration.
+    links:
+      - {label: "#41", url: "https://github.com/Marceltov/passageway/issues/41"}
+      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model"}
+      - {label: "V2", url: "https://passageway.marceltov.de/values/#v2-nothing-leaves-your-machine-unless-you-send-it"}
+      - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
     details: |
       - A bundled adapter for OpenAI-compatible services, which covers Ollama, LM Studio, vLLM, OpenAI and Voyage. It speaks the embedder protocol, so it needs no change in the core. Cloud models send all indexed text and queries to a third party; the default stays local and the docs say so.
       - The built-in `onnx` embedder generalised with presets (the multilingual e5-small as the default, a German-focused model such as Jina v2 base de), a `device` setting (`auto`, `cpu`, `coreml`) and an automatic, checksummed model download in place of the manual step in the install guide.
@@ -27,6 +32,10 @@ items:
     icon: puzzle-outline
     title: Trilium connector
     summary: The trilium-recall features as a connector, with ranking quality at least as good as before.
+    links:
+      - {label: "#42", url: "https://github.com/Marceltov/passageway/issues/42"}
+      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model"}
+      - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
     details: |
       `trilium.py`, the sync logic, the area and label handling and the HTML-to-sections code leave the engine; they can be recovered from the tag `trilium-engine-import`.
       The wiki-aware ranking is expressed through the item fields: `weight` for the wiki, source and journal areas, `path` for the page trail, `labels` for type, topics and status, `links` for related notes.
@@ -39,6 +48,10 @@ items:
     icon: puzzle-outline
     title: Confluence connector
     summary: Index Confluence spaces. Written from the public REST documentation.
+    links:
+      - {label: "#43", url: "https://github.com/Marceltov/passageway/issues/43"}
+      - {label: "V1", url: "https://passageway.marceltov.de/values/#v1-the-core-knows-no-source-and-no-model"}
+      - {label: "V7", url: "https://passageway.marceltov.de/values/#v7-secrets-are-references"}
     details: |
       A decision is needed first: **Cloud, Data Center or both**, because authentication and API paths differ.
 
@@ -48,6 +61,10 @@ items:
     icon: docker
     title: Hook, plugin, sidecar image, quickstart
     summary: What is still to move over from trilium-recall.
+    links:
+      - {label: "#44", url: "https://github.com/Marceltov/passageway/issues/44"}
+      - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
+      - {label: "V8", url: "https://passageway.marceltov.de/values/#v8-self-hosted-and-open"}
     details: |
       The `/recall` endpoint with its skip rules and per-session memory exists. Still to move over:
       - the `UserPromptSubmit` hook script and its self-test, and the setup skill;
@@ -60,6 +77,10 @@ items:
     icon: swap-horizontal
     title: trilium-recall adopts passageway
     summary: After parity, trilium-recall points here.
+    links:
+      - {label: "#45", url: "https://github.com/Marceltov/passageway/issues/45"}
+      - {label: "V5", url: "https://passageway.marceltov.de/values/#v5-the-index-is-disposable-the-sources-stay-the-truth"}
+      - {label: "V11", url: "https://passageway.marceltov.de/values/#v11-one-honest-page-beats-three-vague-ones"}
     details: |
       trilium-recall becomes a thin distribution (a `passageway.toml` with the Trilium connector, its plugin, docs that point here) or is archived with a pointer.
       It is a breaking change for its users, so it needs a migration guide:
