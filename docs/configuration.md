@@ -42,9 +42,9 @@ timeout = 60                    # seconds per request
 |---|---|---|
 | `kind` | both | `onnx` is the built-in model; `command` runs your program as one long-lived process |
 | `min_similarity` | both | The relevance gate, from 0 to 1. Similarity scales differ between models, so measure it with [`passageway eval --sweep`](guides/evaluate.md); a `command` embedder without it gets the built-in model's value and a warning |
-| `model_dir` | `onnx` | Where the built-in model is; default `PASSAGEWAY_MODEL_DIR` |
+| `model_dir` | `onnx` | Where the built-in model is. Set, it wins over `PASSAGEWAY_MODEL_DIR` and `--model-dir` |
 | `command`, `env`, `secrets` | `command` | The program, its settings and named secrets (references to environment variables), run with an empty environment like a connector |
-| `batch_size`, `timeout` | `command` | At most this many texts per request (1 to 1024); seconds per request, after which the process is killed |
+| `batch_size`, `timeout` | `command` | At most this many texts per request (1 to 1024); seconds per request, after which the process is killed. The first request, which loads the model, is under the same limit |
 
 A typo in a key is an error. Changing the embedder rebuilds every index at the next start, because vectors of different models cannot be compared.
 

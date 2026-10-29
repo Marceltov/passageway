@@ -1,7 +1,9 @@
 """Configuration: environment variables for the core, one TOML file for connectors (docs/install.md)."""
 
+import math
 import re
 import sys
+import threading
 import tomllib
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -148,14 +150,16 @@ def _embedder(name: str, raw: object, env: Mapping[str, str]) -> EmbedderConfig:
     if isinstance(batch, bool) or not isinstance(batch, int) or not 1 <= batch <= 1024:
         raise ConfigError(f"{where}: 'batch_size' must be a whole number from 1 to 1024")
     timeout = raw.get("timeout", 60.0)
-    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or timeout <= 0:
-        raise ConfigError(f"{where}: 'timeout' must be a number of seconds greater than 0")
+    if (isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0
+            or timeout > threading.TIMEOUT_MAX):
+        raise ConfigError(f"{where}: 'timeout' must be a number of seconds greater than 0 (and not absurdly large)")
     return EmbedderConfig("command", tuple(command), _table(name, raw, "env", "embedder"), secrets, gate, batch, float(timeout))
 
 
 def _number(connector: str, raw: dict, key: str, default, *, kind=float, low=None, high=None):
     value = raw.get(key, default)
-    ok = isinstance(value, (int, float)) and not isinstance(value, bool) and (kind is float or isinstance(value, int))
+    ok = (isinstance(value, (int, float)) and not isinstance(value, bool) and (kind is float or isinstance(value, int))
+          and math.isfinite(value))
     if not ok or (low is not None and value <= low) or (high is not None and value > high):
         bound = f" (greater than {low}{'' if high is None else f' and at most {high}'})" if low is not None else ""
         raise ConfigError(f"connector {connector!r}: '{key}' must be a number{bound}")
@@ -185,7 +189,7 @@ def _load_toml(path: Path, env: Mapping[str, str]) -> tuple[list[ConnectorConfig
         secrets = {k: _resolve(name, v, env) for k, v in _table(name, raw, "secrets").items()}
         connectors.append(ConnectorConfig(
             name, tuple(command), _table(name, raw, "env"), secrets,
-            _number(name, raw, "timeout", 300.0, low=0),
+            _number(name, raw, "timeout", 300.0, low=0, high=threading.TIMEOUT_MAX),
             _number(name, raw, "max_line_bytes", MAX_LINE_BYTES, kind=int, low=0),
             _number(name, raw, "max_output_bytes", MAX_OUTPUT_BYTES, kind=int, low=0),
             _number(name, raw, "max_delete_fraction", 0.3, low=0, high=1)))

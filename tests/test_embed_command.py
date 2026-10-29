@@ -141,12 +141,12 @@ def test_another_protocol_version_is_refused(tmp_path):
 
 
 def test_a_request_that_takes_too_long_fails_and_kills_the_process(tmp_path):
-    e, log = make(tmp_path, fail="hang", timeout=0.5)
+    e, log = make(tmp_path, fail="hang", timeout=1.5)  # the start (info) is under the same timeout: leave room for it
     try:
         started = time.monotonic()
         with pytest.raises(EmbedderError, match="timed out"):
             e.embed_queries(["x"])
-        assert time.monotonic() - started < 5
+        assert time.monotonic() - started < 10
         pid = records(log)[0]["pid"]
         time.sleep(0.2)
         with pytest.raises(ProcessLookupError):
@@ -228,5 +228,60 @@ def test_a_process_that_never_reads_cannot_hang_a_request_bigger_than_the_pipe(t
         with pytest.raises(EmbedderError, match="timed out"):
             e.embed_passages(["x" * 8000 for _ in range(32)])  # 256 KB: more than a pipe holds
         assert time.monotonic() - started < 8
+    finally:
+        e.close()
+
+
+# ---- review findings ------------------------------------------------------------------------------
+
+def test_a_stray_line_on_stdout_does_not_shift_every_later_reply(tmp_path):
+    e, log = make(tmp_path, fail="noise")  # prints "Loading weights... done" before its first embed reply
+    try:
+        with pytest.raises(EmbedderError, match="JSON"):
+            e.embed_queries(["one"])
+        out = e.embed_queries(["two"])  # a fresh process: this reply belongs to this request
+        assert np.allclose(out[0], HashEmbedder(64).embed_queries(["two"])[0], atol=1e-5)
+        assert len({r["pid"] for r in records(log)}) == 2
+    finally:
+        e.close()
+
+
+def test_a_reply_of_the_wrong_shape_also_restarts_the_process(tmp_path):
+    e, log = make(tmp_path, fail="count")
+    try:
+        with pytest.raises(EmbedderError, match="vectors"):
+            e.embed_passages(["one", "two"])
+        assert e._state is None  # dropped: the stream can no longer be trusted
+    finally:
+        e.close()
+
+
+def test_a_secret_in_an_error_reply_is_masked(tmp_path):
+    e, _ = make(tmp_path, fail="error-secret", secrets={"FAKE_SECRET": "hunter2"})
+    try:
+        with pytest.raises(EmbedderError) as error:
+            e.embed_queries(["x"])
+    finally:
+        e.close()
+    assert "hunter2" not in str(error.value) and "***" in str(error.value)
+
+
+def test_a_process_found_dead_between_calls_is_restarted_once_not_twice(tmp_path):
+    e, log = make(tmp_path, fail="always-die")
+    with pytest.raises(EmbedderError):
+        e.embed_queries(["one"])  # start 1 dies; restart (start 2) dies: fail
+    started = len({r["pid"] for r in records(log)})
+    with pytest.raises(EmbedderError):
+        e.embed_queries(["two"])  # found dead: one start, dies: fail
+    e.close()
+    assert started == 2 and len({r["pid"] for r in records(log)}) == 3
+
+
+@pytest.mark.parametrize("fail,message", [("huge", "finite"), ("strings", "numbers"), ("bools", "numbers")])
+def test_vectors_must_be_finite_numbers_even_after_normalising(tmp_path, fail, message):
+    e, _ = make(tmp_path, fail=fail)
+    try:
+        with pytest.raises(EmbedderError, match=message):
+            e.embed_passages(["one", "two"])
     finally:
         e.close()

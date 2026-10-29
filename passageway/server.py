@@ -24,9 +24,9 @@ from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
 
 from passageway.config import DEFAULT_TOOL_DESCRIPTION, Config, ConfigError, load_config
-from passageway.embed import Embedder
+from passageway.embed import Embedder, EmbedderError
 from passageway.index import Index
-from passageway.rank import Hit, RankParams, rank
+from passageway.rank import Hit, RankParams, embed_query, rank
 from passageway.protocol import Connector
 from passageway.render import fit, render
 from passageway.sessions import SessionMemory
@@ -47,7 +47,8 @@ class Engine:
     def __init__(self, config: Config, embedder: Embedder, connectors: dict[str, Connector] | None = None):
         self.config = config
         self.embedder = embedder
-        self.params = RankParams(min_cos=config.min_similarity) if config.min_similarity else RankParams()
+        self.params = RankParams(min_cos=config.min_similarity) if config.min_similarity is not None else RankParams()
+        self.embedder_error: str | None = None
         self.sessions = SessionMemory()
         self.syncers: dict[str, Syncer] = {}
         self.ready: dict[str, bool] = {}
@@ -66,13 +67,20 @@ class Engine:
         if source and source not in self.syncers:
             raise UnknownSource(f"Unknown source {source!r}. Configured: {', '.join(self.syncers)}.")
         names = [source] if source else list(self.syncers)
+        try:
+            qvec = embed_query(self.embedder, query)  # once, not once per source
+        except Exception as e:  # the embedder, not a source: no answer is possible, and silence would hide it
+            self.embedder_error = f"{type(e).__name__}: {e}"
+            log.error("embedding the query failed: %s", self.embedder_error)
+            raise e if isinstance(e, EmbedderError) else EmbedderError(f"embedding the query failed: {e}") from e
+        self.embedder_error = None
         hits: list[Hit] = []
         for name in names:
             index = self.syncers[name].index
             if not self.ready[name] and index.needs_rebuild():
                 continue  # built with another embedder and not rebuilt yet: its vectors cannot be compared
             try:
-                hits += rank(name, index, self.embedder, query, cwd, self.params, limit)
+                hits += rank(name, index, self.embedder, query, cwd, self.params, limit, qvec)
             except Exception:  # one broken source must not take the answers of the others with it
                 log.exception("recall failed for source %s", name)
         return sorted(hits, key=lambda h: -h.score)[:limit]
@@ -132,13 +140,14 @@ class Engine:
             sources[name] = {"items": items, "sections": sections,
                                "last_ok": st.last_ok.isoformat() if st.last_ok else None,
                                "last_error": st.last_error}
-        if any(v["last_error"] for v in sources.values()):
+        embedder = {"name": self.embedder.name, "dim": self.embedder.dim, "last_error": self.embedder_error}
+        if any(v["last_error"] for v in sources.values()) or self.embedder_error:
             status = "degraded"
         elif not all(self.ready.values()):
             status = "starting"
         else:
             status = "ok"
-        return {"status": status, "sources": sources, "version": VERSION}
+        return {"status": status, "sources": sources, "embedder": embedder, "version": VERSION}
 
 
 # -- auth ---------------------------------------------------------------------------------------
@@ -216,9 +225,9 @@ def build_app(engine: Engine, background: bool = True, oauth_overrides: dict | N
         given = request.headers.get("authorization", "").encode()
         if not hmac.compare_digest(given, f"Bearer {config.password}".encode()):
             # The open endpoint says that a source is failing, not why: connector output can hold hosts and paths.
-            for source in body["sources"].values():
-                if source["last_error"]:
-                    source["last_error"] = "failing (authenticate to see the error)"
+            for part in (*body["sources"].values(), body["embedder"]):
+                if part["last_error"]:
+                    part["last_error"] = "failing (authenticate to see the error)"
         return JSONResponse(body)
 
     async def recall(request: Request) -> JSONResponse:
@@ -277,6 +286,11 @@ def build_error_app(message: str) -> Starlette:
                             Mount("/", app=mcp_app)], lifespan=mcp_app.lifespan)
 
 
+def public_message(error: Exception) -> str:
+    """What the error page may say: a configuration mistake in full, an embedder's output only as 'see the log'."""
+    return getattr(error, "public", str(error))
+
+
 def main() -> None:
     if sys.argv[1:2] == ["eval"]:  # passageway eval cases.toml: measure retrieval quality instead of serving
         from passageway.eval.cli import main as eval_main
@@ -295,7 +309,7 @@ def main() -> None:
         host, port = config.host, config.port
     except (ConfigError, OSError) as e:
         log.error("startup failed: %s", e)
-        app = build_error_app(str(e))
+        app = build_error_app(public_message(e))
         host, port = os.environ.get("PASSAGEWAY_HOST", "127.0.0.1"), int(os.environ.get("PASSAGEWAY_PORT", "8082") or 8082)
     uvicorn.run(app, host=host, port=port, log_level="warning")
 

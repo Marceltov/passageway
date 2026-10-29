@@ -13,6 +13,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 from passageway.config import Config, ConfigError, load_config
+from passageway.embed import EmbedderError, build_embedder
 from passageway.eval.cases import CasesError, load_cases
 from passageway.eval.measure import SyncFailed, UsageError, measure, sweep_values, threshold_value
 from passageway.eval.report import (ReportError, build_comparison, check_page, machine_line, render_markdown,
@@ -80,28 +81,40 @@ def compare_main(argv: list[str], *, env: Mapping[str, str], stdout, stderr) -> 
                     raise UsageError(f"--write: {e}") from None
             config = load_config(env, require_password=False)
             names = _choose(args.embedder, config)
-            results = []
-            for name in names:
-                cfg = config.embedder if name == DEFAULT else config.embedders[name]
-                from passageway.embed import build_embedder
-
-                started = time.perf_counter()
-                embedder = build_embedder(cfg, config.model_dir, label=name)
-                load_seconds = round(time.perf_counter() - started, 1)
-                try:
-                    done = measure(replace(config, embedder=cfg, min_similarity=cfg.min_similarity), embedder, cases,
-                                   threshold=args.threshold, sweep=sweep)
-                finally:
+            embedders: dict[str, tuple[object, float]] = {}
+            try:
+                for name in names:  # every embedder first: one that cannot start must not waste the others' indexing
+                    cfg = config.embedder if name == DEFAULT else config.embedders[name]
+                    started = time.perf_counter()
+                    embedders[name] = (build_embedder(cfg, config.model_dir, label=name),
+                                       round(time.perf_counter() - started, 1))
+                results = []
+                for name in names:
+                    cfg = config.embedder if name == DEFAULT else config.embedders[name]
+                    embedder, load_seconds = embedders.pop(name)
+                    try:
+                        done = measure(replace(config, embedder=cfg, min_similarity=cfg.min_similarity), embedder, cases,
+                                       threshold=args.threshold, sweep=sweep)
+                    except EmbedderError as e:
+                        raise EmbedderError(f"{name}: {e}") from None
+                    finally:
+                        if hasattr(embedder, "close"):
+                            embedder.close()
+                    results.append({"label": name, "embedder": done.embedder, "dim": done.dim, "threshold": done.threshold,
+                                    "load_seconds": load_seconds, "index_seconds": done.index_seconds,
+                                    "sources": done.sources, "results": done.results, "sweep": done.sweep})
+            finally:
+                for embedder, _ in embedders.values():
                     if hasattr(embedder, "close"):
                         embedder.close()
-                results.append({"label": name, "embedder": done.embedder, "dim": done.dim, "threshold": done.threshold,
-                                "load_seconds": load_seconds, "index_seconds": done.index_seconds, "sources": done.sources,
-                                "results": done.results, "sweep": done.sweep})
         except (UsageError, CasesError, ConfigError, ReportError) as e:
             print(f"eval: {e}", file=stderr)
             return 2
         except SyncFailed as e:
             print(f"eval: a source failed to sync, so the index would be incomplete: {e}", file=stderr)
+            return 1
+        except EmbedderError as e:
+            print(f"eval: an embedder failed, so the numbers would be meaningless: {e}", file=stderr)
             return 1
         run = {"date": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"), "passageway": version("passageway"),
                "machine": machine_line()}

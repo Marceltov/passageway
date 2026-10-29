@@ -13,6 +13,18 @@ from passageway.config import ConfigError, EmbedderConfig
 log = logging.getLogger(__name__)
 
 
+class EmbedderError(Exception):
+    """An embedder failed: a program of its own died or answered badly, or the model raised."""
+
+
+class EmbedderStartError(ConfigError):
+    """An embedder could not start. `public` is what an open endpoint may show; the message is for the log."""
+
+    def __init__(self, message: str, public: str):
+        super().__init__(message)
+        self.public = public
+
+
 class Embedder(Protocol):
     dim: int
     name: str
@@ -127,7 +139,7 @@ def build_embedder(cfg: EmbedderConfig, default_model_dir: Path, label: str = "d
     """The embedder a configuration describes. A model or program that is not there is a ConfigError, so that a server
     can start in its error mode and say what is wrong instead of crashing."""
     if cfg.kind == "command":
-        from passageway.embed_command import CommandEmbedder, EmbedderError
+        from passageway.embed_command import CommandEmbedder
 
         if cfg.min_similarity is None:
             log.warning("embedder %r has no min_similarity: the relevance gate of the built-in model applies, which is "
@@ -135,9 +147,9 @@ def build_embedder(cfg: EmbedderConfig, default_model_dir: Path, label: str = "d
         try:
             return CommandEmbedder(label, cfg.command, env=cfg.env, secrets=cfg.secrets, batch_size=cfg.batch_size,
                                    timeout=cfg.timeout)
-        except EmbedderError as e:
-            raise ConfigError(str(e)) from None
-    model_dir = cfg.model_dir or default_model_dir
+        except EmbedderError as e:  # its output can hold hosts and paths: only the log gets it
+            raise EmbedderStartError(str(e), public=f"the embedder {label!r} could not start; see the server log") from None
+    model_dir = cfg.model_dir or default_model_dir  # an explicit model_dir wins over PASSAGEWAY_MODEL_DIR
     if not (model_dir / "model.onnx").exists():
         raise ConfigError(f"embedding model not found in {model_dir} (see docs/install.md)")
     return OnnxEmbedder(model_dir)

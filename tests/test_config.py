@@ -188,3 +188,15 @@ min_similarity = 0.8
 def test_a_bad_embedder_section_is_refused_with_a_message_that_names_the_problem(tmp_path, toml, message):
     with pytest.raises(ConfigError, match=message):
         load_config(embedder_env(tmp_path, toml))
+
+
+@pytest.mark.parametrize("value", ["nan", "inf", "1e12"])
+def test_an_embedder_timeout_must_be_a_usable_number_of_seconds(tmp_path, value):
+    with pytest.raises(ConfigError, match="timeout"):
+        load_config(embedder_env(tmp_path, f'[embedder]\nkind = "command"\ncommand = ["x"]\ntimeout = {value}'))
+
+
+@pytest.mark.parametrize("value", ["nan", "1e12"])
+def test_a_connector_timeout_must_be_a_usable_number_of_seconds(tmp_path, value):
+    with pytest.raises(ConfigError, match="timeout"):
+        load_config(env_for(tmp_path, f'[[connector]]\nname = "n"\ncommand = ["x"]\ntimeout = {value}\n'))

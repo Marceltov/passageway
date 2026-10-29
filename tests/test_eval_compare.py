@@ -187,3 +187,32 @@ def test_help_and_bad_options(s):
     assert code == 2 and "--threshold" in err
     code, _, err = s.run("--sweep", "a")
     assert code == 2 and "--sweep" in err
+
+
+def test_an_embedder_that_fails_on_queries_fails_the_comparison(s):
+    s.config.write_text(s.config.read_text().replace('FAKE_EMBED_NAME = "big-model"',
+                                                     'FAKE_EMBED_FAIL = "query-error", FAKE_EMBED_NAME = "big-model"'))
+    code, out, err = s.run()
+    assert code == 1 and "big" in err and "rate limited" in err and out == ""
+
+
+def test_every_embedder_is_started_before_any_index_is_built(s):
+    s.config.write_text(s.config.read_text().replace('FAKE_EMBED_NAME = "small-model"',
+                                                     'FAKE_EMBED_FAIL = "start", FAKE_EMBED_NAME = "small-model"'))
+    code, _, err = s.run()
+    assert code == 2 and "small" in err
+    embeds = [json.loads(line) for line in s.log.read_text().splitlines() if "request" in line and '"embed"' in line]
+    assert embeds == []  # the other embedders had started, but nothing was indexed for nothing
+
+
+def test_candidates_with_the_same_model_stay_apart_in_the_history(s):
+    s.config.write_text(s.config.read_text().replace('FAKE_EMBED_NAME = "small-model", FAKE_EMBED_DIM = "8"',
+                                                     'FAKE_EMBED_NAME = "default-model", FAKE_EMBED_DIM = "8"')
+                        .replace("min_similarity = 0.5", "min_similarity = 0.3"))
+    page = s.tmp / "measurements.md"
+    page.write_text(PAGE)
+    assert s.run("--write", page, "--embedder", "default", "--embedder", "small")[0] == 0
+    history = json.loads((s.tmp / "measurements.history.json").read_text())
+    assert len(history) == 2 and {e["label"] for e in history} == {"default", "small"} and {e["dim"] for e in history} == {64, 8}
+    text = page.read_text()
+    assert "default: default-model" in text and "small: default-model" in text

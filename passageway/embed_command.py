@@ -13,14 +13,11 @@ from collections.abc import Mapping, Sequence
 
 import numpy as np
 
+from passageway.embed import EmbedderError
 from passageway.protocol import PROTOCOL_VERSION, _kill
 
 _STDERR_LINES = 5
 _EOF = object()
-
-
-class EmbedderError(Exception):
-    pass
 
 
 class _Died(Exception):
@@ -194,30 +191,34 @@ class CommandEmbedder:
             raise self._fail(f"a reply is longer than {self._max_line} bytes")
         try:
             reply = json.loads(raw)
+            if not isinstance(reply, dict):
+                raise ValueError("a reply must be a JSON object")
         except ValueError as e:
-            raise self._fail(f"a reply is not valid JSON: {e}") from None
-        if not isinstance(reply, dict):
-            raise self._fail("a reply must be a JSON object")
+            # a line that is not a reply (a log line on stdout, say) means the real reply is still queued and would be
+            # read as the answer to the next request: nothing from this process can be trusted any more
+            self._drop()
+            raise self._fail(f"a reply is not valid JSON: {e}; the process was stopped") from None
         if "error" in reply:
-            raise self._fail(str(reply["error"]))
+            raise self._fail(self._mask(str(reply["error"])))
         return reply
 
     def _request(self, request: dict) -> dict:
         with self._lock:
             if self._closed:
                 raise self._fail("this embedder is closed")
-            for attempt in (1, 2):
+            starts = 0  # a call may start the process once (it died, was killed or timed out) and ask again
+            while True:
                 if self._state is None or self._state.proc.poll() is not None:
                     self._drop()
-                    self._start()  # it died, was killed or timed out: start it again
+                    self._start()
+                    starts += 1
                 try:
                     return self._ask(request)
                 except _Died:
                     tail = self._state.stderr_tail()
                     self._drop()
-                    if attempt == 2:
+                    if starts:
                         raise self._fail(f"the process died: {tail or 'no error output'}") from None
-            raise AssertionError("unreachable")
 
     def _embed(self, kind: str, texts: list[str]):
         if not texts:
@@ -226,7 +227,12 @@ class CommandEmbedder:
         for i in range(0, len(texts), self._batch):
             batch = texts[i:i + self._batch]
             reply = self._request({"op": "embed", "kind": kind, "texts": batch})
-            parts.append(self._vectors(reply, len(batch)))
+            try:
+                parts.append(self._vectors(reply, len(batch)))
+            except EmbedderError:
+                with self._lock:
+                    self._drop()  # an answer of the wrong shape: the stream may be out of step
+                raise
         return np.vstack(parts)
 
     def _vectors(self, reply: dict, expected: int):
@@ -234,15 +240,19 @@ class CommandEmbedder:
         if not isinstance(vectors, list) or len(vectors) != expected:
             raise self._fail(f"expected {{\"vectors\": [...]}} with {expected} vectors, got "
                              f"{len(vectors) if isinstance(vectors, list) else type(vectors).__name__}")
-        try:
-            array = np.array(vectors, dtype=np.float64)
-        except (ValueError, TypeError):
-            raise self._fail("every vector must be a list of numbers") from None
+        if not all(isinstance(v, list) and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in v)
+                   for v in vectors):
+            raise self._fail("every vector must be a list of numbers")
+        array = np.array(vectors, dtype=np.float64)
         if array.shape != (expected, self.dim):
             raise self._fail(f"expected vectors with {self.dim} dimensions, got shape {array.shape}")
         if not np.isfinite(array).all():
             raise self._fail("a vector holds a value that is not a finite number")
-        norms = np.linalg.norm(array, axis=1, keepdims=True)
-        if (norms == 0).any():
-            raise self._fail("a vector has zero length and cannot be normalised")
+        with np.errstate(over="raise"):
+            try:
+                norms = np.linalg.norm(array, axis=1, keepdims=True)
+            except FloatingPointError:
+                raise self._fail("a vector holds values too large to be normalised to finite numbers") from None
+        if (norms == 0).any() or not np.isfinite(norms).all():
+            raise self._fail("a vector has zero length or values too large to be normalised to finite numbers")
         return (array / norms).astype(np.float32)

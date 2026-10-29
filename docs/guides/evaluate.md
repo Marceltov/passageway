@@ -105,7 +105,7 @@ runs the same questions once per embedder and puts them side by side. The candid
 | `--out DIR` | Write `report.json` (`"kind": "compare"`, one entry per candidate) and `report.md` |
 | `--write PAGE` | Update the marked block of your page with the comparison, and add one history line per embedder |
 
-Each row shows the model's name and dimensions, the **load** time (starting the model) and the **index** time (embedding every source), then the quality metrics with their intervals. Exit codes: 0 for a finished comparison, 1 for a source that failed to sync, 2 for bad input or an embedder that cannot start. The comparison holds no question, title or address.
+Each row shows the model's name and dimensions, the **load** time (starting the model) and the **index** time (embedding every source), then the quality metrics with their intervals. Every embedder is started before the first index is built, so one that cannot start costs nothing; it also means they are all loaded at once for a moment. Exit codes: 0 for a finished comparison, 1 for a source that failed to sync or an embedder that failed on the questions, 2 for bad input or an embedder that cannot start. The comparison holds no question, title or address.
 
 ## Not yet
 

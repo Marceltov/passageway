@@ -4,7 +4,9 @@ Settings (environment): FAKE_EMBED_NAME (default fake-hash), FAKE_EMBED_DIM (def
 one JSON line per start and per request, with the process id). FAKE_EMBED_FAIL makes it misbehave, to test the core:
 start (exits at once), no-read (answers info, then never reads again), info-error, protocol2, die-after:N (exits after N embed requests), always-die (exits on the first
 embed request), hang (never answers an embed request), error (answers embed with an error), garbage, not-an-object,
-count (one vector too few), dim (vectors one longer), nan, zero.
+count (one vector too few), dim (vectors one longer), nan, zero, huge (values that overflow), strings, bools,
+noise (a line of text on stdout before the first embed reply), error-secret (an error reply quoting FAKE_SECRET),
+query-error (an error reply to every query, passages work).
 FAKE_EMBED_NAME_FILE: if that file exists, its text is the name (changes the identity across a restart).
 """
 
@@ -52,6 +54,15 @@ def main() -> int:
                 time.sleep(600)  # never reads another line: a request bigger than the pipe blocks its writer
             continue
         served += 1
+        if fail == "noise" and log_path and not os.path.exists(log_path + ".noised"):  # once, not again after a restart
+            open(log_path + ".noised", "w").close()
+            print("Loading weights... done", flush=True)
+        if fail == "error-secret":
+            print(json.dumps({"error": "auth failed for key " + os.environ.get("FAKE_SECRET", "")}), flush=True)
+            continue
+        if fail == "query-error" and request["kind"] == "query":
+            print(json.dumps({"error": "rate limited"}), flush=True)
+            continue
         if fail == "always-die" or (fail.startswith("die-after:") and served > int(fail.split(":")[1])):
             print("fake died: secret=" + os.environ.get("FAKE_SECRET", ""), file=sys.stderr, flush=True)
             os._exit(1)
@@ -76,7 +87,14 @@ def main() -> int:
             vectors[0, 0] = float("nan")
         if fail == "zero":
             vectors[0, :] = 0.0
-        print(json.dumps({"vectors": vectors.tolist()}), flush=True)
+        out = vectors.tolist()
+        if fail == "huge":
+            out[0] = [1e308] * dim
+        if fail == "strings":
+            out[0] = [str(x) for x in out[0]]
+        if fail == "bools":
+            out[0] = [True] * dim
+        print(json.dumps({"vectors": out}), flush=True)
     return 0
 
 

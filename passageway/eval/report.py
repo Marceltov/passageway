@@ -102,8 +102,8 @@ def _sweep_table(sweep: list[dict]) -> list[str]:
 
 def _history_table(history: list[dict], sub: str) -> list[str]:
     return [f"{sub} History", ""] + _table(["Date", "Embedder", "Threshold", "Questions", "Hit@3", "Silence", "p95"], [
-        [e["date"], e["embedder"], e["threshold"], e["cases"], _pct(e["hit_at_3"]), _pct(e["silence"]), f"{e['p95_ms']} ms"]
-        for e in history])
+        [e["date"], f"{e['label']}: {e['embedder']}" if e.get("label") else e["embedder"], e["threshold"], e["cases"],
+         _pct(e["hit_at_3"]), _pct(e["silence"]), f"{e['p95_ms']} ms"] for e in history])
 
 
 def render_comparison(report: dict, *, heading: bool = True, history: list[dict] | None = None) -> str:
@@ -185,15 +185,18 @@ def _history_file(page: Path) -> Path:
 def _entries(report: dict) -> list[dict]:
     """The history lines of a run: one, or one per embedder of a comparison."""
     run = report["run"]
-    parts = [(c["embedder"], c["threshold"], c["metrics"]) for c in report["candidates"]] if report.get("kind") == "compare" \
-        else [(run["embedder"], run["threshold"], report["metrics"])]
+    if report.get("kind") == "compare":
+        parts = [(c["label"], c["embedder"], c["dim"], c["threshold"], c["metrics"]) for c in report["candidates"]]
+    else:
+        parts = [(None, run["embedder"], run["dim"], run["threshold"], report["metrics"])]
     return [{"date": run["date"][:10], "embedder": name, "threshold": threshold, "passageway": run["passageway"],
-             "cases": m["cases"], "hit_at_3": m["hit_at_3"], "silence": m["silence"], "p95_ms": m["p95_ms"]}
-            for name, threshold, m in parts]
+             "cases": m["cases"], "hit_at_3": m["hit_at_3"], "silence": m["silence"], "p95_ms": m["p95_ms"], "dim": dim,
+             **({"label": label} if label else {})}
+            for label, name, dim, threshold, m in parts]
 
 
 def _key(entry: dict) -> tuple:
-    return entry["date"], entry["embedder"], entry["threshold"], entry["passageway"]
+    return entry["date"], entry["embedder"], entry["threshold"], entry["passageway"], entry.get("label")
 
 
 def _markers(text: str) -> tuple[int, int] | None:

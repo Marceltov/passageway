@@ -12,6 +12,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 from passageway.config import ConfigError, load_config
+from passageway.embed import EmbedderError
 from passageway.eval.cases import CasesError, load_cases
 from passageway.eval.report import ReportError, build_report, check_page, machine_line, render_markdown, write_block
 from passageway.eval.measure import SyncFailed, UsageError, measure, sweep_values, threshold_value
@@ -23,7 +24,8 @@ def _parser() -> argparse.ArgumentParser:
         description="Measure retrieval quality: build the sources of passageway.toml into a fresh index, ask the "
                     "questions of a cases file and report hit@1, hit@3, MRR, silence on unanswerable questions and "
                     "latency. The reports hold no question, title or URL unless --include-cases is given.",
-        epilog="Exit codes: 0 done, 1 below the [targets] with --enforce or a source failed to sync, 2 bad input.")
+        epilog="Exit codes: 0 done, 1 below the [targets] with --enforce, a source that failed to sync or an embedder that "
+               "failed, 2 bad input. `passageway eval compare cases.toml` runs the questions with several embedders.")
     p.add_argument("cases", type=Path, help="the cases file (TOML: [targets] and [[case]])")
     p.add_argument("--config", type=Path, help="passageway.toml (default: PASSAGEWAY_CONFIG)")
     p.add_argument("--model-dir", type=Path, help="the embedding model (default: PASSAGEWAY_MODEL_DIR)")
@@ -98,6 +100,9 @@ def main(argv: list[str] | None = None, *, env: Mapping[str, str] | None = None,
             return 2
         except SyncFailed as e:
             print(f"eval: a source failed to sync, so the index would be incomplete: {e}", file=stderr)
+            return 1
+        except EmbedderError as e:
+            print(f"eval: the embedder failed, so the numbers would be meaningless: {e}", file=stderr)
             return 1
         print(render_markdown(report), end="", file=stdout)  # first: whatever happens to the files, the run is not lost
         try:
