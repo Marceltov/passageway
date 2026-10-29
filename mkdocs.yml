@@ -27,6 +27,7 @@ nav:
       - Connector protocol: reference/connector-protocol.md
       - Connector SDK: reference/sdk.md
       - Sample corpus: reference/corpus.md
+      - Measurements: measurements.md
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
       - Markdown: connectors/markdown.md
@@ -84,7 +85,7 @@ plugins:
         Start: [index.md, install.md, configuration.md]
         Concepts: [how-it-works.md]
         Guides: ["guides/*.md"]
-        Reference: ["reference/*.md"]
+        Reference: ["reference/*.md", measurements.md]
         Connectors: ["connectors/*.md"]
         Contributing: [development.md, roadmap.md]
         Decisions: ["adr/*.md"]

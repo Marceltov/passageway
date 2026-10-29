@@ -49,6 +49,14 @@ def _num(value: float | None, digits: int = 3) -> str:
     return "n/a" if value is None else f"{value:.{digits}f}"
 
 
+def _rate(metrics: dict, name: str) -> str:
+    """A rate with the 95% interval in brackets: 85.0% (77–91%)."""
+    interval = metrics.get("intervals", {}).get(name)
+    if metrics[name] is None or not interval:
+        return _pct(metrics[name])
+    return f"{_pct(metrics[name])} ({interval[0] * 100:.0f}–{interval[1] * 100:.0f}%)"
+
+
 def _fmt(name: str, value: float | None) -> str:
     if value is None:
         return "n/a"
@@ -76,11 +84,14 @@ def render_markdown(report: dict, *, heading: bool = True, history: list[dict] |
             f"{run['machine']} · index built in {run['index_seconds']} s ({sources})", ""]
     out += _table(["Metric", "Value"], [
         ["Questions", f"{m['cases']} ({m['answerable']} answerable, {m['unanswerable']} unanswerable)"],
-        ["Hit@1", _pct(m["hit_at_1"])], ["Hit@3", _pct(m["hit_at_3"])], ["MRR", _num(m["mrr"])],
-        ["Silence on unanswerable questions", _pct(m["silence"])],
-        ["False silence on answerable questions", _pct(m["false_silence"])],
+        ["Hit@1", _rate(m, "hit_at_1")], ["Hit@3", _rate(m, "hit_at_3")], ["MRR", _num(m["mrr"])],
+        ["Silence on unanswerable questions", _rate(m, "silence")],
+        ["False silence on answerable questions", _rate(m, "false_silence")],
         ["Latency p50 / p95", f"{m['p50_ms']} ms / {m['p95_ms']} ms"],
         ["Embedding the question", f"{m['embed_ms']} ms ({_pct(m['embed_share'])} of the latency)"]])
+    out += ["In brackets: the 95% interval of a rate, the range that holds the true rate in 95 of 100 repetitions with "
+            "other questions of the same kind. Overlapping intervals are a warning against over-reading a difference, "
+            "not a test of it. The tables below show point values only.", ""]
     if report["targets"]:
         out += [f"{sub} Targets", ""]
         out += _table(["Target", "Limit", "Required", "Measured", "Result"], [
@@ -97,7 +108,7 @@ def render_markdown(report: dict, *, heading: bool = True, history: list[dict] |
     if report["groups"]:
         out += [f"{sub} Groups", ""]
         out += _table(["Group", "Questions", "Hit@3", "Silence"], [
-            [name, g["cases"], _pct(g["hit_at_3"]), _pct(g["silence"])] for name, g in report["groups"].items()])
+            [name, g["cases"], _rate(g, "hit_at_3"), _rate(g, "silence")] for name, g in report["groups"].items()])
     if report.get("cases"):
         out += [f"{sub} Questions", ""]
         out += _table(["Question", "Accepted", "Rank", "Found", "ms"], [

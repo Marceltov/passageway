@@ -14,7 +14,7 @@ The repository is a uv workspace: the core package `passageway` at the root and 
 ## Tests
 
 - `uv run pytest -q` runs everything offline. Connector tests run the connector as a real subprocess against an in-test server and through `passageway.testing.contract.check_connector`.
-- `corpus/` holds the frozen sample corpus and `corpus/snapshot.py`, the script that writes it; its tests run offline against the Wikipedia connector's fake MediaWiki and check the committed files ([Sample corpus](reference/corpus.md)).
+- `corpus/` holds the frozen sample corpus, `corpus/snapshot.py` (the script that writes it), `corpus/questions.toml` (the 100 questions) and `corpus/measure.sh` (runs them and updates [Measurements](measurements.md), which needs the embedding model); its tests run offline against the Wikipedia connector's fake MediaWiki and check the committed files ([Sample corpus](reference/corpus.md)).
 - Opt-in live tests hit real services: `PASSAGEWAY_LIVE=1 uv run pytest connectors/wikipedia/tests/test_wikipedia_live.py`.
 - `tests/test_docs.py` keeps these docs honest: it fails when a setting is added to the code without being documented, and it runs the example connector from the guide.
 

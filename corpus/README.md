@@ -17,6 +17,10 @@ Use one connector per language folder (`en` and `de`). A question is then answer
 
 Chosen by hand: the core concepts of deep learning (backpropagation, convolutional and recurrent networks, attention and the transformer, regularisation, language models). The German list is not a translation of the English one, because several topics have no German article of their own; each folder's `ATTRIBUTION.txt` lists exactly what it holds.
 
+## The questions and the measurements
+
+`questions.toml` holds 100 questions for the corpus: 70 with accepted answers and 30 that nothing in the corpus answers, in English and German, none naming a language or a source. `measure.sh` runs them with `passageway eval` and updates the [measurements page](https://passageway.marceltov.de/measurements/); it needs the embedding model, and `measure.sh --no-write --include-cases --out DIR` shows every question without touching the page. The accepted answers are file names, so an answer such as `backpropagation.md` accepts the article of that name in both languages.
+
 ## Refreshing it
 
 `snapshot.py` writes the files. It is a maintenance script, not part of the Wikipedia connector, and uses the connector as a library:
