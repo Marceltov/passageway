@@ -1,6 +1,7 @@
 """A minimal, polite, read-only client for the MediaWiki Action API: only what the connector needs."""
 
 import ssl
+import sys
 import time
 from collections.abc import Iterator
 
@@ -11,6 +12,7 @@ BATCH = 50  # page ids per request (the API limit for anonymous clients)
 RETRY_BUDGET = 900  # seconds of waiting per request before giving up: a rate limit can last minutes
 MAX_BACKOFF = 60  # the longest wait the client picks itself
 MAX_RETRY_AFTER = 300  # the longest wait a Retry-After may ask for
+SAY_WAITS_FROM = 10  # seconds: a wait this long is said in the log, shorter ones stay quiet
 RETRY_STATUS = (429, 502, 503, 504)  # the wiki or its edge asking us to come back later
 
 
@@ -71,6 +73,9 @@ class Wiki:
                 raise WikiError(f"the wiki kept asking to try again later or could not be reached; giving up after "
                                 f"{attempt} attempts and {waited:.0f} s of waiting: {reason}")
             wait = min(wait, RETRY_BUDGET - waited)
+            if wait >= SAY_WAITS_FROM:  # on stderr, which the core logs as it comes: a waiting sync does not look hung
+                print(f"wikipedia connector: {reason} from the wiki: waiting {wait:.0f} s "
+                      f"({waited:.0f} s of {RETRY_BUDGET} s waited)", file=sys.stderr, flush=True)
             self._sleep(wait)
             waited += wait
 

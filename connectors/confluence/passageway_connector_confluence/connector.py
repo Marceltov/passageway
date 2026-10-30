@@ -6,6 +6,7 @@ Written from the public REST documentation. Settings come from the environment a
 import hashlib
 import re
 import ssl
+import sys
 import time
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
@@ -22,6 +23,7 @@ PAGE = 100  # results per request (the API's usual maximum)
 RETRY_BUDGET = 900  # seconds of waiting per request before giving up: a throttled Data Center takes minutes
 MAX_BACKOFF = 60  # the longest wait the connector picks itself
 MAX_RETRY_AFTER = 300  # the longest wait a Retry-After may ask for
+SAY_WAITS_FROM = 10  # seconds: a wait this long is said in the log, shorter ones stay quiet
 RETRY_STATUS = (429, 500, 502, 503, 504)
 FETCH_EXPAND = "body.storage,version,space,ancestors,metadata.labels"
 def _list(env: Mapping[str, str], key: str) -> tuple[str, ...]:
@@ -116,6 +118,9 @@ class Api:
             if waited >= RETRY_BUDGET:
                 raise SourceError(f"giving up on GET {path} after {attempt} attempts and {waited:.0f} s of waiting: {reason}")
             wait = min(wait, RETRY_BUDGET - waited)
+            if wait >= SAY_WAITS_FROM:  # on stderr, which the core logs as it comes: a waiting sync does not look hung
+                print(f"confluence connector: {reason} on GET {path}: waiting {wait:.0f} s "
+                      f"({waited:.0f} s of {RETRY_BUDGET} s waited)", file=sys.stderr, flush=True)
             self._sleep(wait)
             waited += wait
 
