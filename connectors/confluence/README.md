@@ -36,7 +36,8 @@ secrets = { TOKEN = "env:CONFLUENCE_TOKEN" }
 
 ## Behaviour
 
-- **Retries:** 429 and 5xx answers and network errors are retried with backoff (honouring `Retry-After`, at most 30 s), five attempts; a 401 says to check the token; any other error fails the call and nothing is stored.
+- **Retries:** 429 and 5xx answers and network errors are retried with a growing wait (1 s, doubling up to 60 s; a longer `Retry-After` is honoured up to 300 s) until a request has waited 15 minutes in total; the error then says how many attempts and how long it waited. A 401 says to check the token; any other error fails the call and nothing is stored.
+- **A throttled or large space** needs more than the core's default `timeout = 300` for the whole `list` or `fetch`: waiting out one rate limit can take minutes. Raise `timeout` in its `[[connector]]` entry (`3600` is a start), or set `PAUSE_SECONDS` so fewer requests are throttled in the first place.
 - **Cloud:** Atlassian Cloud authenticates with an e-mail address and an API token and serves the API under `/wiki`; it is not supported yet ([ADR 0005](https://passageway.marceltov.de/adr/0005-confluence-data-center-first/)).
 - **Tested against a fake** of the Data Center API in this repository, not against a live Confluence.
 

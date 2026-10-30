@@ -88,9 +88,29 @@ def test_a_wrong_token_is_exit_1_without_the_token_in_the_message(world):
 def test_429_and_5xx_are_retried_then_given_up(world):
     world.api.status_errors = [429, 503]
     assert set(world.ids()) == {"100", "101", "102", "200"}
-    world.api.status_errors = [503] * 5
+    world.api.status_errors = [503] * 100
     code, records, err = world.call("list")
     assert code == 1 and records == [] and "503" in err
+
+
+def test_a_429_longer_than_a_minute_is_waited_out(world):
+    world.api.status_errors = [429] * 8  # 1+2+4+…: over two minutes of waiting
+    assert world.fetch("101").keys() == {"101"}
+    assert sum(world.slept) > 120
+
+
+def test_retry_after_is_honoured_beyond_30_seconds(world):
+    world.api.status_errors, world.api.retry_after = [429], "200"
+    assert world.fetch("101").keys() == {"101"}
+    assert world.slept == [200]
+
+
+def test_a_429_that_never_ends_fails_and_says_how_long_it_waited(world):
+    world.api.status_errors = [429] * 1000
+    code, records, err = world.call("fetch", '{"id": "101"}\n')
+    assert code == 1 and records == [] and "HTTP 429" in err
+    waited = sum(world.slept)
+    assert 600 <= waited <= 1200 and f"{waited:.0f} s" in err
 
 
 def test_only_get_requests_are_ever_sent(world):
@@ -111,7 +131,7 @@ def test_every_setting_is_in_the_readme():
 
 def test_a_page_id_containing_404_is_not_skipped_on_a_real_failure(world):
     world.api.add("14045", "OPS", "Unlucky", "<p>x</p>")
-    world.api.status_errors = [503] * 5
+    world.api.status_errors = [503] * 100
     code, records, err = world.call("fetch", '{"id": "14045"}\n')
     assert code == 1 and records == [] and "503" in err
 
