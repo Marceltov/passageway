@@ -165,3 +165,35 @@ def test_the_start_asks_check_once_and_polls_and_reconciles_do_not(world, idx, m
     s.reconcile()
     s.poll()
     assert len(calls) == 1
+
+
+def _failing_fetch(s, monkeypatch, bad):
+    import passageway.sync
+    from passageway.protocol import ConnectorError
+    monkeypatch.setattr(passageway.sync, "FETCH_BATCH", 1)
+    asked, real = [], s.connector.fetch
+
+    def fetch(ids):
+        asked.append(ids[0])
+        if ids[0] in bad:
+            raise ConnectorError(f"connector 'w': fetch exited with status 1 ({ids[0]})")
+        return real(ids)
+    monkeypatch.setattr(s.connector, "fetch", fetch)
+    return asked
+
+
+def test_a_failing_fetch_batch_does_not_stop_the_batches_after_it(world, idx, monkeypatch):
+    world.set(items("a", "b", "c", "d"))
+    s = syncer(world, idx)
+    _failing_fetch(s, monkeypatch, {"b"})
+    s.full_build()
+    assert set(idx.versions()) == {"a", "c", "d"}
+    assert "(b)" in s.status.last_error and "1 of 4" in s.status.last_error and s.status.last_ok is None
+
+
+def test_two_failing_fetch_batches_in_a_row_stop_the_fetch(world, idx, monkeypatch):
+    world.set(items("a", "b", "c", "d"))
+    s = syncer(world, idx)
+    asked = _failing_fetch(s, monkeypatch, {"b", "c"})
+    s.full_build()
+    assert asked == ["a", "b", "c"] and set(idx.versions()) == {"a"} and "(b)" in s.status.last_error

@@ -25,7 +25,7 @@ Item record:
 - The core builds the embedded text as `title › path › heading: text` and splits any section over a size cap at paragraph boundaries, so a connector cannot send an oversize section.
 - `version` is any string that changes when the content changes; the core fetches only items whose version differs.
 - The connector receives an empty environment plus `PATH`, `HOME`, `PASSAGEWAY_PROTOCOL=1`, its `env` table and its named secrets. It never sees the core's password or another connector's secrets.
-- A call succeeds completely or stores nothing.
+- A call succeeds completely or stores nothing. The core asks `fetch` for at most 50 ids per call and stores each call on its own, so a call that fails costs only its own ids: the core goes on with the next ones, reports the failure, and asks again at the next sync. Two failing calls in a row stop the fetch until then.
 - `list` decides deletions. The deletion guard refuses to remove more than 30 % of a source (configurable, and never less than one item) or all of a source that has two or more items, and reports an error instead.
 - A failing connector never stops other sources; its already indexed items stay searchable. Line size, call size and timeout have configurable defaults.
 

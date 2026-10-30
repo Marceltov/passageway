@@ -37,7 +37,7 @@ sequenceDiagram
   Core-xConn: on a timeout the whole process group is killed and nothing is stored
 ```
 
-The environment contains only `PATH`, `HOME`, `PASSAGEWAY_PROTOCOL`, the connector's own `env` table and the secrets it names, so one connector never sees another's credentials or the server's password. A line over `max_line_bytes`, output over `max_output_bytes`, a malformed line, an id that was not requested, a non-zero exit and a timeout all fail the call. The [protocol reference](reference/connector-protocol.md) has the details.
+The environment contains only `PATH`, `HOME`, `PASSAGEWAY_PROTOCOL`, the connector's own `env` table and the secrets it names, so one connector never sees another's credentials or the server's password. A line over `max_line_bytes`, output over `max_output_bytes`, a malformed line, an id that was not requested, a non-zero exit and a timeout all fail the call. `fetch` is called with at most 50 ids at a time, so a failing call loses only its own ids: the next calls still run, the sync is reported as failed, and the missing items are asked for again at the next one. The [protocol reference](reference/connector-protocol.md) has the details.
 
 ## Keeping the index current
 
