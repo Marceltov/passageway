@@ -875,7 +875,7 @@ wheels = [
 
 [[package]]
 name = "passageway"
-version = "0.2.3"
+version = "0.2.4"
 source = { editable = "." }
 dependencies = [
     { name = "fastmcp" },
@@ -888,6 +888,7 @@ dependencies = [
     { name = "sqlite-vec" },
     { name = "starlette" },
     { name = "tokenizers" },
+    { name = "truststore" },
     { name = "uvicorn" },
 ]
 
@@ -916,6 +917,7 @@ requires-dist = [
     { name = "sqlite-vec", specifier = ">=0.1.6" },
     { name = "starlette", specifier = ">=0.40" },
     { name = "tokenizers", specifier = ">=0.20" },
+    { name = "truststore", specifier = ">=0.10" },
     { name = "uvicorn", specifier = ">=0.30" },
 ]
 
@@ -940,6 +942,7 @@ dependencies = [
     { name = "httpx" },
     { name = "passageway-sdk" },
     { name = "selectolax" },
+    { name = "truststore" },
 ]
 
 [package.dev-dependencies]
@@ -954,6 +957,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "passageway-sdk", editable = "sdk" },
     { name = "selectolax", specifier = ">=0.3.21" },
+    { name = "truststore", specifier = ">=0.10" },
 ]
 
 [package.metadata.requires-dev]
@@ -1000,6 +1004,7 @@ dependencies = [
     { name = "httpx" },
     { name = "passageway-sdk" },
     { name = "selectolax" },
+    { name = "truststore" },
 ]
 
 [package.dev-dependencies]
@@ -1014,6 +1019,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "passageway-sdk", editable = "sdk" },
     { name = "selectolax", specifier = ">=0.3.21" },
+    { name = "truststore", specifier = ">=0.10" },
 ]
 
 [package.metadata.requires-dev]
@@ -1030,6 +1036,7 @@ source = { editable = "connectors/wikipedia" }
 dependencies = [
     { name = "httpx" },
     { name = "passageway-sdk" },
+    { name = "truststore" },
 ]
 
 [package.dev-dependencies]
@@ -1043,6 +1050,7 @@ dev = [
 requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "passageway-sdk", editable = "sdk" },
+    { name = "truststore", specifier = ">=0.10" },
 ]
 
 [package.metadata.requires-dev]
@@ -1058,6 +1066,7 @@ version = "0.1.0"
 source = { editable = "embedders/openai" }
 dependencies = [
     { name = "httpx" },
+    { name = "truststore" },
 ]
 
 [package.dev-dependencies]
@@ -1067,7 +1076,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "httpx", specifier = ">=0.28.1" }]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "truststore", specifier = ">=0.10" },
+]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1077,7 +1089,7 @@ dev = [
 
 [[package]]
 name = "passageway-sdk"
-version = "0.2.3"
+version = "0.2.4"
 source = { editable = "sdk" }
 
 [package.dev-dependencies]

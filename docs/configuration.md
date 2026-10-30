@@ -88,6 +88,10 @@ min_similarity = 0.80
 | `PASSAGEWAY_LOG_LEVEL` | `INFO` | |
 | `APP_VERSION` | `dev` | Version string shown by `/health`; a release build sets it |
 
+## Certificates
+
+Every HTTPS request passageway makes, from the core's model download and from the bundled connectors and embedder, checks the server's certificate against your operating system's trust store: the Keychain on macOS, the certificate store on Windows, `/etc/ssl` on Linux. A server whose certificate comes from a company or internal CA works as soon as that CA is trusted there, the way Safari and curl see it; no exported bundle in `SSL_CERT_FILE` is needed. Only the Confluence connector can turn checking off, with `VERIFY_TLS = false`.
+
 ## Rebuilding a source
 
 Each source is one file, `<data dir>/<name>.db`, and it can always be rebuilt from the connector: stop the server, delete the file, start it again. Do this after changing the embedding model, after removing a connector from the config (its items stay searchable until then), and when the deletion guard keeps refusing a legitimate bulk delete (it refuses to remove more than `max_delete_fraction` of a source, and always allows a single item; it also refuses to empty a source of two or more items).

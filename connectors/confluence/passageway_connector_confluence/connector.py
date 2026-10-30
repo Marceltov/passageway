@@ -5,6 +5,7 @@ Written from the public REST documentation. Settings come from the environment a
 
 import hashlib
 import re
+import ssl
 import time
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
@@ -12,6 +13,7 @@ from datetime import UTC, datetime, timedelta
 from urllib.parse import urlparse
 
 import httpx
+import truststore
 from passageway_sdk import Connector, SettingsError, SourceError
 
 from passageway_connector_confluence.html import html_to_sections
@@ -77,7 +79,7 @@ class Api:
     def __init__(self, s: Settings, sleep=time.sleep):
         self.s, self._sleep = s, sleep
         self._http = httpx.Client(base_url=s.url, headers={"Authorization": f"Bearer {s.token}"}, timeout=s.timeout,
-                                  verify=s.verify)
+                                  verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT) if s.verify else False)
 
     def get(self, path: str, **params) -> dict:
         for attempt in range(MAX_ATTEMPTS):

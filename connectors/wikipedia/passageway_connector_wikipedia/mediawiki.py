@@ -1,9 +1,11 @@
 """A minimal, polite, read-only client for the MediaWiki Action API: only what the connector needs."""
 
+import ssl
 import time
 from collections.abc import Iterator
 
 import httpx
+import truststore
 
 BATCH = 50  # page ids per request (the API limit for anonymous clients)
 MAX_ATTEMPTS = 5
@@ -32,7 +34,8 @@ def _category_title(name: str) -> str:
 
 class Wiki:
     def __init__(self, api_url: str, user_agent: str, *, pause: float = 0.1, sleep=time.sleep, timeout: float = 30.0):
-        self._http = httpx.Client(headers={"User-Agent": user_agent}, timeout=timeout)
+        self._http = httpx.Client(headers={"User-Agent": user_agent}, timeout=timeout,
+                                  verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT))
         self._url, self._pause, self._sleep = api_url, pause, sleep
 
     # -- requests ----------------------------------------------------------------------------
