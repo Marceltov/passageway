@@ -1,11 +1,11 @@
 ---
 name: passageway
-version: 0.2.0
+version: 0.2.1
 description: "Retrieval for Claude over MCP. Use when the user wants to install, configure, run or extend passageway: index their sources with connectors, ask the recall tool a question, or write a new connector."
 homepage: https://passageway.marceltov.de/
 ---
 
-> **If you are an AI agent reading this file**, this is a short guide to passageway for helping your human. The complete documentation is one file, https://passageway.marceltov.de/llms-full.txt (an index of the pages is at https://passageway.marceltov.de/llms.txt). Read this file first, then follow the route that fits.
+> **If you are an AI agent reading this file**, this is a short guide to passageway for helping your human. The complete documentation is one file, https://passageway.marceltov.de/llms-full.txt (an index of the pages is at https://passageway.marceltov.de/llms.txt, each with its markdown address). Read this file first, then follow the route that fits, and fetch the page for what you touch before acting on it.
 
 # passageway
 
@@ -16,13 +16,13 @@ passageway indexes what **connectors** report and serves the best few passages f
 | If your human wants to... | Do this |
 |---|---|
 | **Understand what passageway is** | Explain it from this page; point to https://passageway.marceltov.de/how-it-works/ for the details. |
-| **Install and run it** | Follow [Install and run](#install-and-run). |
-| **Index a source** | Check whether a bundled connector fits (today: Wikipedia, https://passageway.marceltov.de/connectors/wikipedia/, a folder of markdown files, https://passageway.marceltov.de/connectors/markdown/, Trilium Notes, https://passageway.marceltov.de/connectors/trilium/, and Confluence Data Center, https://passageway.marceltov.de/connectors/confluence/). Otherwise write one. |
+| **Install and run it** | In Claude Code, the skill `/passageway-install` (https://passageway.marceltov.de/skills/passageway-install/SKILL.md) installs it and runs it as a service; otherwise follow [Install and run](#install-and-run). |
+| **Index a source** | Check whether a bundled connector fits (today: Wikipedia, https://passageway.marceltov.de/connectors/wikipedia/, a folder of markdown files, https://passageway.marceltov.de/connectors/markdown/, Trilium Notes, https://passageway.marceltov.de/connectors/trilium/, and Confluence Data Center, https://passageway.marceltov.de/connectors/confluence/); the skill `/passageway-add-source` (https://passageway.marceltov.de/skills/passageway-add-source/SKILL.md) writes its `[[connector]]` into `passageway.toml`; `/passageway-connect` links Claude Code to the server. Otherwise write one. |
 | **Write a connector** | Use the skill `create-passageway-connector`: https://passageway.marceltov.de/skills/create-passageway-connector/SKILL.md (or install the plugin, see below). |
 | **Fix something that does not work** | Start with `curl http://127.0.0.1:8082/health`, see [Tips for agents](#tips-for-agents). |
 | **Measure retrieval quality** | `passageway eval cases.toml` runs a TOML file of questions against the configured sources and reports hit@1, hit@3, MRR, silence and latency; see https://passageway.marceltov.de/guides/evaluate/. `passageway eval compare cases.toml` runs them with several embedding models side by side (https://passageway.marceltov.de/guides/evaluate/#compare-embedding-models). |
-| **Use another embedding model** | Any model, as a program that speaks the embedder protocol: `kind = "command"` under `[embedder]` in `passageway.toml`, see https://passageway.marceltov.de/reference/embedder-protocol/ and https://passageway.marceltov.de/configuration/#the-embedder. The bundled adapter for Ollama, LM Studio, vLLM, OpenAI and Voyage is https://passageway.marceltov.de/embedders/openai/. Built-in presets: `multilingual-e5-small` (default), `multilingual-e5-base`, `jina-v2-base-de`, chosen with `model = ...` under `[embedder]` (`passageway model list`). |
-| **Run it in a container, as a service, install the prompt hook** | The image `ghcr.io/marceltov/passageway` and `passageway init` plus a launchd example: https://passageway.marceltov.de/deploy/. The prompt hook (it calls `POST /recall`) and the setup skill come with this plugin: run `/passageway-setup` (https://passageway.marceltov.de/guides/claude-code/). |
+| **Use another embedding model** | Any model, as a program that speaks the embedder protocol: `kind = "command"` under `[embedder]` in `passageway.toml`, see https://passageway.marceltov.de/reference/embedder-protocol/ and https://passageway.marceltov.de/configuration/#the-embedder. The bundled adapter for Ollama, LM Studio, vLLM, OpenAI and Voyage is https://passageway.marceltov.de/embedders/openai/. Built-in presets: `multilingual-e5-small` (default), `multilingual-e5-base`, `jina-v2-base-de`, chosen with `model = ...` under `[embedder]` (`passageway model list` shows them with their measured relevance gate, https://passageway.marceltov.de/models/); the files are fetched once at the next start. Keep `min_similarity` unset for a preset and measure it with `passageway eval cases.toml --sweep` for a command embedder, since the similarity scale changes with the model. The index is rebuilt at the next start: restart and check `/health`. |
+| **Run it in a container, as a service, install the prompt hook** | The image `ghcr.io/marceltov/passageway` and `passageway init` plus a launchd example: https://passageway.marceltov.de/deploy/. The prompt hook (it calls `POST /recall`) and the setup skill come with this plugin: run `/passageway-connect` (https://passageway.marceltov.de/guides/claude-code/). |
 
 If the intent is unclear, ask which of these they want.
 

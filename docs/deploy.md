@@ -43,7 +43,7 @@ Save this as `~/Library/LaunchAgents/de.marceltov.passageway.plist`, with the pa
 </plist>
 ```
 
-Then `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/de.marceltov.passageway.plist`. The connectors run with an empty environment plus `PATH` and `HOME`, so the `PATH` above must reach the interpreter named in your `passageway.toml`. On Linux, a systemd user unit with the same two environment variables does the same.
+Then `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/de.marceltov.passageway.plist`. The connectors run with an empty environment plus `PATH` and `HOME`, so the `PATH` above must reach the interpreter named in your `passageway.toml`. On Linux, a systemd user unit with the same two environment variables does the same (`EnvironmentFile=-%h/.config/passageway/env` is the place for the connectors' tokens). The plugin's `/passageway-install` skill writes either one for you, with a small wrapper that reads `~/.config/passageway/env` (`NAME=value` lines, readable only by you) so the tokens your connectors reference as `env:NAME` never appear in the plist.
 
 ## As a container
 

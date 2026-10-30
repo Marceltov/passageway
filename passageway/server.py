@@ -292,7 +292,21 @@ def public_message(error: Exception) -> str:
     return getattr(error, "public", str(error))
 
 
+USAGE = """usage: passageway                 serve (PASSAGEWAY_LOGIN_PASSWORD or PASSAGEWAY_LOGIN_PASSWORD_FILE must be set)
+       passageway init            create ~/.config/passageway with a generated password and a passageway.toml
+       passageway model ...       list, download or verify the built-in model presets
+       passageway eval ...        measure retrieval quality on your own questions
+Start a local server with:  PASSAGEWAY_LOGIN_PASSWORD_FILE=~/.config/passageway/password passageway
+"""
+
+
 def main() -> None:
+    if sys.argv[1:2] in (["--help"], ["-h"]):
+        print(USAGE, end="")
+        sys.exit(0)
+    if sys.argv[1:] and sys.argv[1] not in ("eval", "init", "model"):  # anything else must not start a server
+        print(USAGE, end="", file=sys.stderr)
+        sys.exit(2)
     if sys.argv[1:2] == ["eval"]:  # passageway eval cases.toml: measure retrieval quality instead of serving
         from passageway.eval.cli import main as eval_main
 

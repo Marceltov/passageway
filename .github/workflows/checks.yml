@@ -22,7 +22,7 @@ jobs:
         run: |
           scripts/publish-skills.sh site
           test -s site/llms.txt && test -s site/llms-full.txt
-          test -s site/SKILL.md && test -s site/skills/create-passageway-connector/SKILL.md
+          test -s site/SKILL.md && test -s site/skills/create-passageway-connector/SKILL.md && test -s site/skills/passageway-add-source/SKILL.md && test -s site/skills/passageway-install/SKILL.md
           grep -q "Write a connector" site/llms-full.txt && grep -q "CATEGORY_DEPTH" site/llms-full.txt   # the Wikipedia include made it in
           grep -q "pw-timeline" site/roadmap/index.html && grep -q "Markdown connector" site/llms-full.txt   # the roadmap timeline
           grep -q "pw-header-links" site/index.html && grep -q "passageway.marceltov.de/llms-full.txt" site/index.html   # the header links
