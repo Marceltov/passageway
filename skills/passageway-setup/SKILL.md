@@ -10,6 +10,8 @@ passageway is a retrieval server next to the user's sources (docs: https://passa
 - a **prompt hook** (`UserPromptSubmit`, shipped with this plugin) that sends each prompt to the server and adds up to three short passages to the context when something relevant exists, and nothing otherwise;
 - the **`recall` MCP tool** (server name `passageway`), for searching on purpose mid-task.
 
+**Documentation:** the index https://passageway.marceltov.de/llms.txt lists every page with its markdown address; the whole documentation is one file, https://passageway.marceltov.de/llms-full.txt. Before you act on something this skill only names (a connector's settings, a configuration key, a deploy step), fetch its page and work from it, not from memory.
+
 The connection is two pieces, both written by this skill: the hook's config file `passageway.json` in the plugin data folder, and the MCP server registration. Never print the password.
 
 ## On claude.ai, the desktop app or Cowork

@@ -12,7 +12,7 @@ Claude Code can use passageway in two ways, and the plugin sets up both:
 /plugin install passageway@passageway
 ```
 
-This gives you the hook, the `/passageway-setup` skill that connects it, the `/passageway` guide and `/create-passageway-connector`. Run `/passageway-setup` and give it the server's URL; it checks `/health`, writes the hook's config and registers the MCP server. Never paste the password into the chat: the skill reads it from `~/.config/passageway/password` for a local server, or you pass it through a variable.
+This gives you the hook, the `/passageway-setup` skill that connects it, `/passageway-configure` that adds a source or changes the model in `passageway.toml`, the `/passageway` guide and `/create-passageway-connector`. Run `/passageway-setup` and give it the server's URL; it checks `/health`, writes the hook's config and registers the MCP server. A fresh `passageway.toml` has no source yet: `/passageway-configure` writes the `[[connector]]` for a folder of markdown, Trilium, Confluence or Wikipedia, with secrets as `env:` references, and tells you how to restart. Never paste the password into the chat: the skill reads it from `~/.config/passageway/password` for a local server, or you pass it through a variable.
 
 ## How the hook behaves
 

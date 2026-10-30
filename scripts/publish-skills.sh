@@ -6,6 +6,8 @@ set -euo pipefail
 site=${1:?usage: publish-skills.sh SITE_DIR}
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
-mkdir -p "$site/skills/create-passageway-connector"
 cp "$root/skills/passageway/SKILL.md" "$site/SKILL.md"
-cp "$root/skills/create-passageway-connector/SKILL.md" "$site/skills/create-passageway-connector/SKILL.md"
+for skill in create-passageway-connector passageway-setup passageway-configure; do
+  mkdir -p "$site/skills/$skill"
+  cp "$root/skills/$skill/SKILL.md" "$site/skills/$skill/SKILL.md"
+done

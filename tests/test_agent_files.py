@@ -287,3 +287,26 @@ def test_the_launchd_example_in_the_deploy_page_is_a_valid_plist():
     plist = plistlib.loads(xml.encode())
     assert plist["Label"] == "de.marceltov.passageway" and plist["KeepAlive"] is True
     assert "PASSAGEWAY_LOGIN_PASSWORD_FILE" in plist["EnvironmentVariables"]
+
+
+def test_the_configure_skill_writes_passageway_toml_with_secrets_as_references():
+    skill = ROOT / "skills" / "passageway-configure" / "SKILL.md"
+    meta = frontmatter(skill)
+    assert meta["name"] == "passageway-configure" and len(meta["description"]) > 40
+    text = skill.read_text()
+    for needed in ("[[connector]]", "[embedder]", "env:", "passageway model list", "/health", "Never print", "never ask",
+                   "passageway_connector_markdown", "passageway_connector_trilium", "passageway_connector_confluence",
+                   "passageway_connector_wikipedia", "PASSAGEWAY_CONFIG", "tomllib"):
+        assert needed in text, needed
+    assert not re.search(r"(api[_ -]?key|token|password)\s*[:=]\s*(?!\"?env:)\S{12,}", text.lower())
+    # it is shipped, published with the other skills, and the setup skill and the guides point at it
+    assert "/passageway-configure" in json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())["description"]
+    assert "passageway-configure" in (ROOT / "scripts" / "publish-skills.sh").read_text()
+    assert "/passageway-configure" in (ROOT / "docs" / "guides" / "claude-code.md").read_text()
+    assert "/passageway-configure" in GENERAL.read_text()
+
+
+def test_every_skill_says_where_the_documentation_is_and_how_to_read_it():
+    for path in sorted((ROOT / "skills").glob("*/SKILL.md")):
+        text = path.read_text()
+        assert "https://passageway.marceltov.de/llms.txt" in text and "llms-full.txt" in text, path
