@@ -52,4 +52,4 @@ Before anything else, [what passageway stands for](values.md): the lines it does
 
 ## Coming
 
-What is left on the [roadmap](roadmap.md): trilium-recall pointing here. [Choosing a model](models.md) compares the built-in models on the sample corpus.
+Every step on the [roadmap](roadmap.md) has shipped, the last one trilium-recall pointing here; what is parked is listed there. [Choosing a model](models.md) compares the built-in models on the sample corpus.

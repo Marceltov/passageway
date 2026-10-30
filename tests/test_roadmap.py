@@ -44,7 +44,7 @@ def test_every_entry_is_complete_and_the_plan_is_all_there():
             assert i.get("links"), f"{i['id']}: a done entry links its pull request or release"
         else:
             assert i["when"] and i.get("details"), f"{i['id']}: an open entry says when and carries the details"
-    assert {"done", "next"} <= {i["status"] for i in items}
+    assert "done" in {i["status"] for i in items}  # every step may be done; what is parked is on the page itself
 
 
 def test_open_entries_come_first_in_file_order_and_done_ones_follow_newest_first():
