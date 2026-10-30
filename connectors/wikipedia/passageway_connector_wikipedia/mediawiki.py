@@ -8,7 +8,9 @@ import httpx
 import truststore
 
 BATCH = 50  # page ids per request (the API limit for anonymous clients)
-MAX_ATTEMPTS = 5
+RETRY_BUDGET = 900  # seconds of waiting per request before giving up: a rate limit can last minutes
+MAX_BACKOFF = 60  # the longest wait the client picks itself
+MAX_RETRY_AFTER = 300  # the longest wait a Retry-After may ask for
 RETRY_STATUS = (429, 502, 503, 504)  # the wiki or its edge asking us to come back later
 
 
@@ -23,7 +25,7 @@ def _batches(items: list, size: int) -> Iterator[list]:
 
 def _retry_after(response: httpx.Response, default: float) -> float:
     try:
-        return min(float(response.headers["Retry-After"]), 30.0)
+        return max(default, min(float(response.headers["Retry-After"]), MAX_RETRY_AFTER))
     except (KeyError, ValueError):
         return default
 
@@ -42,14 +44,17 @@ class Wiki:
 
     def _get(self, **params) -> dict:
         params = {"format": "json", "formatversion": "2", "maxlag": "5", **params}
-        for attempt in range(MAX_ATTEMPTS):
-            wait = min(2 ** attempt, 30)
+        attempt, waited = 0, 0.0
+        while True:
+            attempt += 1
+            wait = min(2 ** (attempt - 1), MAX_BACKOFF)
             try:
                 response = self._http.get(self._url, params=params)
-            except httpx.TransportError:  # timeout, refused or dropped connection: worth another try
-                response = None
+            except httpx.TransportError as e:  # timeout, refused or dropped connection: worth another try
+                response, reason = None, f"{type(e).__name__}: {e}"
             if response is not None:
                 if response.status_code in RETRY_STATUS:
+                    reason = f"HTTP {response.status_code}"
                     wait = _retry_after(response, wait)
                 else:
                     response.raise_for_status()
@@ -61,10 +66,13 @@ class Wiki:
                         return data
                     if error.get("code") != "maxlag":
                         raise WikiError(f"{error.get('code')}: {error.get('info')}")
-            if attempt < MAX_ATTEMPTS - 1:
-                self._sleep(wait)
-        raise WikiError("the wiki kept asking to try again later or could not be reached "
-                        "(maxlag, 429, 502-504, timeouts); giving up")
+                    reason = "maxlag"
+            if waited >= RETRY_BUDGET:
+                raise WikiError(f"the wiki kept asking to try again later or could not be reached; giving up after "
+                                f"{attempt} attempts and {waited:.0f} s of waiting: {reason}")
+            wait = min(wait, RETRY_BUDGET - waited)
+            self._sleep(wait)
+            waited += wait
 
     def _query(self, **params) -> Iterator[dict]:
         """Every page of an action=query result, following the API's continuation."""

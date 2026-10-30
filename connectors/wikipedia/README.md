@@ -44,7 +44,7 @@ At least one of `CATEGORIES`, `TITLES` or `GEO` is required.
 
 - **Polite:** sequential requests with a descriptive User-Agent, `maxlag`, and back-off on 429 and 503.
 - **Redirects:** redirect pages inside a category are left out; `TITLES` follow redirects to the real article.
-- **Retries:** 429, 502, 503 and 504 answers, `maxlag` and network errors are retried with back-off (honoring `Retry-After`), at most five attempts per request.
+- **Retries:** 429, 502, 503 and 504 answers, `maxlag` and network errors are retried with a growing wait (1 s, doubling up to 60 s; a longer `Retry-After` is honored up to 300 s) until a request has waited 15 minutes in total; the error then says how many attempts and how long it waited. Waiting out a long rate limit needs a core `timeout` above its default of 300 s.
 - **No `changed` mode:** edits appear at the next reconcile (every 30 minutes by default).
 - **Content license:** Wikipedia text is CC BY-SA 4.0. The link on each item points to the source article; its history page lists the authors.
 

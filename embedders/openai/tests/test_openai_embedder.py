@@ -103,11 +103,31 @@ def test_429_and_5xx_are_retried_with_backoff_and_retry_after(env, api_server):
     assert code == 0 and "vectors" in replies[0] and len(api.requests) == 4
 
 
-def test_giving_up_after_five_attempts_is_an_error_reply(env, api_server):
+def test_giving_up_at_the_deadline_is_an_error_reply(env, api_server):
     _, api = api_server
-    api.status_errors = [503] * 5
-    _, replies, _ = run({**env, "TIMEOUT": "1000"}, [{"op": "embed", "kind": "query", "texts": ["x"]}])
-    assert "error" in replies[0] and "503" in replies[0]["error"] and len(api.requests) == 5
+    api.status_errors = [503] * 1000
+    _, replies, _ = run({**env, "TIMEOUT": "300"}, [{"op": "embed", "kind": "query", "texts": ["x"]}])
+    assert "error" in replies[0] and "503" in replies[0]["error"] and "300 s" in replies[0]["error"]
+
+
+def test_more_than_five_429s_are_waited_out_within_a_long_timeout(env, api_server):
+    _, api = api_server
+    api.status_errors = [429] * 8
+    waited = []
+    stdin = io.StringIO('{"op": "embed", "kind": "query", "texts": ["x"]}\n')
+    out = io.StringIO()
+    Embedder.run({**env, "TIMEOUT": "1000"}, stdin, out, io.StringIO(), sleep=waited.append)
+    assert "vectors" in json.loads(out.getvalue()) and len(api.requests) == 9 and sum(waited) > 120
+
+
+def test_a_retry_after_beyond_30_seconds_is_honoured_within_timeout(env, api_server):
+    _, api = api_server
+    api.status_errors, api.retry_after = [429], "200"
+    waited = []
+    stdin = io.StringIO('{"op": "embed", "kind": "query", "texts": ["x"]}\n')
+    out = io.StringIO()
+    Embedder.run({**env, "TIMEOUT": "1000"}, stdin, out, io.StringIO(), sleep=waited.append)
+    assert "vectors" in json.loads(out.getvalue()) and waited == [200]
 
 
 def test_a_server_that_is_not_there_is_an_error_reply_not_a_crash():
