@@ -1,6 +1,6 @@
 ---
 name: passageway-install
-description: "Install passageway on this machine and run it as a service that survives reboots: uv tool install with the connectors the user wants, passageway init for the password and the config, a launchd agent (macOS) or systemd user unit (Linux) that reads the password and the connectors' secrets from files only the user can read, then /health. Use when the user wants passageway on their machine, when /passageway-connect finds nothing listening locally, or to upgrade."
+description: "Install passageway on this machine and run it as a service that survives reboots: uv tool install with the connectors the user wants, passageway init for the password and the config, a launchd agent (macOS) or systemd user unit (Linux) that reads the password and the connectors' secrets from files only the user can read, then /health. Use when the user wants passageway on their machine, when /passageway-connect finds nothing listening locally, or to upgrade; on a machine that has it, it upgrades to the latest release."
 ---
 
 # Install passageway and keep it running
@@ -13,7 +13,19 @@ Free text (a URL, a folder, a space key, a name) is asked in the chat, never thr
 
 ## Determine the operation
 
-**Install** (default), **upgrade** (same install command again, then restart), or **remove** (stop and remove the service, `uv tool uninstall passageway`; the config folder stays).
+First look at what is there and what is current:
+
+```bash
+uv tool list --show-with | grep -A3 '^passageway '     # the installed version and its connectors, or nothing
+curl -s https://api.github.com/repos/Marceltov/passageway/releases/latest | python3 -c "import json,sys; print(json.load(sys.stdin)['tag_name'])"
+```
+
+- **Not installed:** **install** (below), at the latest release.
+- **Installed, older than the latest release:** **upgrade** (below). Say which version goes to which before you start; the user asked for this skill, so no further question is needed.
+- **Installed and current:** say so, and check the service and `/health` instead (or hand over to `/passageway-status`).
+- **Remove**, only when asked: stop and remove the service, `uv tool uninstall passageway`; the config folder stays.
+
+`<tag>` below is the latest release, e.g. `v0.2.4`.
 
 ## Install
 
@@ -22,12 +34,12 @@ Free text (a URL, a folder, a space key, a name) is asked in the chat, never thr
 
    ```bash
    uv tool install \
-     --with 'passageway-connector-trilium @ git+https://github.com/Marceltov/passageway#subdirectory=connectors/trilium' \
-     --with 'passageway-connector-markdown @ git+https://github.com/Marceltov/passageway#subdirectory=connectors/markdown' \
-     git+https://github.com/Marceltov/passageway
+     --with 'passageway-connector-trilium @ git+https://github.com/Marceltov/passageway@<tag>#subdirectory=connectors/trilium' \
+     --with 'passageway-connector-markdown @ git+https://github.com/Marceltov/passageway@<tag>#subdirectory=connectors/markdown' \
+     git+https://github.com/Marceltov/passageway@<tag>
    ```
 
-   The packages are `passageway-connector-<name>` under `connectors/<name>`. The command replaces the set, so list every connector the user wants. For a release, append `@v0.2.0` to the main URL (the latest tag: https://github.com/Marceltov/passageway/releases). `passageway --help` must then work.
+   The packages are `passageway-connector-<name>` under `connectors/<name>`, all from the same `<tag>`. The command replaces the set, so list every connector the user wants. `passageway --help` must then work.
 3. `passageway init`: creates `~/.config/passageway/` with a generated `password` (0600) and a sample `passageway.toml`; rerunning keeps what is there.
 4. Write the sources with `/passageway-add-source` (one `[[connector]]` each, secrets as `env:NAME` references). For every `NAME` referenced, add a line `NAME=` to `~/.config/passageway/env` (create it with `umask 077`, `chmod 600`), then ask the user to fill the values in that file with their editor, not in the chat. Leave the file out when no connector needs a secret.
 5. Run it as a service.
@@ -83,4 +95,6 @@ Free text (a URL, a folder, a space key, a name) is asked in the chat, never thr
 
 ## Upgrade
 
-The `uv tool install` command from step 2 with the same connectors (add `--reinstall` to force), then the restart command for the platform, then `/health` and its `version`.
+1. Take the connectors from `uv tool list --show-with` (each `passageway-connector-<name>`) and run the `uv tool install` command from step 2 with exactly those, at `<tag>`, plus `--reinstall`. Leaving one out would uninstall it and break its source.
+2. Restart the service with the platform's restart command (step 5). Nothing in `~/.config/passageway/` changes.
+3. Wait for `/health` to be `"ok"` again, check that `uv tool list` shows the new version, and tell the user: from which version to which, and the release notes link `https://github.com/Marceltov/passageway/releases/tag/<tag>`.

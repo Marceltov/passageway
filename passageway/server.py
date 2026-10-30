@@ -225,6 +225,13 @@ def build_mcp(engine: Engine, auth: OAuthProvider | None = None) -> FastMCP:
     return mcp
 
 
+class IndentedJSON(JSONResponse):
+    """/health is read by people with curl as often as by checks."""
+
+    def render(self, content) -> bytes:
+        return (json.dumps(content, ensure_ascii=False, indent=2) + "\n").encode()
+
+
 def build_app(engine: Engine, background: bool = True, oauth_overrides: dict | None = None) -> BearerGate:
     """`oauth_overrides` passes provider arguments through, for tests (e.g. failed_login_delay=0)."""
     config = engine.config
@@ -239,7 +246,7 @@ def build_app(engine: Engine, background: bool = True, oauth_overrides: dict | N
             for part in (*body["sources"].values(), body["embedder"]):
                 if part["last_error"]:
                     part["last_error"] = "failing (authenticate to see the error)"
-        return JSONResponse(body)
+        return IndentedJSON(body)
 
     async def recall(request: Request) -> JSONResponse:
         try:
@@ -297,7 +304,7 @@ def build_error_app(message: str) -> Starlette:
     mcp_app = build_error_mcp(message).http_app(path="/mcp", host_origin_protection=False)
 
     async def health(_: Request) -> JSONResponse:
-        return JSONResponse({"status": "error", "error": message}, status_code=503)
+        return IndentedJSON({"status": "error", "error": message}, status_code=503)
 
     async def unavailable(_: Request) -> JSONResponse:
         return JSONResponse({"error": message}, status_code=503)

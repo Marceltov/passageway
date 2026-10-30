@@ -1,6 +1,6 @@
 ---
 name: passageway
-version: 0.2.4
+version: 0.2.5
 description: "Retrieval for Claude over MCP. Use when the user wants to install, configure, run or extend passageway: index their sources with connectors, ask the recall tool a question, or write a new connector."
 homepage: https://passageway.marceltov.de/
 ---

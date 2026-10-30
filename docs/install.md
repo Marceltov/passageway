@@ -2,6 +2,19 @@
 
 passageway runs as a small server on your machine. You give it connectors, it indexes what they report, and an MCP client such as Claude Code asks it for passages.
 
+## In Claude Code
+
+The [Claude Code plugin](guides/claude-code.md) does every step on this page for you. Install it first:
+
+```bash
+/plugin marketplace add Marceltov/passageway
+/plugin install passageway@passageway
+```
+
+Then run `/passageway-install`. It asks which sources you want, installs passageway with their connectors, writes each source with `/passageway-add-source`, runs the server as a service that survives reboots, and connects Claude Code with `/passageway-connect`. Run it again later and it upgrades an existing installation to the latest release, with the same connectors. Later, `/passageway-add-source` adds a source and `/passageway-status` checks the whole chain when something is off. No password or token goes through the chat.
+
+The steps below are the same setup by hand, for any other MCP client or if you want to see what the skills do.
+
 ## 1. Install
 
 ```bash
@@ -30,6 +43,8 @@ Another preset or model is a line in `passageway.toml`, see [the embedder](confi
 
 ## 3. Say what to index
 
+In Claude Code, `/passageway-add-source` writes this for you.
+
 Create `~/.config/passageway/passageway.toml` with one `[[connector]]` per source. This one indexes a small corner of English Wikipedia:
 
 ```toml
@@ -53,9 +68,11 @@ The first start indexes every source, which can take a few minutes. Watch it wit
 curl http://127.0.0.1:8082/health
 ```
 
-`"status": "ok"` means every source is built, `"starting"` means one still is, and `"degraded"` means a source is failing. Add `-H 'Authorization: Bearer choose-one'` to the request to see why; a missing connector package, a wrong `command` path and an unreachable service all show up there.
+`"status": "ok"` means every source is built, `"starting"` means one still is, and `"degraded"` means a source is failing. Add `-H 'Authorization: Bearer choose-one'` to the request to see why; a missing connector package, a wrong `command` path and an unreachable service all show up there. In Claude Code, `/passageway-status` reads the same report and says what to do.
 
 ## 5. Connect a client
+
+In Claude Code, `/passageway-connect` from the [plugin](guides/claude-code.md) does this and adds the prompt hook.
 
 Point an MCP client at `http://127.0.0.1:8082/mcp` and authenticate with `Authorization: Bearer choose-one`. The server offers one tool, `recall`: ask it a question and it returns up to three short passages with links, or says that nothing relevant is indexed.
 
