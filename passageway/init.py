@@ -49,8 +49,9 @@ def main(argv: list[str], env=None, stdout=None) -> int:
     else:
         config.write_text(SAMPLE.format(python=sys.executable))
         print(f"{config}: written, fill in your connectors", file=stdout)
-    prefix = f"PASSAGEWAY_INSTANCE={instance} PASSAGEWAY_PORT=<a free port> " if instance else ""
-    print(f"\nThen start the server:\n  {prefix}PASSAGEWAY_LOGIN_PASSWORD_FILE={password} passageway", file=stdout)
+    prefix = f"PASSAGEWAY_PORT=<a free port> " if instance else ""
+    flag = f" --instance {instance}" if instance else ""
+    print(f"\nThen start the server:\n  {prefix}PASSAGEWAY_LOGIN_PASSWORD_FILE={password} passageway{flag}", file=stdout)
     print("and connect Claude Code with /passageway-connect (https://passageway.marceltov.de/guides/claude-code/)", file=stdout)
     return 0
 

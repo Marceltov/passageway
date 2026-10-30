@@ -53,7 +53,8 @@ def test_init_fixes_the_mode_of_a_kept_password_and_refuses_an_empty_one(tmp_pat
 
 
 @pytest.mark.parametrize("arg,code", [("--help", 0), ("-h", 0), ("serve", 2)])
-def test_passageway_help_prints_the_usage_instead_of_serving(arg, code, capsys):
+def test_passageway_help_prints_the_usage_instead_of_serving(arg, code, capsys, tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
     import passageway.server as server
     sys.argv = ["passageway", arg]
     with pytest.raises(SystemExit) as stop:
@@ -68,5 +69,5 @@ def test_init_for_an_instance_creates_its_own_folder(tmp_path, monkeypatch):
     out = io.StringIO()
     assert main([], env={"PASSAGEWAY_INSTANCE": "work"}, stdout=out) == 0
     assert (tmp_path / ".config" / "passageway-work" / "password").is_file()
-    assert "PASSAGEWAY_INSTANCE=work PASSAGEWAY_PORT=" in out.getvalue()
+    assert "PASSAGEWAY_PORT=" in out.getvalue() and "passageway --instance work" in out.getvalue()
     assert main([], env={"PASSAGEWAY_INSTANCE": "Bad Name"}, stdout=io.StringIO()) == 2

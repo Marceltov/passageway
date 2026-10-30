@@ -26,7 +26,7 @@ Before any command, in these four lines, in the user's language:
 
 ## Where it runs
 
-`passageway eval` runs where the connectors can reach the sources and reads the same `passageway.toml` and model as the server (`PASSAGEWAY_CONFIG`, `PASSAGEWAY_MODEL_DIR`); no server, token or password is needed. A local install from `/passageway-install` is ready as it is. For a container, put the cases file next to the config mount and run `docker exec pw passageway eval /config/cases.toml --data-dir /data/eval-index`.
+`passageway eval` runs where the connectors can reach the sources and reads the same `passageway.toml` and model as the server (`PASSAGEWAY_CONFIG`, `PASSAGEWAY_MODEL_DIR`); no server, token or password is needed. A local install from `/passageway-install` is ready as it is. With several instances (`ls -d ~/.config/passageway*/`), measure the one this Claude is connected to: add `--instance <name>` to every `passageway` command below and read `~/.config/passageway-<name>/` for `~/.config/passageway/` in every path; a machine with only named instances refuses a command without it. For a container, put the cases file next to the config mount and run `docker exec pw passageway eval /config/cases.toml --data-dir /data/eval-index`.
 
 ## First run: the question workshop
 

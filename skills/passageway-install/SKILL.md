@@ -27,11 +27,11 @@ curl -s https://api.github.com/repos/Marceltov/passageway/releases/latest | pyth
 
 `<tag>` below is the latest release, e.g. `v0.2.4`.
 
-**Several instances** (https://passageway.marceltov.de/configuration/#several-instances). One installation can run several servers side by side, one per Claude setup, each with its own sources, password and port. `ls -d ~/.config/passageway*/` lists what exists: `~/.config/passageway/` is the default instance, `~/.config/passageway-<name>/` instance `<name>`. When the user wants a separate passageway for this Claude (work, a customer), ask for a name (lowercase letters, digits, hyphens) and install that instance: the installation (step 2) is shared, steps 3 to 7 are per instance, with these differences:
+**Several instances** (https://passageway.marceltov.de/configuration/#several-instances). One installation can run several servers side by side, one per Claude setup, each with its own sources, password and port. `ls -d ~/.config/passageway*/` lists what exists: `~/.config/passageway/` is the default instance, `~/.config/passageway-<name>/` instance `<name>`. On a machine with only named instances there is no default: every command needs `--instance`. When the user wants a separate passageway for this Claude (work, a customer), ask for a name (lowercase letters, digits, hyphens) and install that instance: the installation (step 2) is shared, steps 3 to 7 are per instance, with these differences:
 
-- Prefix every `passageway` command with `PASSAGEWAY_INSTANCE=<name>`; `passageway init` then writes `~/.config/passageway-<name>/`.
+- Give every `passageway` command `--instance <name>`; `passageway --instance <name> init` writes `~/.config/passageway-<name>/`. A typo is an error that lists the instances there are.
 - Pick a free port from 8083 up (`lsof -nP -iTCP:<port> -sTCP:LISTEN` prints nothing for a free one).
-- The service is `de.marceltov.passageway.<name>` (file `~/Library/LaunchAgents/de.marceltov.passageway.<name>.plist`, log `~/Library/Logs/passageway-<name>.log`) or `passageway-<name>.service`. Its environment adds `PASSAGEWAY_INSTANCE=<name>` and `PASSAGEWAY_PORT=<port>`, and the password and env file paths use `passageway-<name>`.
+- The service is `de.marceltov.passageway.<name>` (file `~/Library/LaunchAgents/de.marceltov.passageway.<name>.plist`, log `~/Library/Logs/passageway-<name>.log`) or `passageway-<name>.service`. Its environment adds `PASSAGEWAY_INSTANCE=<name>` (services set the variable; the argument is for commands typed by hand) and `PASSAGEWAY_PORT=<port>`, and the password and env file paths use `passageway-<name>`.
 - `/health` on that port names the instance under `instance`. Connect only this Claude to it; which Claude uses which instance is the user's responsibility, and each Claude keeps its connection in its own `CLAUDE_CONFIG_DIR`.
 
 The built-in model is shared, so a second instance does not download it again.

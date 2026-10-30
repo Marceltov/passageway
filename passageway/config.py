@@ -90,12 +90,50 @@ class Config:
     embedders: dict[str, EmbedderConfig] = field(default_factory=dict)  # candidates for `passageway eval compare`
 
 
+_INSTANCE = r"[a-z0-9][a-z0-9-]*"
+
+
 def instance_name(env: Mapping[str, str]) -> str | None:
     """PASSAGEWAY_INSTANCE names one of several servers on this machine; unset, the one and only."""
     name = env.get("PASSAGEWAY_INSTANCE", "").strip()
-    if name and not re.fullmatch(r"[a-z0-9][a-z0-9-]*", name):
+    if name and not re.fullmatch(_INSTANCE, name):
         raise ConfigError(f"PASSAGEWAY_INSTANCE must be lowercase letters, digits and hyphens, got {name!r}")
     return name or None
+
+
+def take_instance_argument(argv: list[str]) -> tuple[list[str], str | None]:
+    """`--instance NAME` or `--instance=NAME`, anywhere in the command line: the rest of it and the name."""
+    rest, name, args = [], None, iter(argv)
+    for arg in args:
+        if arg == "--instance":
+            name = next(args, "")
+        elif arg.startswith("--instance="):
+            name = arg.split("=", 1)[1]
+        else:
+            rest.append(arg)
+            continue
+        if not re.fullmatch(_INSTANCE, name):
+            raise ConfigError(f"--instance needs a name of lowercase letters, digits and hyphens, got {name!r}")
+    return rest, name
+
+
+def existing_instances() -> list[str]:
+    return sorted(p.parent.name.removeprefix("passageway-") for p in (Path.home() / ".config").glob("passageway-*/passageway.toml"))
+
+
+def instance_problem(env: Mapping[str, str]) -> str | None:
+    """Why this command would run against an instance that is not there, or None. A named instance must have
+    been created by init; with none named and no default config, the named ones are what the user meant."""
+    if env.get("PASSAGEWAY_CONFIG"):
+        return None
+    name, known = instance_name(env), existing_instances()
+    listed = ", ".join(known) or "none"
+    if name and not default_config_path(name).exists():
+        return (f"there is no passageway instance {name!r} (instances on this machine: {listed}); "
+                f"create it with: passageway --instance {name} init")
+    if not name and known and not default_config_path().exists():
+        return f"this machine has named passageway instances ({listed}): pick one with --instance NAME"
+    return None
 
 
 def _suffix(instance: str | None) -> str:
