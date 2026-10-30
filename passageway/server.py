@@ -8,6 +8,7 @@ login with that password (mcp-login-oauth) and the OAuth routes are open; /recal
 import asyncio
 import contextlib
 import hmac
+import importlib.metadata
 import json
 import logging
 import os
@@ -23,7 +24,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
 
-from passageway.config import DEFAULT_TOOL_DESCRIPTION, Config, ConfigError, load_config
+from passageway.config import (DEFAULT_TOOL_DESCRIPTION, Config, ConfigError, instance_problem, load_config,
+                               take_instance_argument)
 from passageway.embed import Embedder, EmbedderError
 from passageway.index import Index
 from passageway.rank import Hit, RankParams, embed_query, rank
@@ -35,7 +37,17 @@ from passageway.sync import Syncer
 
 log = logging.getLogger("recall")
 
-VERSION = os.environ.get("APP_VERSION", "dev")
+def version() -> str:
+    """APP_VERSION (the image sets it), else the installed package's version."""
+    if os.environ.get("APP_VERSION"):
+        return os.environ["APP_VERSION"]
+    try:
+        return importlib.metadata.version("passageway")
+    except importlib.metadata.PackageNotFoundError:
+        return "dev"
+
+
+VERSION = version()
 NOTHING = "Nothing relevant in the sources for this query."
 
 
@@ -323,17 +335,34 @@ USAGE = """usage: passageway                 serve (PASSAGEWAY_LOGIN_PASSWORD or
        passageway init            create ~/.config/passageway with a generated password and a passageway.toml
        passageway model ...       list, download or verify the built-in model presets
        passageway eval ...        measure retrieval quality on your own questions
+Every command takes --instance NAME for one of several servers on this machine (~/.config/passageway-NAME);
+it wins over PASSAGEWAY_INSTANCE.
 Start a local server with:  PASSAGEWAY_LOGIN_PASSWORD_FILE=~/.config/passageway/password passageway
 """
 
 
 def main() -> None:
-    if sys.argv[1:2] in (["--help"], ["-h"]):
+    try:
+        argv, instance = take_instance_argument(sys.argv[1:])
+    except ConfigError as e:
+        print(f"passageway: {e}", file=sys.stderr)
+        sys.exit(2)
+    if argv[:1] in (["--help"], ["-h"]):
         print(USAGE, end="")
         sys.exit(0)
-    if sys.argv[1:] and sys.argv[1] not in ("eval", "init", "model"):  # anything else must not start a server
+    if argv and argv[0] not in ("eval", "init", "model"):  # anything else must not start a server
         print(USAGE, end="", file=sys.stderr)
         sys.exit(2)
+    if instance:
+        os.environ["PASSAGEWAY_INSTANCE"] = instance
+    try:  # init creates an instance and model is shared, so only serve and eval need one that exists
+        problem = None if argv[:1] in (["init"], ["model"]) else instance_problem(os.environ)
+    except ConfigError as e:
+        problem = str(e)
+    if problem:
+        print(f"passageway: {problem}", file=sys.stderr)
+        sys.exit(2)
+    sys.argv[1:] = argv
     if sys.argv[1:2] == ["eval"]:  # passageway eval cases.toml: measure retrieval quality instead of serving
         from passageway.eval.cli import main as eval_main
 

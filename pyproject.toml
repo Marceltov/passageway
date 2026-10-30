@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "passageway"
-version = "0.2.6"
+version = "0.2.7"
 description = "Retrieval for Claude over MCP: connectors feed passages, an eval harness keeps them honest"
 requires-python = ">=3.12"
 license = "AGPL-3.0-or-later"

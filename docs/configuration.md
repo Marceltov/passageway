@@ -78,7 +78,7 @@ min_similarity = 0.80
 |---|---|---|
 | `PASSAGEWAY_LOGIN_PASSWORD` | required | Static Bearer token, and the OAuth login page's password |
 | `PASSAGEWAY_LOGIN_PASSWORD_FILE` | unset | A file holding the password, read when the variable is unset; `passageway init` writes one (see [Run it](deploy.md)) |
-| `PASSAGEWAY_INSTANCE` | unset | Names one of [several instances](#several-instances) on this machine; it moves the default config and data folders to `passageway-<name>` |
+| `PASSAGEWAY_INSTANCE` | unset | Names one of [several instances](#several-instances) on this machine; it moves the default config and data folders to `passageway-<name>`. For a service; on the command line `--instance NAME` says the same and wins |
 | `PASSAGEWAY_CONFIG` | `~/.config/passageway/passageway.toml` | Connector file |
 | `PASSAGEWAY_BASE_URL` | unset | Public https URL; set, it turns on OAuth for `/mcp` |
 | `PASSAGEWAY_DATA_DIR` | `~/Library/Application Support/passageway` on macOS, `~/.local/share/passageway` elsewhere | Index files and OAuth state |
@@ -87,18 +87,19 @@ min_similarity = 0.80
 | `PASSAGEWAY_POLL_SECONDS`, `PASSAGEWAY_RECONCILE_SECONDS` | `60`, `1800` | Change polling and full reconcile |
 | `PASSAGEWAY_TOOL_DESCRIPTION`, `PASSAGEWAY_INSTRUCTIONS` | neutral text | What MCP clients read about the `recall` tool |
 | `PASSAGEWAY_LOG_LEVEL` | `INFO` | |
-| `APP_VERSION` | `dev` | Version string shown by `/health`; a release build sets it |
+| `APP_VERSION` | the installed version | Version string shown by `/health` and `status`; set it only to override the package's version |
 
 ## Several instances
 
 Several Claude setups side by side (yours, your work's, a customer's) can each have their own passageway, with their own sources, index and password. Give each instance a name and a port of its own:
 
 ```bash
-PASSAGEWAY_INSTANCE=work passageway init
-PASSAGEWAY_INSTANCE=work PASSAGEWAY_PORT=8083 PASSAGEWAY_LOGIN_PASSWORD_FILE=~/.config/passageway-work/password passageway
+passageway --instance work init
+PASSAGEWAY_PORT=8083 PASSAGEWAY_LOGIN_PASSWORD_FILE=~/.config/passageway-work/password passageway --instance work
+passageway --instance work eval cases.toml
 ```
 
-The instance reads `~/.config/passageway-work/passageway.toml` and keeps its index in the data folder with `-work` appended (`~/Library/Application Support/passageway-work` on macOS). The built-in models stay in the shared data folder, so they are downloaded once. `/health` names the instance. Without `PASSAGEWAY_INSTANCE` nothing changes. In Claude Code, `/passageway-install` asks for the name, picks a free port and runs each instance as its own service.
+The instance reads `~/.config/passageway-work/passageway.toml` and keeps its index in the data folder with `-work` appended (`~/Library/Application Support/passageway-work` on macOS). The built-in models stay in the shared data folder, so they are downloaded once. `/health` names the instance. Every command takes `--instance NAME`, anywhere on the line; a service sets `PASSAGEWAY_INSTANCE` instead, and the argument wins when both are there. An instance must exist: `--instance wrok` is an error that lists the instances there are, and only `init` creates one. Without an instance nothing changes, unless the machine has only named instances: then a bare `passageway` or `passageway eval` asks you to pick one rather than run against an empty default. In Claude Code, `/passageway-install` asks for the name, picks a free port and runs each instance as its own service.
 
 Each Claude setup connects to the instances you choose, one or several: their hook files and MCP registrations live in its own `CLAUDE_CONFIG_DIR`, so `/passageway-connect` run in that setup touches no other. The hook asks every connected instance at once and joins their passages; the `recall` tool of instance `work` is the MCP server `passageway-work`. This keeps sources, indexes and connections apart; it is not a security boundary. Under one operating-system user, a Claude with a shell can read another instance's password file and call its port, so which Claude connects to which instance is up to you. For a boundary that holds, run each instance as its own user or in its own [container](deploy.md).
 

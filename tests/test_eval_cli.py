@@ -198,7 +198,9 @@ def test_the_model_option_and_config_option_are_used(s, tmp_path):
     assert main([str(s.cases), "--config", str(other)], env=env, embedder=HashEmbedder(), stdout=out, stderr=err) == 0
 
 
-def test_passageway_eval_is_dispatched_by_the_server_entry_point(monkeypatch):
+def test_passageway_eval_is_dispatched_by_the_server_entry_point(monkeypatch, tmp_path):
+    monkeypatch.setenv("HOME", str(tmp_path))  # instances on the machine running the tests must not count
+    monkeypatch.delenv("PASSAGEWAY_INSTANCE", raising=False)
     import passageway.eval.cli as cli
     import passageway.server as server
     seen = []
