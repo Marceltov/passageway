@@ -25,40 +25,10 @@ import httpx
 import yaml
 from passageway_connector_wikipedia.connector import Scope, ScopeError, _int, _pages, _user_agent, article_url, parse_scope
 from passageway_connector_wikipedia.mediawiki import Wiki, WikiError
-from passageway_connector_wikipedia.sections import HEADING
+from passageway_connector_wikipedia.sections import HEADING, clean_math
 
 LICENSE = "CC BY-SA 4.0"
 LICENSE_URL = "https://creativecommons.org/licenses/by-sa/4.0/"
-DISPLAY = re.compile(r"^\s+\{\\displaystyle (.*)\}\s*$")  # the TeX line that closes each formula in the plain-text extract
-INVISIBLE = dict.fromkeys(range(0x2061, 0x2065))  # invisible function application, times, separator, plus
-
-
-def clean_math(text: str) -> str:
-    """Formulas in the plain-text extract are a MathML block, one token per indented line, then a {\\displaystyle TeX} line.
-    Replace each block with its TeX between $ signs; other indented text is kept."""
-    out: list[str] = []
-    pending: list[str] = []  # blank or indented lines that may be the start of a formula block
-
-    def flush() -> None:
-        out.extend(line if line.strip() else "" for line in pending)
-        pending.clear()
-
-    for line in text.translate(INVISIBLE).split("\n"):
-        match = DISPLAY.match(line)
-        if match:
-            if not all(len(p.strip()) <= 60 for p in pending):  # real text in front of it: keep that
-                flush()
-            pending.clear()
-            out.append(f"${match.group(1)}$")
-        elif line.startswith("  ") or (pending and not line.strip()):  # MathML is indented by two or more; a blank line inside stays
-            pending.append(line)
-        else:
-            flush()
-            out.append(line)
-    flush()
-    return "\n".join(out)
-
-
 def to_markdown(extract: str, skip: frozenset[str]) -> str:
     """The article body with `==` headings as `##` headings, without skipped sections (and their subsections)."""
     parts = HEADING.split(clean_math(extract))  # the lead, then (marks, title, body) triples
