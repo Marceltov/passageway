@@ -289,6 +289,15 @@ def test_the_launchd_example_in_the_deploy_page_is_a_valid_plist():
     assert "PASSAGEWAY_LOGIN_PASSWORD_FILE" in plist["EnvironmentVariables"]
 
 
+def test_ci_validates_the_plugin_and_each_job_runs_only_when_its_inputs_changed():
+    checks = yaml.load((ROOT / ".github" / "workflows" / "checks.yml").read_text(), Loader=_Loader)
+    jobs = checks["jobs"]
+    assert "plugin" in jobs and any("claude plugin validate ." in str(step.get("run", "")) for step in jobs["plugin"]["steps"])
+    assert "changes" in jobs and any("paths-filter" in str(step.get("uses", "")) for step in jobs["changes"]["steps"])
+    for name in ("test", "docs", "image", "plugin"):
+        assert "changes" in jobs[name]["needs"] and "needs.changes.outputs." in jobs[name]["if"], name
+    filters = next(step for step in jobs["changes"]["steps"] if "paths-filter" in str(step.get("uses", "")))["with"]["filters"]
+    assert ".github/workflows/checks.yml" in filters, "a change to the workflow itself runs everything"
 def test_the_add_source_skill_writes_passageway_toml_with_secrets_as_references():
     skill = ROOT / "skills" / "passageway-add-source" / "SKILL.md"
     meta = frontmatter(skill)
