@@ -9,6 +9,8 @@ passageway (docs: https://passageway.marceltov.de/) is a server next to the user
 
 **Documentation:** the index https://passageway.marceltov.de/llms.txt lists every page with its markdown address; the whole documentation is one file, https://passageway.marceltov.de/llms-full.txt. The pages for this skill: https://passageway.marceltov.de/install/ and https://passageway.marceltov.de/deploy/. Fetch them before acting when a step below does not match what you see.
 
+Free text (a URL, a folder, a space key, a name) is asked in the chat, never through a choice prompt; a choice prompt is only for real alternatives (which source, which operation).
+
 ## Determine the operation
 
 **Install** (default), **upgrade** (same install command again, then restart), or **remove** (stop and remove the service, `uv tool uninstall passageway`; the config folder stays).

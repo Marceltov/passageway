@@ -9,6 +9,8 @@ passageway indexes what its connectors report (docs: https://passageway.marcelto
 
 **Documentation:** the index https://passageway.marceltov.de/llms.txt lists every page with its markdown address; the whole documentation is one file, https://passageway.marceltov.de/llms-full.txt. Before you act on something this skill only names (a connector's settings, a configuration key, a deploy step), fetch its page and work from it, not from memory.
 
+Free text (a URL, a folder, a space key, a name) is asked in the chat, never through a choice prompt; a choice prompt is only for real alternatives (which source, which operation).
+
 ## Determine the operation
 
 **Add a source** (default), or **show** what is configured (print the file with every `secrets` line masked).
