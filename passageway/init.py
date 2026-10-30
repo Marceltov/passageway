@@ -45,7 +45,7 @@ def main(argv: list[str], env=None, stdout=None) -> int:
         config.write_text(SAMPLE.format(python=sys.executable))
         print(f"{config}: written, fill in your connectors", file=stdout)
     print(f"\nThen start the server:\n  PASSAGEWAY_LOGIN_PASSWORD_FILE={password} passageway", file=stdout)
-    print("and connect Claude Code with /passageway-setup (https://passageway.marceltov.de/guides/claude-code/)", file=stdout)
+    print("and connect Claude Code with /passageway-connect (https://passageway.marceltov.de/guides/claude-code/)", file=stdout)
     return 0
 
 

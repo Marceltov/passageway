@@ -262,9 +262,9 @@ def test_the_hook_self_test_passes():
 
 
 def test_the_setup_skill_has_frontmatter_and_never_asks_to_paste_the_password():
-    skill = ROOT / "skills" / "passageway-setup" / "SKILL.md"
+    skill = ROOT / "skills" / "passageway-connect" / "SKILL.md"
     meta = frontmatter(skill)
-    assert meta["name"] == "passageway-setup" and meta["description"]
+    assert meta["name"] == "passageway-connect" and meta["description"]
     text = skill.read_text()
     assert "Never print the password" in text and "/health" in text and "claude mcp add" in text
 
@@ -289,21 +289,21 @@ def test_the_launchd_example_in_the_deploy_page_is_a_valid_plist():
     assert "PASSAGEWAY_LOGIN_PASSWORD_FILE" in plist["EnvironmentVariables"]
 
 
-def test_the_configure_skill_writes_passageway_toml_with_secrets_as_references():
-    skill = ROOT / "skills" / "passageway-configure" / "SKILL.md"
+def test_the_add_source_skill_writes_passageway_toml_with_secrets_as_references():
+    skill = ROOT / "skills" / "passageway-add-source" / "SKILL.md"
     meta = frontmatter(skill)
-    assert meta["name"] == "passageway-configure" and len(meta["description"]) > 40
+    assert meta["name"] == "passageway-add-source" and len(meta["description"]) > 40
     text = skill.read_text()
-    for needed in ("[[connector]]", "[embedder]", "env:", "passageway model list", "/health", "Never print", "never ask",
+    for needed in ("[[connector]]", "env:", "/health", "Never print", "never ask",
                    "passageway_connector_markdown", "passageway_connector_trilium", "passageway_connector_confluence",
                    "passageway_connector_wikipedia", "PASSAGEWAY_CONFIG", "tomllib"):
         assert needed in text, needed
     assert not re.search(r"(api[_ -]?key|token|password)\s*[:=]\s*(?!\"?env:)\S{12,}", text.lower())
     # it is shipped, published with the other skills, and the setup skill and the guides point at it
-    assert "/passageway-configure" in json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())["description"]
-    assert "passageway-configure" in (ROOT / "scripts" / "publish-skills.sh").read_text()
-    assert "/passageway-configure" in (ROOT / "docs" / "guides" / "claude-code.md").read_text()
-    assert "/passageway-configure" in GENERAL.read_text()
+    assert "/passageway-add-source" in json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())["description"]
+    assert "passageway-add-source" in (ROOT / "scripts" / "publish-skills.sh").read_text()
+    assert "/passageway-add-source" in (ROOT / "docs" / "guides" / "claude-code.md").read_text()
+    assert "/passageway-add-source" in GENERAL.read_text()
 
 
 def test_every_skill_says_where_the_documentation_is_and_how_to_read_it():

@@ -1,9 +1,9 @@
 ---
-name: passageway-configure
-description: "Add a source or change the embedding model in a running passageway: write a [[connector]] for a folder of markdown, Trilium, Confluence or Wikipedia, or set the [embedder] preset, in passageway.toml, then restart and check /health. Use when the user wants passageway to index something, when the index is empty after setup, or when they want another model."
+name: passageway-add-source
+description: "Add a source to a running passageway: write the [[connector]] for a folder of markdown, Trilium, Confluence or Wikipedia into passageway.toml, with secrets as env: references, then restart and check /health. Use when the user wants passageway to index something, or when the index is empty after connecting Claude Code."
 ---
 
-# Configure passageway: sources and the model
+# Add a source to passageway
 
 passageway indexes what its connectors report (docs: https://passageway.marceltov.de/configuration/). The configuration is one TOML file: `$PASSAGEWAY_CONFIG`, else `~/.config/passageway/passageway.toml` (`passageway init` writes a sample), `/config/passageway.toml` in the container. This skill edits that file; the server reads it at start, so every change ends with a restart. Never print a secret, never ask the user to paste one into the chat, never write a token or password into the file: a secret is a reference to an environment variable, `env:NAME`, and the variable is set where the server starts (the shell, the launchd plist, the compose file).
 
@@ -11,7 +11,7 @@ passageway indexes what its connectors report (docs: https://passageway.marcelto
 
 ## Determine the operation
 
-**Add a source** (default), **change the model**, or **show** what is configured (print the file with every `secrets` line masked).
+**Add a source** (default), or **show** what is configured (print the file with every `secrets` line masked).
 
 ## Add a source
 
@@ -38,10 +38,8 @@ passageway indexes what its connectors report (docs: https://passageway.marcelto
 6. Restart the server (the user does it for a foreground process; `launchctl kickstart -k gui/$(id -u)/de.marceltov.passageway` for the launchd service; `docker compose restart passageway` for the container). Then `curl -s <url>/health`: `"starting"` while the first index build runs, then `"ok"` with the source listed; `"error"` names the problem (a missing variable, an unreachable source). A big source takes minutes on the first build.
 7. Say what was added and suggest a question the `recall` tool should now answer.
 
-## Change the model
-
-The embedder is the `[embedder]` table. Built-in presets, with their measured relevance gates: `passageway model list` (today `multilingual-e5-small`, the default; `multilingual-e5-base`; `jina-v2-base-de`, https://passageway.marceltov.de/models/). Set `model = "<preset>"`; the files are fetched once on the next start (or `passageway model download <preset>` beforehand). Any other model is a program that speaks the embedder protocol: `kind = "command"` with `command`, `env` and `secrets` like a connector; the bundled adapter for Ollama, LM Studio, vLLM, OpenAI and Voyage is https://passageway.marceltov.de/embedders/openai/, and an API key is a `secrets` reference. A different model changes the similarity scale: keep `min_similarity` unset for a preset (each carries its own gate) and measure it with `passageway eval cases.toml --sweep` for a command embedder. The index is rebuilt with the new model at the next start; restart and check `/health` as above.
-
 ## Show
+
+The embedding model is not this skill's job: the `/passageway` guide says how to pick a preset or run any model (`[embedder]`).
 
 Print the file with the values of every `secrets` entry replaced by `***` (they are references, but the habit matters), and `/health` for what the server runs with.
