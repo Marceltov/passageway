@@ -1,7 +1,7 @@
 {
   "name": "passageway",
-  "version": "0.2.2",
-  "description": "Retrieval for Claude over MCP: connectors feed passages, a relevance gate keeps it quiet when nothing fits. Ships the prompt hook and the skills /passageway (a general guide), /passageway-install (install and run it as a service), /passageway-connect (link Claude Code to a server), /passageway-add-source (index a source), /passageway-evaluate (measure retrieval quality on the user's questions) and /create-passageway-connector (write a connector).",
+  "version": "0.2.3",
+  "description": "Retrieval for Claude over MCP: connectors feed passages, a relevance gate keeps it quiet when nothing fits. Ships the prompt hook and the skills /passageway (a general guide), /passageway-install (install and run it as a service), /passageway-connect (link Claude Code to a server), /passageway-add-source (index a source), /passageway-status (is it fine, and what to do), /passageway-evaluate (measure retrieval quality on the user's questions) and /create-passageway-connector (write a connector).",
   "author": {
     "name": "Marcel Bruckner"
   },
