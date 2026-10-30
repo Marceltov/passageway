@@ -31,7 +31,7 @@ The header bar has two extra links for AI agents (`SKILL.md` and `llms-full.txt`
 
 ## Changes
 
-Every change starts from an issue and goes through a pull request; the CI build must pass, including the strict docs build. Decisions that future contributors will ask about get an ADR in `docs/adr/`.
+Every change starts from an issue and goes through a pull request; the CI build must pass, including the strict docs build. The Checks workflow has four jobs, the test suite, the docs build, the plugin (`claude plugin validate .` and the hook's self-test) and the sidecar image, and a `changes` job in front that runs each only when a file it reads changed: a skill does not build the image, a Dockerfile does not build the docs. Run the same gates locally before a push: `uv run pytest -q`, the docs build above, `claude plugin validate .`. Decisions that future contributors will ask about get an ADR in `docs/adr/`.
 
 Dependabot keeps the dependencies and the GitHub Actions current (`.github/dependabot.yml`): security updates arrive at once; everything else waits two weeks after a release and comes grouped on Monday mornings, with the `Dependencies:` prefix instead of an issue number. Patch and minor bumps merge by themselves once the required checks are green; majors wait for review. A scheduled audit (`.github/workflows/audit.yml`) checks the locked runtime dependencies for known vulnerabilities every day.
 

@@ -4,7 +4,64 @@ on:
     branches: [main]
   pull_request:
 jobs:
+  # Which jobs a change needs. A job skipped here counts as passed for the ruleset; a change to this file runs everything.
+  # The test suite reads the docs, the skills and the workflows (tests/test_docs.py, tests/test_agent_files.py), so it runs
+  # for nearly everything: only files no test and no build reads leave it out.
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      test: ${{ steps.filter.outputs.test }}
+      docs: ${{ steps.filter.outputs.docs }}
+      image: ${{ steps.filter.outputs.image }}
+      plugin: ${{ steps.filter.outputs.plugin }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            test:
+              - '**'
+              - '!LICENSE'
+              - '!.gitignore'
+              - '!.github/workflows/pages.yml'
+              - '!.github/workflows/audit.yml'
+              - '!.github/workflows/dependabot-automerge.yml'
+            docs:
+              - '.github/workflows/checks.yml'
+              - 'docs/**'
+              - 'docs_hooks/**'
+              - 'mkdocs.yml'
+              - 'README.md'
+              - 'connectors/*/README.md'
+              - 'embedders/*/README.md'
+              - 'sdk/README.md'
+              - 'skills/**'
+              - 'scripts/publish-skills.sh'
+              - 'corpus/**'
+            image:
+              - '.github/workflows/checks.yml'
+              - 'Dockerfile'
+              - '.dockerignore'
+              - 'pyproject.toml'
+              - 'uv.lock'
+              - 'README.md'
+              - 'passageway/**'
+              - 'sdk/**'
+              - 'connectors/**'
+              - 'embedders/**'
+            plugin:
+              - '.github/workflows/checks.yml'
+              - '.claude-plugin/**'
+              - 'skills/**'
+              - 'hooks/**'
+              - 'scripts/recall-hook.sh'
+              - 'scripts/test-recall-hook.sh'
   test:
+    needs: changes
+    if: needs.changes.outputs.test == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -12,6 +69,8 @@ jobs:
       - run: uv sync --frozen --all-packages
       - run: uv run pytest -q
   docs:
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -26,7 +85,22 @@ jobs:
           grep -q "Write a connector" site/llms-full.txt && grep -q "CATEGORY_DEPTH" site/llms-full.txt   # the Wikipedia include made it in
           grep -q "pw-timeline" site/roadmap/index.html && grep -q "Markdown connector" site/llms-full.txt   # the roadmap timeline
           grep -q "pw-header-links" site/index.html && grep -q "passageway.marceltov.de/llms-full.txt" site/index.html   # the header links
+  # The plugin manifest, the skills and the hook, checked the way Claude Code loads them.
+  plugin:
+    needs: changes
+    if: needs.changes.outputs.plugin == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install -g @anthropic-ai/claude-code
+      - run: claude plugin validate .
+      - run: bash scripts/test-recall-hook.sh
   image:
+    needs: changes
+    if: needs.changes.outputs.image == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
