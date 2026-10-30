@@ -707,10 +707,14 @@ wheels = [
 
 [[package]]
 name = "mcp-login-oauth"
-version = "0.1.1"
-source = { git = "https://github.com/Marceltov/mcp-login-oauth?rev=v0.1.1#115b48f24b6ccda4b47d8bf40ba5abea2762db86" }
+version = "0.2.1"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastmcp" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4c/f1/4691f593c62f46484fdbf2075fdea1a7cc414db8bcf2cb1c4b77d468ae8e/mcp_login_oauth-0.2.1.tar.gz", hash = "sha256:dc4335ab701edd2f76c38af3386cfd71431d606a7e957934a53664bd06743197", size = 27758, upload-time = "2026-10-30T15:44:05.229Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bd/4b/032cae90399925a7c0c49820c9c07d7665306da4db6ab1fa7478b7acd63d/mcp_login_oauth-0.2.1-py3-none-any.whl", hash = "sha256:eab00964c825f55345c56f1d36621785db6a30225bfb54ea9da7613404fff3ad", size = 24533, upload-time = "2026-10-30T15:44:03.877Z" },
 ]
 
 [[package]]
@@ -909,7 +913,7 @@ dev = [
 requires-dist = [
     { name = "fastmcp", specifier = ">=3.0.0" },
     { name = "httpx", specifier = ">=0.28.1" },
-    { name = "mcp-login-oauth", git = "https://github.com/Marceltov/mcp-login-oauth?rev=v0.1.1" },
+    { name = "mcp-login-oauth", specifier = ">=0.2.1" },
     { name = "numpy", specifier = ">=2.0" },
     { name = "onnxruntime", specifier = ">=1.20" },
     { name = "pyyaml", specifier = ">=6.0" },
