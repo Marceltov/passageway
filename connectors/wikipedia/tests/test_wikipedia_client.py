@@ -102,9 +102,38 @@ def test_429_and_503_are_retried_and_persistent_trouble_finally_fails(wiki_serve
     wiki.status_errors = [429, 503]
     assert client(url).resolve_titles(("Cape Arkona",)) == {2: "Cape Arkona"}
     wiki.lag_errors = 99
-    with pytest.raises(WikiError, match="try again later|retry"):
-        client(url).resolve_titles(("Cape Arkona",))
-    assert len(wiki.requests) < 20  # it gave up; it did not hammer
+    sleeps = []
+    with pytest.raises(WikiError, match="900 s"):
+        client(url, sleeps).resolve_titles(("Cape Arkona",))
+    assert sum(sleeps) == 900 and len(wiki.requests) < 30  # it gave up after its budget; it did not hammer
+
+
+def test_a_429_longer_than_a_minute_is_waited_out(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    wiki.status_errors = [429] * 8
+    sleeps = []
+    assert client(url, sleeps).resolve_titles(("Cape Arkona",)) == {2: "Cape Arkona"}
+    assert sum(sleeps) > 120
+
+
+def test_a_retry_after_beyond_30_seconds_is_honored(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    wiki.status_errors, wiki.retry_after = [429], "200"
+    sleeps = []
+    assert client(url, sleeps).resolve_titles(("Cape Arkona",)) == {2: "Cape Arkona"}
+    assert sleeps == [200]
+
+
+def test_a_429_that_never_ends_fails_and_says_how_long_it_waited(wiki_server):
+    url, wiki = wiki_server
+    lighthouse_wiki(wiki)
+    wiki.status_errors = [429] * 1000
+    sleeps = []
+    with pytest.raises(WikiError, match="HTTP 429") as e:
+        client(url, sleeps).resolve_titles(("Cape Arkona",))
+    assert sum(sleeps) == 900 and "900 s" in str(e.value)
 
 
 def test_api_errors_become_wiki_errors(wiki_server):
@@ -138,7 +167,7 @@ def test_an_unreachable_wiki_is_retried_then_reported_without_a_pointless_last_s
     sleeps = []
     with pytest.raises(WikiError, match="could not be reached|try again later"):
         client("http://127.0.0.1:9/w/api.php", sleeps).resolve_titles(("Cape Arkona",))
-    assert sleeps == [1, 2, 4, 8]  # five attempts, four waits: it does not sleep before giving up
+    assert sum(sleeps) == 900  # it waits out its budget, then gives up without a pointless last sleep
 
 
 def test_a_continuation_that_repeats_a_request_key_does_not_crash(wiki_server):

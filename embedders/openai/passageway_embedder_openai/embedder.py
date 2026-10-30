@@ -23,7 +23,7 @@ import truststore
 PROVIDERS = {"openai": "https://api.openai.com/v1", "voyage": "https://api.voyageai.com/v1"}
 CLOUD_HOSTS = {"api.openai.com", "api.voyageai.com"}
 PROBE = "passageway"  # the word embedded once at `info` to learn the dimension
-MAX_ATTEMPTS = 5
+MAX_BACKOFF = 60  # the longest wait the embedder picks itself; a Retry-After may ask for more, up to TIMEOUT
 RETRY_STATUS = (429, 500, 502, 503, 504)
 RETRY_ERRORS = (httpx.ConnectError, httpx.ConnectTimeout, httpx.RemoteProtocolError, httpx.PoolTimeout)  # never a read timeout:
 # a request that timed out while being answered may already have been charged for
@@ -102,8 +102,8 @@ def _retry_after(header: str | None, default: float) -> float:
             except (TypeError, ValueError):
                 value = default
         if math.isfinite(value):
-            return min(max(value, 0.0), 30.0)
-    return min(max(default, 0.0), 30.0)
+            return max(value, 0.0)  # how long is up to the deadline
+    return max(default, 0.0)
 
 
 class Embedder:
@@ -124,12 +124,14 @@ class Embedder:
             body["output_dimension" if self.s.provider == "voyage" else "dimensions"] = self.s.dimensions
         if self.s.provider == "voyage":
             body["input_type"] = "query" if kind == "query" else "document"
-        deadline = time.monotonic() + self.s.timeout  # the whole request, retries included, stays within TIMEOUT
-        for attempt in range(MAX_ATTEMPTS):
-            remaining = deadline - time.monotonic()
+        start, waited, attempt = time.monotonic(), 0.0, 0  # the whole request, retries included, stays within TIMEOUT
+        while True:
+            # the slept seconds count even when the sleep does not pass them on the clock (an injected one)
+            remaining = self.s.timeout - max(time.monotonic() - start, waited)
             if remaining <= 0:
                 break
-            wait = min(2 ** attempt, 30)
+            wait = min(2 ** attempt, MAX_BACKOFF)
+            attempt += 1
             try:
                 response = self._http.post(f"{self.s.base_url}/embeddings", json=body, timeout=remaining)
             except RETRY_ERRORS as e:
@@ -139,7 +141,7 @@ class Embedder:
             if response is not None:
                 if response.status_code in RETRY_STATUS:
                     reason = f"HTTP {response.status_code} from {self.s.base_url}"
-                    wait = _retry_after(response.headers.get("Retry-After"), wait)
+                    wait = max(wait, _retry_after(response.headers.get("Retry-After"), wait))
                 elif 300 <= response.status_code < 400:
                     raise ApiError(f"{self.s.base_url} answered with a redirect to {response.headers.get('Location', '?')}: "
                                    "set BASE_URL to the final address")
@@ -152,11 +154,11 @@ class Embedder:
                     raise ApiError(f"HTTP {response.status_code} from {self.s.base_url}: {detail or response.text[:200]}")
                 else:
                     return self._vectors(response, len(texts))
-            if attempt < MAX_ATTEMPTS - 1 and time.monotonic() + wait < deadline:
-                self._sleep(wait)
-            else:
+            if wait >= self.s.timeout - max(time.monotonic() - start, waited):
                 break
-        raise ApiError(f"giving up after {attempt + 1} attempt(s) within {self.s.timeout:g} s: {reason}")
+            self._sleep(wait)
+            waited += wait
+        raise ApiError(f"giving up after {attempt} attempt(s) within {self.s.timeout:g} s: {reason}")
 
     def _vectors(self, response: httpx.Response, expected: int) -> list[list[float]]:
         try:
