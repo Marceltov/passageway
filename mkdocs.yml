@@ -15,12 +15,12 @@ exclude_docs: |
 nav:
   - Home: index.md
   - What passageway stands for: values.md
+  - Concepts:
+      - How it works: how-it-works.md
   - Start:
       - Install and run: install.md
       - Configuration: configuration.md
       - Run it: deploy.md
-  - Concepts:
-      - How it works: how-it-works.md
   - Guides:
       - Claude Code, the hook and the plugin: guides/claude-code.md
       - Write a connector: guides/write-a-connector.md
@@ -49,7 +49,6 @@ nav:
       - adr/0003-json-lines-over-a-subprocess-stays.md
       - adr/0004-no-summary-for-source-substitution.md
       - adr/0005-confluence-data-center-first.md
-      - adr/0006-https-trusts-the-system-store.md
       - adr/0006-https-trusts-the-system-store.md
 
 theme:

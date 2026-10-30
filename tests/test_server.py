@@ -84,6 +84,12 @@ async def test_mcp_tool_returns_passages_and_nothing(engine):
     assert "Proxmox swap" in hit and "Nothing relevant" in none and "Unknown source" in unknown
 
 
+def test_health_is_indented_for_people_reading_it_with_curl(client):
+    assert client.get("/health").text.startswith('{\n  "status"')
+    with TestClient(build_error_app("bad config")) as c:
+        assert c.get("/health").text.startswith('{\n  "status"')
+
+
 def test_error_app_reports_the_problem():
     with TestClient(build_error_app("bad config")) as c:
         assert c.get("/health").status_code == 503 and c.post("/recall", json={}).status_code == 503

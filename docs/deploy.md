@@ -1,6 +1,6 @@
 # Run it: as a service or as a container
 
-Two ways to keep passageway running. Both use the same code; only defaults differ.
+Two ways to keep passageway running. Both use the same code; only defaults differ. In Claude Code, `/passageway-install` from the [plugin](guides/claude-code.md) sets up the service below for you, with launchd or systemd.
 
 ## On your own machine
 

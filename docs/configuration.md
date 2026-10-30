@@ -2,7 +2,7 @@
 
 ## passageway.toml
 
-Default location `~/.config/passageway/passageway.toml`, or the path in `PASSAGEWAY_CONFIG`. One `[[connector]]` entry is one source with its own index file, so two servers of the same kind are two entries with the same `command`. Secrets are references to environment variables, never values.
+Default location `~/.config/passageway/passageway.toml`, or the path in `PASSAGEWAY_CONFIG`. One `[[connector]]` entry is one source with its own index file, so two servers of the same kind are two entries with the same `command`. Secrets are references to environment variables, never values. In Claude Code, `/passageway-add-source` from the [plugin](guides/claude-code.md) writes the entry for you.
 
 ```toml
 [embedder]
