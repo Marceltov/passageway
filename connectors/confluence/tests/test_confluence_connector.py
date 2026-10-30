@@ -99,6 +99,13 @@ def test_a_429_longer_than_a_minute_is_waited_out(world):
     assert sum(world.slept) > 120
 
 
+def test_a_long_wait_is_said_in_the_log_as_it_starts(world, capsys):
+    world.api.status_errors = [429] * 5  # waits 1, 2, 4, 8, then 16
+    assert world.fetch("101").keys() == {"101"}
+    said = capsys.readouterr().err.splitlines()
+    assert said == ["confluence connector: HTTP 429 on GET /rest/api/content/101: waiting 16 s (15 s of 900 s waited)"]
+
+
 def test_retry_after_is_honoured_beyond_30_seconds(world):
     world.api.status_errors, world.api.retry_after = [429], "200"
     assert world.fetch("101").keys() == {"101"}
