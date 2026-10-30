@@ -200,6 +200,11 @@ def build_oauth_provider(config: Config, **overrides) -> LoginOAuthProvider:
     return LoginOAuthProvider(**{**args, **overrides})
 
 
+STATUS_DESCRIPTION = ("How passageway is doing: status (ok, starting, degraded, error), each source with its item count, "
+                      "last successful sync and last error, the embedding model, and the version. Call it when recall "
+                      "returns nothing it should, or when the user asks whether passageway is fine.")
+
+
 def build_mcp(engine: Engine, auth: OAuthProvider | None = None) -> FastMCP:
     mcp = FastMCP("passageway", auth=auth, instructions=engine.config.instructions)
 
@@ -211,6 +216,11 @@ def build_mcp(engine: Engine, auth: OAuthProvider | None = None) -> FastMCP:
         except UnknownSource as e:
             return str(e)
         return render(hits) or NOTHING
+
+    @mcp.tool(description=STATUS_DESCRIPTION)
+    async def status() -> str:
+        # The MCP caller is authenticated, so the errors are shown in full, like /health with the Bearer token.
+        return json.dumps(engine.health())
 
     return mcp
 
@@ -267,15 +277,24 @@ def build_app(engine: Engine, background: bool = True, oauth_overrides: dict | N
     return BearerGate(app, config.password, oauth=auth is not None)
 
 
-def build_error_app(message: str) -> Starlette:
-    """Started with a broken configuration: say what is wrong instead of dying silently."""
+def build_error_mcp(message: str) -> FastMCP:
+    """The tools of a server started with a broken configuration: both say what is wrong."""
     mcp = FastMCP("passageway")
 
     @mcp.tool(description=DEFAULT_TOOL_DESCRIPTION)
     def recall(query: str, limit: int = 3, source: str | None = None) -> str:
         return f"The passageway engine is not running: {message}"
 
-    mcp_app = mcp.http_app(path="/mcp", host_origin_protection=False)
+    @mcp.tool(description=STATUS_DESCRIPTION)
+    def status() -> str:
+        return json.dumps({"status": "error", "error": message, "version": VERSION})
+
+    return mcp
+
+
+def build_error_app(message: str) -> Starlette:
+    """Started with a broken configuration: say what is wrong instead of dying silently."""
+    mcp_app = build_error_mcp(message).http_app(path="/mcp", host_origin_protection=False)
 
     async def health(_: Request) -> JSONResponse:
         return JSONResponse({"status": "error", "error": message}, status_code=503)

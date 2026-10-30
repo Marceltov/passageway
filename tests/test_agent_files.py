@@ -339,3 +339,18 @@ def test_the_install_skill_runs_the_server_as_a_service_and_the_other_skills_use
     assert "/passageway-install" in GENERAL.read_text() and "/passageway-install" in (ROOT / "docs" / "guides" / "claude-code.md").read_text()
     # the service reads the connectors' secrets from one file only the user can read, documented on the deploy page
     assert ".config/passageway/env" in (ROOT / "docs" / "deploy.md").read_text()
+
+
+def test_the_status_skill_reads_the_status_tool_and_checks_the_whole_chain():
+    skill = ROOT / "skills" / "passageway-status" / "SKILL.md"
+    meta = frontmatter(skill)
+    assert meta["name"] == "passageway-status" and len(meta["description"]) > 40
+    text = skill.read_text()
+    for needed in ("`status`", "/health", "launchctl print", "systemctl --user status", "test-recall-hook.sh", "claude mcp list",
+                   "last_error", "passageway.log", "journalctl", "in the chat, never through a choice prompt",
+                   "https://passageway.marceltov.de/llms.txt", "llms-full.txt"):
+        assert needed in text, needed
+    assert "/passageway-status" in json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())["description"]
+    assert "passageway-status" in (ROOT / "scripts" / "publish-skills.sh").read_text()
+    assert "/passageway-status" in GENERAL.read_text() and "/passageway-status" in (ROOT / "docs" / "guides" / "claude-code.md").read_text()
+    assert "`status`" in (ROOT / "docs" / "configuration.md").read_text(), "the tool is documented next to /health"

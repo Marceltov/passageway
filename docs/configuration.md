@@ -94,4 +94,4 @@ Each source is one file, `<data dir>/<name>.db`, and it can always be rebuilt fr
 
 ## Health
 
-`GET /health` is open so a health check can use it. It reports each source's item count and whether it is failing; the error text itself is shown only when the request carries the Bearer password.
+`GET /health` is open so a health check can use it. It reports each source's item count and whether it is failing; the error text itself is shown only when the request carries the Bearer password. The same report, errors included, is the MCP tool `status`, so a connected client asks the server itself instead of curl; a server started with a broken configuration answers `{"status": "error", "error": ...}` from both.

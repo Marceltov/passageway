@@ -188,3 +188,19 @@ def test_the_error_page_does_not_show_what_a_failing_embedder_printed():
                                  public="the embedder 'default' could not start; see the server log")
     assert "gpu-box" not in public_message(private) and "could not start" in public_message(private)
     assert public_message(ConfigError("PASSAGEWAY_LOGIN_PASSWORD is not set")) == "PASSAGEWAY_LOGIN_PASSWORD is not set"
+
+
+async def test_mcp_status_tool_is_the_health_report_with_the_errors(tmp_path):
+    engine = make_engine(tmp_path, [DOC], fail="list")
+    async with Client(build_mcp(engine)) as c:
+        status = json.loads((await c.call_tool("status", {})).data)
+    assert status["status"] == "degraded" and "fake failure" in status["sources"]["notes"]["last_error"]
+    assert status["version"] and status["embedder"]["name"] and status["sources"]["notes"]["items"] == 0  # list failed: nothing indexed
+
+
+async def test_error_app_status_tool_names_the_problem():
+    from passageway.server import build_error_mcp
+    async with Client(build_error_mcp("bad config")) as c:
+        status = json.loads((await c.call_tool("status", {})).data)
+        tools = {t.name for t in await c.list_tools()}
+    assert status == {"status": "error", "error": "bad config", "version": status["version"]} and tools == {"recall", "status"}

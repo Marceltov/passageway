@@ -9,6 +9,8 @@ stub_pid=""
 trap '[ -n "$stub_pid" ] && kill "$stub_pid" 2>/dev/null; rm -rf "$tmp"' EXIT
 
 export CLAUDE_PLUGIN_DATA="$tmp/plugin-data"
+# the fallback folder is isolated too: a real ~/.claude/plugin-data/passageway/passageway.json must not reach the checks
+export CLAUDE_CONFIG_DIR="$tmp/claude-config"
 fail=0
 input='{"session_id":"sess-1","cwd":"/root/notes","hook_event_name":"UserPromptSubmit","prompt":"why is CT 115 slow"}'
 
@@ -80,7 +82,6 @@ printf '{"url": "http://127.0.0.1:%s", "token": "s3cret"}' "$port" > "$(dirname 
 check "a trilium-recall config still works" "$expected" context
 # the fallback folder is read too, when the plugin data variable points at an empty folder
 rm -f "$(dirname "$CLAUDE_PLUGIN_DATA")/trilium-recall/recall.json"
-export CLAUDE_CONFIG_DIR="$tmp/claude-config"
 mkdir -p "$CLAUDE_CONFIG_DIR/plugin-data/passageway"
 printf '{"url": "http://127.0.0.1:%s", "token": "s3cret"}' "$port" > "$CLAUDE_CONFIG_DIR/plugin-data/passageway/passageway.json"
 check "the fallback folder is found when the plugin data folder is empty" "$expected" context
