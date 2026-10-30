@@ -52,8 +52,25 @@ class Syncer:
 
     def _fetch_and_apply(self, ids: list[str]) -> int:
         known = self.index.versions()  # once: the batches are disjoint, so it cannot go stale between them
-        return sum(self._apply(self.connector.fetch(ids[i:i + FETCH_BATCH]), known)
-                   for i in range(0, len(ids), FETCH_BATCH))
+        batches = [ids[i:i + FETCH_BATCH] for i in range(0, len(ids), FETCH_BATCH)]
+        changed, errors, in_a_row = 0, [], 0
+        for batch in batches:
+            # a batch stores all or nothing; one that fails (a page that never loads) must not keep the rest
+            # out, but two in a row mean the source is down: stop rather than wait out a timeout per batch
+            try:
+                fetched = self.connector.fetch(batch)
+            except ConnectorError as e:
+                errors.append(e)
+                in_a_row += 1
+                if in_a_row == 2:
+                    break
+                continue
+            in_a_row = 0
+            changed += self._apply(fetched, known)
+        if errors:
+            stopped = ", stopped after two in a row" if in_a_row == 2 else ""
+            raise ConnectorError(f"{errors[0]} ({len(errors)} of {len(batches)} fetch batches failed{stopped})")
+        return changed
 
     def _guarded(self, work) -> int:
         started = datetime.now(UTC)
