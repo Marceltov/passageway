@@ -879,7 +879,7 @@ wheels = [
 
 [[package]]
 name = "passageway"
-version = "0.2.8"
+version = "0.2.9"
 source = { editable = "." }
 dependencies = [
     { name = "fastmcp" },
@@ -1093,7 +1093,7 @@ dev = [
 
 [[package]]
 name = "passageway-sdk"
-version = "0.2.8"
+version = "0.2.9"
 source = { editable = "sdk" }
 
 [package.dev-dependencies]
