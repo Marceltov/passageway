@@ -4,22 +4,31 @@
 # failure → no output, exit 0.
 set -u
 
-# The config, {"url", "token"}: the plugin's data folder, the folder the setup skill writes without the plugin variable,
-# or one written by trilium-recall, which passageway replaces (same shape).
+# The configs, {"url", "token"} each: passageway.json and one passageway-<instance>.json per further instance, in the
+# plugin's data folder or else in the folder the setup skill writes without the plugin variable; failing those, one
+# written by trilium-recall, which passageway replaces (same shape).
 fallback="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/passageway"
 own="${CLAUDE_PLUGIN_DATA:-$fallback}"
-config=""
-for candidate in "$own/passageway.json" "$fallback/passageway.json" \
-    "$(dirname "$own")"/trilium-recall*/recall.json "$(dirname "$fallback")"/trilium-recall*/recall.json \
-    "$(dirname "$own")"/trilium-llm-wiki*/recall.json "$(dirname "$fallback")"/trilium-llm-wiki*/recall.json; do
-  [ -f "$candidate" ] && { config="$candidate"; break; }
+set --
+for dir in "$own" "$fallback"; do
+  for candidate in "$dir/passageway.json" "$dir"/passageway-*.json; do
+    [ -f "$candidate" ] && set -- "$@" "$candidate"
+  done
+  [ $# -gt 0 ] && break
 done
+if [ $# -eq 0 ]; then
+  for candidate in "$(dirname "$own")"/trilium-recall*/recall.json "$(dirname "$fallback")"/trilium-recall*/recall.json \
+      "$(dirname "$own")"/trilium-llm-wiki*/recall.json "$(dirname "$fallback")"/trilium-llm-wiki*/recall.json; do
+    [ -f "$candidate" ] && { set -- "$candidate"; break; }
+  done
+fi
 # Always drain stdin: exiting with a large prompt unread leaves the writer a broken pipe.
-{ [ -n "$config" ] && command -v python3 >/dev/null && command -v curl >/dev/null; } || { cat >/dev/null; exit 0; }
+{ [ $# -gt 0 ] && command -v python3 >/dev/null && command -v curl >/dev/null; } || { cat >/dev/null; exit 0; }
 
 umask 077
 work=$(mktemp -d 2>/dev/null) || { cat >/dev/null; exit 0; }
 trap 'rm -rf "$work"' EXIT
+cat >"$work/input"
 
 # The python goes through files in the work folder so that stdin stays the hook input (a pasted log can exceed the argv
 # limit). One call reads it and the config and writes the request body to a file only this user can read; the server
@@ -46,18 +55,33 @@ open(work + "/body.json", "w").write(json.dumps(body))
 PY
 cat >"$work/reply.py" <<'PY'
 import json, sys
-try:
-    context = json.load(open(sys.argv[1])).get("context") or ""
-except Exception:
-    sys.exit(0)
+parts = []
+for path in sys.argv[1:]:
+    try:
+        parts.append(json.load(open(path)).get("context") or "")
+    except Exception:
+        pass
+context = "\n\n".join(p for p in parts if p)
 if context:
     print(json.dumps({"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": context}}))
 PY
 
-python3 -I "$work/request.py" "$config" "$work" 2>/dev/null || exit 0
+# One request per instance, all at once, so several instances still answer within the one time limit.
+i=0
+for config in "$@"; do
+  i=$((i + 1))
+  mkdir "$work/$i"
+  python3 -I "$work/request.py" "$config" "$work/$i" <"$work/input" 2>/dev/null || continue
+  curl -sS --fail --max-time 1.5 -K "$work/$i/curlrc" -H 'Content-Type: application/json' \
+    --data-binary "@$work/$i/body.json" "$(cat "$work/$i/url")" -o "$work/$i/response" 2>/dev/null &
+done
+wait
 
-curl -sS --fail --max-time 1.5 -K "$work/curlrc" -H 'Content-Type: application/json' \
-  --data-binary "@$work/body.json" "$(cat "$work/url")" -o "$work/response" 2>/dev/null || exit 0
-
-python3 -I "$work/reply.py" "$work/response" 2>/dev/null
+set --
+j=1
+while [ $j -le $i ]; do
+  [ -f "$work/$j/response" ] && set -- "$@" "$work/$j/response"
+  j=$((j + 1))
+done
+[ $# -gt 0 ] && python3 -I "$work/reply.py" "$@" 2>/dev/null
 exit 0

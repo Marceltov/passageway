@@ -61,3 +61,12 @@ def test_passageway_help_prints_the_usage_instead_of_serving(arg, code, capsys):
     out = capsys.readouterr()
     assert stop.value.code == code
     assert "PASSAGEWAY_LOGIN_PASSWORD_FILE" in out.out + out.err and "init" in out.out + out.err
+
+
+def test_init_for_an_instance_creates_its_own_folder(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    out = io.StringIO()
+    assert main([], env={"PASSAGEWAY_INSTANCE": "work"}, stdout=out) == 0
+    assert (tmp_path / ".config" / "passageway-work" / "password").is_file()
+    assert "PASSAGEWAY_INSTANCE=work PASSAGEWAY_PORT=" in out.getvalue()
+    assert main([], env={"PASSAGEWAY_INSTANCE": "Bad Name"}, stdout=io.StringIO()) == 2

@@ -225,3 +225,25 @@ def test_bad_preset_settings_are_refused(tmp_path, toml, message):
 def test_a_model_that_is_not_a_string_is_a_config_error(tmp_path):
     with pytest.raises(ConfigError, match="model"):
         load_config(embedder_env(tmp_path, '[embedder]\nmodel = ["x"]'))
+
+
+def test_an_instance_has_its_own_config_and_data_folders_but_shares_the_models(tmp_path, monkeypatch):
+    from passageway.config import default_data_dir
+    monkeypatch.setenv("HOME", str(tmp_path))
+    folder = tmp_path / ".config" / "passageway-work"
+    folder.mkdir(parents=True)
+    (folder / "passageway.toml").write_text(TOML)
+    cfg = load_config({"PASSAGEWAY_LOGIN_PASSWORD": "pw", "NOTES_TOKEN": "tok", "PASSAGEWAY_INSTANCE": "work"})
+    shared = default_data_dir()
+    assert cfg.instance == "work" and cfg.connectors[0].name == "notes"
+    assert cfg.data_dir == shared.with_name(shared.name + "-work")
+    assert cfg.models_root == shared and cfg.model_dir == shared / "models" / "e5-small"
+
+
+@pytest.mark.parametrize("name", ["Work", "a b", "../x", "-x", ""])
+def test_an_instance_name_is_lowercase_letters_digits_and_hyphens(tmp_path, name):
+    if not name:  # empty means no instance
+        assert load_config(env_for(tmp_path, PASSAGEWAY_INSTANCE="")).instance is None
+        return
+    with pytest.raises(ConfigError, match="PASSAGEWAY_INSTANCE"):
+        load_config(env_for(tmp_path, PASSAGEWAY_INSTANCE=name))

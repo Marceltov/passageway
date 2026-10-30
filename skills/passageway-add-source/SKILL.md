@@ -11,6 +11,8 @@ passageway indexes what its connectors report (docs: https://passageway.marcelto
 
 Free text (a URL, a folder, a space key, a name) is asked in the chat, never through a choice prompt; a choice prompt is only for real alternatives (which source, which operation).
 
+**Several instances.** A machine may run several passageway servers side by side, one per Claude setup (https://passageway.marceltov.de/configuration/#several-instances). Instance `<name>` lives in `~/.config/passageway-<name>/` (its `passageway.toml`, `password` and `env`), listens on its own port, runs as the service `de.marceltov.passageway.<name>` (macOS, log `~/Library/Logs/passageway-<name>.log`) or `passageway-<name>` (Linux), and `/health` names it under `instance`. Wherever this skill says `~/.config/passageway`, the service, the log or port 8082, use the instance's. `ls -d ~/.config/passageway*/` lists them. Add the source to the instance the user means: the one this Claude is connected to (the URL in its hook file; `/health` there names it), and ask when it is connected to several or it is unclear. A source in the wrong instance is visible to the wrong Claude.
+
 ## Determine the operation
 
 **Add a source** (default), or **show** what is configured (print the file with every `secrets` line masked).

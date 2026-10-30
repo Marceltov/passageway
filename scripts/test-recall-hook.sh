@@ -27,6 +27,7 @@ class H(http.server.BaseHTTPRequestHandler):
             time.sleep(5)
         status, payload = {"context": (200, json.dumps({"context": "Recall (notes) — hit"})),
                            "empty": (200, json.dumps({"context": ""})),
+                           "token": (200, json.dumps({"context": "Recall for " + self.headers.get("Authorization", "")})),
                            "error": (500, "boom"), "garbage": (200, "not json"),
                            "slow": (200, json.dumps({"context": "late"}))}[mode]
         self.send_response(status); self.send_header("Content-Type", "application/json"); self.end_headers()
@@ -85,4 +86,10 @@ rm -f "$(dirname "$CLAUDE_PLUGIN_DATA")/trilium-recall/recall.json"
 mkdir -p "$CLAUDE_CONFIG_DIR/plugin-data/passageway"
 printf '{"url": "http://127.0.0.1:%s", "token": "s3cret"}' "$port" > "$CLAUDE_CONFIG_DIR/plugin-data/passageway/passageway.json"
 check "the fallback folder is found when the plugin data folder is empty" "$expected" context
+# several instances: every passageway*.json in the folder is asked, in parallel, and the answers are joined; one that
+# is down costs only its own passages
+printf '{"url": "http://127.0.0.1:%s", "token": "w"}' "$port" > "$CLAUDE_CONFIG_DIR/plugin-data/passageway/passageway-work.json"
+printf '{"url": "http://127.0.0.1:9", "token": "d"}' > "$CLAUDE_CONFIG_DIR/plugin-data/passageway/passageway-down.json"
+both='{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": "Recall for Bearer s3cret\n\nRecall for Bearer w"}}'
+check "several instances are all asked and their passages joined" "$both" token
 exit $fail

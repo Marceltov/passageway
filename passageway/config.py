@@ -83,19 +83,33 @@ class Config:
     log_level: str = "INFO"
     tool_description: str = DEFAULT_TOOL_DESCRIPTION
     instructions: str = DEFAULT_INSTRUCTIONS
+    instance: str | None = None  # PASSAGEWAY_INSTANCE: one of several servers on this machine
+    models_root: Path | None = None  # where the built-in models live; None: data_dir (instances share the default)
     min_similarity: float | None = None  # the relevance gate; None keeps the embedder preset's value
     embedder: EmbedderConfig = field(default_factory=EmbedderConfig)  # the one the server uses
     embedders: dict[str, EmbedderConfig] = field(default_factory=dict)  # candidates for `passageway eval compare`
 
 
-def default_config_path() -> Path:
-    return Path.home() / ".config" / "passageway" / "passageway.toml"
+def instance_name(env: Mapping[str, str]) -> str | None:
+    """PASSAGEWAY_INSTANCE names one of several servers on this machine; unset, the one and only."""
+    name = env.get("PASSAGEWAY_INSTANCE", "").strip()
+    if name and not re.fullmatch(r"[a-z0-9][a-z0-9-]*", name):
+        raise ConfigError(f"PASSAGEWAY_INSTANCE must be lowercase letters, digits and hyphens, got {name!r}")
+    return name or None
 
 
-def default_data_dir() -> Path:
-    if sys.platform == "darwin":
-        return Path.home() / "Library" / "Application Support" / "passageway"
-    return Path.home() / ".local" / "share" / "passageway"
+def _suffix(instance: str | None) -> str:
+    return f"-{instance}" if instance else ""
+
+
+def default_config_path(instance: str | None = None) -> Path:
+    return Path.home() / ".config" / f"passageway{_suffix(instance)}" / "passageway.toml"
+
+
+def default_data_dir(instance: str | None = None) -> Path:
+    """The data folder; an instance gets its own next to the shared one, which keeps the built-in models."""
+    base = Path.home() / "Library" / "Application Support" if sys.platform == "darwin" else Path.home() / ".local" / "share"
+    return base / f"passageway{_suffix(instance)}"
 
 
 def _int(env: Mapping[str, str], key: str, default: int) -> int:
@@ -246,12 +260,14 @@ def load_config(env: Mapping[str, str], *, require_password: bool = True) -> Con
         except ValueError as e:
             raise ConfigError(f"PASSAGEWAY_BASE_URL={base_url!r} is not a valid OAuth issuer "
                               f"(https, no query or fragment; plain http only for localhost): {e}") from None
-    config_path = Path(env.get("PASSAGEWAY_CONFIG") or default_config_path())
+    instance = instance_name(env)
+    config_path = Path(env.get("PASSAGEWAY_CONFIG") or default_config_path(instance))
     connectors, embedder, embedders = _load_toml(config_path, env)
-    data_dir = Path(env.get("PASSAGEWAY_DATA_DIR") or default_data_dir())
+    data_dir = Path(env.get("PASSAGEWAY_DATA_DIR") or default_data_dir(instance))
+    models_root = Path(env.get("PASSAGEWAY_DATA_DIR") or default_data_dir())
     return Config(
-        password=password, connectors=connectors, data_dir=data_dir,
-        model_dir=Path(env.get("PASSAGEWAY_MODEL_DIR") or data_dir / "models" / "e5-small"),
+        password=password, connectors=connectors, data_dir=data_dir, instance=instance, models_root=models_root,
+        model_dir=Path(env.get("PASSAGEWAY_MODEL_DIR") or models_root / "models" / "e5-small"),
         base_url=base_url, host=env.get("PASSAGEWAY_HOST", "127.0.0.1"),
         port=_int(env, "PASSAGEWAY_PORT", 8082), poll_seconds=_int(env, "PASSAGEWAY_POLL_SECONDS", 60),
         reconcile_seconds=_int(env, "PASSAGEWAY_RECONCILE_SECONDS", 1800),

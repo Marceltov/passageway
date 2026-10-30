@@ -171,7 +171,7 @@ def model_folder(cfg: EmbedderConfig, config) -> Path:
         return cfg.model_dir
     if cfg.model == DEFAULT_PRESET:
         return config.model_dir
-    return model_folder_for(cfg.model, config.data_dir, None)
+    return model_folder_for(cfg.model, config.models_root or config.data_dir, None)
 
 
 def build_embedder(cfg: EmbedderConfig, config, label: str = "default") -> Embedder:

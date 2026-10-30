@@ -11,6 +11,8 @@ Five links in the chain can fail, and the symptom is the same for all of them: C
 
 Free text (a URL, a path) is asked in the chat, never through a choice prompt. Usually nothing needs asking: the URL is in the hook config.
 
+**Several instances.** A machine may run several passageway servers side by side, one per Claude setup (https://passageway.marceltov.de/configuration/#several-instances). Instance `<name>` lives in `~/.config/passageway-<name>/` (its `passageway.toml`, `password` and `env`), listens on its own port, runs as the service `de.marceltov.passageway.<name>` (macOS, log `~/Library/Logs/passageway-<name>.log`) or `passageway-<name>` (Linux), and `/health` names it under `instance`. Wherever this skill says `~/.config/passageway`, the service, the log or port 8082, use the instance's. `ls -d ~/.config/passageway*/` lists them. Check every instance this Claude is connected to: one hook file each (`passageway.json`, `passageway-<name>.json`) whose URL's `/health` names it, and one MCP server each (`passageway`, `passageway-<name>`).
+
 ## The chain, in order
 
 1. **The server, asked directly.** Call the MCP tool `status` (server `passageway`). It returns `status` (`ok`, `starting`, `degraded`, `error`), each source with `items`, `sections`, `last_ok` and `last_error`, the `embedder` with its `last_error`, and the `version`. Read it back in one line per source, plain words: "notes: 1,240 items, synced 3 minutes ago" or "wiki: failing since 09:10: <the error>". If the tool itself is not available, the MCP registration is the broken link: go to step 4, then come back.
