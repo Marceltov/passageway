@@ -90,6 +90,12 @@ def test_health_is_indented_for_people_reading_it_with_curl(client):
         assert c.get("/health").text.startswith('{\n  "status"')
 
 
+def test_health_names_the_instance(engine):
+    engine.config.instance = "work"
+    with TestClient(build_app(engine, background=False)) as c:
+        assert c.get("/health").json()["instance"] == "work"
+
+
 def test_error_app_reports_the_problem():
     with TestClient(build_error_app("bad config")) as c:
         assert c.get("/health").status_code == 503 and c.post("/recall", json={}).status_code == 503

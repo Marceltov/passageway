@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "passageway-sdk"
-version = "0.2.5"
+version = "0.2.6"
 description = "Write a passageway connector as three small functions: the protocol plumbing is done for you"
 requires-python = ">=3.12"
 license = "AGPL-3.0-or-later"

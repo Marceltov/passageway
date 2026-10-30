@@ -148,7 +148,8 @@ class Engine:
             status = "starting"
         else:
             status = "ok"
-        return {"status": status, "sources": sources, "embedder": embedder, "version": VERSION}
+        return {"status": status, "instance": self.config.instance, "sources": sources, "embedder": embedder,
+                "version": VERSION}
 
 
 # -- auth ---------------------------------------------------------------------------------------

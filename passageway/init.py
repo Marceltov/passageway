@@ -5,7 +5,7 @@ import secrets
 import sys
 from pathlib import Path
 
-from passageway.config import default_config_path
+from passageway.config import ConfigError, default_config_path, instance_name
 
 SAMPLE = '''# passageway.toml: one [[connector]] per source. Secrets are references to environment variables, never values.
 # Documentation: https://passageway.marceltov.de/configuration/
@@ -24,7 +24,12 @@ def main(argv: list[str], env=None, stdout=None) -> int:
         print("usage: passageway init  (creates the configuration folder with a generated password and a passageway.toml "
               "to fill in; it keeps what is there)", file=stdout)
         return 0 if argv in (["--help"], ["-h"]) else 2
-    config = Path(env.get("PASSAGEWAY_CONFIG") or default_config_path())
+    try:
+        instance = instance_name(env)
+    except ConfigError as e:
+        print(f"init: {e}", file=stdout)
+        return 2
+    config = Path(env.get("PASSAGEWAY_CONFIG") or default_config_path(instance))
     folder = config.parent
     folder.mkdir(parents=True, exist_ok=True)
     try:
@@ -44,7 +49,8 @@ def main(argv: list[str], env=None, stdout=None) -> int:
     else:
         config.write_text(SAMPLE.format(python=sys.executable))
         print(f"{config}: written, fill in your connectors", file=stdout)
-    print(f"\nThen start the server:\n  PASSAGEWAY_LOGIN_PASSWORD_FILE={password} passageway", file=stdout)
+    prefix = f"PASSAGEWAY_INSTANCE={instance} PASSAGEWAY_PORT=<a free port> " if instance else ""
+    print(f"\nThen start the server:\n  {prefix}PASSAGEWAY_LOGIN_PASSWORD_FILE={password} passageway", file=stdout)
     print("and connect Claude Code with /passageway-connect (https://passageway.marceltov.de/guides/claude-code/)", file=stdout)
     return 0
 

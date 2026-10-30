@@ -27,6 +27,15 @@ curl -s https://api.github.com/repos/Marceltov/passageway/releases/latest | pyth
 
 `<tag>` below is the latest release, e.g. `v0.2.4`.
 
+**Several instances** (https://passageway.marceltov.de/configuration/#several-instances). One installation can run several servers side by side, one per Claude setup, each with its own sources, password and port. `ls -d ~/.config/passageway*/` lists what exists: `~/.config/passageway/` is the default instance, `~/.config/passageway-<name>/` instance `<name>`. When the user wants a separate passageway for this Claude (work, a customer), ask for a name (lowercase letters, digits, hyphens) and install that instance: the installation (step 2) is shared, steps 3 to 7 are per instance, with these differences:
+
+- Prefix every `passageway` command with `PASSAGEWAY_INSTANCE=<name>`; `passageway init` then writes `~/.config/passageway-<name>/`.
+- Pick a free port from 8083 up (`lsof -nP -iTCP:<port> -sTCP:LISTEN` prints nothing for a free one).
+- The service is `de.marceltov.passageway.<name>` (file `~/Library/LaunchAgents/de.marceltov.passageway.<name>.plist`, log `~/Library/Logs/passageway-<name>.log`) or `passageway-<name>.service`. Its environment adds `PASSAGEWAY_INSTANCE=<name>` and `PASSAGEWAY_PORT=<port>`, and the password and env file paths use `passageway-<name>`.
+- `/health` on that port names the instance under `instance`. Connect only this Claude to it; which Claude uses which instance is the user's responsibility, and each Claude keeps its connection in its own `CLAUDE_CONFIG_DIR`.
+
+The built-in model is shared, so a second instance does not download it again.
+
 ## Install
 
 1. `uv --version`; without uv: `curl -LsSf https://astral.sh/uv/install.sh | sh` (ask first, it changes the user's shell setup), or `brew install uv`.
@@ -96,5 +105,5 @@ curl -s https://api.github.com/repos/Marceltov/passageway/releases/latest | pyth
 ## Upgrade
 
 1. Take the connectors from `uv tool list --show-with` (each `passageway-connector-<name>`) and run the `uv tool install` command from step 2 with exactly those, at `<tag>`, plus `--reinstall`. Leaving one out would uninstall it and break its source.
-2. Restart the service with the platform's restart command (step 5). Nothing in `~/.config/passageway/` changes.
+2. Restart the service of every instance (step 5; `ls -d ~/.config/passageway*/` lists them), since they all run from this installation. Nothing in their config folders changes.
 3. Wait for `/health` to be `"ok"` again, check that `uv tool list` shows the new version, and tell the user: from which version to which, and the release notes link `https://github.com/Marceltov/passageway/releases/tag/<tag>`.

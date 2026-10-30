@@ -20,6 +20,8 @@ There is no hook and no `claude` CLI there. Add a custom connector (*Customize â
 
 Free text (a URL, a folder, a space key, a name) is asked in the chat, never through a choice prompt; a choice prompt is only for real alternatives (which source, which operation).
 
+**Several instances.** A machine may run several passageway servers side by side, one per Claude setup (https://passageway.marceltov.de/configuration/#several-instances). Instance `<name>` lives in `~/.config/passageway-<name>/` (its `passageway.toml`, `password` and `env`), listens on its own port, runs as the service `de.marceltov.passageway.<name>` (macOS, log `~/Library/Logs/passageway-<name>.log`) or `passageway-<name>` (Linux), and `/health` names it under `instance`. Wherever this skill says `~/.config/passageway`, the service, the log or port 8082, use the instance's. `ls -d ~/.config/passageway*/` lists them. Connect this Claude to the instances the user names (with several and no name, ask); one Claude may use several. Each connected instance is one hook file and one MCP server: `passageway.json` and `passageway` for the default instance, `passageway-<name>.json` and `passageway-<name>` for instance `<name>`. The hook asks every one of them and joins their passages. All of it lives in this Claude's own `CLAUDE_CONFIG_DIR`, so other Claude setups keep theirs; which Claude sees which instance is the user's choice, and this skill connects only what the user named.
+
 ## Determine the operation
 
 **Add** (default), **check**, or **remove**.
@@ -34,18 +36,22 @@ Free text (a URL, a folder, a space key, a name) is asked in the chat, never thr
    dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/passageway"
    (umask 077 && mkdir -p "$dir" && python3 -c 'import json,sys; json.dump({"url": sys.argv[1], "token": open(sys.argv[2]).read().strip()}, open(sys.argv[3], "w"))' "<url>" "$HOME/.config/passageway/password" "$dir/passageway.json" && chmod 600 "$dir/passageway.json")
    ```
+
+   For instance `<name>`: the password from `~/.config/passageway-<name>/password`, the file `$dir/passageway-<name>.json`. Writing it leaves the other instances' files alone.
 4. Register the MCP server (user scope), again reading the password from the file:
 
    ```bash
    claude mcp add --transport http passageway "<url>/mcp" -H "Authorization: Bearer $(cat ~/.config/passageway/password)" -s user
    ```
 
+   For instance `<name>`: the server name `passageway-<name>` and its password file.
+
 5. Tell the user: the hook works from the next prompt in a new session; `recall` is available as a tool right away. A trilium-recall hook config (`plugin-data/trilium-recall/recall.json`) keeps working until it is replaced.
 
 ## Check
 
-`curl -s <url>/health` for the server; `test -f "$dir/passageway.json"` (do not print it); `claude mcp list` shows `passageway`. Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/test-recall-hook.sh"` to check the hook itself against a stub.
+`curl -s <url>/health` for each server; `ls "$dir"/passageway*.json` for the hook files (do not print them); `claude mcp list` shows `passageway` and each `passageway-<name>`. Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/test-recall-hook.sh"` to check the hook itself against a stub.
 
 ## Remove
 
-Delete `$dir/passageway.json` and run `claude mcp remove passageway -s user`. The server keeps running; this only disconnects Claude Code.
+Delete `$dir/passageway.json` and run `claude mcp remove passageway -s user`; for instance `<name>`, `$dir/passageway-<name>.json` and `passageway-<name>`. The server keeps running; this only disconnects this Claude from it.
