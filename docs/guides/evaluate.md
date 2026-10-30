@@ -4,6 +4,8 @@
 
 ## Write the questions
 
+In Claude Code, `/passageway-evaluate` from the [plugin](claude-code.md) does this with you: it drafts questions per area of your sources, confirms the right note for each through `recall`, writes the file and reads the result back. The rest of this page is what it does, for doing it by hand.
+
 A cases file is TOML. Each `[[case]]` is a question and the answers that count as right.
 
 ```toml

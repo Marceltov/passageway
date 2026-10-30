@@ -18,6 +18,8 @@ The connection is two pieces, both written by this skill: the hook's config file
 
 There is no hook and no `claude` CLI there. Add a custom connector (*Customize → Connectors → Add custom connector*) with the server's public HTTPS URL ending in `/mcp`. claude.ai opens the server's login page; the password is the server's `PASSAGEWAY_LOGIN_PASSWORD`. This needs `PASSAGEWAY_BASE_URL` set on the server: without it, the connector gets a 401 and no login page. Everything below applies to Claude Code.
 
+Free text (a URL, a folder, a space key, a name) is asked in the chat, never through a choice prompt; a choice prompt is only for real alternatives (which source, which operation).
+
 ## Determine the operation
 
 **Add** (default), **check**, or **remove**.

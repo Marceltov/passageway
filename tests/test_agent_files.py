@@ -354,3 +354,26 @@ def test_the_status_skill_reads_the_status_tool_and_checks_the_whole_chain():
     assert "passageway-status" in (ROOT / "scripts" / "publish-skills.sh").read_text()
     assert "/passageway-status" in GENERAL.read_text() and "/passageway-status" in (ROOT / "docs" / "guides" / "claude-code.md").read_text()
     assert "`status`" in (ROOT / "docs" / "configuration.md").read_text(), "the tool is documented next to /health"
+def test_the_evaluate_skill_explains_itself_and_guides_the_questions():
+    skill = ROOT / "skills" / "passageway-evaluate" / "SKILL.md"
+    meta = frontmatter(skill)
+    assert meta["name"] == "passageway-evaluate" and len(meta["description"]) > 40
+    text = skill.read_text()
+    for needed in ("**What:**", "**Why:**", "**When:**", "**How:**",                      # said to the user before anything runs
+                   "the last five things", "from the title only", "near-miss", "three words",  # the question workshop and its rule
+                   "`recall`", "cases.toml", "expect = [", "group = ",
+                   "passageway eval ", "--data-dir", "--sweep", "eval compare", "--write", "--include-cases",
+                   "hit@3", "silence", "interval", "https://passageway.marceltov.de/llms.txt", "llms-full.txt"):
+        assert needed in text, needed
+    assert "/passageway-evaluate" in json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())["description"]
+    assert "passageway-evaluate" in (ROOT / "scripts" / "publish-skills.sh").read_text()
+    assert "/passageway-evaluate" in GENERAL.read_text()
+    assert "/passageway-evaluate" in (ROOT / "docs" / "guides" / "evaluate.md").read_text()
+    assert "/passageway-evaluate" in (ROOT / "docs" / "guides" / "claude-code.md").read_text()
+
+
+def test_every_skill_asks_for_free_text_in_the_chat_not_through_a_choice_prompt():
+    for path in sorted((ROOT / "skills").glob("*/SKILL.md")):
+        if path.parent.name in ("passageway", "create-passageway-connector"):
+            continue  # a guide and a build recipe: they do not interview the user
+        assert "in the chat, never through a choice prompt" in path.read_text(), path
