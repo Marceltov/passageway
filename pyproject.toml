@@ -11,7 +11,7 @@ license = "AGPL-3.0-or-later"
 dependencies = [
     "fastmcp>=3.0.0",
     "httpx>=0.28.1",
-    "mcp-login-oauth",
+    "mcp-login-oauth>=0.2.1",
     "numpy>=2.0",
     "onnxruntime>=1.20",
     "pyyaml>=6.0",
@@ -33,7 +33,6 @@ exclude = ["corpus"]  # CC BY-SA text, not part of the AGPL package
 packages = ["passageway"]
 
 [tool.uv.sources]
-mcp-login-oauth = { git = "https://github.com/Marceltov/mcp-login-oauth", rev = "v0.1.1" }
 passageway-connector-wikipedia = { workspace = true }
 passageway-connector-markdown = { workspace = true }
 passageway-connector-trilium = { workspace = true }
