@@ -32,7 +32,7 @@ secrets = { TOKEN = "env:CONFLUENCE_TOKEN" }
 | `MAX_PAGES` | `5000` | Upper bound on the spaces together; more fails with a message instead of indexing a subset |
 | `TIMEOUT` | `30` | Seconds per request |
 | `PAUSE_SECONDS` | `0` | Pause between requests, for a busy server |
-| `VERIFY_TLS` | `true` | `false` accepts a self-signed certificate (prefer adding the CA to your trust store) |
+| `VERIFY_TLS` | `true` | `false` turns certificate checking off. A CA your operating system trusts already works without it (see [Certificates](https://passageway.marceltov.de/configuration/#certificates)), so prefer adding the CA there |
 
 ## Behaviour
 

@@ -8,6 +8,7 @@ import hashlib
 import json
 import math
 import os
+import ssl
 import sys
 import time
 from collections.abc import Mapping
@@ -17,6 +18,7 @@ from typing import TextIO
 from urllib.parse import urlparse
 
 import httpx
+import truststore
 
 PROVIDERS = {"openai": "https://api.openai.com/v1", "voyage": "https://api.voyageai.com/v1"}
 CLOUD_HOSTS = {"api.openai.com", "api.voyageai.com"}
@@ -109,7 +111,8 @@ class Embedder:
         self.s = settings
         self._sleep = sleep
         headers = {"Authorization": f"Bearer {settings.api_key}"} if settings.api_key else {}
-        self._http = httpx.Client(headers=headers, timeout=settings.timeout, follow_redirects=False)
+        self._http = httpx.Client(headers=headers, timeout=settings.timeout, follow_redirects=False,
+                                  verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT))
         self._dim = settings.dimensions
 
     def _mask(self, text: str) -> str:

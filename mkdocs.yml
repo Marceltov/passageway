@@ -49,6 +49,8 @@ nav:
       - adr/0003-json-lines-over-a-subprocess-stays.md
       - adr/0004-no-summary-for-source-substitution.md
       - adr/0005-confluence-data-center-first.md
+      - adr/0006-https-trusts-the-system-store.md
+      - adr/0006-https-trusts-the-system-store.md
 
 theme:
   name: material

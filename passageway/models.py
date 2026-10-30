@@ -3,11 +3,14 @@
 import hashlib
 import platform
 import shutil
+import ssl
 import sys
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
+
+import truststore
 
 HUB = "https://huggingface.co"
 USER_AGENT = "passageway (+https://github.com/Marceltov/passageway)"
@@ -113,7 +116,8 @@ def download(preset: Preset, folder: Path, *, base_url: str | None = None, repor
             if report:
                 report(f"downloading {preset.repo}/{remote}")
             try:
-                with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": USER_AGENT}), timeout=60) as r, \
+                with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": USER_AGENT}), timeout=60,
+                                            context=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)) as r, \
                         open(tmp / name, "wb") as out:
                     expected = r.headers.get("Content-Length")
                     shutil.copyfileobj(r, out, 1 << 20)

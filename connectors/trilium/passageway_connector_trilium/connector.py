@@ -8,12 +8,14 @@ links in the text become links. Nothing source-specific reaches the core.
 import hashlib
 import json
 import re
+import ssl
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from urllib.parse import urlparse
 
 import httpx
+import truststore
 from passageway_sdk import Connector, SettingsError, SourceError
 
 from passageway_connector_trilium.html import html_to_sections
@@ -67,7 +69,7 @@ class Etapi:
 
     def __init__(self, settings: Settings):
         self._http = httpx.Client(base_url=settings.url + "/etapi", headers={"Authorization": settings.token},
-                                  timeout=settings.timeout)
+                                  timeout=settings.timeout, verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT))
 
     def _get(self, path: str, **params) -> httpx.Response:
         response = self._http.get(path, params=params)
