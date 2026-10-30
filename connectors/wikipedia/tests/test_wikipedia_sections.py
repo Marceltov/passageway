@@ -46,3 +46,11 @@ def test_skip_none_keeps_everything_and_german_boilerplate_is_skipped_by_default
 
 def test_no_text_means_no_sections():
     assert split_sections("", DEFAULT_SKIP) == [] and split_sections("  \n ", DEFAULT_SKIP) == []
+
+
+def test_formulas_are_indexed_as_their_tex_without_the_mathml_tokens():
+    extract = ("A right triangle has\n\n  \n    \n      \n        a\n        2\n      \n      +\n        c\n      \n"
+               "    \n    {\\displaystyle a^{2}+c}\n  \nas its sides.\n\n== Proof ==\nf⁡x holds.")
+    assert split_sections(extract, frozenset()) == [
+        {"heading": None, "text": "A right triangle has\n\n$a^{2}+c$\n\nas its sides."},
+        {"heading": "Proof", "text": "fx holds."}]

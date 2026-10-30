@@ -12,7 +12,7 @@ What is planned and what has shipped, from the [trilium-recall](https://github.c
 
 ## Parked
 
-Considered and wanted, not needed yet: publishing the SDK and the connectors to PyPI ([#28](https://github.com/Marceltov/passageway/issues/28), waits for a dependency that is not on PyPI); cleaning the formulas in the live Wikipedia connector the way the sample corpus does ([#33](https://github.com/Marceltov/passageway/issues/33)); a reranker, and charts in evaluation reports, until a measurement shows what they would add ([V3](values.md#v3-numbers-are-measured-never-tuned)).
+Considered and wanted, not needed yet: publishing the SDK and the connectors to PyPI ([#28](https://github.com/Marceltov/passageway/issues/28), waits for a dependency that is not on PyPI); a reranker, and charts in evaluation reports, until a measurement shows what they would add ([V3](values.md#v3-numbers-are-measured-never-tuned)).
 
 ## Decided against
 
