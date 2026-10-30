@@ -5,7 +5,7 @@ description: "Create a passageway connector, a small program that lists the item
 
 # Create a passageway connector
 
-A connector is any program that tells passageway what exists in a source, what is in it and, optionally, what changed. passageway runs it as `<command> <mode>`, reads one JSON object per line from stdout, and stores nothing from a call that fails. Reference: https://passageway.marceltov.de/reference/connector-protocol/. The whole documentation as one file: https://passageway.marceltov.de/llms-full.txt.
+A connector is any program that tells passageway what exists in a source, what is in it and, optionally, what changed. passageway runs it as `<command> <mode>`, reads one JSON object per line from stdout, and stores nothing from a call that fails. Reference: https://passageway.marceltov.de/reference/connector-protocol/. The whole documentation as one file: https://passageway.marceltov.de/llms-full.txt; the index https://passageway.marceltov.de/llms.txt lists every page with its markdown address. Fetch the page for what you touch before acting on it.
 
 ## Steps
 

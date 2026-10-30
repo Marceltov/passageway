@@ -262,9 +262,9 @@ def test_the_hook_self_test_passes():
 
 
 def test_the_setup_skill_has_frontmatter_and_never_asks_to_paste_the_password():
-    skill = ROOT / "skills" / "passageway-setup" / "SKILL.md"
+    skill = ROOT / "skills" / "passageway-connect" / "SKILL.md"
     meta = frontmatter(skill)
-    assert meta["name"] == "passageway-setup" and meta["description"]
+    assert meta["name"] == "passageway-connect" and meta["description"]
     text = skill.read_text()
     assert "Never print the password" in text and "/health" in text and "claude mcp add" in text
 
@@ -298,3 +298,44 @@ def test_ci_validates_the_plugin_and_each_job_runs_only_when_its_inputs_changed(
         assert "changes" in jobs[name]["needs"] and "needs.changes.outputs." in jobs[name]["if"], name
     filters = next(step for step in jobs["changes"]["steps"] if "paths-filter" in str(step.get("uses", "")))["with"]["filters"]
     assert ".github/workflows/checks.yml" in filters, "a change to the workflow itself runs everything"
+def test_the_add_source_skill_writes_passageway_toml_with_secrets_as_references():
+    skill = ROOT / "skills" / "passageway-add-source" / "SKILL.md"
+    meta = frontmatter(skill)
+    assert meta["name"] == "passageway-add-source" and len(meta["description"]) > 40
+    text = skill.read_text()
+    for needed in ("[[connector]]", "env:", "/health", "Never print", "never ask",
+                   "passageway_connector_markdown", "passageway_connector_trilium", "passageway_connector_confluence",
+                   "passageway_connector_wikipedia", "PASSAGEWAY_CONFIG", "tomllib"):
+        assert needed in text, needed
+    assert not re.search(r"(api[_ -]?key|token|password)\s*[:=]\s*(?!\"?env:)\S{12,}", text.lower())
+    # it is shipped, published with the other skills, and the setup skill and the guides point at it
+    assert "/passageway-add-source" in json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())["description"]
+    assert "passageway-add-source" in (ROOT / "scripts" / "publish-skills.sh").read_text()
+    assert "/passageway-add-source" in (ROOT / "docs" / "guides" / "claude-code.md").read_text()
+    assert "/passageway-add-source" in GENERAL.read_text()
+
+
+def test_every_skill_says_where_the_documentation_is_and_how_to_read_it():
+    for path in sorted((ROOT / "skills").glob("*/SKILL.md")):
+        text = path.read_text()
+        assert "https://passageway.marceltov.de/llms.txt" in text and "llms-full.txt" in text, path
+
+
+def test_the_install_skill_runs_the_server_as_a_service_and_the_other_skills_use_it():
+    skill = ROOT / "skills" / "passageway-install" / "SKILL.md"
+    meta = frontmatter(skill)
+    assert meta["name"] == "passageway-install" and len(meta["description"]) > 40
+    text = skill.read_text()
+    for needed in ("uv tool install", "passageway init", "launchctl bootstrap", "systemctl --user", "EnvironmentFile",
+                   "PASSAGEWAY_LOGIN_PASSWORD_FILE", "/health", "Never print", "never ask", "chmod 600", "/passageway-connect"):
+        assert needed in text, needed
+    assert not re.search(r"(api[_ -]?key|token|password)\s*[:=]\s*(?!\"?env:)\S{12,}", text.lower())
+    connect = (ROOT / "skills" / "passageway-connect" / "SKILL.md").read_text()
+    assert "/passageway-install" in connect and "never start it yourself" not in connect
+    add_source = (ROOT / "skills" / "passageway-add-source" / "SKILL.md").read_text()
+    assert "launchctl kickstart" in add_source and "systemctl --user restart" in add_source and "/passageway-install" in add_source
+    assert "/passageway-install" in json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())["description"]
+    assert "passageway-install" in (ROOT / "scripts" / "publish-skills.sh").read_text()
+    assert "/passageway-install" in GENERAL.read_text() and "/passageway-install" in (ROOT / "docs" / "guides" / "claude-code.md").read_text()
+    # the service reads the connectors' secrets from one file only the user can read, documented on the deploy page
+    assert ".config/passageway/env" in (ROOT / "docs" / "deploy.md").read_text()

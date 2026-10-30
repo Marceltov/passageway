@@ -1,5 +1,5 @@
 ---
-name: passageway-setup
+name: passageway-connect
 description: "Connect Claude Code to a running passageway server: set its URL and password once, so the prompt hook adds relevant passages from the user's sources automatically and the recall MCP tool is registered. Use when the user wants to connect, check or remove the passageway hook or MCP server in Claude Code."
 ---
 
@@ -9,6 +9,8 @@ passageway is a retrieval server next to the user's sources (docs: https://passa
 
 - a **prompt hook** (`UserPromptSubmit`, shipped with this plugin) that sends each prompt to the server and adds up to three short passages to the context when something relevant exists, and nothing otherwise;
 - the **`recall` MCP tool** (server name `passageway`), for searching on purpose mid-task.
+
+**Documentation:** the index https://passageway.marceltov.de/llms.txt lists every page with its markdown address; the whole documentation is one file, https://passageway.marceltov.de/llms-full.txt. Before you act on something this skill only names (a connector's settings, a configuration key, a deploy step), fetch its page and work from it, not from memory.
 
 The connection is two pieces, both written by this skill: the hook's config file `passageway.json` in the plugin data folder, and the MCP server registration. Never print the password.
 
@@ -23,7 +25,7 @@ There is no hook and no `claude` CLI there. Add a custom connector (*Customize â
 ## Add
 
 1. Ask for the server URL (for example `http://127.0.0.1:8082` for a local server, or `https://passageway.example` for a sidecar, no path) and the `PASSAGEWAY_LOGIN_PASSWORD` the server was started with. A local server set up with `passageway init` keeps it in `~/.config/passageway/password`: read it from there with a command, do not ask the user to paste it. If the user does not know it, it is in the server's environment (its compose file or secret store).
-2. Check it: `curl -s <url>/health`. Expect JSON with `"status": "ok"` (or `"starting"` while the first index build runs). `"error"` names the misconfiguration; stop and report it.
+2. Check it: `curl -s <url>/health`. Expect JSON with `"status": "ok"` (or `"starting"` while the first index build runs). `"error"` names the misconfiguration; stop and report it. Nothing listening on a local URL means the server is not installed or not running: run `/passageway-install`, which installs it and runs it as a service (launchd or systemd) that reads the password from the file, then come back here. A `passageway.toml` without a `[[connector]]` serves an empty index: `/passageway-add-source` adds one.
 3. Write the hook config, readable only by the user, into `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/passageway/` (the hook reads this folder as well as the plugin's own data folder). Put the password in a file first (`passageway init` already did, at `~/.config/passageway/password`), and read it from there, so that it is never typed:
 
    ```bash
