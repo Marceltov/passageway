@@ -58,7 +58,7 @@ One source failing to sync fails only its own sync, and a hanging connector dela
 
 **Rules out:** a server that crashes because a program it started misbehaved, errors swallowed into empty answers, a health check that says "ok" while a part is failing.
 
-**ADRs:** 0001, 0003.
+**ADRs:** 0001, 0003, 0008.
 
 ### V7. Secrets are references
 
