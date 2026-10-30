@@ -310,3 +310,23 @@ def test_every_skill_says_where_the_documentation_is_and_how_to_read_it():
     for path in sorted((ROOT / "skills").glob("*/SKILL.md")):
         text = path.read_text()
         assert "https://passageway.marceltov.de/llms.txt" in text and "llms-full.txt" in text, path
+
+
+def test_the_install_skill_runs_the_server_as_a_service_and_the_other_skills_use_it():
+    skill = ROOT / "skills" / "passageway-install" / "SKILL.md"
+    meta = frontmatter(skill)
+    assert meta["name"] == "passageway-install" and len(meta["description"]) > 40
+    text = skill.read_text()
+    for needed in ("uv tool install", "passageway init", "launchctl bootstrap", "systemctl --user", "EnvironmentFile",
+                   "PASSAGEWAY_LOGIN_PASSWORD_FILE", "/health", "Never print", "never ask", "chmod 600", "/passageway-connect"):
+        assert needed in text, needed
+    assert not re.search(r"(api[_ -]?key|token|password)\s*[:=]\s*(?!\"?env:)\S{12,}", text.lower())
+    connect = (ROOT / "skills" / "passageway-connect" / "SKILL.md").read_text()
+    assert "/passageway-install" in connect and "never start it yourself" not in connect
+    add_source = (ROOT / "skills" / "passageway-add-source" / "SKILL.md").read_text()
+    assert "launchctl kickstart" in add_source and "systemctl --user restart" in add_source and "/passageway-install" in add_source
+    assert "/passageway-install" in json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())["description"]
+    assert "passageway-install" in (ROOT / "scripts" / "publish-skills.sh").read_text()
+    assert "/passageway-install" in GENERAL.read_text() and "/passageway-install" in (ROOT / "docs" / "guides" / "claude-code.md").read_text()
+    # the service reads the connectors' secrets from one file only the user can read, documented on the deploy page
+    assert ".config/passageway/env" in (ROOT / "docs" / "deploy.md").read_text()

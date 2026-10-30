@@ -33,9 +33,9 @@ passageway indexes what its connectors report (docs: https://passageway.marcelto
    env = { URL = "http://127.0.0.1:8080" }
    secrets = { TOKEN = "env:TRILIUM_TOKEN" }
    ```
-4. For a `secrets` entry, tell the user which variable to set and where: the shell that starts the server, the `EnvironmentVariables` of the launchd plist, or `environment:` in compose (https://passageway.marceltov.de/deploy/). Do not set it yourself and do not ask for its value.
+4. For a `secrets` entry, the variable is set where the server starts: `~/.config/passageway/env` for the service (step 6), `environment:` in compose (https://passageway.marceltov.de/deploy/). Never ask for its value.
 5. Check the file parses: `<python> -c 'import tomllib,sys; tomllib.load(open(sys.argv[1],"rb"))' <file>`.
-6. Restart the server (the user does it for a foreground process; `launchctl kickstart -k gui/$(id -u)/de.marceltov.passageway` for the launchd service; `docker compose restart passageway` for the container). Then `curl -s <url>/health`: `"starting"` while the first index build runs, then `"ok"` with the source listed; `"error"` names the problem (a missing variable, an unreachable source). A big source takes minutes on the first build.
+6. If a `secrets` entry references a variable the server does not have yet, add `NAME=` to `~/.config/passageway/env` (0600; the service installed by `/passageway-install` reads it) and ask the user to fill the value in that file with their editor. Restart the server yourself: `launchctl kickstart -k gui/$(id -u)/de.marceltov.passageway` for the launchd service, `systemctl --user restart passageway` for systemd, `docker compose restart passageway` for the container; a server started by hand in a terminal is the user's to restart. Then `curl -s <url>/health`: `"starting"` while the first index build runs, then `"ok"` with the source listed; `"error"` names the problem (a missing variable, an unreachable source). A big source takes minutes on the first build.
 7. Say what was added and suggest a question the `recall` tool should now answer.
 
 ## Show

@@ -16,7 +16,7 @@ passageway indexes what **connectors** report and serves the best few passages f
 | If your human wants to... | Do this |
 |---|---|
 | **Understand what passageway is** | Explain it from this page; point to https://passageway.marceltov.de/how-it-works/ for the details. |
-| **Install and run it** | Follow [Install and run](#install-and-run). |
+| **Install and run it** | In Claude Code, the skill `/passageway-install` (https://passageway.marceltov.de/skills/passageway-install/SKILL.md) installs it and runs it as a service; otherwise follow [Install and run](#install-and-run). |
 | **Index a source** | Check whether a bundled connector fits (today: Wikipedia, https://passageway.marceltov.de/connectors/wikipedia/, a folder of markdown files, https://passageway.marceltov.de/connectors/markdown/, Trilium Notes, https://passageway.marceltov.de/connectors/trilium/, and Confluence Data Center, https://passageway.marceltov.de/connectors/confluence/); the skill `/passageway-add-source` (https://passageway.marceltov.de/skills/passageway-add-source/SKILL.md) writes its `[[connector]]` into `passageway.toml`; `/passageway-connect` links Claude Code to the server. Otherwise write one. |
 | **Write a connector** | Use the skill `create-passageway-connector`: https://passageway.marceltov.de/skills/create-passageway-connector/SKILL.md (or install the plugin, see below). |
 | **Fix something that does not work** | Start with `curl http://127.0.0.1:8082/health`, see [Tips for agents](#tips-for-agents). |
