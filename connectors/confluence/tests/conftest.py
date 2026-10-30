@@ -13,13 +13,14 @@ class World:
         seed(self.api)
         self.server = serve(self.api)
         self.url = f"http://127.0.0.1:{self.server.server_port}"
+        self.slept: list[float] = []
 
     def env(self, **extra):
         return {"URL": self.url, "SPACES": "OPS|HR", "TOKEN": self.api.token, "PAUSE_SECONDS": "0", **extra}
 
     def call(self, mode, stdin="", *, extra=(), **settings):
         out, err = io.StringIO(), io.StringIO()
-        code = Confluence.run(["confluence", mode, *extra], self.env(**settings), io.StringIO(stdin), out, err, sleep=lambda s: None)
+        code = Confluence.run(["confluence", mode, *extra], self.env(**settings), io.StringIO(stdin), out, err, sleep=self.slept.append)
         return code, [json.loads(line) for line in out.getvalue().splitlines()], err.getvalue()
 
     def ids(self, **settings):

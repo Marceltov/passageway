@@ -19,7 +19,9 @@ from passageway_sdk import Connector, SettingsError, SourceError
 from passageway_connector_confluence.html import html_to_sections
 
 PAGE = 100  # results per request (the API's usual maximum)
-MAX_ATTEMPTS = 5
+RETRY_BUDGET = 900  # seconds of waiting per request before giving up: a throttled Data Center takes minutes
+MAX_BACKOFF = 60  # the longest wait the connector picks itself
+MAX_RETRY_AFTER = 300  # the longest wait a Retry-After may ask for
 RETRY_STATUS = (429, 500, 502, 503, 504)
 FETCH_EXPAND = "body.storage,version,space,ancestors,metadata.labels"
 def _list(env: Mapping[str, str], key: str) -> tuple[str, ...]:
@@ -82,8 +84,10 @@ class Api:
                                   verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT) if s.verify else False)
 
     def get(self, path: str, **params) -> dict:
-        for attempt in range(MAX_ATTEMPTS):
-            wait = min(2 ** attempt, 30)
+        attempt, waited = 0, 0.0
+        while True:
+            attempt += 1
+            wait = min(2 ** (attempt - 1), MAX_BACKOFF)
             try:
                 response = self._http.get(path, params=params)
             except httpx.TransportError as e:
@@ -92,7 +96,7 @@ class Api:
                 if response.status_code in RETRY_STATUS:
                     reason = f"HTTP {response.status_code}"
                     try:
-                        wait = min(max(float(response.headers.get("Retry-After", wait)), 0), 30)
+                        wait = max(wait, min(float(response.headers.get("Retry-After", 0)), MAX_RETRY_AFTER))
                     except ValueError:
                         pass
                 elif response.status_code == 401:
@@ -109,9 +113,11 @@ class Api:
                     if not isinstance(data, dict):
                         raise SourceError(f"Confluence did not answer GET {path} with a JSON object")
                     return data
-            if attempt < MAX_ATTEMPTS - 1:
-                self._sleep(wait)
-        raise SourceError(f"giving up on GET {path} after {MAX_ATTEMPTS} attempts: {reason}")
+            if waited >= RETRY_BUDGET:
+                raise SourceError(f"giving up on GET {path} after {attempt} attempts and {waited:.0f} s of waiting: {reason}")
+            wait = min(wait, RETRY_BUDGET - waited)
+            self._sleep(wait)
+            waited += wait
 
     def paged(self, path: str, **params) -> Iterator[dict]:
         start, seen = 0, set()
