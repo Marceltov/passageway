@@ -68,7 +68,7 @@ The first start indexes every source, which can take a few minutes. Watch it wit
 curl http://127.0.0.1:8082/health
 ```
 
-`"status": "ok"` means every source is built, `"starting"` means one still is, and `"degraded"` means a source is failing. Add `-H 'Authorization: Bearer choose-one'` to the request to see why; a missing connector package, a wrong `command` path and an unreachable service all show up there. In Claude Code, `/passageway-status` reads the same report and says what to do.
+`"status": "ok"` means every source is built, `"indexing"` means one is still building its first index (the server already answers from what is indexed), and `"degraded"` means a source is failing. Each source has its own `state` (`ok`, `indexing`, `failing`) and, while it fetches, `fetched` and `of`: how far the build is. Add `-H 'Authorization: Bearer choose-one'` to the request to see why; a missing connector package, a wrong `command` path and an unreachable service all show up there. In Claude Code, `/passageway-status` reads the same report and says what to do.
 
 ## 5. Connect a client
 

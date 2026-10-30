@@ -48,7 +48,7 @@ def test_health_degrades_when_a_connector_fails(tmp_path):
     engine = make_engine(tmp_path, [DOC], fail="list")
     with TestClient(build_app(engine, background=False)) as c:
         body = c.get("/health", headers=OK).json()
-    assert body["status"] in ("degraded", "starting") and "fake failure" in str(body["sources"]["notes"]["last_error"])
+    assert body["status"] in ("degraded", "indexing") and "fake failure" in str(body["sources"]["notes"]["last_error"])
 
 
 def test_open_health_hides_connector_error_text(tmp_path):
@@ -216,3 +216,20 @@ async def test_error_app_status_tool_names_the_problem():
         status = json.loads((await c.call_tool("status", {})).data)
         tools = {t.name for t in await c.list_tools()}
     assert status == {"status": "error", "error": "bad config", "version": status["version"]} and tools == {"recall", "status"}
+
+
+def test_health_says_indexing_and_how_far_a_source_is(engine):
+    engine.ready["notes"] = False
+    engine.syncers["notes"].status.fetched, engine.syncers["notes"].status.to_fetch = 650, 1200
+    body = engine.health()
+    assert body["status"] == "indexing"
+    notes = body["sources"]["notes"]
+    assert (notes["state"], notes["fetched"], notes["of"]) == ("indexing", 650, 1200)
+
+
+def test_health_names_each_sources_state(tmp_path):
+    (tmp_path / "ok").mkdir(), (tmp_path / "bad").mkdir()
+    ok = make_engine(tmp_path / "ok", [DOC]).health()["sources"]["notes"]
+    failing = make_engine(tmp_path / "bad", [DOC], fail="list").health()["sources"]["notes"]
+    assert ok["state"] == "ok" and "fetched" not in ok and "of" not in ok
+    assert failing["state"] == "failing"

@@ -21,6 +21,8 @@ class SyncStatus:
     last_error: str | None = None
     items: int = 0
     sections: int = 0
+    fetched: int | None = None  # while a fetch runs: how many of `to_fetch` items have been asked for
+    to_fetch: int | None = None
 
 
 class Syncer:
@@ -54,19 +56,27 @@ class Syncer:
         known = self.index.versions()  # once: the batches are disjoint, so it cannot go stale between them
         batches = [ids[i:i + FETCH_BATCH] for i in range(0, len(ids), FETCH_BATCH)]
         changed, errors, in_a_row = 0, [], 0
-        for batch in batches:
-            # a batch stores all or nothing; one that fails (a page that never loads) must not keep the rest
-            # out, but two in a row mean the source is down: stop rather than wait out a timeout per batch
-            try:
-                fetched = self.connector.fetch(batch)
-            except ConnectorError as e:
-                errors.append(e)
-                in_a_row += 1
-                if in_a_row == 2:
-                    break
-                continue
-            in_a_row = 0
-            changed += self._apply(fetched, known)
+        self.status.fetched, self.status.to_fetch = 0, len(ids)  # /health shows how far a long build is
+        try:
+            for batch in batches:
+                # a batch stores all or nothing; one that fails (a page that never loads) must not keep the rest
+                # out, but two in a row mean the source is down: stop rather than wait out a timeout per batch
+                try:
+                    fetched = self.connector.fetch(batch)
+                except ConnectorError as e:
+                    errors.append(e)
+                    in_a_row += 1
+                    if in_a_row == 2:
+                        break
+                    continue
+                finally:
+                    self.status.fetched += len(batch)
+                    if len(batches) > 1:
+                        log.info("sync %s: fetched %d of %d", self.name, self.status.fetched, len(ids))
+                in_a_row = 0
+                changed += self._apply(fetched, known)
+        finally:
+            self.status.fetched = self.status.to_fetch = None
         if errors:
             stopped = ", stopped after two in a row" if in_a_row == 2 else ""
             raise ConnectorError(f"{errors[0]} ({len(errors)} of {len(batches)} fetch batches failed{stopped})")

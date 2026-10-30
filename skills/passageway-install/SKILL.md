@@ -99,7 +99,7 @@ The built-in model is shared, so a second instance does not download it again.
    ```
 
    Then `systemctl --user daemon-reload && systemctl --user enable --now passageway`; `loginctl enable-linger "$USER"` keeps it running when the user is logged out. Restart later with `systemctl --user restart passageway`; the log is `journalctl --user -u passageway`.
-6. Wait for `curl -s http://127.0.0.1:8082/health`: `"starting"` while the model is fetched (once, about 0.5 GB) and the first index is built, then `"ok"` with every source listed. `"error"` names the problem; the log has the rest. A missing value in the env file shows as a connector error naming the variable.
+6. Wait for `curl -s http://127.0.0.1:8082/health`: nothing answers while the model is fetched (once, about 0.5 GB; the log shows it), then `"indexing"` while the first index is built (each source's `fetched` and `of` say how far), then `"ok"` with every source listed. `"error"` names the problem; the log has the rest. A missing value in the env file shows as a connector error naming the variable.
 7. Connect Claude Code with `/passageway-connect` (it reads the password from the file). Tell the user what runs where: the service name, the config folder, the log, and that `/passageway-add-source` adds more sources later.
 
 ## Upgrade

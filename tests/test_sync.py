@@ -197,3 +197,19 @@ def test_two_failing_fetch_batches_in_a_row_stop_the_fetch(world, idx, monkeypat
     asked = _failing_fetch(s, monkeypatch, {"b", "c"})
     s.full_build()
     assert asked == ["a", "b", "c"] and set(idx.versions()) == {"a"} and "(b)" in s.status.last_error
+
+
+def test_a_running_fetch_reports_how_far_it_is(world, idx, monkeypatch):
+    world.set(items("a", "b", "c"))
+    s = syncer(world, idx)
+    import passageway.sync
+    monkeypatch.setattr(passageway.sync, "FETCH_BATCH", 1)
+    seen, real = [], s.connector.fetch
+
+    def fetch(ids):
+        seen.append((s.status.fetched, s.status.to_fetch))
+        return real(ids)
+    monkeypatch.setattr(s.connector, "fetch", fetch)
+    s.full_build()
+    assert seen == [(0, 3), (1, 3), (2, 3)]
+    assert (s.status.fetched, s.status.to_fetch) == (None, None)
