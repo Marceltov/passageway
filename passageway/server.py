@@ -150,14 +150,17 @@ class Engine:
         for name, syncer in self.syncers.items():
             items, sections = syncer.index.counts()
             st = syncer.status
-            sources[name] = {"items": items, "sections": sections,
+            state = "failing" if st.last_error else "ok" if self.ready[name] else "indexing"
+            sources[name] = {"state": state, "items": items, "sections": sections,
                                "last_ok": st.last_ok.isoformat() if st.last_ok else None,
                                "last_error": st.last_error}
+            if st.to_fetch is not None:
+                sources[name] |= {"fetched": st.fetched, "of": st.to_fetch}
         embedder = {"name": self.embedder.name, "dim": self.embedder.dim, "last_error": self.embedder_error}
         if any(v["last_error"] for v in sources.values()) or self.embedder_error:
             status = "degraded"
         elif not all(self.ready.values()):
-            status = "starting"
+            status = "indexing"
         else:
             status = "ok"
         return {"status": status, "instance": self.config.instance, "sources": sources, "embedder": embedder,
@@ -213,8 +216,9 @@ def build_oauth_provider(config: Config, **overrides) -> LoginOAuthProvider:
     return LoginOAuthProvider(**{**args, **overrides})
 
 
-STATUS_DESCRIPTION = ("How passageway is doing: status (ok, starting, degraded, error), each source with its item count, "
-                      "last successful sync and last error, the embedding model, and the version. Call it when recall "
+STATUS_DESCRIPTION = ("How passageway is doing: status (ok, indexing, degraded, error), each source with its state "
+                      "(ok, indexing, failing), item count, progress while it fetches, last successful sync and last "
+                      "error, the embedding model, and the version. Call it when recall "
                       "returns nothing it should, or when the user asks whether passageway is fine.")
 
 

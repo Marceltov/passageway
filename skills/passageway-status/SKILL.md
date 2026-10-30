@@ -15,8 +15,8 @@ Free text (a URL, a path) is asked in the chat, never through a choice prompt. U
 
 ## The chain, in order
 
-1. **The server, asked directly.** Call the MCP tool `status` (server `passageway`). It returns `status` (`ok`, `starting`, `degraded`, `error`), each source with `items`, `sections`, `last_ok` and `last_error`, the `embedder` with its `last_error`, and the `version`. Read it back in one line per source, plain words: "notes: 1,240 items, synced 3 minutes ago" or "wiki: failing since 09:10: <the error>". If the tool itself is not available, the MCP registration is the broken link: go to step 4, then come back.
-   - `starting`: the first index build or a model download is running; say so and how to watch it (the log, step 5). Not an error.
+1. **The server, asked directly.** Call the MCP tool `status` (server `passageway`). It returns `status` (`ok`, `indexing`, `degraded`, `error`), each source with its `state` (`ok`, `indexing`, `failing`), `items`, `sections`, `last_ok` and `last_error`, the `embedder` with its `last_error`, and the `version`. Read it back in one line per source, plain words: "notes: 1,240 items, synced 3 minutes ago" or "wiki: failing since 09:10: <the error>". If the tool itself is not available, the MCP registration is the broken link: go to step 4, then come back.
+   - `indexing`: a first index build is running; say so, how far it is (`fetched` of `of` for that source) and how to watch it (the log, step 5). Not an error.
    - `degraded` with a source error: the connector cannot reach its source or a secret is missing. The error names it (a host, a 401, a variable). A missing variable means `~/.config/passageway/env` lacks the line: `/passageway-add-source` writes it. After the fix, restart (step 2) and ask `status` again.
    - `degraded` with an embedder error: the model failed to load or the embedder program died; the log has the traceback.
    - `error`: the configuration did not load; the message says which key. Fix `passageway.toml`, restart.

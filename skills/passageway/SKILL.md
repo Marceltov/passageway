@@ -37,7 +37,7 @@ uv tool install \
 1. The embedding model (the multilingual e5-small) is fetched on first start, pinned and checksummed; `passageway model download` does it ahead of time. It lives in `<data dir>/models/e5-small` or the directory named by `PASSAGEWAY_MODEL_DIR`.sh`; https://passageway.marceltov.de/install/ has the steps.
 2. Create `~/.config/passageway/passageway.toml` with one `[[connector]]` per source. Secrets are references such as `env:NAME`, never values. A connector runs with an empty environment except `PATH` and `HOME`, so use the interpreter of the tool environment, `$(uv tool dir)/passageway/bin/python`.
 3. The human starts the server in their own shell or service manager, with `PASSAGEWAY_LOGIN_PASSWORD` set to a password they choose, by running `passageway`. You do not need that password and must not handle it.
-4. Check `GET http://127.0.0.1:8082/health`: `ok` is ready, `starting` is still building, `degraded` means a source is failing. The error text is shown only to a caller sending `Authorization: Bearer <password>`: the human runs that request and tells you what it says.
+4. Check `GET http://127.0.0.1:8082/health`: `ok` is ready, `indexing` is still building its first index, `degraded` means a source is failing. The error text is shown only to a caller sending `Authorization: Bearer <password>`: the human runs that request and tells you what it says.
 5. The human connects an MCP client to `http://127.0.0.1:8082/mcp` with that bearer password.
 
 Every setting is documented at https://passageway.marceltov.de/configuration/.
