@@ -23,7 +23,7 @@ There is no hook and no `claude` CLI there. Add a custom connector (*Customize â
 ## Add
 
 1. Ask for the server URL (for example `http://127.0.0.1:8082` for a local server, or `https://passageway.example` for a sidecar, no path) and the `PASSAGEWAY_LOGIN_PASSWORD` the server was started with. A local server set up with `passageway init` keeps it in `~/.config/passageway/password`: read it from there with a command, do not ask the user to paste it. If the user does not know it, it is in the server's environment (its compose file or secret store).
-2. Check it: `curl -s <url>/health`. Expect JSON with `"status": "ok"` (or `"starting"` while the first index build runs). `"error"` names the misconfiguration; stop and report it.
+2. Check it: `curl -s <url>/health`. Expect JSON with `"status": "ok"` (or `"starting"` while the first index build runs). `"error"` names the misconfiguration; stop and report it. Nothing listening on a local URL means the server is not running: never start it yourself (it runs in the foreground and needs the password), tell the user the command and wait: `PASSAGEWAY_LOGIN_PASSWORD_FILE=~/.config/passageway/password passageway` (`passageway --help` lists the commands; `passageway init` creates that folder). A `passageway.toml` without a `[[connector]]` serves an empty index: `/passageway-configure` adds one.
 3. Write the hook config, readable only by the user, into `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugin-data/passageway/` (the hook reads this folder as well as the plugin's own data folder). Put the password in a file first (`passageway init` already did, at `~/.config/passageway/password`), and read it from there, so that it is never typed:
 
    ```bash

@@ -1,4 +1,5 @@
 import io
+import sys
 import os
 import stat
 
@@ -49,3 +50,14 @@ def test_init_fixes_the_mode_of_a_kept_password_and_refuses_an_empty_one(tmp_pat
         load_config({"PASSAGEWAY_CONFIG": str(config), "PASSAGEWAY_LOGIN_PASSWORD_FILE": str(password), "PASSAGEWAY_DATA_DIR": str(tmp_path)})
     assert main(["--help"], env={"PASSAGEWAY_CONFIG": str(config)}, stdout=io.StringIO()) == 0
     assert main(["--bogus"], env={"PASSAGEWAY_CONFIG": str(config)}, stdout=io.StringIO()) == 2
+
+
+@pytest.mark.parametrize("arg,code", [("--help", 0), ("-h", 0), ("serve", 2)])
+def test_passageway_help_prints_the_usage_instead_of_serving(arg, code, capsys):
+    import passageway.server as server
+    sys.argv = ["passageway", arg]
+    with pytest.raises(SystemExit) as stop:
+        server.main()
+    out = capsys.readouterr()
+    assert stop.value.code == code
+    assert "PASSAGEWAY_LOGIN_PASSWORD_FILE" in out.out + out.err and "init" in out.out + out.err
