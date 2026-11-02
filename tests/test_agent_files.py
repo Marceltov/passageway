@@ -37,7 +37,7 @@ def python_block(path: Path) -> str:
 def test_the_plugin_manifests_are_valid_and_versioned_with_the_project():
     plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
     assert plugin["name"] == "passageway" and plugin["version"] == project_version()
-    assert plugin["license"] == "AGPL-3.0-or-later" and plugin["repository"].endswith("Marceltov/passageway")
+    assert plugin["license"] == "PolyForm-Noncommercial-1.0.0" and plugin["repository"].endswith("Marceltov/passageway")
     market = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text())
     assert market["plugins"][0]["name"] == "passageway" and market["plugins"][0]["source"] == "./"
 

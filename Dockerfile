@@ -35,7 +35,7 @@ COPY --from=builder /app /app
 COPY --from=model /models /models
 RUN useradd --system --create-home --uid 1000 passageway && mkdir -p /data /config && chown passageway /data
 LABEL org.opencontainers.image.source="https://github.com/Marceltov/passageway" \
-      org.opencontainers.image.licenses="AGPL-3.0-or-later"
+      org.opencontainers.image.licenses="PolyForm-Noncommercial-1.0.0"
 USER passageway
 
 ARG APP_VERSION=dev

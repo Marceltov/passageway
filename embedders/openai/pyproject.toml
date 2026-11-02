@@ -7,7 +7,7 @@ name = "passageway-embedder-openai"
 version = "0.1.0"
 description = "passageway embedder for OpenAI-compatible embedding services: Ollama, LM Studio, vLLM, OpenAI, Voyage"
 requires-python = ">=3.12"
-license = "AGPL-3.0-or-later"
+license = "PolyForm-Noncommercial-1.0.0"
 dependencies = ["httpx>=0.28.1", "truststore>=0.10"]
 
 [tool.hatch.build.targets.wheel]
