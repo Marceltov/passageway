@@ -291,3 +291,22 @@ def test_the_protocol_pages_and_schemas_are_mit_licensed():
 def test_outside_code_waits_for_a_contributor_licence_agreement():
     text = (ROOT / "CONTRIBUTING.md").read_text()
     assert "agreement" in text and "PolyForm" in text
+
+
+def test_the_front_page_carries_the_search_claim_and_the_licence_line():
+    index = (ROOT / "docs" / "index.md").read_text()
+    assert "The answer is somewhere in your wiki. passageway finds it." in index
+    for beat in ["On premise.", "Connected.", "Open."]:
+        assert beat in index
+    assert "Free for private use. Companies need a licence." in index
+    readme = (ROOT / "README.md").read_text()
+    assert "The answer is somewhere in your wiki. passageway finds it." in readme
+
+
+def test_the_licence_page_is_in_the_navigation_and_connectors_and_measurements_are_top_level():
+    nav = (ROOT / "mkdocs.yml").read_text().split("nav:")[1].split("\ntheme:")[0]
+    assert "licence.md" in nav
+    for entry in ["  - Connectors:", "  - Measurements: measurements.md"]:
+        assert entry in nav
+    licence = (ROOT / "docs" / "licence.md").read_text()
+    assert "PolyForm" in licence and "MIT" in licence and "AGPL" in licence  # who pays, what is MIT, what stays AGPL

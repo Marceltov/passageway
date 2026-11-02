@@ -6,18 +6,24 @@ hide:
 
 <div class="pw-hero" markdown>
 
-# Claude finds the right passage in your sources
+# The answer is somewhere in your wiki. passageway finds it.
 
-<p class="pw-hero__lead">passageway indexes what your connectors report and gives Claude the best few passages for a question, with links. When nothing is relevant enough, it says nothing.</p>
+<p class="pw-hero__lead">passageway searches across your wiki, notes and documentation and gives your agent exactly the passages that answer the question, each linked to its source.</p>
+
+**On premise.** Your knowledge stays on your infrastructure.<br>
+**Connected.** Confluence, Trilium, Markdown and Wikipedia work out of the box.<br>
+**Open.** A documented protocol lets you add any source or embedding model, in any language.
+
+Free for private use. Companies need a licence. [Details](licence.md)
 
 [Install and run](install.md){ .md-button .md-button--primary }
 [Write a connector](guides/write-a-connector.md){ .md-button }
 
 </div>
 
-## What it is
+## How it fits together
 
-passageway is the retrieval half of a RAG system, served as an MCP tool. It does no generation: the model that calls it reads the passages and writes the answer.
+passageway is the retrieval half of a RAG system, served as an MCP tool. It does no generation: the agent that calls it reads the passages and writes the answer.
 
 - **The core knows no source.** A connector is any executable that lists items and prints their text as JSON Lines. Anyone can write one, in any language.
 - **It is quiet on purpose.** A relevance gate lets it return nothing instead of padding a prompt with weak matches.

@@ -1,8 +1,16 @@
 # passageway
 
-Retrieval for Claude over MCP. passageway indexes what your **connectors** report, finds the best short passages for a question with keyword plus embedding search, and serves them as one `recall` tool. It stays silent when nothing is relevant enough. It does no generation: the calling model reads the passages.
+**The answer is somewhere in your wiki. passageway finds it.**
 
-The core knows no source. A connector is any executable that lists items and returns their text as JSON Lines; anyone can write one. An [eval harness](docs/guides/evaluate.md) (`passageway eval`) measures retrieval quality on your own questions, and compares embedding models, so you can publish the numbers.
+passageway searches across your wiki, notes and documentation and gives your agent exactly the passages that answer the question, each linked to its source.
+
+- **On premise.** Your knowledge stays on your infrastructure.
+- **Connected.** Confluence, Trilium, Markdown and Wikipedia work out of the box.
+- **Open.** A documented protocol lets you add any source or embedding model, in any language.
+
+Free for private use. Companies need a licence ([details](docs/licence.md)).
+
+It serves the passages as one `recall` tool over MCP, stays silent when nothing is relevant enough, and does no generation: the calling agent reads the passages. An [eval harness](docs/guides/evaluate.md) (`passageway eval`) measures retrieval quality on your own questions, so you can publish the numbers.
 
 - [Install and run](docs/install.md) and [configuration](docs/configuration.md)
 - [How it works](docs/how-it-works.md)
