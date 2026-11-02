@@ -280,3 +280,14 @@ def test_v8_says_source_available_and_who_pays():
     assert "Self-hosted and source-available" in v8 or "source-available" in v8
     assert "AGPL" not in v8 or "0.2" in v8  # AGPL only as the licence of the releases up to 0.2.x
     assert "companies" in v8
+
+
+def test_the_protocol_pages_and_schemas_are_mit_licensed():
+    for page in ["connector-protocol.md", "embedder-protocol.md", "sdk.md"]:
+        assert "MIT" in (ROOT / "docs" / "reference" / page).read_text(), page
+    assert (ROOT / "docs" / "reference" / "LICENSE").read_text().startswith("MIT License")
+
+
+def test_outside_code_waits_for_a_contributor_licence_agreement():
+    text = (ROOT / "CONTRIBUTING.md").read_text()
+    assert "agreement" in text and "PolyForm" in text

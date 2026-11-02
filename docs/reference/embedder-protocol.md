@@ -95,3 +95,5 @@ def test_my_embedder():
 ```
 
 `check_embedder` checks the dimension, finite numbers, unit length, determinism, the same vector alone and in a batch, and that the embedder tells a passage about lighthouses from one about bananas.
+
+*The protocol, its page and its JSON Schema are MIT licensed, so anyone may build on them without asking ([licence](LICENSE)).*

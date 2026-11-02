@@ -47,3 +47,5 @@ For connectors whose source is (or converts to) markdown:
 ## Testing
 
 `Connector.run(argv, env, stdin, stdout, stderr, **options)` runs one mode in-process and returns the exit code; `options` go to `__init__`. For the contract, run your script as a real subprocess with `passageway.testing.contract.check_connector`, as the [guide](../guides/write-a-connector.md) shows.
+
+*The SDK is MIT licensed ([licence](LICENSE)).*
