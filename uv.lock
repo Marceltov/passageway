@@ -943,10 +943,8 @@ name = "passageway-connector-confluence"
 version = "0.1.0"
 source = { editable = "connectors/confluence" }
 dependencies = [
-    { name = "httpx" },
-    { name = "passageway-sdk" },
+    { name = "passageway-sdk", extra = ["web"] },
     { name = "selectolax" },
-    { name = "truststore" },
 ]
 
 [package.dev-dependencies]
@@ -958,10 +956,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "passageway-sdk", editable = "sdk" },
+    { name = "passageway-sdk", extras = ["web"], editable = "sdk" },
     { name = "selectolax", specifier = ">=0.3.21" },
-    { name = "truststore", specifier = ">=0.10" },
 ]
 
 [package.metadata.requires-dev]

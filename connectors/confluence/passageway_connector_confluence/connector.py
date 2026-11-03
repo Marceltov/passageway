@@ -5,7 +5,6 @@ Written from the public REST documentation. Settings come from the environment a
 
 import hashlib
 import re
-import ssl
 import sys
 import time
 from collections.abc import Iterator, Mapping
@@ -13,9 +12,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlparse
 
-import httpx
-import truststore
 from passageway_sdk import Connector, SettingsError, SourceError
+from passageway_sdk.web import HttpError, Reply, Retry, Web
 from passageway_sdk.settings import names
 
 from passageway_connector_confluence.html import html_to_sections
@@ -78,48 +76,32 @@ class Api:
     """Read-only: only GET requests, by construction."""
 
     def __init__(self, s: Settings, sleep=time.sleep):
-        self.s, self._sleep = s, sleep
-        self._http = httpx.Client(base_url=s.url, headers={"Authorization": f"Bearer {s.token}"}, timeout=s.timeout,
-                                  verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT) if s.verify else False)
+        self.s = s
+        retry = Retry(statuses=RETRY_STATUS, network=True, budget=RETRY_BUDGET, max_backoff=MAX_BACKOFF, max_after=MAX_RETRY_AFTER,
+                      say_from=SAY_WAITS_FROM)
+        # on stderr, which the core logs as it comes: a waiting sync does not look hung
+        say = lambda message: print(f"confluence connector: {message}", file=sys.stderr, flush=True)  # noqa: E731
+        self._web = Web(base_url=s.url, headers={"Authorization": f"Bearer {s.token}"}, timeout=s.timeout, verify=s.verify,
+                        follow_redirects=False, pause=s.pause, max_bytes=256_000_000, retry=retry, log=say, sleep=sleep)
 
     def get(self, path: str, **params) -> dict:
-        attempt, waited = 0, 0.0
-        while True:
-            attempt += 1
-            wait = min(2 ** (attempt - 1), MAX_BACKOFF)
-            try:
-                response = self._http.get(path, params=params)
-            except httpx.TransportError as e:
-                response, reason = None, f"{type(e).__name__}: {e}"
-            if response is not None:
-                if response.status_code in RETRY_STATUS:
-                    reason = f"HTTP {response.status_code}"
-                    try:
-                        wait = max(wait, min(float(response.headers.get("Retry-After", 0)), MAX_RETRY_AFTER))
-                    except ValueError:
-                        pass
-                elif response.status_code == 401:
-                    raise ApiError(401, "Confluence answered HTTP 401: check TOKEN (a personal access token) and its permissions")
-                elif 300 <= response.status_code < 400:
-                    raise ApiError(response.status_code, f"Confluence answered GET {path} with a redirect to "
-                                   f"{response.headers.get('Location', '?')}: check URL (and whether a login page is in the way)")
-                elif response.status_code >= 400:
-                    raise ApiError(response.status_code, f"Confluence answered HTTP {response.status_code} to GET {path}")
-                else:
-                    if self.s.pause:
-                        self._sleep(self.s.pause)
-                    data = response.json()
-                    if not isinstance(data, dict):
-                        raise SourceError(f"Confluence did not answer GET {path} with a JSON object")
-                    return data
-            if waited >= RETRY_BUDGET:
-                raise SourceError(f"giving up on GET {path} after {attempt} attempts and {waited:.0f} s of waiting: {reason}")
-            wait = min(wait, RETRY_BUDGET - waited)
-            if wait >= SAY_WAITS_FROM:  # on stderr, which the core logs as it comes: a waiting sync does not look hung
-                print(f"confluence connector: {reason} on GET {path}: waiting {wait:.0f} s "
-                      f"({waited:.0f} s of {RETRY_BUDGET} s waited)", file=sys.stderr, flush=True)
-            self._sleep(wait)
-            waited += wait
+        try:
+            reply = self._web.get(path, params=params)
+        except HttpError as e:
+            if e.attempts > 1:  # the retry policy gave up, and its message says how long it waited
+                raise
+            reply = Reply(e.status, "", "")  # a 5xx that is not worth retrying
+        if reply.status == 401:
+            raise ApiError(401, "Confluence answered HTTP 401: check TOKEN (a personal access token) and its permissions")
+        if 300 <= reply.status < 400:
+            raise ApiError(reply.status, f"Confluence answered GET {path} with a redirect to "
+                           f"{reply.headers.get('location', '?')}: check URL (and whether a login page is in the way)")
+        if reply.status >= 400:
+            raise ApiError(reply.status, f"Confluence answered HTTP {reply.status} to GET {path}")
+        data = reply.json()
+        if not isinstance(data, dict):
+            raise SourceError(f"Confluence did not answer GET {path} with a JSON object")
+        return data
 
     def paged(self, path: str, **params) -> Iterator[dict]:
         start, seen = 0, set()
@@ -239,7 +221,7 @@ def storage_to_html(storage: str) -> str:
 
 class Confluence(Connector):
     name = "confluence connector"
-    expected_errors = (httpx.HTTPError, ValueError, KeyError, TypeError)
+    expected_errors = (ValueError, KeyError, TypeError)
 
     def __init__(self, env: Mapping[str, str], *, sleep=time.sleep):
         self.s = parse_settings(env)
