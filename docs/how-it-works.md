@@ -7,7 +7,7 @@ passageway finds the passages that answer a question and links each to its sourc
 ```mermaid
 flowchart LR
   subgraph Sources
-    A[Wikipedia connector]
+    A["Bundled connectors<br/>Confluence, Trilium, Markdown,<br/>Wikipedia, llms.txt, Sitemap"]
     B[Your connector]
   end
   A -- JSON Lines --> S
