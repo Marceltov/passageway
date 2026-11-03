@@ -39,8 +39,14 @@ becomes the item:
   "title": "Setup",
   "path": ["guide"],
   "sections": [
-    {"heading": null, "text": "Install it."},
-    {"heading": "Linux", "text": "Use the package manager."}
+    {
+      "heading": null,
+      "text": "Install it."
+    },
+    {
+      "heading": "Linux",
+      "text": "Use the package manager."
+    }
   ]
 }
 ```

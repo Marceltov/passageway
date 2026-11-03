@@ -43,11 +43,24 @@ Rotate the signing certificate every year.
 becomes this item (shortened):
 
 ```json
-{"id": "ops/rotating-certificates.md", "title": "Rotating certificates",
- "url": "https://wiki.example.org/ops/certs", "path": ["ops"], "labels": ["ops", "security"],
- "links": ["ops/deploy.md"],
- "sections": [{"heading": null, "text": "Rotate the signing certificate every year."},
-              {"heading": "Steps", "text": "1. Create the new certificate.\n2. Follow [the deploy guide](deploy.md)."}]}
+{
+  "id": "ops/rotating-certificates.md",
+  "title": "Rotating certificates",
+  "url": "https://wiki.example.org/ops/certs",
+  "path": ["ops"],
+  "labels": ["ops", "security"],
+  "links": ["ops/deploy.md"],
+  "sections": [
+    {
+      "heading": null,
+      "text": "Rotate the signing certificate every year."
+    },
+    {
+      "heading": "Steps",
+      "text": "1. Create the new certificate.\n2. Follow [the deploy guide](deploy.md)."
+    }
+  ]
+}
 ```
 
 ## Configure

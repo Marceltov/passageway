@@ -40,8 +40,14 @@ becomes the item:
 {
   "title": "Install",
   "sections": [
-    {"heading": null, "text": "Run the installer."},
-    {"heading": "Linux", "text": "Use the package manager."}
+    {
+      "heading": null,
+      "text": "Run the installer."
+    },
+    {
+      "heading": "Linux",
+      "text": "Use the package manager."
+    }
   ]
 }
 ```
