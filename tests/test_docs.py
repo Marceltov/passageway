@@ -310,3 +310,8 @@ def test_the_licence_page_is_in_the_navigation_and_connectors_and_measurements_a
         assert entry in nav
     licence = (ROOT / "docs" / "licence.md").read_text()
     assert "PolyForm" in licence and "MIT" in licence and "AGPL" in licence  # who pays, what is MIT, what stays AGPL
+
+def test_v8_promises_a_review_and_guards_a_future_hosted_offer():
+    v8 = (ROOT / "docs" / "values.md").read_text().split("### V8.")[1].split("##")[0]
+    assert "reviewed once" in v8 and "twelve months" in v8  # strict now, loosened if adoption stalls
+    assert "hosted offer" in v8 and "never depends on it" in v8  # same software, nothing kept back for self-hosters
