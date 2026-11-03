@@ -34,7 +34,7 @@ curl -s https://api.github.com/repos/Marceltov/passageway/releases/latest | pyth
 - The service is `de.marceltov.passageway.<name>` (file `~/Library/LaunchAgents/de.marceltov.passageway.<name>.plist`, log `~/Library/Logs/passageway-<name>.log`) or `passageway-<name>.service`. Its environment adds `PASSAGEWAY_INSTANCE=<name>` (services set the variable; the argument is for commands typed by hand) and `PASSAGEWAY_PORT=<port>`, and the password and env file paths use `passageway-<name>`.
 - `/health` on that port names the instance under `instance`. Connect only this Claude to it; which Claude uses which instance is the user's responsibility, and each Claude keeps its connection in its own `CLAUDE_CONFIG_DIR`.
 
-The built-in model is shared, so a second instance does not download it again.
+The built-in embedder's model is shared, so a second instance does not download it again.
 
 ## Install
 
