@@ -10,11 +10,14 @@ requires-python = ">=3.12"
 license = "MIT"
 dependencies = []
 
+[project.optional-dependencies]
+web = ["httpx>=0.28.1", "truststore>=0.10"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["passageway_sdk"]
 
 [dependency-groups]
-dev = ["pytest>=8.3", "passageway"]
+dev = ["pytest>=8.3", "passageway", "httpx>=0.28.1", "truststore>=0.10"]
 
 [tool.uv.sources]
 passageway = { workspace = true }

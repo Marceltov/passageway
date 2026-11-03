@@ -48,4 +48,21 @@ For connectors whose source is (or converts to) markdown:
 
 `Connector.run(argv, env, stdin, stdout, stderr, **options)` runs one mode in-process and returns the exit code; `options` go to `__init__`. For the contract, run your script as a real subprocess with `passageway.testing.contract.check_connector`, as the [guide](../guides/write-a-connector.md) shows.
 
+## Settings helpers
+
+`passageway_sdk.settings` reads the connector's settings, which arrive as strings in `env`. Each raises `SettingsError` with the setting's name when the value is wrong.
+
+| Function | What it does |
+|---|---|
+| `names(env, key)` | A list setting: values separated by `\|`, blanks dropped. |
+| `whole(env, key, default, low=1)` | A whole number of at least `low`. |
+| `flag(env, key, default)` | `true` or `false`, in any case. |
+| `seconds(env, key, default)` | A number of seconds that is not negative. |
+
+## Web client
+
+`passageway_sdk.web` is for connectors that read a website. It needs the extra, so the SDK itself keeps no dependencies: `passageway-sdk[web]` installs `httpx` and `truststore`.
+
+`Web(user_agent, pause=0.2, timeout=30.0, max_bytes=2_000_000)` has one method, `get(url, required=False, max_bytes=None)`, which returns a `Reply(status, text, content_type)`. It verifies HTTPS against the operating system's trust store, follows redirects, waits `pause` seconds between requests and refuses a reply over the size limit with `TooLarge` (a `SourceError`). A failure to reach the server, a `5xx` or a `429` raises `SourceError`, so a source that is down fails the call and never looks empty; any other status, such as a `404`, is returned for the connector to judge, or raised with `required=True`.
+
 *The SDK is MIT licensed ([licence](LICENSE)).*

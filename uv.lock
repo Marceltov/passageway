@@ -1096,18 +1096,33 @@ name = "passageway-sdk"
 version = "0.2.9"
 source = { editable = "sdk" }
 
+[package.optional-dependencies]
+web = [
+    { name = "httpx" },
+    { name = "truststore" },
+]
+
 [package.dev-dependencies]
 dev = [
+    { name = "httpx" },
     { name = "passageway" },
     { name = "pytest" },
+    { name = "truststore" },
 ]
 
 [package.metadata]
+requires-dist = [
+    { name = "httpx", marker = "extra == 'web'", specifier = ">=0.28.1" },
+    { name = "truststore", marker = "extra == 'web'", specifier = ">=0.10" },
+]
+provides-extras = ["web"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "passageway", editable = "." },
     { name = "pytest", specifier = ">=8.3" },
+    { name = "truststore", specifier = ">=0.10" },
 ]
 
 [[package]]
