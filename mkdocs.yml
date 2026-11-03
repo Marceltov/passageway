@@ -36,6 +36,7 @@ nav:
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
       - Markdown: connectors/markdown.md
+      - llms.txt: connectors/llmstxt.md
       - Trilium: connectors/trilium.md
       - Confluence: connectors/confluence.md
   - Measurements: measurements.md

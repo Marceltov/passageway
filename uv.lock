@@ -11,6 +11,7 @@ resolution-markers = [
 members = [
     "passageway",
     "passageway-connector-confluence",
+    "passageway-connector-llmstxt",
     "passageway-connector-markdown",
     "passageway-connector-trilium",
     "passageway-connector-wikipedia",
@@ -900,6 +901,7 @@ dependencies = [
 dev = [
     { name = "jsonschema" },
     { name = "passageway-connector-confluence" },
+    { name = "passageway-connector-llmstxt" },
     { name = "passageway-connector-markdown" },
     { name = "passageway-connector-trilium" },
     { name = "passageway-connector-wikipedia" },
@@ -929,6 +931,7 @@ requires-dist = [
 dev = [
     { name = "jsonschema", specifier = ">=4.23" },
     { name = "passageway-connector-confluence", editable = "connectors/confluence" },
+    { name = "passageway-connector-llmstxt", editable = "connectors/llmstxt" },
     { name = "passageway-connector-markdown", editable = "connectors/markdown" },
     { name = "passageway-connector-trilium", editable = "connectors/trilium" },
     { name = "passageway-connector-wikipedia", editable = "connectors/wikipedia" },
@@ -961,6 +964,37 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "passageway-sdk", editable = "sdk" },
     { name = "selectolax", specifier = ">=0.3.21" },
+    { name = "truststore", specifier = ">=0.10" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "jsonschema", specifier = ">=4.23" },
+    { name = "passageway", editable = "." },
+    { name = "pytest", specifier = ">=8.3" },
+]
+
+[[package]]
+name = "passageway-connector-llmstxt"
+version = "0.1.0"
+source = { editable = "connectors/llmstxt" }
+dependencies = [
+    { name = "httpx" },
+    { name = "passageway-sdk" },
+    { name = "truststore" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "jsonschema" },
+    { name = "passageway" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.27" },
+    { name = "passageway-sdk", editable = "sdk" },
     { name = "truststore", specifier = ">=0.10" },
 ]
 

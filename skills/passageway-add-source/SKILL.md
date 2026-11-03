@@ -25,6 +25,7 @@ Free text (a URL, a folder, a space key, a name) is asked in the chat, never thr
    - **A folder of markdown** (https://passageway.marceltov.de/connectors/markdown/): `command = [<python>, "-m", "passageway_connector_markdown"]`, `env = { FOLDER = "/abs/path" }`; `INCLUDE`/`EXCLUDE` are glob patterns separated by `|`.
    - **Trilium Notes** (https://passageway.marceltov.de/connectors/trilium/): `"-m", "passageway_connector_trilium"`, `env = { URL = "http://host:8080" }` (plus `WEB_URL` when readers reach it under another name), `secrets = { TOKEN = "env:TRILIUM_TOKEN" }`; the token is an ETAPI token.
    - **Confluence Data Center** (https://passageway.marceltov.de/connectors/confluence/): `"-m", "passageway_connector_confluence"`, `env = { URL = "https://wiki.example.org", SPACES = "KEY1|KEY2" }`, `secrets = { TOKEN = "env:CONFLUENCE_TOKEN" }`; a personal access token.
+   - **llms.txt of websites** (https://passageway.marceltov.de/connectors/llmstxt/): `"-m", "passageway_connector_llmstxt"`, `env = { URLS = "https://docs.example.org|https://example.org/SKILL.md" }` (site addresses, file addresses and `llms.txt` addresses, separated by `|`); no secret.
    - **Wikipedia** (https://passageway.marceltov.de/connectors/wikipedia/): `"-m", "passageway_connector_wikipedia"`, `env = { LANGUAGE = "en", CATEGORIES = "Deep learning", CATEGORY_DEPTH = "1" }` or `TITLES = "A|B"`; no secret.
    - Something else: write a connector with `/create-passageway-connector`, then come back here.
 
