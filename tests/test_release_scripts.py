@@ -298,7 +298,7 @@ def test_the_release_workflow_calls_only_scripts_that_exist_and_posts_with_the_s
     assert "check-version.sh" in first_run, "scripts/check-version.sh must be the first run step"
 
 
-def test_the_release_workflow_publishes_every_package_in_order_with_trusted_publishing():
+def test_the_release_workflow_publishes_every_package_in_order_without_a_credential_on_the_command_line():
     import re
 
     import yaml
@@ -310,10 +310,14 @@ def test_the_release_workflow_publishes_every_package_in_order_with_trusted_publ
     assert (environment["name"] if isinstance(environment, dict) else environment) == "pypi"
     assert job["permissions"]["id-token"] == "write"
     steps = "\n".join(step.get("run", "") for step in job["steps"])
-    assert not re.search(r"secrets\.|--token|--password|UV_PUBLISH", json.dumps(job)), "no stored credential"
+    # first release only: the token comes from the secret through the environment, never as an argument; the follow-up that
+    # removes it goes back to trusted publishing alone (#28)
+    assert not re.search(r"--token|--password", json.dumps(job)), "a credential must not be an argument"
+    publish_step = next(step for step in job["steps"] if "uv publish" in step.get("run", ""))
+    assert publish_step["env"] == {"UV_PUBLISH_TOKEN": "${{ secrets.PYPI_TOKEN }}"}
     assert "uv build --all-packages" in steps
     publish = re.findall(r"uv publish[^\n]*", steps)
-    assert len(publish) == 1 and "--check-url" in publish[0] and "--trusted-publishing always" in publish[0]
+    assert len(publish) == 1 and "--check-url" in publish[0] and "--trusted-publishing always" not in publish[0]
     order = re.search(r'packages="([^"]+)"', steps).group(1).split()
     import tomllib
     names = [tomllib.loads((ROOT / d / "pyproject.toml").read_text())["project"]["name"]

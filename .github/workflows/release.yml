@@ -70,7 +70,7 @@ jobs:
           scripts/post-to-notefeed.sh "$TAG" notefeed.md
 
   publish:
-    # Every package to PyPI at the tag's version, with trusted publishing (no token stored): the SDK first because the others depend on
+    # Every package to PyPI at the tag's version (by token for the first release, then trusted publishing): the SDK first because the others depend on
     # it, the core last because its extras pin the others. --check-url skips what is already on PyPI, so a re-run after a half-failed
     # release carries on instead of failing. A published version can never be replaced, only yanked.
     runs-on: ubuntu-latest
@@ -91,6 +91,10 @@ jobs:
       - name: Check the metadata
         run: uvx twine check dist/*
       - name: Publish
+        # The first release creates the nine projects with an account token, because a project must exist before PyPI accepts a
+        # trusted publisher for it. The follow-up removes this env block and the secret and goes back to trusted publishing.
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
           packages="passageway-sdk passageway-connector-confluence passageway-connector-llmstxt passageway-connector-markdown passageway-connector-sitemap passageway-connector-trilium passageway-connector-wikipedia passageway-embedder-openai passageway"
           # An old tag run again by hand builds an old tree whose versions differ: refuse before the first upload, because
@@ -99,7 +103,7 @@ jobs:
             [ "$(compgen -G "dist/${package//-/_}-${TAG#v}*" | wc -l)" -eq 2 ] || { echo "dist/ has no wheel and sdist of $package at ${TAG#v}" >&2; exit 1; }
           done
           for package in $packages; do
-            uv publish --trusted-publishing always --check-url https://pypi.org/simple/ "dist/${package//-/_}-${TAG#v}"*
+            uv publish --check-url https://pypi.org/simple/ "dist/${package//-/_}-${TAG#v}"*
           done
 
   image:
