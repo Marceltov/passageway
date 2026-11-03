@@ -50,6 +50,16 @@ items:
       - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: getpassageway-org
+    status: done
+    date: 2026-11-03
+    icon: source-repository
+    title: A home of its own on GitHub
+    summary: The repository moved to the getpassageway organization, ahead of publishing to PyPI, whose trusted publishing is tied to the owner and the repository name.
+    links:
+      - {label: "#125", url: "https://github.com/getpassageway/passageway/issues/125"}
+      - {label: "PR #126", url: "https://github.com/getpassageway/passageway/pull/126"}
+
   - id: trilium-recall-adopts
     status: done
     date: 2026-10-30
