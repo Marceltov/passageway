@@ -1,6 +1,18 @@
 # Run it: as a service or as a container
 
-Two ways to keep passageway running. Both use the same code; only defaults differ. In Claude Code, `/passageway-install` from the [plugin](guides/claude-code.md) sets up the service below for you, with launchd or systemd.
+passageway is on premise: the server runs on your own machine or in your own container platform, and your sources and index stay there. Both ways use the same code; only defaults differ. In Claude Code, `/passageway-install` from the [plugin](guides/claude-code.md) sets up the service for you, with launchd or systemd.
+
+<div class="grid cards" markdown>
+
+- **[On your own machine](#on-your-own-machine)**
+
+    `passageway init` and a service that survives reboots: launchd on macOS, systemd on Linux.
+
+- **[As a container](#as-a-container)**
+
+    The image with the model baked in, for a server or a container platform.
+
+</div>
 
 ## On your own machine
 

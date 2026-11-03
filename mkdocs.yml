@@ -8,53 +8,54 @@ copyright: Copyright &copy; 2026 Marcel Bruckner. The code is licensed under the
 
 hooks:
   - docs_hooks/roadmap.py
+  - docs_hooks/charts.py
 
 exclude_docs: |
   superpowers/
 
 nav:
   - Home: index.md
-  - What passageway stands for: values.md
-  - Licence: licence.md
-  - Concepts:
-      - How it works: how-it-works.md
+  - Values: values.md
+  - How it works: how-it-works.md
   - Start:
       - Install and run: install.md
       - Configuration: configuration.md
       - Run it: deploy.md
-  - Guides:
+  - Integrations:
       - Claude Code, the hook and the plugin: guides/claude-code.md
-      - Write a connector: guides/write-a-connector.md
-      - Measure retrieval quality: guides/evaluate.md
-      - Work with an AI agent: guides/agents.md
-  - Reference:
-      - Connector protocol: reference/connector-protocol.md
-      - Embedder protocol: reference/embedder-protocol.md
-      - Connector SDK: reference/sdk.md
-      - Sample corpus: reference/corpus.md
-      - Choosing a model: models.md
+      - Any AI agent: guides/agents.md
   - Connectors:
-      - Wikipedia: connectors/wikipedia.md
-      - Markdown: connectors/markdown.md
-      - llms.txt: connectors/llmstxt.md
-      - Sitemap: connectors/sitemap.md
-      - Trilium: connectors/trilium.md
-      - Confluence: connectors/confluence.md
-  - Measurements: measurements.md
+      - Write a connector: guides/write-a-connector.md
+      - Connector protocol: reference/connector-protocol.md
+      - Connector SDK: reference/sdk.md
+      - Provided connectors:
+          - Wikipedia: connectors/wikipedia.md
+          - Markdown: connectors/markdown.md
+          - llms.txt: connectors/llmstxt.md
+          - Sitemap: connectors/sitemap.md
+          - Trilium: connectors/trilium.md
+          - Confluence: connectors/confluence.md
   - Embedders:
       - OpenAI-compatible: embedders/openai.md
-  - Contributing:
-      - Development: development.md
+      - Embedder protocol: reference/embedder-protocol.md
+      - Choosing a model: models.md
+  - Measurements:
+      - Results: measurements.md
+      - Measure your own sources: guides/evaluate.md
+      - Sample corpus: reference/corpus.md
+  - About:
+      - Licence: licence.md
       - Roadmap: roadmap.md
-  - Decisions:
-      - adr/0001-out-of-process-connectors.md
-      - adr/0002-connectors-as-workspace-packages.md
-      - adr/0003-json-lines-over-a-subprocess-stays.md
-      - adr/0004-no-summary-for-source-substitution.md
-      - adr/0005-confluence-data-center-first.md
-      - adr/0006-https-trusts-the-system-store.md
-      - adr/0007-instances-under-one-user.md
-      - adr/0008-a-failed-fetch-batch-keeps-the-rest.md
+      - Development: development.md
+      - Decisions:
+          - adr/0001-out-of-process-connectors.md
+          - adr/0002-connectors-as-workspace-packages.md
+          - adr/0003-json-lines-over-a-subprocess-stays.md
+          - adr/0004-no-summary-for-source-substitution.md
+          - adr/0005-confluence-data-center-first.md
+          - adr/0006-https-trusts-the-system-store.md
+          - adr/0007-instances-under-one-user.md
+          - adr/0008-a-failed-fetch-batch-keeps-the-rest.md
 
 theme:
   name: material
@@ -80,7 +81,6 @@ theme:
         icon: material/weather-sunny
         name: Switch to light mode
   features:
-    - navigation.sections
     - navigation.instant
     - navigation.footer
     - navigation.top
@@ -93,6 +93,10 @@ theme:
 
 extra_css:
   - stylesheets/extra.css
+
+extra_javascript:
+  - https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js
+  - javascripts/mermaid.js
 
 plugins:
   - search

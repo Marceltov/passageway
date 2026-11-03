@@ -2,7 +2,7 @@
 
 :root > * {
   --pw-accent: #0f766e;
-  --pw-warm: #b45309;
+  --pw-warm: #115e59;
   --pw-ink: #1e293b;
   --pw-mist: #eef4f3;
 
@@ -21,7 +21,7 @@
 [data-md-color-scheme="slate"] {
   --md-hue: 175;
   --pw-accent: #5eead4;
-  --pw-warm: #fbbf77;
+  --pw-warm: #99f6e4;
   --pw-ink: #e2e8e6;
   --pw-mist: hsla(175, 15%, 18%, 1);
 
@@ -345,4 +345,170 @@
   .pw-tl-head {
     flex-wrap: wrap;
   }
+}
+
+/* Home page hero: text left, the animation right on wide screens. */
+.pw-teal {
+  color: var(--pw-accent);
+}
+@media screen and (min-width: 60em) {
+  .pw-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    column-gap: 1.5rem;
+    align-items: center;
+  }
+  .pw-hero > * {
+    grid-column: 1;
+  }
+  .pw-hero > .pw-hero__art {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+  }
+}
+.pw-hero__art svg {
+  width: 100%;
+  height: auto;
+  font-size: 13px;
+}
+.pw-anim .pw-flow {
+  fill: none;
+  stroke: var(--pw-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 1 8;
+  opacity: 0.6;
+  animation: pw-dash 1.2s linear infinite;
+}
+@keyframes pw-dash {
+  to {
+    stroke-dashoffset: -9;
+  }
+}
+.pw-anim .pw-dot {
+  fill: var(--pw-accent);
+}
+.pw-anim .pw-core {
+  fill: var(--pw-accent);
+}
+.pw-anim .pw-arch {
+  fill: none;
+  stroke: var(--md-default-bg-color);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pw-anim .pw-flow {
+    animation: none;
+  }
+  .pw-anim .pw-dot {
+    display: none;
+  }
+}
+
+/* Diagrams (Mermaid) in the site's colours. */
+:root > * {
+  --md-mermaid-edge-color: var(--pw-accent);
+  --md-mermaid-node-bg-color: var(--pw-mist);
+  --md-mermaid-node-fg-color: var(--pw-ink);
+  --md-mermaid-label-bg-color: var(--md-default-bg-color);
+  --md-mermaid-label-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-actor-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-actor-border-color: var(--pw-accent);
+  --md-mermaid-sequence-actor-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-actor-line-color: var(--md-default-fg-color--lighter);
+  --md-mermaid-sequence-actorman-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-actorman-line-color: var(--pw-accent);
+  --md-mermaid-sequence-box-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-box-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-label-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-label-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-loop-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-loop-border-color: var(--pw-accent);
+  --md-mermaid-sequence-loop-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-message-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-message-line-color: var(--pw-accent);
+  --md-mermaid-sequence-note-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-note-border-color: var(--pw-accent);
+  --md-mermaid-sequence-note-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-number-bg-color: var(--pw-accent);
+  --md-mermaid-sequence-number-fg-color: var(--md-default-bg-color);
+}
+
+/* Charts (docs_hooks/charts.py): three validated categorical slots, light and dark; text in ink, never in the series colour. */
+:root > * {
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+}
+[data-md-color-scheme="slate"] {
+  --viz-1: #3987e5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+}
+.md-typeset .pw-chart {
+  display: block;
+  width: 100%;
+  margin: 1rem 0 1.6rem;
+}
+.pw-chart svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.pw-chart text {
+  fill: var(--md-default-fg-color);
+  font-size: 13px;
+}
+.pw-chart .pw-chart-small {
+  fill: var(--md-default-fg-color--light);
+  font-size: 12px;
+}
+.pw-chart .pw-chart-ontext {
+  fill: #fff;
+  font-weight: 700;
+}
+.pw-s1 { fill: var(--viz-1); }
+.pw-s2 { fill: var(--viz-2); }
+.pw-s3 { fill: var(--viz-3); }
+.pw-l1 { stroke: var(--viz-1); }
+.pw-l2 { stroke: var(--viz-2); }
+.pw-l3 { stroke: var(--viz-3); }
+.pw-chart .pw-line,
+.pw-chart .pw-whisker {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.pw-chart .pw-ring {
+  stroke: var(--md-default-bg-color);
+  stroke-width: 2;
+}
+.pw-chart .pw-grid {
+  stroke: var(--md-default-fg-color--lightest);
+  stroke-width: 1;
+}
+.pw-chart .pw-default {
+  stroke: var(--md-default-fg-color--light);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+.pw-anim .pw-node-link {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 1.2px solid var(--pw-accent);
+  border-radius: 7px;
+  background: var(--pw-mist);
+  color: var(--pw-ink);
+  font-size: 13px;
+  text-decoration: none;
+}
+.pw-anim .pw-node-link:hover,
+.pw-anim .pw-node-link:focus-visible {
+  background: var(--pw-accent);
+  color: var(--md-default-bg-color);
 }

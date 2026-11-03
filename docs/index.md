@@ -6,58 +6,56 @@ hide:
 
 <div class="pw-hero" markdown>
 
-# The answer is somewhere in your wiki. passageway finds it.
+# The answer is hidden somewhere across your sources. <span class="pw-teal">passageway</span> finds it.
 
-<p class="pw-hero__lead">passageway searches across your wiki, notes and documentation and gives your agent exactly the passages that answer the question, each linked to its source.</p>
-
-**On premise.** Your knowledge stays on your infrastructure.<br>
-**Connected.** Confluence, Trilium, Markdown and Wikipedia work out of the box.<br>
-**Open.** A documented protocol lets you add any source or embedding model, in any language.
-
-Free for private use. Companies need a licence. [Details](licence.md)
+<p class="pw-hero__lead">passageway searches all your sources at once, wiki, notes and documentation, and gives your agent exactly the passages that answer the question, each linked to its source.</p>
 
 [Install and run](install.md){ .md-button .md-button--primary }
 [Write a connector](guides/write-a-connector.md){ .md-button }
 
+<div class="pw-hero__art">
+<svg viewBox="0 0 570 360" role="img" class="pw-anim">
+<path class="pw-flow" d="M122,28 C205,28 205,180 270,180" id="pw-p0"/><path class="pw-flow" d="M122,79 C205,79 205,180 270,180" id="pw-p1"/><path class="pw-flow" d="M122,129 C205,129 205,180 270,180" id="pw-p2"/><path class="pw-flow" d="M122,180 C205,180 205,180 270,180" id="pw-p3"/><path class="pw-flow" d="M122,231 C205,231 205,180 270,180" id="pw-p4"/><path class="pw-flow" d="M122,281 C205,281 205,180 270,180" id="pw-p5"/><path class="pw-flow" d="M122,332 C205,332 205,180 270,180" id="pw-p6"/>
+<path class="pw-flow pw-flow--out" d="M330,180 L436,180"/>
+<g><foreignObject x="0" y="11" width="122" height="34"><a class="pw-node-link" href="connectors/confluence/">Confluence</a></foreignObject><foreignObject x="0" y="62" width="122" height="34"><a class="pw-node-link" href="connectors/trilium/">Trilium</a></foreignObject><foreignObject x="0" y="112" width="122" height="34"><a class="pw-node-link" href="connectors/markdown/">Markdown</a></foreignObject><foreignObject x="0" y="163" width="122" height="34"><a class="pw-node-link" href="connectors/wikipedia/">Wikipedia</a></foreignObject><foreignObject x="0" y="214" width="122" height="34"><a class="pw-node-link" href="connectors/llmstxt/">llms.txt</a></foreignObject><foreignObject x="0" y="264" width="122" height="34"><a class="pw-node-link" href="connectors/sitemap/">Sitemap</a></foreignObject><foreignObject x="0" y="315" width="122" height="34"><a class="pw-node-link" href="guides/write-a-connector/">Your connector</a></foreignObject></g>
+<circle class="pw-dot" r="4.5"><animateMotion path="M122,28 C205,28 205,180 270,180" dur="4.5s" begin="-0.00s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,28 C205,28 205,180 270,180" dur="4.5s" begin="-2.25s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,79 C205,79 205,180 270,180" dur="4.5s" begin="-0.65s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,79 C205,79 205,180 270,180" dur="4.5s" begin="-2.90s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,129 C205,129 205,180 270,180" dur="4.5s" begin="-1.30s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,129 C205,129 205,180 270,180" dur="4.5s" begin="-3.55s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,180 C205,180 205,180 270,180" dur="4.5s" begin="-1.95s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,180 C205,180 205,180 270,180" dur="4.5s" begin="-4.20s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,231 C205,231 205,180 270,180" dur="4.5s" begin="-2.60s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,231 C205,231 205,180 270,180" dur="4.5s" begin="-4.85s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,281 C205,281 205,180 270,180" dur="4.5s" begin="-3.25s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,281 C205,281 205,180 270,180" dur="4.5s" begin="-5.50s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,332 C205,332 205,180 270,180" dur="4.5s" begin="-3.90s" repeatCount="indefinite"></animateMotion></circle><circle class="pw-dot" r="4.5"><animateMotion path="M122,332 C205,332 205,180 270,180" dur="4.5s" begin="-6.15s" repeatCount="indefinite"></animateMotion></circle><rect class="pw-dot pw-dot--out" width="14" height="9" x="-7" y="-4.5" rx="2"><animateMotion dur="2.4s" begin="0.0s" repeatCount="indefinite" path="M330,180 L436,180"/></rect><rect class="pw-dot pw-dot--out" width="14" height="9" x="-7" y="-4.5" rx="2"><animateMotion dur="2.4s" begin="-0.8s" repeatCount="indefinite" path="M330,180 L436,180"/></rect><rect class="pw-dot pw-dot--out" width="14" height="9" x="-7" y="-4.5" rx="2"><animateMotion dur="2.4s" begin="-1.6s" repeatCount="indefinite" path="M330,180 L436,180"/></rect>
+<g transform="translate(270,150)"><rect class="pw-core" width="60" height="60" rx="13"/><path class="pw-arch" d="M18,44 V28 a12,12 0 0 1 24,0 V44"/></g>
+<foreignObject x="436" y="163" width="134" height="34"><a class="pw-node-link" href="guides/claude-code/">Your agent</a></foreignObject>
+</svg>
 </div>
 
-## How it fits together
+</div>
 
-passageway is the retrieval half of a RAG system, served as an MCP tool. It does no generation: the agent that calls it reads the passages and writes the answer.
+<div class="grid cards" markdown>
 
-- **The core knows no source.** A connector is any executable that lists items and prints their text as JSON Lines. Anyone can write one, in any language.
-- **It is quiet on purpose.** A relevance gate lets it return nothing instead of padding a prompt with weak matches.
-- **It runs small.** Keyword and embedding search in one SQLite file per source, on the CPU, with no vector database to run.
+- **On premise.** Your knowledge stays on your infrastructure.
 
-```toml
-[[connector]]
-name = "deep-learning"
-command = ["/path/to/python", "-m", "passageway_connector_wikipedia"]
-env = { LANGUAGE = "de", CATEGORIES = "Kategorie:Deep Learning" }
-```
+    [Run it yourself](deploy.md)
 
-```mermaid
-flowchart LR
-  A[Your connectors] -- JSON Lines --> B[passageway]
-  B -- "recall tool" --> C[Claude]
-```
+- **Connected.** Confluence, Trilium, Markdown and Wikipedia work out of the box.
 
-Before anything else, [what passageway stands for](values.md): the lines it does not cross and what you can rely on.
+    [See the connectors](connectors/confluence.md)
 
-## Available today
+- **Open.** A documented protocol lets you add any source or embedding model, in any language.
 
-- The [connector protocol](reference/connector-protocol.md) and a [guide to writing a connector](guides/write-a-connector.md)
-- The [Wikipedia connector](connectors/wikipedia.md), in English and German
-- The [Markdown connector](connectors/markdown.md), for a folder of markdown files with front matter
-- The [llms.txt connector](connectors/llmstxt.md), the `llms-full.txt` of a list of websites, a single markdown file, or the pages an `llms.txt` index links to
-- The [Sitemap connector](connectors/sitemap.md), a website from its sitemap and the pages its pages link to
-- The [Trilium connector](connectors/trilium.md), the notes of a Trilium server with the LLM-wiki structure of trilium-recall
-- The [Confluence connector](connectors/confluence.md), the pages of chosen spaces of a Confluence Data Center
-- Hybrid search with a relevance gate, described in [How it works](how-it-works.md)
-- A [Claude Code plugin](guides/claude-code.md) with the prompt hook and skills that install, connect, add sources, check and evaluate, a [container image](deploy.md) with the model baked in, and `passageway init` for a local service
-- An [evaluation harness](guides/evaluate.md), `passageway eval`, that measures retrieval quality on your own questions, compares embedding models and builds a report you can publish
-- Three built-in models (`passageway model list`), fetched pinned and checksummed; any other through the [embedder protocol](reference/embedder-protocol.md) or the bundled [OpenAI-compatible embedder](embedders/openai.md)
+    [Read the protocol](reference/connector-protocol.md)
 
-## Coming
+</div>
 
-Every step on the [roadmap](roadmap.md) has shipped, the last one trilium-recall pointing here; what is parked is listed there. [Choosing a model](models.md) compares the built-in models on the sample corpus.
+Free for private use. Companies need a licence. [Details](licence.md)
+
+## What it does
+
+passageway is the retrieval half of a RAG system, served as an MCP tool. It does no generation: the agent that calls it reads the passages and writes the answer. A relevance gate returns nothing instead of padding a prompt with weak matches. On the [sample corpus](reference/corpus.md) the right article is among the top three for 88.6% (95% interval 79–94%) of 70 questions: [the method and its limits](measurements.md). [How it works](how-it-works.md)
+
+## Start
+
+<div class="grid cards" markdown>
+
+- [**Install in Claude Code**](install.md): the plugin sets up the server, the sources and the hook for you.
+- [**Add a source**](connectors/markdown.md): [Markdown](connectors/markdown.md), [Trilium](connectors/trilium.md), [Confluence](connectors/confluence.md), [Wikipedia](connectors/wikipedia.md), [llms.txt](connectors/llmstxt.md), [Sitemap](connectors/sitemap.md).
+- [**Measure your own notes**](guides/evaluate.md): `passageway eval` on your questions, and [choose a model](models.md).
+
+</div>
+
+[What passageway stands for](values.md) and the [roadmap](roadmap.md), for what is planned.

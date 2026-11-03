@@ -1,11 +1,13 @@
 # How it works
 
+passageway finds the passages that answer a question and links each to its source. Nothing leaves your infrastructure: connectors read your sources, the index is a SQLite file per source in your data directory, and the embedding model runs on your CPU. This page follows a passage from the source to the answer.
+
 ## The pieces
 
 ```mermaid
 flowchart LR
   subgraph Sources
-    A[Wikipedia connector]
+    A["Bundled connectors<br/>Confluence, Trilium, Markdown,<br/>Wikipedia, llms.txt, Sitemap"]
     B[Your connector]
   end
   A -- JSON Lines --> S
@@ -70,7 +72,7 @@ flowchart TD
 
 ## The hook endpoint
 
-Besides the MCP tool, the server has `POST /recall` for a Claude Code prompt hook. It takes `{"prompt", "session_id", "cwd"}` and returns the context to inject. It skips prompts that are not questions (slash commands, "ok", "weiter", short follow-ups without a content word) and remembers per session which items it already sent. It accepts only the static bearer password. The Claude Code plugin that installs the hook is not shipped yet.
+Besides the MCP tool, the server has `POST /recall` for a Claude Code prompt hook. It takes `{"prompt", "session_id", "cwd"}` and returns the context to inject. It skips prompts that are not questions (slash commands, "ok", "weiter", short follow-ups without a content word) and remembers per session which items it already sent. It accepts only the static bearer password. The [Claude Code plugin](guides/claude-code.md) installs the hook.
 
 ## Authentication
 

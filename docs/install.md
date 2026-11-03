@@ -2,6 +2,20 @@
 
 passageway runs as a small server on your machine. You give it connectors, it indexes what they report, and an MCP client such as Claude Code asks it for passages.
 
+## Two ways to install
+
+<div class="grid cards" markdown>
+
+- **For yourself**
+
+    Free for private use. Follow this page: the plugin below, or the steps by hand.
+
+- **For a company**
+
+    The same software and the same steps. Using it at work needs a [licence](licence.md); try it for up to 31 days under the Free Trial licence first, with no conversation needed.
+
+</div>
+
 ## In Claude Code
 
 The [Claude Code plugin](guides/claude-code.md) does every step on this page for you. Install it first:
@@ -14,6 +28,13 @@ The [Claude Code plugin](guides/claude-code.md) does every step on this page for
 Then run `/passageway-install`. It asks which sources you want, installs passageway with their connectors, writes each source with `/passageway-add-source`, runs the server as a service that survives reboots, and connects Claude Code with `/passageway-connect`. Run it again later and it upgrades an existing installation to the latest release, with the same connectors. Later, `/passageway-add-source` adds a source and `/passageway-status` checks the whole chain when something is off. No password or token goes through the chat.
 
 The steps below are the same setup by hand, for any other MCP client or if you want to see what the skills do.
+
+```mermaid
+flowchart LR
+  A["1. Install"] --> B["2. Embedding model"] --> C["3. Say what to index"] --> D["4. Start it"] --> E["5. Connect a client"]
+```
+
+Five steps, in this order; each is a section below.
 
 ## 1. Install
 

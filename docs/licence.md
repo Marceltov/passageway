@@ -2,6 +2,22 @@
 
 **Free for private use. Companies need a licence.**
 
+<div class="grid cards" markdown>
+
+- **Private use**
+
+    Free, for your own use and for noncommercial organisations.
+
+- **Trying it at work**
+
+    Free for up to 31 days, no conversation needed.
+
+- **A company**
+
+    Needs a commercial licence. [How to ask](#asking-for-a-licence)
+
+</div>
+
 | | Licence | Who may use it |
 |---|---|---|
 | The core, the bundled connectors and embedders | [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0) | Individuals for their own use, and noncommercial organisations such as charities, schools and research institutions. A company, a freelancer working for a client, or an employee at work needs a commercial licence. |
@@ -15,7 +31,7 @@ Releases up to and including 0.2.9 were published under AGPL-3.0-or-later and st
 
 ## Trying it at work
 
-Install it and try it for up to 32 days under the Free Trial licence ([`LICENSE-FREE-TRIAL`](https://github.com/Marceltov/passageway/blob/main/LICENSE-FREE-TRIAL)). No conversation needed. Keeping it after that needs a licence.
+Install it and try it for up to 31 days under the Free Trial licence ([`LICENSE-FREE-TRIAL`](https://github.com/Marceltov/passageway/blob/main/LICENSE-FREE-TRIAL)). No conversation needed. Keeping it after that needs a licence.
 
 ## Commercial licences
 

@@ -1,6 +1,15 @@
 # Measure retrieval quality
 
+The [front page](../index.md) claims that passageway finds the passage that answers the question. This is how you check that claim on your own sources instead of taking the [published numbers](../measurements.md) for them.
+
 `passageway eval` asks your sources the questions you care about and reports how often the right passage comes back, and how often passageway correctly stays silent when nothing fits. Run it before you change the embedding model or the relevance threshold, and in CI to catch a regression. The numbers it prints are yours to publish: by default a report contains no question, no title and no address from your sources (it does carry the source names and group labels you chose, see below).
+
+```mermaid
+flowchart LR
+  Q["1. Write the questions"] --> R["2. Run it"] --> M["3. Read the report"] --> P["4. Publish the numbers"]
+```
+
+Four steps, from the questions to a page you can publish. `--sweep` (choose a threshold) and `eval compare` (choose a model) are variations of the run.
 
 ## Write the questions
 
@@ -26,6 +35,22 @@ group = "german questions"
 [[case]]
 query = "what is on the cafeteria menu"   # no expect: nothing should be found
 ```
+
+<div class="grid cards" markdown>
+
+- **A question with an answer**
+
+    Has `expect` (a text in the title, heading or address of a hit) or `expect_id` (an exact item id). Scored by Hit@1, Hit@3 and MRR.
+
+- **A question without one**
+
+    Has no `expect`. The index must stay silent; any hit counts against the silence score.
+
+- **A group**
+
+    `group = "..."` is an optional label; the report shows the scores per group.
+
+</div>
 
 - **`expect`** lists texts that must be part of a hit's title, heading or address (case does not matter). Any one of them in any of the top three hits counts as a hit. A title that exists in two languages is matched by one entry.
 - **`expect_id`** lists exact item ids, for a title that is ambiguous.
@@ -58,6 +83,20 @@ Exit codes: 0 for a finished run, 1 for `--enforce` below the targets or a sourc
 
 ## Read the report
 
+```mermaid
+flowchart TD
+  Q["a question"] --> A{"has expect?"}
+  A -- "yes" --> F{"an accepted hit<br/>in the top three?"}
+  F -- "yes" --> H["Hit@1 or Hit@3, and its rank for MRR"]
+  F -- "no hit at all" --> FS["false silence<br/>the threshold is too strict"]
+  F -- "other hits only" --> MISS["a miss"]
+  A -- "no" --> N{"anything returned?"}
+  N -- "no" --> SIL["silence"]
+  N -- "yes" --> NOISE["noise reaches the model"]
+```
+
+Every question lands in one of these outcomes, and each metric below is the share of one of them.
+
 | Metric | Meaning |
 |---|---|
 | Hit@1, Hit@3 | Share of answerable questions whose first, or one of the first three, hits is accepted |
@@ -70,7 +109,7 @@ Every rate is followed by its **95% interval** in brackets, for example `85.0% (
 
 A metric with no question behind it shows `n/a` and fails a target on it: with no unanswerable question, silence is not 100%, it is unknown.
 
-Silence and false silence pull against each other as the threshold moves, and `--sweep` shows where they cross for your sources and your model.
+Silence and false silence pull against each other as the threshold moves, and `--sweep` shows where they cross for your sources and your model. The [Measurements](../measurements.md#at-a-glance) page draws that sweep for the sample corpus.
 
 One rule limits what a threshold can do: a passage that shares **three or more words** with the question is returned whatever its similarity (the keyword rescue in [How it works](../how-it-works.md)). A long, specific question therefore stays found at any threshold, and a sweep silences only short or loosely worded ones. Word your unanswerable questions the way a user would, not as strings of rare words, or they will not measure the threshold.
 
