@@ -4,6 +4,7 @@
 # (sdk, connectors/*, embedders/*): they ship together.
 # Usage: scripts/check-version.sh vX.Y.Z   (run from the repository root)
 set -euo pipefail
+shopt -s nullglob
 
 tag=${1:-}
 [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
