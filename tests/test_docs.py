@@ -306,7 +306,7 @@ def test_the_front_page_carries_the_search_claim_and_the_licence_line():
 def test_the_licence_page_is_in_the_navigation_and_connectors_and_measurements_are_top_level():
     nav = (ROOT / "mkdocs.yml").read_text().split("nav:")[1].split("\ntheme:")[0]
     assert "licence.md" in nav
-    for entry in ["  - Connectors:", "  - Measurements: measurements.md"]:
+    for entry in ["  - Connectors:", "  - Measurements:"]:
         assert entry in nav
     licence = (ROOT / "docs" / "licence.md").read_text()
     assert "PolyForm" in licence and "MIT" in licence and "AGPL" in licence  # who pays, what is MIT, what stays AGPL

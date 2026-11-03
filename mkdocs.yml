@@ -15,15 +15,14 @@ exclude_docs: |
 nav:
   - Home: index.md
   - Values: values.md
+  - How it works: how-it-works.md
   - Start:
       - Install and run: install.md
       - Configuration: configuration.md
       - Run it: deploy.md
-  - Guides:
+  - Integrations:
       - Claude Code, the hook and the plugin: guides/claude-code.md
-      - Write a connector: guides/write-a-connector.md
-      - Measure retrieval quality: guides/evaluate.md
-      - Work with an AI agent: guides/agents.md
+      - Any AI agent: guides/agents.md
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
       - Markdown: connectors/markdown.md
@@ -31,16 +30,18 @@ nav:
       - Sitemap: connectors/sitemap.md
       - Trilium: connectors/trilium.md
       - Confluence: connectors/confluence.md
+      - Write a connector: guides/write-a-connector.md
+  - Measurements:
+      - Results: measurements.md
+      - Measure your own sources: guides/evaluate.md
+      - Choosing a model: models.md
+      - Sample corpus: reference/corpus.md
   - Reference:
       - Connector protocol: reference/connector-protocol.md
       - Embedder protocol: reference/embedder-protocol.md
-      - Connector SDK: reference/sdk.md
       - OpenAI-compatible embedder: embedders/openai.md
-      - Sample corpus: reference/corpus.md
-      - Choosing a model: models.md
-  - Measurements: measurements.md
+      - Connector SDK: reference/sdk.md
   - About:
-      - How it works: how-it-works.md
       - Licence: licence.md
       - Roadmap: roadmap.md
       - Development: development.md
@@ -78,8 +79,6 @@ theme:
         icon: material/weather-sunny
         name: Switch to light mode
   features:
-    - navigation.tabs
-    - navigation.tabs.sticky
     - navigation.instant
     - navigation.footer
     - navigation.top
