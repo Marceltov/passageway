@@ -7,8 +7,8 @@ from dataclasses import dataclass
 from typing import TextIO
 from urllib.parse import quote
 
-import httpx
 from passageway_sdk import Connector, SettingsError
+from passageway_sdk.settings import names, whole
 
 from passageway_connector_wikipedia.mediawiki import Wiki, WikiError
 from passageway_connector_wikipedia.sections import DEFAULT_SKIP, split_sections
@@ -34,26 +34,11 @@ class Scope:
     pause: float
 
 
-def _list(env: Mapping[str, str], key: str) -> tuple[str, ...]:
-    return tuple(p.strip() for p in env.get(key, "").split("|") if p.strip())
-
-
-def _int(env: Mapping[str, str], key: str, default: int, low: int) -> int:
-    raw = env.get(key, "").strip()
-    try:
-        value = int(raw) if raw else default
-    except ValueError:
-        raise ScopeError(f"{key} must be a whole number, got {raw!r}") from None
-    if value < low:
-        raise ScopeError(f"{key} must be at least {low}, got {value}")
-    return value
-
-
 def parse_scope(env: Mapping[str, str]) -> Scope:
     language = env.get("LANGUAGE", "").strip() or "en"
     if not re.fullmatch(r"[a-z][a-z-]*", language):
         raise ScopeError(f"LANGUAGE must be a wiki language code such as en or de, got {language!r}")
-    categories, titles = _list(env, "CATEGORIES"), _list(env, "TITLES")
+    categories, titles = names(env, "CATEGORIES"), names(env, "TITLES")
     geo = None
     if env.get("GEO", "").strip():
         try:
@@ -68,7 +53,7 @@ def parse_scope(env: Mapping[str, str]) -> Scope:
         raise ScopeError("set at least one of CATEGORIES, TITLES or GEO")
     skip_raw = env.get("SKIP_SECTIONS", "").strip()
     skip = DEFAULT_SKIP if not skip_raw else frozenset() if skip_raw == "none" else \
-        frozenset(s.casefold() for s in _list(env, "SKIP_SECTIONS"))
+        frozenset(s.casefold() for s in names(env, "SKIP_SECTIONS"))
     try:
         pause = float(env.get("PAUSE_SECONDS", "0.1"))
     except ValueError:
@@ -78,8 +63,8 @@ def parse_scope(env: Mapping[str, str]) -> Scope:
     return Scope(
         api_url=env.get("API_URL", "").strip() or f"https://{language}.wikipedia.org/w/api.php",
         page_url=env.get("PAGE_URL", "").strip() or f"https://{language}.wikipedia.org/wiki/",
-        categories=categories, depth=_int(env, "CATEGORY_DEPTH", 1, 0), titles=titles, geo=geo,
-        max_pages=_int(env, "MAX_PAGES", 500, 1), skip=skip, contact=env.get("CONTACT", "").strip(), pause=pause)
+        categories=categories, depth=whole(env, "CATEGORY_DEPTH", 1, 0), titles=titles, geo=geo,
+        max_pages=whole(env, "MAX_PAGES", 500), skip=skip, contact=env.get("CONTACT", "").strip(), pause=pause)
 
 
 def _user_agent(scope: Scope) -> str:
@@ -106,7 +91,7 @@ def article_url(scope: Scope, title: str) -> str:
 
 class Wikipedia(Connector):
     name = "wikipedia connector"
-    expected_errors = (WikiError, httpx.HTTPError, ValueError, KeyError)
+    expected_errors = (WikiError, ValueError, KeyError)
 
     def __init__(self, env: Mapping[str, str], *, sleep=time.sleep):
         self.scope = parse_scope(env)

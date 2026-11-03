@@ -1,12 +1,12 @@
 """A minimal, polite, read-only client for the MediaWiki Action API: only what the connector needs."""
 
-import ssl
+import json
 import sys
 import time
 from collections.abc import Iterator
 
-import httpx
-import truststore
+from passageway_sdk import SourceError
+from passageway_sdk.web import Reply, Retry, Web
 
 BATCH = 50  # page ids per request (the API limit for anonymous clients)
 RETRY_BUDGET = 900  # seconds of waiting per request before giving up: a rate limit can last minutes
@@ -25,59 +25,42 @@ def _batches(items: list, size: int) -> Iterator[list]:
         yield items[i:i + size]
 
 
-def _retry_after(response: httpx.Response, default: float) -> float:
-    try:
-        return max(default, min(float(response.headers["Retry-After"]), MAX_RETRY_AFTER))
-    except (KeyError, ValueError):
-        return default
-
-
 def _category_title(name: str) -> str:
     return name if ":" in name else f"Category:{name}"
 
 
+def _lagging(reply: Reply) -> str | None:
+    """The API answers 200 with `maxlag` when the wiki's replicas are behind: that is a request to come back later."""
+    try:
+        error = json.loads(reply.text).get("error")
+    except (ValueError, AttributeError):
+        return None
+    return "maxlag" if isinstance(error, dict) and error.get("code") == "maxlag" else None
+
+
 class Wiki:
     def __init__(self, api_url: str, user_agent: str, *, pause: float = 0.1, sleep=time.sleep, timeout: float = 30.0):
-        self._http = httpx.Client(headers={"User-Agent": user_agent}, timeout=timeout,
-                                  verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT))
-        self._url, self._pause, self._sleep = api_url, pause, sleep
+        retry = Retry(statuses=RETRY_STATUS, network=True, budget=RETRY_BUDGET, max_backoff=MAX_BACKOFF, max_after=MAX_RETRY_AFTER,
+                      say_from=SAY_WAITS_FROM)
+        # on stderr, which the core logs as it comes: a waiting sync does not look hung
+        say = lambda message: print(f"wikipedia connector: {message}", file=sys.stderr, flush=True)  # noqa: E731
+        self._web = Web(user_agent, pause=pause, timeout=timeout, max_bytes=256_000_000, retry=retry, log=say, sleep=sleep)
+        self._url = api_url
 
     # -- requests ----------------------------------------------------------------------------
 
     def _get(self, **params) -> dict:
         params = {"format": "json", "formatversion": "2", "maxlag": "5", **params}
-        attempt, waited = 0, 0.0
-        while True:
-            attempt += 1
-            wait = min(2 ** (attempt - 1), MAX_BACKOFF)
-            try:
-                response = self._http.get(self._url, params=params)
-            except httpx.TransportError as e:  # timeout, refused or dropped connection: worth another try
-                response, reason = None, f"{type(e).__name__}: {e}"
-            if response is not None:
-                if response.status_code in RETRY_STATUS:
-                    reason = f"HTTP {response.status_code}"
-                    wait = _retry_after(response, wait)
-                else:
-                    response.raise_for_status()
-                    data = response.json()
-                    error = data.get("error")
-                    if error is None:
-                        if self._pause:
-                            self._sleep(self._pause)
-                        return data
-                    if error.get("code") != "maxlag":
-                        raise WikiError(f"{error.get('code')}: {error.get('info')}")
-                    reason = "maxlag"
-            if waited >= RETRY_BUDGET:
-                raise WikiError(f"the wiki kept asking to try again later or could not be reached; giving up after "
-                                f"{attempt} attempts and {waited:.0f} s of waiting: {reason}")
-            wait = min(wait, RETRY_BUDGET - waited)
-            if wait >= SAY_WAITS_FROM:  # on stderr, which the core logs as it comes: a waiting sync does not look hung
-                print(f"wikipedia connector: {reason} from the wiki: waiting {wait:.0f} s "
-                      f"({waited:.0f} s of {RETRY_BUDGET} s waited)", file=sys.stderr, flush=True)
-            self._sleep(wait)
-            waited += wait
+        try:
+            reply = self._web.get(self._url, params=params, retry_if=_lagging)
+        except SourceError as e:  # the wiki kept asking to try again later, or could not be reached
+            raise WikiError(f"the wiki kept asking to try again later or could not be reached; {e}") from e
+        if reply.status >= 400:
+            raise WikiError(f"{self._url}: HTTP {reply.status}")
+        data = reply.json()
+        if (error := data.get("error")) is not None:
+            raise WikiError(f"{error.get('code')}: {error.get('info')}")
+        return data
 
     def _query(self, **params) -> Iterator[dict]:
         """Every page of an action=query result, following the API's continuation."""

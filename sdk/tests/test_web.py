@@ -68,3 +68,137 @@ def test_https_uses_the_system_trust_store():
 
 def test_text_that_is_not_utf8_is_replaced_not_fatal():
     assert web(lambda r: httpx.Response(200, content=b"caf\xe9")).get("https://x.example/").text == "caf�"
+
+
+# ---- a client for an API: base address, headers, TLS switch, redirects, retries, other methods ----------------------------
+
+from passageway_sdk.web import HttpError, NetworkError, Retry  # noqa: E402
+
+
+def test_a_base_url_and_default_headers_apply_to_every_request():
+    seen = []
+    client = web(lambda r: seen.append((str(r.url), r.headers["authorization"])) or httpx.Response(200),
+                 base_url="https://api.example/v1", headers={"Authorization": "Bearer t"}, pause=0)
+    client.get("/notes", params={"q": "a b"})
+    assert seen == [("https://api.example/v1/notes?q=a+b", "Bearer t")]
+
+
+def test_a_server_error_carries_its_status():
+    with pytest.raises(HttpError) as raised:
+        web(lambda r: httpx.Response(503)).get("https://x.example/")
+    assert raised.value.status == 503 and isinstance(raised.value, SourceError)
+    with pytest.raises(HttpError) as raised:
+        web(lambda r: httpx.Response(401)).get("https://x.example/", required=True)
+    assert raised.value.status == 401
+
+
+def test_turning_tls_checking_off_is_an_explicit_switch():
+    assert Web("a", verify=False)._http._transport._pool._ssl_context.verify_mode == ssl_none()
+
+
+def ssl_none():
+    import ssl
+
+    return ssl.CERT_NONE
+
+
+def test_redirects_are_followed_unless_refused():
+    def handler(request):
+        return httpx.Response(302, headers={"Location": "https://y.example/"}) if request.url.host == "x.example" else httpx.Response(200)
+
+    assert web(handler).get("https://x.example/").status == 200
+    assert web(handler, follow_redirects=False).get("https://x.example/").status == 302
+
+
+def test_a_post_sends_json_and_a_reply_reads_as_json():
+    seen = []
+
+    def handler(request):
+        seen.append((request.method, request.content))
+        return httpx.Response(200, json={"ok": True})
+
+    reply = web(handler).request("POST", "https://x.example/", json={"a": 1})
+    assert seen == [("POST", b'{"a":1}')] and reply.json() == {"ok": True}
+
+
+def test_a_retry_policy_waits_for_a_busy_server_and_then_succeeds():
+    replies = iter([httpx.Response(429, headers={"Retry-After": "7"}), httpx.Response(503), httpx.Response(200, text="ok")])
+    waits = []
+    client = Web("a", pause=0, retry=Retry(), transport=httpx.MockTransport(lambda r: next(replies)), sleep=waits.append)
+    assert client.get("https://x.example/").text == "ok"
+    assert waits[0] == 7 and 0 < waits[1] <= 60  # Retry-After is honoured, otherwise a backoff
+
+
+def test_a_retry_policy_gives_up_after_its_budget():
+    waits = []
+    client = Web("a", pause=0, retry=Retry(budget=10, max_backoff=4), transport=httpx.MockTransport(lambda r: httpx.Response(503)),
+                 sleep=waits.append)
+    with pytest.raises(HttpError, match="503"):
+        client.get("https://x.example/")
+    assert 0 < sum(waits) <= 10
+
+
+def test_without_a_retry_policy_nothing_is_retried():
+    calls = []
+    with pytest.raises(HttpError):
+        web(lambda r: calls.append(1) or httpx.Response(503)).get("https://x.example/")
+    assert len(calls) == 1
+
+
+def test_a_wait_is_clipped_to_the_budget_and_the_give_up_message_says_how_long_it_waited():
+    waits = []
+    client = Web("a", pause=0, retry=Retry(budget=10, max_backoff=4), transport=httpx.MockTransport(lambda r: httpx.Response(503)),
+                 sleep=waits.append)
+    with pytest.raises(HttpError, match=r"giving up after 5 attempts and 10 s of waiting: HTTP 503") as raised:
+        client.get("https://x.example/")
+    assert waits == [1, 2, 4, 3] and raised.value.attempts == 5 and raised.value.status == 503
+
+
+def test_a_long_wait_is_reported_to_the_log_as_it_starts():
+    replies = iter([httpx.Response(429, headers={"Retry-After": "40"}), httpx.Response(200)])
+    said = []
+    client = Web("a", pause=0, retry=Retry(), log=said.append, transport=httpx.MockTransport(lambda r: next(replies)), sleep=lambda s: None)
+    client.get("https://x.example/p")
+    assert said == ["HTTP 429 on GET https://x.example/p: waiting 40 s (0 s of 900 s waited)"]
+
+
+def test_network_errors_are_retried_only_when_the_policy_says_so():
+    calls = []
+
+    def flaky(request):
+        calls.append(1)
+        if len(calls) == 1:
+            raise httpx.ConnectError("refused")
+        return httpx.Response(200, text="ok")
+
+    with pytest.raises(NetworkError):
+        web(flaky).get("https://x.example/")
+    calls.clear()
+    client = Web("a", pause=0, retry=Retry(network=True), transport=httpx.MockTransport(flaky), sleep=lambda s: None)
+    assert client.get("https://x.example/").text == "ok"
+
+
+def test_a_reply_has_its_headers_in_lower_case():
+    client = web(lambda r: httpx.Response(302, headers={"Location": "https://y.example/"}), follow_redirects=False)
+    assert client.get("https://x.example/").headers["location"] == "https://y.example/"
+
+
+def test_a_reply_the_caller_calls_busy_is_retried_like_a_busy_status():
+    replies = iter([httpx.Response(200, text="lag"), httpx.Response(200, text="lag"), httpx.Response(200, text="done")])
+    waits, said = [], []
+    client = Web("a", pause=0, retry=Retry(say_from=1), log=said.append, transport=httpx.MockTransport(lambda r: next(replies)),
+                 sleep=waits.append)
+    reply = client.get("https://x.example/", retry_if=lambda r: "maxlag" if r.text == "lag" else None)
+    assert reply.text == "done" and waits == [1, 2] and said[0].startswith("maxlag on GET")
+
+
+def test_a_reply_that_stays_busy_gives_up_with_the_reason():
+    client = Web("a", pause=0, retry=Retry(budget=3), transport=httpx.MockTransport(lambda r: httpx.Response(200, text="lag")),
+                 sleep=lambda s: None)
+    with pytest.raises(HttpError, match="giving up after 3 attempts and 3 s of waiting: maxlag"):
+        client.get("https://x.example/", retry_if=lambda r: "maxlag")
+
+
+def test_retry_if_needs_a_retry_policy():
+    with pytest.raises(ValueError, match="retry"):
+        web(ok).get("https://x.example/", retry_if=lambda r: "x")
