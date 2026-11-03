@@ -10,6 +10,7 @@ from passageway_connector_llmstxt.connector import LlmsTxt
 from passageway_connector_trilium import connector as trilium
 from passageway_connector_wikipedia.mediawiki import Wiki
 from passageway_embedder_openai import embedder as openai
+from passageway_sdk.web import Web
 
 from passageway import models
 
@@ -23,7 +24,8 @@ def test_every_http_client_uses_the_system_trust_store():
         confluence.Api(confluence.parse_settings({"URL": "https://wiki.example", "SPACES": "OPS", "TOKEN": "t"}))._http,
         trilium.Etapi(trilium.parse_settings({"URL": "https://notes.example", "TOKEN": "t"}))._http,
         Wiki("https://en.wikipedia.org/w/api.php", "test")._http,
-        LlmsTxt({"URLS": "https://docs.example"})._http,
+        LlmsTxt({"URLS": "https://docs.example"})._web._http,
+        Web("test")._http,
         openai.Embedder(openai.parse_settings({"MODEL": "m", "API_KEY": "k"}))._http,
     ]
     for client in clients:

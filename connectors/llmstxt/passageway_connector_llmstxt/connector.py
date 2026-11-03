@@ -2,29 +2,19 @@
 
 import hashlib
 import re
-import ssl
-from collections.abc import Iterator, Mapping
+import time
+from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
 from urllib.parse import urldefrag, urljoin, urlparse
 
 import httpx
-import truststore
 from passageway_sdk import Connector, SettingsError, SourceError, split_markdown
+from passageway_sdk.settings import whole
+from passageway_sdk.web import TooLarge, Web
 
 FRONT_MATTER = re.compile(r"\A---[ \t]*\r?\n.*?\r?\n(?:---|\.\.\.)[ \t]*(?:\r?\n|\Z)", re.S)
 LINK = re.compile(r"\]\(\s*<?([^)\s>]+)")
 FENCE = re.compile(r"^\s*(```|~~~)")
-
-
-def _int(env: Mapping[str, str], key: str, default: int) -> int:
-    raw = env.get(key, "").strip()
-    try:
-        value = int(raw) if raw else default
-    except ValueError:
-        raise SettingsError(f"{key} must be a whole number, got {raw!r}") from None
-    if value < 1:
-        raise SettingsError(f"{key} must be at least 1, got {value}")
-    return value
 
 
 def _slug(title: str) -> str:
@@ -69,17 +59,17 @@ def split_pages(file: str, text: str) -> list[Page]:
 class LlmsTxt(Connector):
     name = "llmstxt connector"
 
-    def __init__(self, env: Mapping[str, str], *, transport: httpx.BaseTransport | None = None):
+    def __init__(self, env: Mapping[str, str], *, transport: httpx.BaseTransport | None = None,
+                 sleep: Callable[[float], None] = time.sleep):
         self.urls = [u.strip() for u in env.get("URLS", "").split("|") if u.strip()]
         if not self.urls:
             raise SettingsError("URLS must name at least one site or file")
         for url in self.urls:
             if urlparse(url).scheme not in ("http", "https") or not urlparse(url).netloc:
                 raise SettingsError(f"URLS must be http(s) addresses, got {url!r}")
-        self.max_bytes = _int(env, "MAX_BYTES", 20_000_000)
-        self.max_pages = _int(env, "MAX_PAGES", 500)
-        self._http = httpx.Client(headers={"User-Agent": "passageway-connector-llmstxt"}, timeout=30.0, follow_redirects=True,
-                                  transport=transport, verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT))
+        self.max_bytes = whole(env, "MAX_BYTES", 20_000_000)
+        self.max_pages = whole(env, "MAX_PAGES", 500)
+        self._web = Web("passageway-connector-llmstxt", max_bytes=self.max_bytes, transport=transport, sleep=sleep)
 
     # -- the protocol ------------------------------------------------------------------------
 
@@ -123,20 +113,9 @@ class LlmsTxt(Connector):
 
     def _get(self, url: str) -> str:
         try:
-            with self._http.stream("GET", url) as response:
-                if response.status_code != 200:
-                    raise SourceError(f"{url}: HTTP {response.status_code}")
-                body = bytearray()
-                for chunk in response.iter_bytes():
-                    body += chunk
-                    if len(body) > self.max_bytes:
-                        raise SourceError(f"{url}: larger than MAX_BYTES ({self.max_bytes})")
-        except httpx.HTTPError as e:
-            raise SourceError(f"{url}: {e}") from e
-        try:
-            return body.decode("utf-8-sig")
-        except UnicodeDecodeError:
-            raise SourceError(f"{url}: not UTF-8 text") from None
+            return self._web.get(url, required=True).text
+        except TooLarge:
+            raise SourceError(f"{url}: larger than MAX_BYTES ({self.max_bytes})") from None
 
     def _item(self, page: Page) -> dict:
         return {

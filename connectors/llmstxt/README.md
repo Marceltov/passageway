@@ -8,7 +8,7 @@ A [passageway](https://github.com/Marceltov/passageway#readme) connector that in
 - **A site address reads its `llms-full.txt`.** `https://docs.example.org` is read as `https://docs.example.org/llms-full.txt`.
 - **A file address is read as it is:** `https://docs.example.org/llms-full.txt`, `https://passageway.marceltov.de/SKILL.md`, any markdown or text file.
 - **An `llms.txt` index is followed.** Every link in it that stays on the same host is fetched and indexed as a file of its own. Links to other hosts are not followed.
-- **Any failure fails the whole listing.** A page that returns an error or is not UTF-8 text stops the sync with a message that names it, so a half-read site never deletes what was indexed before.
+- **Any failure fails the whole listing.** A page that returns an error, or a server that is down, stops the sync with a message that names it, so a half-read site never deletes what was indexed before.
 
 ## Install
 

@@ -1,6 +1,6 @@
 # passageway-sdk
 
-Write a [passageway](https://passageway.marceltov.de/) connector as three small functions. No dependencies.
+Write a [passageway](https://passageway.marceltov.de/) connector as three small functions. No dependencies; `passageway-sdk[web]` adds a polite web client for connectors that read a website.
 
 ```python
 from passageway_sdk import Connector

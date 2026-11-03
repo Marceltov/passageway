@@ -68,7 +68,7 @@ def test_the_output_validates_against_the_published_json_schema(site):
 
 def test_every_setting_is_in_the_readme():
     code = (Path(__file__).resolve().parents[1] / "passageway_connector_llmstxt" / "connector.py").read_text()
-    names = sorted(set(re.findall(r'(?:env\.get|_list|_int)\(\s*(?:env,\s*)?"([A-Z_]+)"', code)) | {"URLS"})
+    names = sorted(set(re.findall(r'(?:env\.get|names|whole|flag|seconds)\(\s*(?:env,\s*)?"([A-Z_]+)"', code)) | {"URLS"})
     assert len(names) >= 3, names  # the pattern must actually find the settings
     readme = README.read_text()
     for name in names:

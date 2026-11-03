@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "passageway connector for the llms-full.txt of a list of websites"
 requires-python = ">=3.12"
 license = "PolyForm-Noncommercial-1.0.0"
-dependencies = ["passageway-sdk", "httpx>=0.27", "truststore>=0.10"]
+dependencies = ["passageway-sdk[web]"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["passageway_connector_llmstxt"]

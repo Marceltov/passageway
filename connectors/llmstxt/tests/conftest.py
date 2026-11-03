@@ -39,7 +39,8 @@ class Sites:
     def call(self, mode, stdin="", **settings):
         out, err = io.StringIO(), io.StringIO()
         env = {"URLS": "https://docs.example", **settings}
-        code = LlmsTxt.run(["llmstxt", mode], env, io.StringIO(stdin), out, err, transport=httpx.MockTransport(self.handler))
+        code = LlmsTxt.run(["llmstxt", mode], env, io.StringIO(stdin), out, err, transport=httpx.MockTransport(self.handler),
+                           sleep=lambda s: None)
         return code, [json.loads(line) for line in out.getvalue().splitlines()], err.getvalue()
 
     def fetch(self, *ids, **settings):
