@@ -346,3 +346,70 @@
     flex-wrap: wrap;
   }
 }
+
+/* Home page hero: text left, the animation right on wide screens. */
+.pw-teal {
+  color: var(--pw-accent);
+}
+@media screen and (min-width: 60em) {
+  .pw-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    column-gap: 1.5rem;
+    align-items: center;
+  }
+  .pw-hero > * {
+    grid-column: 1;
+  }
+  .pw-hero > .pw-hero__art {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+  }
+}
+.pw-hero__art svg {
+  width: 100%;
+  height: auto;
+  font-size: 13px;
+}
+.pw-anim .pw-node rect {
+  fill: var(--pw-mist);
+  stroke: var(--pw-accent);
+  stroke-width: 1.2;
+}
+.pw-anim .pw-node text {
+  fill: var(--pw-ink);
+}
+.pw-anim .pw-flow {
+  fill: none;
+  stroke: var(--pw-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 1 8;
+  opacity: 0.6;
+  animation: pw-dash 1.2s linear infinite;
+}
+@keyframes pw-dash {
+  to {
+    stroke-dashoffset: -9;
+  }
+}
+.pw-anim .pw-dot {
+  fill: var(--pw-accent);
+}
+.pw-anim .pw-core {
+  fill: var(--pw-accent);
+}
+.pw-anim .pw-arch {
+  fill: none;
+  stroke: var(--md-default-bg-color);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pw-anim .pw-flow {
+    animation: none;
+  }
+  .pw-anim .pw-dot {
+    display: none;
+  }
+}

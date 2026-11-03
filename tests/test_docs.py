@@ -294,7 +294,7 @@ def test_outside_code_waits_for_a_contributor_licence_agreement():
 
 
 def test_the_front_page_carries_the_search_claim_and_the_licence_line():
-    index = (ROOT / "docs" / "index.md").read_text()
+    index = re.sub(r"<[^>]+>", "", (ROOT / "docs" / "index.md").read_text())
     assert "The answer is hidden somewhere across your sources. passageway finds it." in index
     for beat in ["On premise.", "Connected.", "Open."]:
         assert beat in index
