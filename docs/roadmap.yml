@@ -10,6 +10,39 @@
 
 items:
   # ---- open ------------------------------------------------------------------------------------------------------------
+  - id: dynamic-result-size
+    status: next
+    when: Next
+    icon: arrow-expand-vertical
+    title: A result size that fits the question
+    summary: Today a result is about 400 tokens, whatever was asked. It should grow or shrink with the question, and a hit should be readable in full from the index.
+    details: |
+      - The budget follows the question and the room the agent has, not a fixed number.
+      - The full text of a hit comes from the index, so the agent no longer calls the original source.
+    links:
+      - {label: "#105", url: "https://github.com/Marceltov/passageway/issues/105"}
+      - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
+
+  - id: savings-measurement
+    status: later
+    when: Later
+    icon: scale-balance
+    title: Tokens and money saved, measured
+    summary: Compare an agent that searches with passageway to one that reads whole pages, on the same questions, and publish the difference with the method.
+    links:
+      - {label: "#100", url: "https://github.com/Marceltov/passageway/issues/100"}
+      - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
+
+  - id: ui
+    status: later
+    when: Later
+    icon: message-text-outline
+    title: A UI on top of the core
+    summary: A search and chat app that embeds the core, with an optional generator for people who want an answer instead of passages. The core stays the search.
+    links:
+      - {label: "#99", url: "https://github.com/Marceltov/passageway/issues/99"}
+      - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
+
   # ---- done, newest first ----------------------------------------------------------------------------------------------
   - id: trilium-recall-adopts
     status: done
