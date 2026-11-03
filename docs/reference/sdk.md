@@ -71,6 +71,8 @@ reply = web.get("/content", params={"limit": "50"}, required=True)  # Reply(stat
 data = reply.json()
 ```
 
+`Web(user_agent, …)` takes these options, all keyword-only after the first:
+
 | Option | Meaning | Default |
 |---|---|---|
 | `user_agent` | Sent as `User-Agent`. | none |
