@@ -22,9 +22,11 @@ from pathlib import Path
 from urllib.parse import quote
 
 import yaml
-from passageway_connector_wikipedia.connector import Scope, ScopeError, _int, _pages, _user_agent, article_url, parse_scope
+from passageway_connector_wikipedia.connector import Scope, ScopeError, _pages, _user_agent, article_url, parse_scope
 from passageway_connector_wikipedia.mediawiki import Wiki, WikiError
 from passageway_connector_wikipedia.sections import HEADING, clean_math
+from passageway_sdk import SettingsError
+from passageway_sdk.settings import whole
 
 LICENSE = "CC BY-SA 4.0"
 LICENSE_URL = "https://creativecommons.org/licenses/by-sa/4.0/"
@@ -59,7 +61,7 @@ def snapshot(env: Mapping[str, str], stdout, stderr, *, sleep=time.sleep) -> int
         if not env.get("OUT", "").strip():
             raise ScopeError("OUT must name the folder to write")
         out = Path(env["OUT"].strip())
-        limit = _int(env, "LIMIT", 0, 0)
+        limit = whole(env, "LIMIT", 0, 0)
         if env.get("LIMIT", "").strip() and limit < 1:
             raise ScopeError("LIMIT must be at least 1")
         scope = parse_scope(env)
@@ -75,7 +77,7 @@ def snapshot(env: Mapping[str, str], stdout, stderr, *, sleep=time.sleep) -> int
             if article is not None:
                 title, extract, revid, timestamp = article
                 articles.append((page_id, title, to_markdown(extract, scope.skip), revid, timestamp))
-    except ScopeError as e:
+    except SettingsError as e:  # ScopeError is one
         print(f"snapshot: {e}", file=stderr)
         return 2
     except WikiError as e:

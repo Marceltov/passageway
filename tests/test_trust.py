@@ -20,8 +20,8 @@ def _context(client):
 
 def test_every_http_client_uses_the_system_trust_store():
     clients = [
-        confluence.Api(confluence.parse_settings({"URL": "https://wiki.example", "SPACES": "OPS", "TOKEN": "t"}))._http,
-        trilium.Etapi(trilium.parse_settings({"URL": "https://notes.example", "TOKEN": "t"}))._http,
+        confluence.Api(confluence.parse_settings({"URL": "https://wiki.example", "SPACES": "OPS", "TOKEN": "t"}))._web._http,
+        trilium.Etapi(trilium.parse_settings({"URL": "https://notes.example", "TOKEN": "t"}))._web._http,
         Wiki("https://en.wikipedia.org/w/api.php", "test")._web._http,
         Web("test")._http,
         openai.Embedder(openai.parse_settings({"MODEL": "m", "API_KEY": "k"}))._http,
@@ -32,7 +32,7 @@ def test_every_http_client_uses_the_system_trust_store():
 
 def test_verify_tls_false_still_turns_checking_off():
     s = confluence.parse_settings({"URL": "https://wiki.example", "SPACES": "OPS", "TOKEN": "t", "VERIFY_TLS": "false"})
-    assert _context(confluence.Api(s)._http).verify_mode == ssl.CERT_NONE
+    assert _context(confluence.Api(s)._web._http).verify_mode == ssl.CERT_NONE
 
 
 def test_the_model_download_uses_the_system_trust_store(tmp_path, monkeypatch):

@@ -8,15 +8,13 @@ links in the text become links. Nothing source-specific reaches the core.
 import hashlib
 import json
 import re
-import ssl
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from urllib.parse import urlparse
 
-import httpx
-import truststore
 from passageway_sdk import Connector, SettingsError, SourceError
+from passageway_sdk.web import HttpError, Reply, Web
 
 from passageway_connector_trilium.html import html_to_sections
 
@@ -68,16 +66,20 @@ class Etapi:
     """Read-only: only GET requests, by construction."""
 
     def __init__(self, settings: Settings):
-        self._http = httpx.Client(base_url=settings.url + "/etapi", headers={"Authorization": settings.token},
-                                  timeout=settings.timeout, verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT))
+        # no pause (it is the user's own server) and no practical size cap (a search answer lists every note)
+        self._web = Web(base_url=settings.url + "/etapi", headers={"Authorization": settings.token}, timeout=settings.timeout,
+                        pause=0, max_bytes=256_000_000)
 
-    def _get(self, path: str, **params) -> httpx.Response:
-        response = self._http.get(path, params=params)
-        if response.status_code == 401:
+    def _get(self, path: str, *, missing_ok: bool = False, **params) -> Reply:
+        try:
+            reply = self._web.get(path, params=params)
+        except HttpError as e:
+            reply = Reply(e.status, "", "")
+        if reply.status == 401:
             raise SourceError("Trilium answered HTTP 401: check TOKEN (an ETAPI token from Options › ETAPI)")
-        if response.status_code >= 400:
-            raise SourceError(f"Trilium answered HTTP {response.status_code} to GET {path}")
-        return response
+        if reply.status >= 400 and not (missing_ok and reply.status == 404):
+            raise SourceError(f"Trilium answered HTTP {reply.status} to GET {path}")
+        return reply
 
     def search(self, query: str, ancestor: str | None = None) -> list[dict]:
         params = {"search": query, "fastSearch": "true"}
@@ -86,12 +88,8 @@ class Etapi:
         return self._get("/notes", **params).json()["results"]
 
     def content(self, note_id: str) -> str | None:
-        response = self._http.get(f"/notes/{note_id}/content")
-        if response.status_code == 404:
-            return None
-        if response.status_code >= 400:
-            raise SourceError(f"Trilium answered HTTP {response.status_code} to GET /notes/{note_id}/content")
-        return response.text
+        reply = self._get(f"/notes/{note_id}/content", missing_ok=True)
+        return None if reply.status == 404 else reply.text
 
 
 def _owned(note: dict, name: str) -> list[dict]:
@@ -122,7 +120,7 @@ class Scan:
 
 class Trilium(Connector):
     name = "trilium connector"
-    expected_errors = (httpx.HTTPError, ValueError, KeyError, TypeError)
+    expected_errors = (ValueError, KeyError, TypeError)
 
     def __init__(self, env: Mapping[str, str]):
         self.settings = parse_settings(env)
