@@ -4,6 +4,16 @@ passageway is open at its edges: any source and any language, because a connecto
 
 A connector is a program that answers three questions about a source: *what exists*, *what is in it*, and optionally *what changed*. It can be written in any language. This guide builds one in Python for a folder of text files.
 
+```mermaid
+flowchart LR
+  L["list<br/>every id and its version"] --> C{"version differs<br/>from the index?"}
+  C -- "new or changed" --> F["fetch<br/>the text of those ids"] --> I[("Index")]
+  C -- "unchanged" --> K["keep what is indexed"]
+  L -- "id no longer listed" --> D["delete from the index"]
+```
+
+The core calls `list` on every sync and `fetch` only for what is new or changed; `list` also decides what is deleted.
+
 ## The connector
 
 ```python

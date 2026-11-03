@@ -2,8 +2,17 @@
 
 Claude Code can use passageway in two ways, and the plugin sets up both:
 
-- **The `recall` tool** over MCP, which the model calls when it decides to search. The server sends instructions on connect that say when to call it.
-- **A prompt hook** (`UserPromptSubmit`) that sends every prompt to the server and adds up to three short passages to the context when the sources have something, and nothing otherwise. The hook exists because a model only calls a tool when it thinks it needs one, and skips it when it believes it knows the answer; the hook does not ask.
+<div class="grid cards" markdown>
+
+- **The `recall` tool**
+
+    Over MCP. The model calls it when it decides to search; the server sends instructions on connect that say when.
+
+- **A prompt hook**
+
+    `UserPromptSubmit` sends every prompt to the server and adds up to three short passages when the sources have something, and nothing otherwise. A model only calls a tool when it thinks it needs one; the hook does not ask.
+
+</div>
 
 ## Install the plugin
 

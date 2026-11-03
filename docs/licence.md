@@ -2,6 +2,22 @@
 
 **Free for private use. Companies need a licence.**
 
+<div class="grid cards" markdown>
+
+- **Private use**
+
+    Free, for your own use and for noncommercial organisations.
+
+- **Trying it at work**
+
+    Free for up to 31 days, no conversation needed.
+
+- **A company**
+
+    Needs a commercial licence. [How to ask](#asking-for-a-licence)
+
+</div>
+
 | | Licence | Who may use it |
 |---|---|---|
 | The core, the bundled connectors and embedders | [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0) | Individuals for their own use, and noncommercial organisations such as charities, schools and research institutions. A company, a freelancer working for a client, or an employee at work needs a commercial licence. |
