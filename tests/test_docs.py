@@ -17,7 +17,7 @@ def test_every_environment_variable_the_server_reads_is_documented():
 def test_every_wikipedia_setting_is_in_its_readme():
     code = (ROOT / "connectors/wikipedia/passageway_connector_wikipedia/connector.py").read_text()
     readme = (ROOT / "connectors/wikipedia/README.md").read_text()
-    names = sorted(set(re.findall(r'(?:env\.get|_list|_int)\(\s*(?:env,\s*)?"([A-Z_]+)"', code)))
+    names = sorted(set(re.findall(r'(?:env\.get|names|whole)\(\s*(?:env,\s*)?"([A-Z_]+)"', code)))
     assert len(names) >= 9  # the pattern must actually find the settings
     for name in names:
         assert f"`{name}`" in readme, f"{name} is read by the Wikipedia connector but missing from its README"

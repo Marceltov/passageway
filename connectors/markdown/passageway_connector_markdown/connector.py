@@ -12,6 +12,7 @@ from urllib.parse import unquote
 
 import yaml
 from passageway_sdk import Connector, SettingsError, SourceError, first_h1, split_markdown, strip_code
+from passageway_sdk.settings import names, whole
 
 DEFAULT_INCLUDE = ("*.md", "*.markdown")
 SKIP_DIRS = frozenset({"node_modules"})
@@ -19,21 +20,6 @@ FRONT_MATTER = re.compile(r"\A---[ \t]*\r?\n(?:(.*?)\r?\n)?(?:---|\.\.\.)[ \t]*(
 # [[wiki link]] or [text](target); no brackets or line breaks inside, which also keeps the matching linear
 LINK = re.compile(r"\[\[([^\[\]\n]+)\]\]|\[[^\[\]\n]*\]\(([^()\n]*)\)")
 SCHEME = re.compile(r"[a-zA-Z][a-zA-Z0-9+.-]*:")
-
-
-def _list(env: Mapping[str, str], key: str) -> tuple[str, ...]:
-    return tuple(p.strip() for p in env.get(key, "").split("|") if p.strip())
-
-
-def _int(env: Mapping[str, str], key: str, default: int, low: int) -> int:
-    raw = env.get(key, "").strip()
-    try:
-        value = int(raw) if raw else default
-    except ValueError:
-        raise SettingsError(f"{key} must be a whole number, got {raw!r}") from None
-    if value < low:
-        raise SettingsError(f"{key} must be at least {low}, got {value}")
-    return value
 
 
 def _glob(pattern: str) -> re.Pattern:
@@ -75,9 +61,9 @@ class Markdown(Connector):
         if not folder or not Path(folder).is_dir():
             raise SettingsError(f"FOLDER must be an existing folder, got {folder!r}")
         self.root = Path(folder).resolve()
-        self.include = [_glob(p) for p in _list(env, "INCLUDE") or DEFAULT_INCLUDE]
-        self.exclude = [_glob(p) for p in _list(env, "EXCLUDE")]
-        self.max_bytes = _int(env, "MAX_FILE_BYTES", 1024 * 1024, 1)
+        self.include = [_glob(p) for p in names(env, "INCLUDE") or DEFAULT_INCLUDE]
+        self.exclude = [_glob(p) for p in names(env, "EXCLUDE")]
+        self.max_bytes = whole(env, "MAX_FILE_BYTES", 1024 * 1024)
 
     # -- the protocol ------------------------------------------------------------------------
 
