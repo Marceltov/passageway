@@ -70,7 +70,7 @@ It reads your `passageway.toml` and the embedding model like the server does (`P
 
 | Option | What it does |
 |---|---|
-| `--config PATH`, `--model-dir DIR` | Use another `passageway.toml`, or another folder for the default built-in model (a non-default preset keeps `<data dir>/models/<preset>` or its `model_dir`) |
+| `--config PATH`, `--model-dir DIR` | Use another `passageway.toml`, or another folder for the default model preset (a non-default preset keeps `<data dir>/models/<preset>` or its `model_dir`) |
 | `--data-dir DIR` | Keep the index in `DIR` and reuse it on the next run, which is faster while you refine questions. An index built with another embedding model is refused. Do not point it at your server's live data folder: eval would sync that index while the server is using it |
 | `--threshold X` | Use `X` as the relevance threshold (`min_similarity`) for this run |
 | `--sweep 0.80,0.84,0.88` | Also run at each of these thresholds and show them side by side. The index is built once, so a sweep costs little. This is how you choose a threshold for a model |
@@ -150,4 +150,4 @@ Each row shows the model's name and dimensions, the **load** time (starting the 
 
 ## Not yet
 
-The [sample corpus](../reference/corpus.md) has a public set of 100 questions, the [published measurements](../measurements.md), which show the whole sweep, and a [comparison of the built-in models](../models.md). The [roadmap](../roadmap.md) has the order of what comes next.
+The [sample corpus](../reference/corpus.md) has a public set of 100 questions, the [published measurements](../measurements.md), which show the whole sweep, and a [comparison of the model presets](../models.md). The [roadmap](../roadmap.md) has the order of what comes next.

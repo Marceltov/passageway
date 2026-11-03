@@ -25,7 +25,9 @@ See the [connector protocol](reference/connector-protocol.md) for what a connect
 
 ## The embedder
 
-Without an `[embedder]` section passageway uses its built-in default, the multilingual e5-small, and fetches it once (pinned to a revision, every file verified by checksum) when it is missing. `model` picks another built-in preset:
+The embedder turns text into vectors. passageway has one **built-in embedder** (`kind = "onnx"`) that runs a model on your CPU, with three **model presets** to choose from; any other embedder is a program that speaks the [embedder protocol](reference/embedder-protocol.md) (`kind = "command"`).
+
+Without an `[embedder]` section passageway uses the built-in embedder with its default model, the multilingual e5-small, and fetches it once (pinned to a revision, every file verified by checksum) when it is missing. `model` picks another model preset:
 
 ```toml
 [embedder]
@@ -49,9 +51,9 @@ timeout = 60                    # seconds per request
 
 | Key | Kinds | Meaning |
 |---|---|---|
-| `kind` | both | `onnx` is the built-in model; `command` runs your program as one long-lived process |
-| `min_similarity` | both | The relevance gate, from 0 to 1. Similarity scales differ between models, so measure it with [`passageway eval --sweep`](guides/evaluate.md); a `command` embedder without it gets the built-in model's value and a warning |
-| `model` | `onnx` | A built-in preset: `multilingual-e5-small` (the default), `multilingual-e5-base`, `jina-v2-base-de`; `passageway model list` shows them with their measured relevance gate |
+| `kind` | both | `onnx` is the built-in embedder, which runs a model preset; `command` runs your program as one long-lived process |
+| `min_similarity` | both | The relevance gate, from 0 to 1. Similarity scales differ between models, so measure it with [`passageway eval --sweep`](guides/evaluate.md); a `command` embedder without it gets the default model preset's value and a warning |
+| `model` | `onnx` | A model preset of the built-in embedder: `multilingual-e5-small` (the default), `multilingual-e5-base`, `jina-v2-base-de`; `passageway model list` shows them with their measured relevance gate |
 | `device` | `onnx` | `auto` (CPU) or `cpu`; `coreml` is opt-in on a Mac, measured four times slower on these int8 models and giving different vectors, so only for your own experiments |
 | `download` | `onnx` | `true` fetches the preset's files from huggingface.co (or the mirror in `PASSAGEWAY_MODEL_HUB`) when they are missing or fail their checksum, once, before the server answers; `false` makes a missing model an error, with `passageway model download <preset>` as the step to run |
 | `model_dir` | `onnx` | Where the preset's files are. Default: `PASSAGEWAY_MODEL_DIR` for the default preset (itself `<data dir>/models/e5-small`), else `<data dir>/models/<preset>`; `passageway model` uses the same rule. Set, it wins over `PASSAGEWAY_MODEL_DIR` and `--model-dir` |
@@ -99,7 +101,7 @@ PASSAGEWAY_PORT=8083 PASSAGEWAY_LOGIN_PASSWORD_FILE=~/.config/passageway-work/pa
 passageway --instance work eval cases.toml
 ```
 
-The instance reads `~/.config/passageway-work/passageway.toml` and keeps its index in the data folder with `-work` appended (`~/Library/Application Support/passageway-work` on macOS). The built-in models stay in the shared data folder, so they are downloaded once. `/health` names the instance. Every command takes `--instance NAME`, anywhere on the line; a service sets `PASSAGEWAY_INSTANCE` instead, and the argument wins when both are there. An instance must exist: `--instance wrok` is an error that lists the instances there are, and only `init` creates one. Without an instance nothing changes, unless the machine has only named instances: then a bare `passageway` or `passageway eval` asks you to pick one rather than run against an empty default. In Claude Code, `/passageway-install` asks for the name, picks a free port and runs each instance as its own service.
+The instance reads `~/.config/passageway-work/passageway.toml` and keeps its index in the data folder with `-work` appended (`~/Library/Application Support/passageway-work` on macOS). The model presets stay in the shared data folder, so they are downloaded once. `/health` names the instance. Every command takes `--instance NAME`, anywhere on the line; a service sets `PASSAGEWAY_INSTANCE` instead, and the argument wins when both are there. An instance must exist: `--instance wrok` is an error that lists the instances there are, and only `init` creates one. Without an instance nothing changes, unless the machine has only named instances: then a bare `passageway` or `passageway eval` asks you to pick one rather than run against an empty default. In Claude Code, `/passageway-install` asks for the name, picks a free port and runs each instance as its own service.
 
 Each Claude setup connects to the instances you choose, one or several: their hook files and MCP registrations live in its own `CLAUDE_CONFIG_DIR`, so `/passageway-connect` run in that setup touches no other. The hook asks every connected instance at once and joins their passages; the `recall` tool of instance `work` is the MCP server `passageway-work`. This keeps sources, indexes and connections apart; it is not a security boundary. Under one operating-system user, a Claude with a shell can read another instance's password file and call its port, so which Claude connects to which instance is up to you. For a boundary that holds, run each instance as its own user or in its own [container](deploy.md).
 

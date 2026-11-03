@@ -1,6 +1,6 @@
 # Choosing a model
 
-The three built-in models compared on the [sample corpus](reference/corpus.md) with the same 100 questions as the [measurements](measurements.md), each with its own fresh index and its own relevance threshold. `corpus/compare.sh` reproduces it and writes the block below. [Measure retrieval quality](guides/evaluate.md) explains the metrics; the intervals say how little a difference of a few points means.
+The three model presets of the built-in embedder, compared on the [sample corpus](reference/corpus.md) with the same 100 questions as the [measurements](measurements.md), each with its own fresh index and its own relevance threshold. `corpus/compare.sh` reproduces it and writes the block below. [Measure retrieval quality](guides/evaluate.md) explains the metrics; the intervals say how little a difference of a few points means.
 
 Each model has its own similarity scale, so the threshold tables are the point of this page: a model's `min_similarity` is read off where hit@3 and silence cross, and that value is the preset's default (`passageway model list` shows it).
 
