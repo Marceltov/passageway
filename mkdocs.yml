@@ -94,6 +94,10 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js
+  - javascripts/mermaid.js
+
 plugins:
   - search
   - llmstxt:

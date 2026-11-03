@@ -408,11 +408,31 @@
 
 /* Diagrams (Mermaid) in the site's colours. */
 :root > * {
+  --md-mermaid-edge-color: var(--pw-accent);
   --md-mermaid-node-bg-color: var(--pw-mist);
-  --md-mermaid-node-fg-color: var(--pw-accent);
-  --md-mermaid-edge-color: var(--md-default-fg-color--light);
+  --md-mermaid-node-fg-color: var(--pw-ink);
   --md-mermaid-label-bg-color: var(--md-default-bg-color);
   --md-mermaid-label-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-actor-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-actor-border-color: var(--pw-accent);
+  --md-mermaid-sequence-actor-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-actor-line-color: var(--md-default-fg-color--lighter);
+  --md-mermaid-sequence-actorman-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-actorman-line-color: var(--pw-accent);
+  --md-mermaid-sequence-box-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-box-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-label-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-label-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-loop-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-loop-border-color: var(--pw-accent);
+  --md-mermaid-sequence-loop-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-message-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-message-line-color: var(--pw-accent);
+  --md-mermaid-sequence-note-bg-color: var(--pw-mist);
+  --md-mermaid-sequence-note-border-color: var(--pw-accent);
+  --md-mermaid-sequence-note-fg-color: var(--pw-ink);
+  --md-mermaid-sequence-number-bg-color: var(--pw-accent);
+  --md-mermaid-sequence-number-fg-color: var(--md-default-bg-color);
 }
 
 /* Charts (docs_hooks/charts.py): three validated categorical slots, light and dark; text in ink, never in the series colour. */
