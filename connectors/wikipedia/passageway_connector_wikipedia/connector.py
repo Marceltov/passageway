@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from typing import TextIO
 from urllib.parse import quote
 
-import httpx
 from passageway_sdk import Connector, SettingsError
 
 from passageway_connector_wikipedia.mediawiki import Wiki, WikiError
@@ -106,7 +105,7 @@ def article_url(scope: Scope, title: str) -> str:
 
 class Wikipedia(Connector):
     name = "wikipedia connector"
-    expected_errors = (WikiError, httpx.HTTPError, ValueError, KeyError)
+    expected_errors = (WikiError, ValueError, KeyError)
 
     def __init__(self, env: Mapping[str, str], *, sleep=time.sleep):
         self.scope = parse_scope(env)

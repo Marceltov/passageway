@@ -21,7 +21,6 @@ from collections.abc import Mapping
 from pathlib import Path
 from urllib.parse import quote
 
-import httpx
 import yaml
 from passageway_connector_wikipedia.connector import Scope, ScopeError, _int, _pages, _user_agent, article_url, parse_scope
 from passageway_connector_wikipedia.mediawiki import Wiki, WikiError
@@ -79,7 +78,7 @@ def snapshot(env: Mapping[str, str], stdout, stderr, *, sleep=time.sleep) -> int
     except ScopeError as e:
         print(f"snapshot: {e}", file=stderr)
         return 2
-    except (WikiError, httpx.HTTPError) as e:
+    except WikiError as e:
         print(f"snapshot: {e}", file=stderr)
         return 1
     articles.sort(key=lambda a: (-len(a[2]), a[1]))  # the longest first, ties by title
