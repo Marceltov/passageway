@@ -48,4 +48,42 @@ For connectors whose source is (or converts to) markdown:
 
 `Connector.run(argv, env, stdin, stdout, stderr, **options)` runs one mode in-process and returns the exit code; `options` go to `__init__`. For the contract, run your script as a real subprocess with `passageway.testing.contract.check_connector`, as the [guide](../guides/write-a-connector.md) shows.
 
+## Settings helpers
+
+`passageway_sdk.settings` reads the connector's settings, which arrive as strings in `env`. Each raises `SettingsError` with the setting's name when the value is wrong.
+
+| Function | What it does |
+|---|---|
+| `names(env, key)` | A list setting: values separated by `\|`, blanks dropped. |
+| `whole(env, key, default, low=1)` | A whole number of at least `low`. |
+| `flag(env, key, default)` | `true` or `false`, in any case. |
+| `seconds(env, key, default)` | A number of seconds that is not negative. |
+
+## Web client
+
+`passageway_sdk.web` is for connectors and embedders that call a website or an API. It needs the extra, so the SDK itself keeps no dependencies: `passageway-sdk[web]` installs `httpx` and `truststore`.
+
+```python
+from passageway_sdk.web import Web
+
+web = Web("my-connector", base_url="https://wiki.example/rest", headers={"Authorization": "Bearer …"}, pause=0)
+reply = web.get("/content", params={"limit": "50"}, required=True)  # Reply(status, text, content_type)
+data = reply.json()
+```
+
+`Web(user_agent, …)` takes these options, all keyword-only after the first:
+
+| Option | Meaning | Default |
+|---|---|---|
+| `user_agent` | Sent as `User-Agent`. | none |
+| `base_url`, `headers` | Prefix for every path, and headers on every request (a token). | none |
+| `verify` | HTTPS is checked against the operating system's trust store; `False` turns checking off and should be an explicit setting of the connector. | `True` |
+| `follow_redirects` | Set `False` to refuse redirects, so a secret never follows one to another host. | `True` |
+| `pause` | Seconds between two requests. | `0.2` |
+| `timeout`, `max_bytes` | Seconds per request, and the largest reply (`TooLarge`, a `SourceError`; `get(max_bytes=…)` per call). | `30`, `2000000` |
+| `retry` | A `Retry(statuses, network, budget, max_backoff, max_after, say_from)` policy: wait (the server's `Retry-After`, else 1, 2, 4 … seconds) and try again on `429`, `502`, `503`, `504` (set `statuses` for others; `network=True` also retries when the server cannot be reached) until `budget` seconds are spent, then give up with the total time waited. A wait of `say_from` seconds or more is passed to `log(message)`. | none |
+| `log` | A function that receives the retry messages, so a waiting sync does not look hung. | none |
+
+`get(url, params=None, required=False, max_bytes=None, retry_if=None)` and `request(method, url, params=None, json=None, …)` return a `Reply`. `retry_if(reply)` may return a reason to try again although the status is fine (an API that answers `200` with "I am lagging"); it counts against the same budget. A `Reply` has `status`, `text`, `content_type`, `headers` (names in lower case) and `.json()`. A failure to reach the server raises `NetworkError`, and a `5xx` or `429` that retries did not clear raises `HttpError` (a `SourceError` with the `status`), so a source that is down fails the call and never looks empty; any other status, such as a `404`, is returned for the connector to judge, or raised with `required=True`.
+
 *The SDK is MIT licensed ([licence](LICENSE)).*
