@@ -4,6 +4,68 @@ passageway is a retrieval service for Claude: connectors feed it the text of you
 
 It is written for you, if you are deciding whether to trust passageway with your notes, your wiki or your company's documentation. It is also the yardstick for every change: a contribution, from a person or an AI, is judged against these points, and a review names the one it touches ("this breaks V2"). Each point says what it rules out, so that it can be used that way.
 
+**Lines never crossed**
+
+<div class="grid cards" markdown>
+
+- **[V1. The core knows no source](#v1-the-core-knows-no-source-and-no-model-beyond-its-default)**
+
+    Two protocols and nothing else: no source- or model-specific code in the core.
+
+- **[V2. Nothing leaves your machine unless you send it](#v2-nothing-leaves-your-machine-unless-you-send-it)**
+
+    The index and the default model are local; nothing is reported home.
+
+- **[V3. Numbers are measured, never tuned](#v3-numbers-are-measured-never-tuned)**
+
+    A public harness, public questions, intervals shown, the whole sweep.
+
+</div>
+
+**What you can rely on**
+
+<div class="grid cards" markdown>
+
+- **[V4. Passages, not answers](#v4-passages-not-answers)**
+
+    Up to three short passages with links, or silence. Never an answer.
+
+- **[V5. The index is disposable](#v5-the-index-is-disposable-the-sources-stay-the-truth)**
+
+    Rebuild any index from the sources; passageway never writes to one.
+
+- **[V6. A broken piece breaks only itself](#v6-a-broken-piece-breaks-only-itself)**
+
+    One failing source never takes down the rest, and nothing hides.
+
+- **[V7. Secrets are references](#v7-secrets-are-references)**
+
+    Secrets are `env:NAME` references, masked in logs.
+
+- **[V8. Self-hosted and source-available](#v8-self-hosted-and-source-available)**
+
+    Runs on your own machine; free for private use; protocols are MIT.
+
+</div>
+
+**Principles that follow**
+
+<div class="grid cards" markdown>
+
+- **[V9. Protocols are written down before others build on them](#v9-protocols-are-written-down-before-others-build-on-them)**
+
+    Written protocols with a schema and a contract check; changes are versioned.
+
+- **[V10. Any language](#v10-any-language-in-an-afternoon)**
+
+    A connector is any executable that prints JSON Lines.
+
+- **[V11. One honest page beats three vague ones](#v11-one-honest-page-beats-three-vague-ones)**
+
+    The docs say what exists, and tests keep the main things true.
+
+</div>
+
 ## Lines never crossed
 
 These three come first. When a feature would be easier, or would read better in a benchmark, by bending one of them, the feature changes or is not built.
