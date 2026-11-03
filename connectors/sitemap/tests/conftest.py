@@ -34,11 +34,11 @@ class Web:
         status, kind, body = self.pages.get(url, (404, "text/plain", "not found"))
         return httpx.Response(status, headers={"Content-Type": kind}, text=body)
 
-    def call(self, mode, stdin="", **settings):
+    def call(self, mode, stdin="", render=None, **settings):
         out, err = io.StringIO(), io.StringIO()
         env = {"SITEMAP": f"{SITE}/sitemap.xml", "PAUSE": "0", **settings}
         code = Sitemap.run(["sitemap", mode], env, io.StringIO(stdin), out, err, transport=httpx.MockTransport(self.handler),
-                           sleep=lambda s: None)
+                           sleep=lambda s: None, **({"render": render} if render else {}))
         return code, [json.loads(line) for line in out.getvalue().splitlines()], err.getvalue()
 
     def ids(self, **settings):

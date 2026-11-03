@@ -104,3 +104,45 @@ def test_inline_markup_does_not_add_spaces_inside_a_sentence(web):
     web.pages[f"{SITE}/doc"] = (200, "text/html", html("Doc", "<h1>Doc</h1><p>Edit <code>passageway.toml</code>, or the <em>env</em>file.</p>"))
     text = web.fetch(f"{SITE}/doc")[f"{SITE}/doc"]["sections"][0]["text"]
     assert text == "Edit passageway.toml, or the envfile."
+
+
+def test_render_hands_pages_to_a_browser_that_builds_them(web):  # a JavaScript site: the served HTML is an empty shell
+    web.pages[f"{SITE}/guide/setup"] = (200, "text/html", "<html><body><div id=app></div></body></html>")
+    seen = []
+
+    def render(url):
+        seen.append(url)
+        return 200, html("Setup", "<h1>Setup</h1><p>Built by script.</p>") if "setup" in url else web.pages[url][2]
+
+    items = web.fetch(f"{SITE}/guide/setup", RENDER="true", render=render)
+    assert seen == [f"{SITE}/guide/setup"]
+    assert items[f"{SITE}/guide/setup"]["sections"][0]["text"] == "Built by script."
+
+
+def test_render_follows_links_that_script_adds(web):
+    def render(url):
+        extra = '<a href="/hidden">more</a>' if url == f"{SITE}/" else ""
+        return 200, html("P", f"<h1>P</h1><p>{url}</p>{extra}")
+
+    assert f"{SITE}/hidden" in web.ids(RENDER="true", render=render)
+
+
+def test_render_still_respects_robots_and_reports_a_failed_page(web):
+    web.pages[f"{SITE}/robots.txt"] = (200, "text/plain", "User-agent: *\nDisallow: /guide/")
+    calls = []
+
+    def render(url):
+        calls.append(url)
+        return (500, "") if url == f"{SITE}/hidden" else (200, html("P", '<h1>P</h1><p>x</p><a href="/hidden">h</a>'))
+
+    code, records, err = web.call("list", RENDER="true", render=render)
+    assert code == 0 and f"{SITE}/guide/setup" not in calls and f"{SITE}/hidden" not in [r["id"] for r in records]
+    assert "HTTP 500" in err
+
+
+def test_render_without_playwright_is_a_settings_error(web, monkeypatch):
+    import builtins
+    real = builtins.__import__
+    monkeypatch.setattr(builtins, "__import__", lambda n, *a, **k: (_ for _ in ()).throw(ImportError()) if n.startswith("playwright") else real(n, *a, **k))
+    code, _, err = web.call("list", RENDER="true")
+    assert code != 0 and "passageway-connector-sitemap[render]" in err

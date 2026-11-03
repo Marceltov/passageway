@@ -1,5 +1,6 @@
 """passageway connector for a website: the pages of its sitemap and, optionally, the pages they link to."""
 
+import atexit
 import hashlib
 import re
 import time
@@ -70,6 +71,31 @@ def _blocks(node: Node, out: list[str]) -> None:
             _blocks(child, out)
 
 
+class Browser:
+    """Headless Chromium, started on the first page: for sites whose pages a script builds. Returns (status, html)."""
+
+    def __init__(self, user_agent: str, timeout: float = 30.0):
+        try:
+            from playwright.sync_api import sync_playwright
+        except ImportError:
+            raise SettingsError("RENDER needs a browser: install passageway-connector-sitemap[render], "
+                                "then run `playwright install chromium`") from None
+        self._playwright = sync_playwright().start()
+        try:
+            self._page = self._playwright.chromium.launch().new_context(user_agent=user_agent).new_page()
+        except Exception as e:
+            self._playwright.stop()
+            raise SettingsError(f"RENDER could not start the browser ({e}); run `playwright install chromium`") from None
+        self._timeout = timeout * 1000
+
+    def __call__(self, url: str) -> tuple[int, str]:
+        response = self._page.goto(url, wait_until="networkidle", timeout=self._timeout)
+        return (response.status if response else 0), self._page.content()
+
+    def close(self) -> None:
+        self._playwright.stop()
+
+
 @dataclass(frozen=True)
 class Page:
     url: str
@@ -83,7 +109,7 @@ class Sitemap(Connector):
     name = "sitemap connector"
 
     def __init__(self, env: Mapping[str, str], *, transport: httpx.BaseTransport | None = None,
-                 sleep: Callable[[float], None] = time.sleep):
+                 sleep: Callable[[float], None] = time.sleep, render: Callable[[str], tuple[int, str]] | None = None):
         self.seeds = names(env, "SITEMAP")
         if not self.seeds:
             raise SettingsError("SITEMAP must name at least one site or sitemap address")
@@ -101,6 +127,11 @@ class Sitemap(Connector):
         agent = "passageway-connector-sitemap" + (f" ({contact})" if contact else "")
         self._web = Web(agent, pause=self.pause, max_bytes=MAX_PAGE_BYTES, transport=transport, sleep=sleep)
         self._robots = {}
+        self._sleep = sleep
+        self._render = render
+        if render is None and flag(env, "RENDER", False):
+            self._render = Browser(agent)
+            atexit.register(self._render.close)
 
     # -- the protocol ------------------------------------------------------------------------
 
@@ -176,17 +207,22 @@ class Sitemap(Connector):
     def _page(self, url: str) -> Page | None:
         if not self._allowed(url):
             return None
-        try:
-            reply = self._web.get(url)
-        except TooLarge:
-            self.warn(f"skipped {url}: larger than {MAX_PAGE_BYTES} bytes")
+        if self._render is not None:
+            self._sleep(self.pause)
+            status, text = self._render(url)
+        else:
+            try:
+                reply = self._web.get(url)
+            except TooLarge:
+                self.warn(f"skipped {url}: larger than {MAX_PAGE_BYTES} bytes")
+                return None
+            status, text = reply.status, reply.text
+            if status == 200 and "html" not in reply.content_type.lower():
+                return None
+        if status != 200:
+            self.warn(f"skipped {url}: HTTP {status}")
             return None
-        if reply.status != 200:
-            self.warn(f"skipped {url}: HTTP {reply.status}")
-            return None
-        if "html" not in reply.content_type.lower():
-            return None
-        tree = HTMLParser(reply.text)
+        tree = HTMLParser(text)
         root = tree.css_first("main") or tree.css_first("article") or tree.css_first("[role=main]") or tree.body
         out: list[str] = []
         if root is not None:
