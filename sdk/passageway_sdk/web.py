@@ -73,20 +73,27 @@ class Web:
                                   transport=transport, verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT) if verify else False)
         self._pause, self._max_bytes, self._retry, self._log, self._sleep, self._last = pause, max_bytes, retry, log, sleep, None
 
-    def get(self, url: str, *, params: Mapping[str, str] | None = None, required: bool = False, max_bytes: int | None = None) -> Reply:
-        return self.request("GET", url, params=params, required=required, max_bytes=max_bytes)
+    def get(self, url: str, *, params: Mapping[str, str] | None = None, required: bool = False, max_bytes: int | None = None,
+            retry_if: Callable[[Reply], str | None] | None = None) -> Reply:
+        return self.request("GET", url, params=params, required=required, max_bytes=max_bytes, retry_if=retry_if)
 
     def request(self, method: str, url: str, *, params: Mapping[str, str] | None = None, json: Any = None, required: bool = False,
-                max_bytes: int | None = None) -> Reply:
+                max_bytes: int | None = None, retry_if: Callable[[Reply], str | None] | None = None) -> Reply:
+        """`retry_if(reply)` may name a reason to try again although the status is fine (an API that answers 200 with
+        "I am lagging"); it counts against the same budget as a busy status."""
         limit, waited, attempt = max_bytes or self._max_bytes, 0.0, 0
         retry = self._retry
+        if retry_if and not retry:
+            raise ValueError("retry_if needs a retry policy: pass retry=Retry(...) to Web")
         while True:
             attempt += 1
             retry_after = None
             try:
                 reply, retry_after = self._once(method, url, params, json, limit)
                 reason = f"HTTP {reply.status}"
-                if not (retry and reply.status in retry.statuses):
+                if again := retry_if(reply) if retry_if else None:
+                    reason = again
+                elif not (retry and reply.status in retry.statuses):
                     if reply.status >= 500 or reply.status == 429 or (required and reply.status != 200):
                         raise HttpError(url, reply.status)
                     return reply
