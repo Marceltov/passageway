@@ -371,14 +371,6 @@
   height: auto;
   font-size: 13px;
 }
-.pw-anim .pw-node rect {
-  fill: var(--pw-mist);
-  stroke: var(--pw-accent);
-  stroke-width: 1.2;
-}
-.pw-anim .pw-node text {
-  fill: var(--pw-ink);
-}
 .pw-anim .pw-flow {
   fill: none;
   stroke: var(--pw-accent);
@@ -480,4 +472,23 @@
   stroke: var(--md-default-fg-color--light);
   stroke-width: 1;
   stroke-dasharray: 4 3;
+}
+.pw-anim .pw-node-link {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 1.2px solid var(--pw-accent);
+  border-radius: 7px;
+  background: var(--pw-mist);
+  color: var(--pw-ink);
+  font-size: 13px;
+  text-decoration: none;
+}
+.pw-anim .pw-node-link:hover,
+.pw-anim .pw-node-link:focus-visible {
+  background: var(--pw-accent);
+  color: var(--md-default-bg-color);
 }
