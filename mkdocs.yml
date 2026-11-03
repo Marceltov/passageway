@@ -24,23 +24,24 @@ nav:
       - Claude Code, the hook and the plugin: guides/claude-code.md
       - Any AI agent: guides/agents.md
   - Connectors:
-      - Wikipedia: connectors/wikipedia.md
-      - Markdown: connectors/markdown.md
-      - llms.txt: connectors/llmstxt.md
-      - Sitemap: connectors/sitemap.md
-      - Trilium: connectors/trilium.md
-      - Confluence: connectors/confluence.md
       - Write a connector: guides/write-a-connector.md
+      - Connector protocol: reference/connector-protocol.md
+      - Connector SDK: reference/sdk.md
+      - Provided connectors:
+          - Wikipedia: connectors/wikipedia.md
+          - Markdown: connectors/markdown.md
+          - llms.txt: connectors/llmstxt.md
+          - Sitemap: connectors/sitemap.md
+          - Trilium: connectors/trilium.md
+          - Confluence: connectors/confluence.md
+  - Embedders:
+      - OpenAI-compatible: embedders/openai.md
+      - Embedder protocol: reference/embedder-protocol.md
+      - Choosing a model: models.md
   - Measurements:
       - Results: measurements.md
       - Measure your own sources: guides/evaluate.md
-      - Choosing a model: models.md
       - Sample corpus: reference/corpus.md
-  - Reference:
-      - Connector protocol: reference/connector-protocol.md
-      - Embedder protocol: reference/embedder-protocol.md
-      - OpenAI-compatible embedder: embedders/openai.md
-      - Connector SDK: reference/sdk.md
   - About:
       - Licence: licence.md
       - Roadmap: roadmap.md
