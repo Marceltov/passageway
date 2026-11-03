@@ -14,10 +14,7 @@ exclude_docs: |
 
 nav:
   - Home: index.md
-  - What passageway stands for: values.md
-  - Licence: licence.md
-  - Concepts:
-      - How it works: how-it-works.md
+  - Values: values.md
   - Start:
       - Install and run: install.md
       - Configuration: configuration.md
@@ -27,12 +24,6 @@ nav:
       - Write a connector: guides/write-a-connector.md
       - Measure retrieval quality: guides/evaluate.md
       - Work with an AI agent: guides/agents.md
-  - Reference:
-      - Connector protocol: reference/connector-protocol.md
-      - Embedder protocol: reference/embedder-protocol.md
-      - Connector SDK: reference/sdk.md
-      - Sample corpus: reference/corpus.md
-      - Choosing a model: models.md
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
       - Markdown: connectors/markdown.md
@@ -40,21 +31,28 @@ nav:
       - Sitemap: connectors/sitemap.md
       - Trilium: connectors/trilium.md
       - Confluence: connectors/confluence.md
+  - Reference:
+      - Connector protocol: reference/connector-protocol.md
+      - Embedder protocol: reference/embedder-protocol.md
+      - Connector SDK: reference/sdk.md
+      - OpenAI-compatible embedder: embedders/openai.md
+      - Sample corpus: reference/corpus.md
+      - Choosing a model: models.md
   - Measurements: measurements.md
-  - Embedders:
-      - OpenAI-compatible: embedders/openai.md
-  - Contributing:
-      - Development: development.md
+  - About:
+      - How it works: how-it-works.md
+      - Licence: licence.md
       - Roadmap: roadmap.md
-  - Decisions:
-      - adr/0001-out-of-process-connectors.md
-      - adr/0002-connectors-as-workspace-packages.md
-      - adr/0003-json-lines-over-a-subprocess-stays.md
-      - adr/0004-no-summary-for-source-substitution.md
-      - adr/0005-confluence-data-center-first.md
-      - adr/0006-https-trusts-the-system-store.md
-      - adr/0007-instances-under-one-user.md
-      - adr/0008-a-failed-fetch-batch-keeps-the-rest.md
+      - Development: development.md
+      - Decisions:
+          - adr/0001-out-of-process-connectors.md
+          - adr/0002-connectors-as-workspace-packages.md
+          - adr/0003-json-lines-over-a-subprocess-stays.md
+          - adr/0004-no-summary-for-source-substitution.md
+          - adr/0005-confluence-data-center-first.md
+          - adr/0006-https-trusts-the-system-store.md
+          - adr/0007-instances-under-one-user.md
+          - adr/0008-a-failed-fetch-batch-keeps-the-rest.md
 
 theme:
   name: material
@@ -80,7 +78,8 @@ theme:
         icon: material/weather-sunny
         name: Switch to light mode
   features:
-    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.instant
     - navigation.footer
     - navigation.top
