@@ -1,5 +1,7 @@
 # Write a connector
 
+passageway is open at its edges: any source and any language, because a connector only has to speak the [connector protocol](../reference/connector-protocol.md). The [bundled connectors](../connectors/markdown.md) are written the same way.
+
 A connector is a program that answers three questions about a source: *what exists*, *what is in it*, and optionally *what changed*. It can be written in any language. This guide builds one in Python for a folder of text files.
 
 ## The connector

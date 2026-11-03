@@ -1,6 +1,6 @@
 # Run it: as a service or as a container
 
-Two ways to keep passageway running. Both use the same code; only defaults differ. In Claude Code, `/passageway-install` from the [plugin](guides/claude-code.md) sets up the service below for you, with launchd or systemd.
+passageway is on premise: the server runs on your own machine or in your own container platform, and your sources and index stay there. Two ways to keep it running. Both use the same code; only defaults differ. In Claude Code, `/passageway-install` from the [plugin](guides/claude-code.md) sets up the service below for you, with launchd or systemd.
 
 ## On your own machine
 

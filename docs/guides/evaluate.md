@@ -1,5 +1,7 @@
 # Measure retrieval quality
 
+The [front page](../index.md) claims that passageway finds the passage that answers the question. This is how you check that claim on your own sources instead of taking the [published numbers](../measurements.md) for them.
+
 `passageway eval` asks your sources the questions you care about and reports how often the right passage comes back, and how often passageway correctly stays silent when nothing fits. Run it before you change the embedding model or the relevance threshold, and in CI to catch a regression. The numbers it prints are yours to publish: by default a report contains no question, no title and no address from your sources (it does carry the source names and group labels you chose, see below).
 
 ## Write the questions
