@@ -66,7 +66,7 @@ flowchart TD
 2. **Fusion.** The two rankings are combined by reciprocal rank, together with the cosine similarity. The score is multiplied by the item's `weight`, which a connector can use to rank one kind of content above another. The hook adds a small boost when a word from the last two folder names of the client's working directory appears in an item's title, path or labels.
 3. **One hit per item.** Only the best section of each item competes.
 4. **The gate.** A hit must reach `min_similarity` (the cosine threshold of the embedding model) or match at least three distinct query words. Anything below returns nothing at all. Similarity scales differ between embedding models, so the threshold belongs to the model.
-5. **The answer.** Up to three passages with title, path, link and a short excerpt, plus up to three related items, trimmed to a budget of roughly 400 tokens.
+5. **The answer.** Up to three passages with title, path, link and a short excerpt, plus up to three related items, trimmed to a budget of about 400 tokens (an estimate: words times 1.3). A single hit that is still too long loses its labels, path and the end of its title, never its link.
 
 ## The hook endpoint
 
