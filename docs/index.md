@@ -44,27 +44,9 @@ hide:
 
 Free for private use. Companies need a licence. [Details](licence.md)
 
-## How it fits together
+## What it does
 
-```mermaid
-flowchart LR
-  S["<b>Your sources</b><br/>Confluence<br/>Trilium<br/>Markdown<br/>Wikipedia<br/>your own connector"]
-  subgraph P["passageway, on your machine"]
-    I[("Index<br/>keywords + vectors")] --> R["Ranking and<br/>relevance gate"]
-  end
-  S -- "JSON Lines" --> I
-  R -- "passages with<br/>source links" --> G["<b>Your agent</b><br/>writes the answer"]
-```
-
-passageway is the retrieval half of a RAG system, served as an MCP tool. It does no generation: the agent that calls it reads the passages and writes the answer. [How it works](how-it-works.md)
-
-<div class="grid cards" markdown>
-
-- **The core knows no source.** A connector is any executable that prints items as JSON Lines.
-- **Quiet on purpose.** A relevance gate returns nothing instead of padding a prompt with weak matches.
-- **Measured.** Right article in the top three for 88.6% (95% interval 79–94%) of 70 questions on a sample corpus. [The method and its limits](measurements.md)
-
-</div>
+passageway is the retrieval half of a RAG system, served as an MCP tool. It does no generation: the agent that calls it reads the passages and writes the answer. A relevance gate returns nothing instead of padding a prompt with weak matches. On the [sample corpus](reference/corpus.md) the right article is among the top three for 88.6% (95% interval 79–94%) of 70 questions: [the method and its limits](measurements.md). [How it works](how-it-works.md)
 
 ## Start
 
