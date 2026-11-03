@@ -43,6 +43,10 @@ class HttpError(SourceError):
 class NetworkError(SourceError):
     """The server could not be reached or went silent (a connection or timeout error)."""
 
+    def __init__(self, url: str, detail: str):
+        super().__init__(f"{url}: {detail}")
+        self.url, self.detail = url, detail
+
 
 @dataclass(frozen=True)
 class Retry:
@@ -100,10 +104,10 @@ class Web:
             except NetworkError as e:
                 if not (retry and retry.network):
                     raise
-                reply, reason = None, str(e)
+                reply, reason = None, e.detail
             if waited >= retry.budget:
                 message = f"{url}: giving up after {attempt} attempts and {waited:.0f} s of waiting: {reason}"
-                raise HttpError(url, reply.status, message, attempt) if reply else NetworkError(message)
+                raise HttpError(url, reply.status, message, attempt) if reply else NetworkError(url, message.removeprefix(f"{url}: "))
             wait = min(self._wait(attempt, retry_after), retry.budget - waited)
             if wait >= retry.say_from and self._log:
                 self._log(f"{reason} on {method} {url}: waiting {wait:.0f} s ({waited:.0f} s of {retry.budget:.0f} s waited)")
@@ -131,7 +135,7 @@ class Web:
                 reply = Reply(response.status_code, body.decode("utf-8", errors="replace"), headers.get("content-type", ""), headers)
                 return reply, headers.get("retry-after")
         except httpx.TransportError as e:
-            raise NetworkError(f"{url}: {type(e).__name__}: {e}") from e
+            raise NetworkError(url, f"{type(e).__name__}: {e}") from e
         except httpx.HTTPError as e:
             raise SourceError(f"{url}: {e}") from e
         finally:
