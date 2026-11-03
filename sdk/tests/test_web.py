@@ -68,3 +68,78 @@ def test_https_uses_the_system_trust_store():
 
 def test_text_that_is_not_utf8_is_replaced_not_fatal():
     assert web(lambda r: httpx.Response(200, content=b"caf\xe9")).get("https://x.example/").text == "caf�"
+
+
+# ---- a client for an API: base address, headers, TLS switch, redirects, retries, other methods ----------------------------
+
+from passageway_sdk.web import HttpError, Retry  # noqa: E402
+
+
+def test_a_base_url_and_default_headers_apply_to_every_request():
+    seen = []
+    client = web(lambda r: seen.append((str(r.url), r.headers["authorization"])) or httpx.Response(200),
+                 base_url="https://api.example/v1", headers={"Authorization": "Bearer t"}, pause=0)
+    client.get("/notes", params={"q": "a b"})
+    assert seen == [("https://api.example/v1/notes?q=a+b", "Bearer t")]
+
+
+def test_a_server_error_carries_its_status():
+    with pytest.raises(HttpError) as raised:
+        web(lambda r: httpx.Response(503)).get("https://x.example/")
+    assert raised.value.status == 503 and isinstance(raised.value, SourceError)
+    with pytest.raises(HttpError) as raised:
+        web(lambda r: httpx.Response(401)).get("https://x.example/", required=True)
+    assert raised.value.status == 401
+
+
+def test_turning_tls_checking_off_is_an_explicit_switch():
+    assert Web("a", verify=False)._http._transport._pool._ssl_context.verify_mode == ssl_none()
+
+
+def ssl_none():
+    import ssl
+
+    return ssl.CERT_NONE
+
+
+def test_redirects_are_followed_unless_refused():
+    def handler(request):
+        return httpx.Response(302, headers={"Location": "https://y.example/"}) if request.url.host == "x.example" else httpx.Response(200)
+
+    assert web(handler).get("https://x.example/").status == 200
+    assert web(handler, follow_redirects=False).get("https://x.example/").status == 302
+
+
+def test_a_post_sends_json_and_a_reply_reads_as_json():
+    seen = []
+
+    def handler(request):
+        seen.append((request.method, request.content))
+        return httpx.Response(200, json={"ok": True})
+
+    reply = web(handler).request("POST", "https://x.example/", json={"a": 1})
+    assert seen == [("POST", b'{"a":1}')] and reply.json() == {"ok": True}
+
+
+def test_a_retry_policy_waits_for_a_busy_server_and_then_succeeds():
+    replies = iter([httpx.Response(429, headers={"Retry-After": "7"}), httpx.Response(503), httpx.Response(200, text="ok")])
+    waits = []
+    client = Web("a", pause=0, retry=Retry(), transport=httpx.MockTransport(lambda r: next(replies)), sleep=waits.append)
+    assert client.get("https://x.example/").text == "ok"
+    assert waits[0] == 7 and 0 < waits[1] <= 60  # Retry-After is honoured, otherwise a backoff
+
+
+def test_a_retry_policy_gives_up_after_its_budget():
+    waits = []
+    client = Web("a", pause=0, retry=Retry(budget=10, max_backoff=4), transport=httpx.MockTransport(lambda r: httpx.Response(503)),
+                 sleep=waits.append)
+    with pytest.raises(HttpError, match="503"):
+        client.get("https://x.example/")
+    assert 0 < sum(waits) <= 10
+
+
+def test_without_a_retry_policy_nothing_is_retried():
+    calls = []
+    with pytest.raises(HttpError):
+        web(lambda r: calls.append(1) or httpx.Response(503)).get("https://x.example/")
+    assert len(calls) == 1

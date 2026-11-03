@@ -61,8 +61,26 @@ For connectors whose source is (or converts to) markdown:
 
 ## Web client
 
-`passageway_sdk.web` is for connectors that read a website. It needs the extra, so the SDK itself keeps no dependencies: `passageway-sdk[web]` installs `httpx` and `truststore`.
+`passageway_sdk.web` is for connectors and embedders that call a website or an API. It needs the extra, so the SDK itself keeps no dependencies: `passageway-sdk[web]` installs `httpx` and `truststore`.
 
-`Web(user_agent, pause=0.2, timeout=30.0, max_bytes=2_000_000)` has one method, `get(url, required=False, max_bytes=None)`, which returns a `Reply(status, text, content_type)`. It verifies HTTPS against the operating system's trust store, follows redirects, waits `pause` seconds between requests and refuses a reply over the size limit with `TooLarge` (a `SourceError`). A failure to reach the server, a `5xx` or a `429` raises `SourceError`, so a source that is down fails the call and never looks empty; any other status, such as a `404`, is returned for the connector to judge, or raised with `required=True`.
+```python
+from passageway_sdk.web import Web
+
+web = Web("my-connector", base_url="https://wiki.example/rest", headers={"Authorization": "Bearer …"}, pause=0)
+reply = web.get("/content", params={"limit": "50"}, required=True)  # Reply(status, text, content_type)
+data = reply.json()
+```
+
+| Option | Meaning | Default |
+|---|---|---|
+| `user_agent` | Sent as `User-Agent`. | none |
+| `base_url`, `headers` | Prefix for every path, and headers on every request (a token). | none |
+| `verify` | HTTPS is checked against the operating system's trust store; `False` turns checking off and should be an explicit setting of the connector. | `True` |
+| `follow_redirects` | Set `False` to refuse redirects, so a secret never follows one to another host. | `True` |
+| `pause` | Seconds between two requests. | `0.2` |
+| `timeout`, `max_bytes` | Seconds per request, and the largest reply (`TooLarge`, a `SourceError`; `get(max_bytes=…)` per call). | `30`, `2000000` |
+| `retry` | A `Retry(statuses, budget, max_backoff, max_after)` policy: wait (the server's `Retry-After`, else 1, 2, 4 … seconds) and try again on `429`, `502`, `503`, `504` until the budget in seconds is spent. | none |
+
+`get(url, params=None, required=False, max_bytes=None)` and `request(method, url, params=None, json=None, …)` return a `Reply`. A failure to reach the server, and a `5xx` or `429` that retries did not clear, raise `HttpError` (a `SourceError` with the `status`), so a source that is down fails the call and never looks empty; any other status, such as a `404`, is returned for the connector to judge, or raised with `required=True`.
 
 *The SDK is MIT licensed ([licence](LICENSE)).*
