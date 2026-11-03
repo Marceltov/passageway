@@ -6,59 +6,63 @@ hide:
 
 <div class="pw-hero" markdown>
 
-# The answer is somewhere in your wiki. passageway finds it.
+# The answer is hidden somewhere across your sources. passageway finds it.
 
-<p class="pw-hero__lead">passageway searches across your wiki, notes and documentation and gives your agent exactly the passages that answer the question, each linked to its source.</p>
-
-**On premise.** Your knowledge stays on your infrastructure.<br>
-**Connected.** Confluence, Trilium, Markdown and Wikipedia work out of the box.<br>
-**Open.** A documented protocol lets you add any source or embedding model, in any language.
-
-Free for private use. Companies need a licence. [Details](licence.md)
+<p class="pw-hero__lead">passageway searches all your sources at once, wiki, notes and documentation, and gives your agent exactly the passages that answer the question, each linked to its source.</p>
 
 [Install and run](install.md){ .md-button .md-button--primary }
 [Write a connector](guides/write-a-connector.md){ .md-button }
 
 </div>
 
+<div class="grid cards" markdown>
+
+- **On premise.** Your knowledge stays on your infrastructure.
+
+    [Run it yourself](deploy.md)
+
+- **Connected.** Confluence, Trilium, Markdown and Wikipedia work out of the box.
+
+    [See the connectors](connectors/confluence.md)
+
+- **Open.** A documented protocol lets you add any source or embedding model, in any language.
+
+    [Read the protocol](reference/connector-protocol.md)
+
+</div>
+
+Free for private use. Companies need a licence. [Details](licence.md)
+
 ## How it fits together
-
-passageway is the retrieval half of a RAG system, served as an MCP tool. It does no generation: the agent that calls it reads the passages and writes the answer.
-
-- **The core knows no source.** A connector is any executable that lists items and prints their text as JSON Lines. Anyone can write one, in any language.
-- **It is quiet on purpose.** A relevance gate lets it return nothing instead of padding a prompt with weak matches.
-- **It is measured.** On the [sample corpus](reference/corpus.md) the right article is among the top three for 88.6% (95% interval 79–94%) of 70 answerable questions, and passageway stays silent on 80% of 30 unanswerable ones. [How, and what that does not tell you](measurements.md). Measure your own notes with `passageway eval`.
-- **It runs small.** Keyword and embedding search in one SQLite file per source, on the CPU, with no vector database to run.
-
-```toml
-[[connector]]
-name = "deep-learning"
-command = ["/path/to/python", "-m", "passageway_connector_wikipedia"]
-env = { LANGUAGE = "de", CATEGORIES = "Kategorie:Deep Learning" }
-```
 
 ```mermaid
 flowchart LR
-  A[Your connectors] -- JSON Lines --> B[passageway]
-  B -- "recall tool" --> C[Claude]
+  S["<b>Your sources</b><br/>Confluence<br/>Trilium<br/>Markdown<br/>Wikipedia<br/>your own connector"]
+  subgraph P["passageway, on your machine"]
+    I[("Index<br/>keywords + vectors")] --> R["Ranking and<br/>relevance gate"]
+  end
+  S -- "JSON Lines" --> I
+  R -- "passages with<br/>source links" --> G["<b>Your agent</b><br/>writes the answer"]
 ```
 
-Before anything else, [what passageway stands for](values.md): the lines it does not cross and what you can rely on.
+passageway is the retrieval half of a RAG system, served as an MCP tool. It does no generation: the agent that calls it reads the passages and writes the answer. [How it works](how-it-works.md)
 
-## Available today
+<div class="grid cards" markdown>
 
-- The [connector protocol](reference/connector-protocol.md) and a [guide to writing a connector](guides/write-a-connector.md)
-- The [Wikipedia connector](connectors/wikipedia.md), in English and German
-- The [Markdown connector](connectors/markdown.md), for a folder of markdown files with front matter
-- The [llms.txt connector](connectors/llmstxt.md), the `llms-full.txt` of a list of websites, a single markdown file, or the pages an `llms.txt` index links to
-- The [Sitemap connector](connectors/sitemap.md), a website from its sitemap and the pages its pages link to
-- The [Trilium connector](connectors/trilium.md), the notes of a Trilium server with the LLM-wiki structure of trilium-recall
-- The [Confluence connector](connectors/confluence.md), the pages of chosen spaces of a Confluence Data Center
-- Hybrid search with a relevance gate, described in [How it works](how-it-works.md)
-- A [Claude Code plugin](guides/claude-code.md) with the prompt hook and skills that install, connect, add sources, check and evaluate, a [container image](deploy.md) with the model baked in, and `passageway init` for a local service
-- An [evaluation harness](guides/evaluate.md), `passageway eval`, that measures retrieval quality on your own questions, compares embedding models and builds a report you can publish
-- Three built-in models (`passageway model list`), fetched pinned and checksummed; any other through the [embedder protocol](reference/embedder-protocol.md) or the bundled [OpenAI-compatible embedder](embedders/openai.md)
+- **The core knows no source.** A connector is any executable that prints items as JSON Lines.
+- **Quiet on purpose.** A relevance gate returns nothing instead of padding a prompt with weak matches.
+- **Measured.** Right article in the top three for 88.6% (95% interval 79–94%) of 70 questions on a sample corpus. [The method and its limits](measurements.md)
 
-## Coming
+</div>
 
-Every step on the [roadmap](roadmap.md) has shipped, the last one trilium-recall pointing here; what is parked is listed there. [Choosing a model](models.md) compares the built-in models on the sample corpus.
+## Start
+
+<div class="grid cards" markdown>
+
+- [**Install in Claude Code**](install.md): the plugin sets up the server, the sources and the hook for you.
+- [**Add a source**](connectors/markdown.md): [Markdown](connectors/markdown.md), [Trilium](connectors/trilium.md), [Confluence](connectors/confluence.md), [Wikipedia](connectors/wikipedia.md), [llms.txt](connectors/llmstxt.md), [Sitemap](connectors/sitemap.md).
+- [**Measure your own notes**](guides/evaluate.md): `passageway eval` on your questions, and [choose a model](models.md).
+
+</div>
+
+[What passageway stands for](values.md) and the [roadmap](roadmap.md), for what is planned.

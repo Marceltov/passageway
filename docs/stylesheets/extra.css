@@ -2,7 +2,7 @@
 
 :root > * {
   --pw-accent: #0f766e;
-  --pw-warm: #b45309;
+  --pw-warm: #115e59;
   --pw-ink: #1e293b;
   --pw-mist: #eef4f3;
 
@@ -21,7 +21,7 @@
 [data-md-color-scheme="slate"] {
   --md-hue: 175;
   --pw-accent: #5eead4;
-  --pw-warm: #fbbf77;
+  --pw-warm: #99f6e4;
   --pw-ink: #e2e8e6;
   --pw-mist: hsla(175, 15%, 18%, 1);
 

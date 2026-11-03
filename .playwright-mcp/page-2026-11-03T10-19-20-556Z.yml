@@ -1,0 +1,166 @@
+- generic [active] [ref=f4e1]:
+  - link "Skip to content" [ref=f4e2] [cursor=pointer]:
+    - /url: http://127.0.0.1:8000/#the-answer-is-hidden-somewhere-across-your-sources-passageway-finds-it
+  - banner [ref=f4e3]:
+    - navigation "Header" [ref=f4e4]:
+      - link "passageway" [ref=f4e5] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/
+        - img "logo" [ref=f4e6]
+      - generic [ref=f4e8]:
+        - generic [ref=f4e9]: passageway
+        - generic: Home
+      - generic [ref=f4e11]:
+        - link "SKILL.md" [ref=f4e12] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/SKILL.md
+        - link "llms-full.txt" [ref=f4e13] [cursor=pointer]:
+          - /url: http://127.0.0.1:8000/llms-full.txt
+      - generic [ref=f4e14]:
+        - radio "Switch to dark mode"
+        - generic "Switch to dark mode" [ref=f4e15] [cursor=pointer]
+        - radio "Switch to light mode"
+      - dialog [ref=f4e18]:
+        - search [ref=f4e19]:
+          - generic [ref=f4e20]:
+            - textbox "Search" [ref=f4e21]
+            - navigation "Search":
+              - button "Clear"
+          - generic: Initializing search
+      - link [ref=f4e26] [cursor=pointer]:
+        - /url: https://github.com/Marceltov/passageway
+        - generic [ref=f4e30]:
+          - text: Marceltov/passageway
+          - list [ref=f4e31]:
+            - listitem [ref=f4e32]: v0.2.9
+            - listitem [ref=f4e33]: "0"
+            - listitem [ref=f4e34]: "0"
+  - generic [ref=f4e35]:
+    - main [ref=f4e36]:
+      - article [ref=f4e39]:
+        - link "Edit this page" [ref=f4e40] [cursor=pointer]:
+          - /url: https://github.com/Marceltov/passageway/edit/main/docs/index.md
+        - generic [ref=f4e43]:
+          - heading [level=1] [ref=f4e44]:
+            - text: The answer is hidden somewhere across your sources. passageway finds it.
+            - link "¶" [ref=f4e45] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/#the-answer-is-hidden-somewhere-across-your-sources-passageway-finds-it
+          - paragraph [ref=f4e46]: passageway searches all your sources at once, wiki, notes and documentation, and gives your agent exactly the passages that answer the question, each linked to its source.
+          - paragraph [ref=f4e47]:
+            - link "Install and run" [ref=f4e48] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/install/
+            - link "Write a connector" [ref=f4e49] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/guides/write-a-connector/
+        - list [ref=f4e51]:
+          - listitem [ref=f4e52]:
+            - paragraph [ref=f4e53]:
+              - strong [ref=f4e54]: On premise.
+              - text: Your knowledge stays on your infrastructure.
+            - paragraph [ref=f4e55]:
+              - link "Run it yourself" [ref=f4e56] [cursor=pointer]:
+                - /url: http://127.0.0.1:8000/deploy/
+          - listitem [ref=f4e57]:
+            - paragraph [ref=f4e58]:
+              - strong [ref=f4e59]: Connected.
+              - text: Confluence, Trilium, Markdown and Wikipedia work out of the box.
+            - paragraph [ref=f4e60]:
+              - link "See the connectors" [ref=f4e61] [cursor=pointer]:
+                - /url: http://127.0.0.1:8000/connectors/confluence/
+          - listitem [ref=f4e62]:
+            - paragraph [ref=f4e63]:
+              - strong [ref=f4e64]: Open.
+              - text: A documented protocol lets you add any source or embedding model, in any language.
+            - paragraph [ref=f4e65]:
+              - link "Read the protocol" [ref=f4e66] [cursor=pointer]:
+                - /url: http://127.0.0.1:8000/reference/connector-protocol/
+        - paragraph [ref=f4e67]:
+          - text: Free for private use. Companies need a licence.
+          - link "Details" [ref=f4e68] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/licence/
+        - heading [level=2] [ref=f4e69]:
+          - text: How it fits together
+          - link "¶" [ref=f4e70] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/#how-it-fits-together
+        - paragraph [ref=f4e72]:
+          - text: "passageway is the retrieval half of a RAG system, served as an MCP tool. It does no generation: the agent that calls it reads the passages and writes the answer."
+          - link "How it works" [ref=f4e73] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/how-it-works/
+        - list [ref=f4e75]:
+          - listitem [ref=f4e76]:
+            - strong [ref=f4e77]: The core knows no source.
+            - text: A connector is any executable that prints items as JSON Lines.
+          - listitem [ref=f4e78]:
+            - strong [ref=f4e79]: Quiet on purpose.
+            - text: A relevance gate returns nothing instead of padding a prompt with weak matches.
+          - listitem [ref=f4e80]:
+            - strong [ref=f4e81]: Measured.
+            - text: Right article in the top three for 88.6% (95% interval 79–94%) of 70 questions on a sample corpus.
+            - link "The method and its limits" [ref=f4e82] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/measurements/
+        - heading [level=2] [ref=f4e83]:
+          - text: Start
+          - link "¶" [ref=f4e84] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/#start
+        - list [ref=f4e86]:
+          - listitem [ref=f4e87]:
+            - link [ref=f4e88] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/install/
+              - strong [ref=f4e89]: Install in Claude Code
+            - text: ": the plugin sets up the server, the sources and the hook for you."
+          - listitem [ref=f4e90]:
+            - link [ref=f4e91] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/connectors/markdown/
+              - strong [ref=f4e92]: Add a source
+            - text: ":"
+            - link "Markdown" [ref=f4e93] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/connectors/markdown/
+            - text: ","
+            - link "Trilium" [ref=f4e94] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/connectors/trilium/
+            - text: ","
+            - link "Confluence" [ref=f4e95] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/connectors/confluence/
+            - text: ","
+            - link "Wikipedia" [ref=f4e96] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/connectors/wikipedia/
+            - text: ","
+            - link "llms.txt" [ref=f4e97] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/connectors/llmstxt/
+            - text: ","
+            - link "Sitemap" [ref=f4e98] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/connectors/sitemap/
+            - text: .
+          - listitem [ref=f4e99]:
+            - link [ref=f4e100] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/guides/evaluate/
+              - strong [ref=f4e101]: Measure your own notes
+            - text: ":"
+            - code [ref=f4e102]: passageway eval
+            - text: on your questions, and
+            - link "choose a model" [ref=f4e103] [cursor=pointer]:
+              - /url: http://127.0.0.1:8000/models/
+            - text: .
+        - paragraph [ref=f4e104]:
+          - link "What passageway stands for" [ref=f4e105] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/values/
+          - text: and the
+          - link "roadmap" [ref=f4e106] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/roadmap/
+          - text: ", for what is planned."
+      - button "Back to top"
+    - contentinfo [ref=f4e107]:
+      - navigation "Footer" [ref=f4e108]:
+        - 'link "Next: What passageway stands for" [ref=f4e109] [cursor=pointer]':
+          - /url: http://127.0.0.1:8000/values/
+          - generic [ref=f4e110]:
+            - text: Next
+            - generic [ref=f4e111]: What passageway stands for
+      - generic [ref=f4e117]:
+        - generic [ref=f4e118]:
+          - text: Copyright © 2026 Marcel Bruckner. The code is licensed under the
+          - link "PolyForm Noncommercial License 1.0.0" [ref=f4e119] [cursor=pointer]:
+            - /url: https://github.com/Marceltov/passageway/blob/main/LICENSE
+          - text: (the SDK is MIT); the sample corpus is
+          - link "CC BY-SA 4.0" [ref=f4e120] [cursor=pointer]:
+            - /url: https://creativecommons.org/licenses/by-sa/4.0/
+        - text: Made with
+        - link "Material for MkDocs" [ref=f4e121] [cursor=pointer]:
+          - /url: https://squidfunk.github.io/mkdocs-material/

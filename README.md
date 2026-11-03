@@ -1,14 +1,14 @@
 # passageway
 
-**The answer is somewhere in your wiki. passageway finds it.**
+**The answer is hidden somewhere across your sources. passageway finds it.**
 
-passageway searches across your wiki, notes and documentation and gives your agent exactly the passages that answer the question, each linked to its source.
+passageway searches all your sources at once, wiki, notes and documentation, and gives your agent exactly the passages that answer the question, each linked to its source.
 
 - **On premise.** Your knowledge stays on your infrastructure.
 - **Connected.** Confluence, Trilium, Markdown and Wikipedia work out of the box.
 - **Open.** A documented protocol lets you add any source or embedding model, in any language.
 
-Free for private use. Companies need a licence ([details](docs/licence.md)); trying it at work for up to 32 days is covered by the PolyForm Free Trial licence (`LICENSE-FREE-TRIAL`).
+Free for private use. Companies need a licence ([details](docs/licence.md)); trying it at work for fewer than 32 days is covered by the PolyForm Free Trial licence (`LICENSE-FREE-TRIAL`).
 
 It serves the passages as one `recall` tool over MCP, stays silent when nothing is relevant enough, and does no generation: the calling agent reads the passages. An [eval harness](docs/guides/evaluate.md) (`passageway eval`) measures retrieval quality on your own questions, so you can publish the numbers.
 
