@@ -4,11 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "passageway-connector-sitemap"
-version = "0.1.0"
+version = "0.3.0"
 description = "passageway connector for a website: its sitemap and the pages it links to"
+readme = "README.md"
 requires-python = ">=3.12"
 license = "PolyForm-Noncommercial-1.0.0"
-dependencies = ["passageway-sdk[web]", "selectolax>=0.3.21"]
+dependencies = ["passageway-sdk[web]~=0.3.0", "selectolax>=0.3.21"]
 
 [project.optional-dependencies]
 render = ["playwright>=1.49"]

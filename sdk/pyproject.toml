@@ -4,8 +4,9 @@ build-backend = "hatchling.build"
 
 [project]
 name = "passageway-sdk"
-version = "0.2.9"
+version = "0.3.0"
 description = "Write a passageway connector as three small functions: the protocol plumbing is done for you"
+readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 dependencies = []
