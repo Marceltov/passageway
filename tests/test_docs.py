@@ -293,7 +293,32 @@ def test_outside_code_waits_for_a_contributor_licence_agreement():
     assert "agreement" in text and "PolyForm" in text
 
 
+def test_the_front_page_carries_the_search_claim_and_the_licence_line():
+    index = (ROOT / "docs" / "index.md").read_text()
+    assert "The answer is somewhere in your wiki. passageway finds it." in index
+    for beat in ["On premise.", "Connected.", "Open."]:
+        assert beat in index
+    assert "Free for private use. Companies need a licence." in index
+    readme = (ROOT / "README.md").read_text()
+    assert "The answer is somewhere in your wiki. passageway finds it." in readme
+
+
+def test_the_licence_page_is_in_the_navigation_and_connectors_and_measurements_are_top_level():
+    nav = (ROOT / "mkdocs.yml").read_text().split("nav:")[1].split("\ntheme:")[0]
+    assert "licence.md" in nav
+    for entry in ["  - Connectors:", "  - Measurements: measurements.md"]:
+        assert entry in nav
+    licence = (ROOT / "docs" / "licence.md").read_text()
+    assert "PolyForm" in licence and "MIT" in licence and "AGPL" in licence  # who pays, what is MIT, what stays AGPL
+
 def test_v8_promises_a_review_and_guards_a_future_hosted_offer():
     v8 = (ROOT / "docs" / "values.md").read_text().split("### V8.")[1].split("##")[0]
     assert "reviewed once" in v8 and "twelve months" in v8  # strict now, loosened if adoption stalls
     assert "hosted offer" in v8 and "never depends on it" in v8  # same software, nothing kept back for self-hosters
+
+
+def test_a_company_may_try_it_for_32_days_under_the_free_trial_licence():
+    assert (ROOT / "LICENSE-FREE-TRIAL").read_text().startswith("# PolyForm Free Trial License 1.0.0")
+    licence = (ROOT / "docs" / "licence.md").read_text()
+    assert "Free Trial" in licence and "32" in licence and "Not on sale yet" in licence  # nothing planned is described as existing
+    assert "Free Trial" in (ROOT / "README.md").read_text()

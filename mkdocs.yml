@@ -15,6 +15,7 @@ exclude_docs: |
 nav:
   - Home: index.md
   - What passageway stands for: values.md
+  - Licence: licence.md
   - Concepts:
       - How it works: how-it-works.md
   - Start:
@@ -31,13 +32,13 @@ nav:
       - Embedder protocol: reference/embedder-protocol.md
       - Connector SDK: reference/sdk.md
       - Sample corpus: reference/corpus.md
-      - Measurements: measurements.md
       - Choosing a model: models.md
   - Connectors:
       - Wikipedia: connectors/wikipedia.md
       - Markdown: connectors/markdown.md
       - Trilium: connectors/trilium.md
       - Confluence: connectors/confluence.md
+  - Measurements: measurements.md
   - Embedders:
       - OpenAI-compatible: embedders/openai.md
   - Contributing:
@@ -96,7 +97,7 @@ plugins:
   - llmstxt:
       full_output: llms-full.txt
       sections:
-        Start: [index.md, values.md, install.md, configuration.md, deploy.md]
+        Start: [index.md, values.md, licence.md, install.md, configuration.md, deploy.md]
         Concepts: [how-it-works.md]
         Guides: ["guides/*.md"]
         Reference: ["reference/*.md", measurements.md, models.md]
