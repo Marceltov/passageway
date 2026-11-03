@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "passageway-connector-sitemap"
+version = "0.1.0"
+description = "passageway connector for a website: its sitemap and the pages it links to"
+requires-python = ">=3.12"
+license = "PolyForm-Noncommercial-1.0.0"
+dependencies = ["passageway-sdk", "httpx>=0.28.1", "truststore>=0.10", "selectolax>=0.3.21"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["passageway_connector_sitemap"]
+
+[dependency-groups]
+dev = ["jsonschema>=4.23", "pytest>=8.3", "passageway"]
+
+[tool.uv.sources]
+passageway = { workspace = true }
+passageway-sdk = { workspace = true }

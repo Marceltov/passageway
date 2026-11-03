@@ -12,6 +12,7 @@ members = [
     "passageway",
     "passageway-connector-confluence",
     "passageway-connector-markdown",
+    "passageway-connector-sitemap",
     "passageway-connector-trilium",
     "passageway-connector-wikipedia",
     "passageway-embedder-openai",
@@ -901,6 +902,7 @@ dev = [
     { name = "jsonschema" },
     { name = "passageway-connector-confluence" },
     { name = "passageway-connector-markdown" },
+    { name = "passageway-connector-sitemap" },
     { name = "passageway-connector-trilium" },
     { name = "passageway-connector-wikipedia" },
     { name = "passageway-embedder-openai" },
@@ -930,6 +932,7 @@ dev = [
     { name = "jsonschema", specifier = ">=4.23" },
     { name = "passageway-connector-confluence", editable = "connectors/confluence" },
     { name = "passageway-connector-markdown", editable = "connectors/markdown" },
+    { name = "passageway-connector-sitemap", editable = "connectors/sitemap" },
     { name = "passageway-connector-trilium", editable = "connectors/trilium" },
     { name = "passageway-connector-wikipedia", editable = "connectors/wikipedia" },
     { name = "passageway-embedder-openai", editable = "embedders/openai" },
@@ -991,6 +994,39 @@ dev = [
 requires-dist = [
     { name = "passageway-sdk", editable = "sdk" },
     { name = "pyyaml", specifier = ">=6.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "jsonschema", specifier = ">=4.23" },
+    { name = "passageway", editable = "." },
+    { name = "pytest", specifier = ">=8.3" },
+]
+
+[[package]]
+name = "passageway-connector-sitemap"
+version = "0.1.0"
+source = { editable = "connectors/sitemap" }
+dependencies = [
+    { name = "httpx" },
+    { name = "passageway-sdk" },
+    { name = "selectolax" },
+    { name = "truststore" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "jsonschema" },
+    { name = "passageway" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "passageway-sdk", editable = "sdk" },
+    { name = "selectolax", specifier = ">=0.3.21" },
+    { name = "truststore", specifier = ">=0.10" },
 ]
 
 [package.metadata.requires-dev]
