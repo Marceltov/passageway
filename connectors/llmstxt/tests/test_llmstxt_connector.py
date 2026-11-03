@@ -91,3 +91,93 @@ def test_the_number_of_pages_followed_from_an_index_is_capped(sites):
         sites.pages[f"https://docs.example/p{n}.md"] = f"# P{n}\n\ntext"
     code, records, err = sites.call("list", URLS="https://docs.example/llms.txt", MAX_PAGES="3")
     assert code == 0 and len(records) == 3 and "MAX_PAGES" in err
+
+
+TEAMSCALE = """---
+url: /changelog/v1/patch-releases.md
+---
+
+# Patch Releases
+
+Fixes.
+
+## Details
+
+# Not a new page
+
+Still the same page.
+
+---
+url: /howto/install.md
+---
+
+# Install
+
+Run it.
+
+---
+url: /howto/no-heading.md
+---
+
+Text without any heading.
+"""
+FULL = "https://docs.example/llms-full.txt"
+
+
+def test_front_matter_with_a_url_starts_a_page_wherever_it_is_in_the_file(sites):
+    sites.pages[FULL] = TEAMSCALE
+    ids = [r["id"] for r in sites.call("list")[1]]
+    assert ids == [f"{FULL}#/changelog/v1/patch-releases.md", f"{FULL}#/howto/install.md", f"{FULL}#/howto/no-heading.md"]
+
+
+def test_such_a_page_links_to_its_own_address_and_carries_its_folders(sites):
+    sites.pages[FULL] = TEAMSCALE
+    page = sites.fetch(f"{FULL}#/howto/install.md")[f"{FULL}#/howto/install.md"]
+    assert page["url"] == "https://docs.example/howto/install"  # the .md of the file's path is dropped
+    assert page["title"] == "Install"
+    assert page["path"] == ["docs.example", "howto"]
+    assert "url:" not in json.dumps(page["sections"])  # the front matter block is not text
+
+
+def test_a_page_runs_to_the_next_block_even_over_its_own_headings(sites):
+    sites.pages[FULL] = TEAMSCALE
+    page = sites.fetch(f"{FULL}#/changelog/v1/patch-releases.md")[f"{FULL}#/changelog/v1/patch-releases.md"]
+    assert "Still the same page" in json.dumps(page["sections"])
+    assert page["path"] == ["docs.example", "changelog", "v1"]
+
+
+def test_a_page_without_a_heading_is_titled_by_the_last_part_of_its_path(sites):
+    sites.pages[FULL] = TEAMSCALE
+    page = sites.fetch(f"{FULL}#/howto/no-heading.md")[f"{FULL}#/howto/no-heading.md"]
+    assert page["title"] == "no-heading"
+
+
+def test_text_before_the_first_block_is_still_indexed(sites):
+    sites.pages[FULL] = "# Intro\n\nWelcome.\n\n" + TEAMSCALE
+    ids = [r["id"] for r in sites.call("list")[1]]
+    assert ids[0] == f"{FULL}#intro" and len(ids) == 4
+
+
+def test_front_matter_in_a_code_block_is_not_a_page(sites):
+    sites.pages[FULL] = "# Guide\n\n```\n---\nurl: /fake.md\n---\n```\n"
+    assert [r["id"] for r in sites.call("list")[1]] == [f"{FULL}#guide"]
+
+
+def test_a_weight_per_path_prefix_lowers_a_part_of_a_site(sites):
+    sites.pages[FULL] = TEAMSCALE
+    pages = sites.fetch(f"{FULL}#/changelog/v1/patch-releases.md", f"{FULL}#/howto/install.md", WEIGHTS="changelog=0.5")
+    assert pages[f"{FULL}#/changelog/v1/patch-releases.md"]["weight"] == 0.5
+    assert "weight" not in pages[f"{FULL}#/howto/install.md"]
+
+
+def test_a_changed_weight_changes_the_version_so_the_index_follows(sites):
+    sites.pages[FULL] = TEAMSCALE
+    before = {r["id"]: r["version"] for r in sites.call("list")[1]}
+    after = {r["id"]: r["version"] for r in sites.call("list", WEIGHTS="changelog=0.5")[1]}
+    assert before[f"{FULL}#/changelog/v1/patch-releases.md"] != after[f"{FULL}#/changelog/v1/patch-releases.md"]
+    assert before[f"{FULL}#/howto/install.md"] == after[f"{FULL}#/howto/install.md"]
+
+
+def test_weights_are_checked(sites):
+    for bad in ("changelog", "changelog=heavy", "changelog=0", "=0.5"):
+        assert sites.call("list", WEIGHTS=bad)[0] == 2, bad
