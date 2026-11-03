@@ -8,6 +8,7 @@ copyright: Copyright &copy; 2026 Marcel Bruckner. The code is licensed under the
 
 hooks:
   - docs_hooks/roadmap.py
+  - docs_hooks/charts.py
 
 exclude_docs: |
   superpowers/

@@ -422,3 +422,62 @@
   --md-mermaid-label-bg-color: var(--md-default-bg-color);
   --md-mermaid-label-fg-color: var(--pw-ink);
 }
+
+/* Charts (docs_hooks/charts.py): three validated categorical slots, light and dark; text in ink, never in the series colour. */
+:root > * {
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+}
+[data-md-color-scheme="slate"] {
+  --viz-1: #3987e5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+}
+.md-typeset .pw-chart {
+  display: block;
+  width: 100%;
+  margin: 1rem 0 1.6rem;
+}
+.pw-chart svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.pw-chart text {
+  fill: var(--md-default-fg-color);
+  font-size: 13px;
+}
+.pw-chart .pw-chart-small {
+  fill: var(--md-default-fg-color--light);
+  font-size: 12px;
+}
+.pw-chart .pw-chart-ontext {
+  fill: #fff;
+  font-weight: 700;
+}
+.pw-s1 { fill: var(--viz-1); }
+.pw-s2 { fill: var(--viz-2); }
+.pw-s3 { fill: var(--viz-3); }
+.pw-l1 { stroke: var(--viz-1); }
+.pw-l2 { stroke: var(--viz-2); }
+.pw-l3 { stroke: var(--viz-3); }
+.pw-chart .pw-line,
+.pw-chart .pw-whisker {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.pw-chart .pw-ring {
+  stroke: var(--md-default-bg-color);
+  stroke-width: 2;
+}
+.pw-chart .pw-grid {
+  stroke: var(--md-default-fg-color--lightest);
+  stroke-width: 1;
+}
+.pw-chart .pw-default {
+  stroke: var(--md-default-fg-color--light);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}

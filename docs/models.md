@@ -4,6 +4,10 @@ The three built-in models compared on the [sample corpus](reference/corpus.md) w
 
 Each model has its own similarity scale, so the threshold tables are the point of this page: a model's `min_similarity` is read off where hit@3 and silence cross, and that value is the preset's default (`passageway model list` shows it).
 
+<!-- chart:models -->
+
+The chart is drawn from `docs/models.history.json`; the tables below carry every figure.
+
 <!-- passageway:results:start -->
 2026-10-29 · passageway 0.2.0 · 100 questions (70 answerable, 30 unanswerable) · Darwin arm64, Python 3.14.3
 

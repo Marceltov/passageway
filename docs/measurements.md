@@ -11,6 +11,22 @@ The three built-in models are compared on the same questions in [Choosing a mode
 - **The questions.** They were drafted with an AI assistant that had also chosen the corpus, and every accepted answer was checked against the text of the articles before the first run. An independent review after that run found accepted answers that were incomplete and six questions called cross-language that were not, because the other language explains the topic too. Those were corrected in a separate commit and the run was repeated; both are in the git history, and the notes below give the first run's figures. The accepted answers are file names, so one accepts the article of that name in both languages. A miss can still be a correct article that is not on the list.
 - **The corpus.** The German list includes general articles; "Neuronales Netz", for example, is the neuroscience article. It is one embedding model (multilingual-e5-small, quantised), 60 articles and one machine. Wikipedia text on deep learning is a friendly domain: do not read these numbers as what your own notes will score. Measure those with your own questions.
 
+## At a glance
+
+Drawn from the tables below by `docs_hooks/charts.py`, so they move with every measurement.
+
+**Where the questions land.** The right article first, further down the top three, or missing; and for questions the corpus cannot answer, silence against a passage returned.
+
+<!-- chart:outcomes -->
+
+**The relevance threshold trades answers for silence.** Raising it silences more unanswerable questions and loses real answers; the dashed line is the default.
+
+<!-- chart:sweep -->
+
+**Plain questions work; reworded ones less.** Each dot is a group of questions with its 95% interval, so a short whisker is a firm number and a long one a hint.
+
+<!-- chart:groups -->
+
 <!-- passageway:results:start -->
 2026-10-29 · passageway 0.1.0 · multilingual-e5-small-int8 (384 dimensions) · relevance threshold 0.845
 
