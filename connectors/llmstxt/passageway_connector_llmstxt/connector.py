@@ -15,6 +15,23 @@ from passageway_sdk.web import TooLarge, Web
 FRONT_MATTER = re.compile(r"\A---[ \t]*\r?\n.*?\r?\n(?:---|\.\.\.)[ \t]*(?:\r?\n|\Z)", re.S)
 LINK = re.compile(r"\]\(\s*<?([^)\s>]+)")
 FENCE = re.compile(r"^\s*(```|~~~)")
+PAGE_URL = re.compile(r"url:[ \t]*(\S+)[ \t]*$")
+BLOCK_LINES = 20  # a front matter block longer than this is not one
+
+
+def _weights(text: str) -> list[tuple[str, float]]:
+    """`changelog=0.5,archive/=0.3`: a weight for every page whose path starts with a prefix; the first match wins."""
+    out = []
+    for part in (p.strip() for p in text.split(",") if p.strip()):
+        prefix, _, value = part.partition("=")
+        try:
+            weight = float(value)
+        except ValueError:
+            weight = 0.0
+        if not prefix.strip() or weight <= 0:
+            raise SettingsError(f"WEIGHTS must be prefix=weight pairs with a weight above 0, got {part!r}")
+        out.append((prefix.strip().lstrip("/"), weight))
+    return out
 
 
 def _slug(title: str) -> str:
@@ -27,11 +44,59 @@ class Page:
     title: str
     file: str
     text: str
+    url: str = ""  # the address a hit opens; the file's own when the page has none of its own
+    path: tuple[str, ...] = ()
 
 
 def split_pages(file: str, text: str) -> list[Page]:
-    """One page per top-level heading (a `#` inside a code fence is not one); text before the first goes to a page of its own."""
-    text = FRONT_MATTER.sub("", text, count=1)
+    """Pages of a file: at every front matter block with a `url:` key (the layout of the VitePress llms plugin), else at every
+    top-level heading. A block or a `#` inside a code fence does not count; text before the first block is split by heading."""
+    lines = text.splitlines()
+    starts = _page_blocks(lines)
+    if not starts:
+        return _by_headings(file, FRONT_MATTER.sub("", text, count=1))
+    pages = _by_headings(file, "\n".join(lines[:starts[0][0]]))
+    used = {p.id for p in pages}
+    for n, (start, end, url) in enumerate(starts):
+        stop = starts[n + 1][0] if n + 1 < len(starts) else len(lines)
+        body = "\n".join(lines[end:stop]).strip()
+        if body:
+            pages.append(_page_of_url(file, url, body, used))
+    return pages
+
+
+def _page_blocks(lines: list[str]) -> list[tuple[int, int, str]]:
+    """(first line, line after the last, url) of every front matter block with a `url:` key, outside code fences."""
+    blocks, fenced, i = [], False, 0
+    while i < len(lines):
+        if FENCE.match(lines[i]):
+            fenced = not fenced
+        elif not fenced and lines[i].strip() == "---":
+            close = next((j for j in range(i + 1, min(i + BLOCK_LINES, len(lines))) if lines[j].strip() == "---"), None)
+            found = close and next((m.group(1) for m in map(PAGE_URL.match, (l.strip() for l in lines[i + 1:close])) if m), None)
+            if found:
+                blocks.append((i, close + 1, found))
+                i = close
+        i += 1
+    return blocks
+
+
+def _page_of_url(file: str, url: str, body: str, used: set[str]) -> Page:
+    path = urlparse(urljoin(file, url)).path
+    target = urljoin(file, url[:-3] if url.endswith(".md") else url)  # the HTML page, not the raw markdown
+    heading = next((l[2:].strip() for l in body.splitlines() if l.startswith("# ") and l[2:].strip()), "")
+    title = heading or (path.rstrip("/").rsplit("/", 1)[-1].removesuffix(".md") or urlparse(file).netloc)
+    page_id, n = f"{file}#{url}", 1
+    while page_id in used:
+        n += 1
+        page_id = f"{file}#{url}-{n}"
+    used.add(page_id)
+    folders = tuple(p for p in path.split("/")[1:-1] if p)
+    return Page(page_id, title, file, body, target, (urlparse(file).netloc, *folders))
+
+
+def _by_headings(file: str, text: str) -> list[Page]:
+    """One page per top-level heading; text before the first goes to a page of its own."""
     host = urlparse(file).netloc
     chunks: list[tuple[str, list[str]]] = [(host, [])]
     fenced = False
@@ -52,7 +117,7 @@ def split_pages(file: str, text: str) -> list[Page]:
             n += 1
             slug = f"{_slug(title)}-{n}"
         used.add(slug)
-        pages.append(Page(f"{file}#{slug}", title, file, body))
+        pages.append(Page(f"{file}#{slug}", title, file, body, file, (host,)))
     return pages
 
 
@@ -69,12 +134,13 @@ class LlmsTxt(Connector):
                 raise SettingsError(f"URLS must be http(s) addresses, got {url!r}")
         self.max_bytes = whole(env, "MAX_BYTES", 20_000_000)
         self.max_pages = whole(env, "MAX_PAGES", 500)
+        self.weights = _weights(env.get("WEIGHTS", ""))
         self._web = Web("passageway-connector-llmstxt", max_bytes=self.max_bytes, transport=transport, sleep=sleep)
 
     # -- the protocol ------------------------------------------------------------------------
 
     def versions(self) -> dict[str, str]:
-        return {p.id: hashlib.sha256(p.text.encode()).hexdigest()[:16] for p in self._pages()}
+        return {p.id: self._version(p) for p in self._pages()}
 
     def fetch(self, ids: list[str]) -> Iterator[dict]:
         wanted = set(ids)
@@ -117,15 +183,26 @@ class LlmsTxt(Connector):
         except TooLarge:
             raise SourceError(f"{url}: larger than MAX_BYTES ({self.max_bytes})") from None
 
+    def _weight(self, page: Page) -> float:
+        where = urlparse(page.url).path.lstrip("/")
+        return next((w for prefix, w in self.weights if where.startswith(prefix)), 1.0)
+
+    def _version(self, page: Page) -> str:
+        weight = self._weight(page)  # a changed weight is a changed item, so the index follows it
+        return hashlib.sha256((page.text if weight == 1.0 else f"{page.text}\0{weight}").encode()).hexdigest()[:16]
+
     def _item(self, page: Page) -> dict:
-        return {
+        item = {
             "id": page.id,
             "title": page.title,
-            "url": page.file,
-            "version": hashlib.sha256(page.text.encode()).hexdigest()[:16],
+            "url": page.url,
+            "version": self._version(page),
             "sections": split_markdown(page.text, skip_first_h1=True),
-            "path": [urlparse(page.file).netloc],
+            "path": list(page.path),
         }
+        if self._weight(page) != 1.0:
+            item["weight"] = self._weight(page)
+        return item
 
 
 def main() -> None:
