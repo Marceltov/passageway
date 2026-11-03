@@ -68,11 +68,11 @@ Secrets in the configuration are `env:NAME` references, never values. Each conne
 
 **ADRs:** 0001.
 
-### V8. Self-hosted and open
+### V8. Self-hosted and source-available
 
-passageway is AGPL-3.0-or-later and everything in its documentation runs on your own machine or your own container. There is no hosted service it depends on and no feature kept back for one. The sample corpus is Wikipedia text under CC BY-SA, and it says so.
+passageway runs on your own machine or your own container, and everything in its documentation does. It is free for private use under the PolyForm Noncommercial License 1.0.0; companies need a licence from the maintainer. The protocols and the SDK are MIT, so anyone can write a connector or an embedder without asking. There is no hosted service it depends on, and no feature kept back for one or for a paying customer: a licence changes who may use the software, not what it does. If a hosted offer ever exists, it runs the same software, nothing is kept back from the self-hosted one, and the self-hosted one never depends on it. The licence is reviewed once, twelve months after the first release under it, and loosened if it holds back adoption; it is not tightened. Releases up to and including 0.2.9 stay AGPL-3.0-or-later. The sample corpus is Wikipedia text under CC BY-SA, and it says so.
 
-**Rules out:** a feature that only a hosted version has, a license check, a dependency on a service of the author's, content whose license is not stated.
+**Rules out:** a feature that only a hosted version or a paying customer has, a licence check that calls a server or switches a feature off, a dependency on a service of the author's, content whose licence is not stated, calling it open source.
 
 **ADRs:** none yet; the licence files are the practice.
 

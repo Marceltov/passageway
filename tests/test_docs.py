@@ -136,7 +136,7 @@ def test_the_corpus_licence_is_stated_where_the_code_licence_is():
     assert "CC BY-SA 4.0" in (ROOT / "mkdocs.yml").read_text()
     import tomllib
     build = tomllib.loads((ROOT / "pyproject.toml").read_text())["tool"]["hatch"]["build"]["targets"]
-    assert "corpus" in build["sdist"]["exclude"]  # the AGPL package does not carry the CC BY-SA text
+    assert "corpus" in build["sdist"]["exclude"]  # the licensed package does not carry the CC BY-SA text
 
 
 def test_the_cases_example_in_the_evaluation_guide_is_a_valid_cases_file(tmp_path):
@@ -252,3 +252,48 @@ def test_every_open_roadmap_item_links_its_issue_and_the_value_it_serves():
         for link in value_links:
             anchor = link["url"].split("#")[-1]
             assert anchor in anchors, f"roadmap item {entry['id']} links {link['url']}, but no value heading gives that anchor"
+
+
+PERMISSIVE = {"sdk"}  # the SDK and the protocol pages stay permissive so that anyone can write a connector (V10)
+
+
+def test_every_package_names_its_licence_and_ships_the_text():
+    import tomllib
+    packages = [".", "sdk", *(str(p.parent.relative_to(ROOT)) for p in sorted(ROOT.glob("connectors/*/pyproject.toml"))), "embedders/openai"]
+    for package in packages:
+        permissive = package in PERMISSIVE
+        declared = tomllib.loads((ROOT / package / "pyproject.toml").read_text())["project"]["license"]
+        assert declared == ("MIT" if permissive else "PolyForm-Noncommercial-1.0.0"), package
+        text = (ROOT / (package if permissive else ".") / "LICENSE").read_text()
+        assert ("MIT License" if permissive else "PolyForm Noncommercial License 1.0.0") in text, package
+
+
+def test_the_licence_is_stated_the_same_way_everywhere():
+    for name in ["README.md", "mkdocs.yml", "Dockerfile"]:
+        text = (ROOT / name).read_text()
+        assert "AGPL" not in text, name
+        assert "Noncommercial" in text, name
+
+
+def test_v8_says_source_available_and_who_pays():
+    v8 = (ROOT / "docs" / "values.md").read_text().split("### V8.")[1].split("##")[0]
+    assert "Self-hosted and source-available" in v8 or "source-available" in v8
+    assert "AGPL" not in v8 or "0.2" in v8  # AGPL only as the licence of the releases up to 0.2.x
+    assert "companies" in v8
+
+
+def test_the_protocol_pages_and_schemas_are_mit_licensed():
+    for page in ["connector-protocol.md", "embedder-protocol.md", "sdk.md"]:
+        assert "MIT" in (ROOT / "docs" / "reference" / page).read_text(), page
+    assert (ROOT / "docs" / "reference" / "LICENSE").read_text().startswith("MIT License")
+
+
+def test_outside_code_waits_for_a_contributor_licence_agreement():
+    text = (ROOT / "CONTRIBUTING.md").read_text()
+    assert "agreement" in text and "PolyForm" in text
+
+
+def test_v8_promises_a_review_and_guards_a_future_hosted_offer():
+    v8 = (ROOT / "docs" / "values.md").read_text().split("### V8.")[1].split("##")[0]
+    assert "reviewed once" in v8 and "twelve months" in v8  # strict now, loosened if adoption stalls
+    assert "hosted offer" in v8 and "never depends on it" in v8  # same software, nothing kept back for self-hosters
