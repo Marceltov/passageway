@@ -291,3 +291,9 @@ def test_the_protocol_pages_and_schemas_are_mit_licensed():
 def test_outside_code_waits_for_a_contributor_licence_agreement():
     text = (ROOT / "CONTRIBUTING.md").read_text()
     assert "agreement" in text and "PolyForm" in text
+
+
+def test_v8_promises_a_review_and_guards_a_future_hosted_offer():
+    v8 = (ROOT / "docs" / "values.md").read_text().split("### V8.")[1].split("##")[0]
+    assert "reviewed once" in v8 and "twelve months" in v8  # strict now, loosened if adoption stalls
+    assert "hosted offer" in v8 and "never depends on it" in v8  # same software, nothing kept back for self-hosters
