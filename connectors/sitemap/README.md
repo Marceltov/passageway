@@ -1,6 +1,6 @@
 # passageway-connector-sitemap
 
-A [passageway](https://github.com/Marceltov/passageway#readme) connector that indexes a website from its sitemap: a product's public documentation, a help centre, a company site. It reads `sitemap.xml`, fetches every page and, if you let it, follows the links on those pages to the ones the sitemap forgot.
+A [passageway](https://github.com/getpassageway/passageway#readme) connector that indexes a website from its sitemap: a product's public documentation, a help centre, a company site. It reads `sitemap.xml`, fetches every page and, if you let it, follows the links on those pages to the ones the sitemap forgot.
 
 ## What it does
 
@@ -13,12 +13,12 @@ A [passageway](https://github.com/Marceltov/passageway#readme) connector that in
 
 ## Install
 
-Add the connector to the environment that runs passageway (see [Install](https://github.com/Marceltov/passageway/blob/main/docs/install.md)):
+Add the connector to the environment that runs passageway (see [Install](https://github.com/getpassageway/passageway/blob/main/docs/install.md)):
 
 ```bash
 uv tool install \
-  --with 'passageway-connector-sitemap @ git+https://github.com/Marceltov/passageway#subdirectory=connectors/sitemap' \
-  git+https://github.com/Marceltov/passageway
+  --with 'passageway-connector-sitemap @ git+https://github.com/getpassageway/passageway#subdirectory=connectors/sitemap' \
+  git+https://github.com/getpassageway/passageway
 ```
 
 ## An example

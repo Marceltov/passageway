@@ -1,6 +1,6 @@
 # passageway-connector-markdown
 
-A [passageway](https://github.com/Marceltov/passageway#readme) connector that turns a folder of markdown files into searchable items: a docs folder, an Obsidian vault, a Jekyll or Hugo site, or the articles of the frozen Wikipedia corpus.
+A [passageway](https://github.com/getpassageway/passageway#readme) connector that turns a folder of markdown files into searchable items: a docs folder, an Obsidian vault, a Jekyll or Hugo site, or the articles of the frozen Wikipedia corpus.
 
 ## What it does
 
@@ -12,12 +12,12 @@ A [passageway](https://github.com/Marceltov/passageway#readme) connector that tu
 
 ## Install
 
-Add the connector to the environment that runs passageway (see [Install](https://github.com/Marceltov/passageway/blob/main/docs/install.md)):
+Add the connector to the environment that runs passageway (see [Install](https://github.com/getpassageway/passageway/blob/main/docs/install.md)):
 
 ```bash
 uv tool install \
-  --with 'passageway-connector-markdown @ git+https://github.com/Marceltov/passageway#subdirectory=connectors/markdown' \
-  git+https://github.com/Marceltov/passageway
+  --with 'passageway-connector-markdown @ git+https://github.com/getpassageway/passageway#subdirectory=connectors/markdown' \
+  git+https://github.com/getpassageway/passageway
 ```
 
 ## An example
@@ -65,7 +65,7 @@ becomes this item (shortened):
 
 ## Configure
 
-In `passageway.toml` (use the interpreter that has passageway installed, see [Install](https://github.com/Marceltov/passageway/blob/main/docs/install.md)):
+In `passageway.toml` (use the interpreter that has passageway installed, see [Install](https://github.com/getpassageway/passageway/blob/main/docs/install.md)):
 
 ```toml
 [[connector]]

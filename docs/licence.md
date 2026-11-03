@@ -31,7 +31,7 @@ Releases up to and including 0.2.9 were published under AGPL-3.0-or-later and st
 
 ## Trying it at work
 
-Install it and try it for up to 31 days under the Free Trial licence ([`LICENSE-FREE-TRIAL`](https://github.com/Marceltov/passageway/blob/main/LICENSE-FREE-TRIAL)). No conversation needed. Keeping it after that needs a licence.
+Install it and try it for up to 31 days under the Free Trial licence ([`LICENSE-FREE-TRIAL`](https://github.com/getpassageway/passageway/blob/main/LICENSE-FREE-TRIAL)). No conversation needed. Keeping it after that needs a licence.
 
 ## Commercial licences
 
@@ -43,4 +43,4 @@ The licence is reviewed once, twelve months after the first release under it, an
 
 ## Asking for a licence
 
-Open an issue titled "Licence" on [GitHub](https://github.com/Marceltov/passageway/issues) without company details, and the maintainer will reply with a way to talk.
+Open an issue titled "Licence" on [GitHub](https://github.com/getpassageway/passageway/issues) without company details, and the maintainer will reply with a way to talk.

@@ -21,7 +21,7 @@ passageway runs as a small server on your machine. You give it connectors, it in
 The [Claude Code plugin](guides/claude-code.md) does every step on this page for you. Install it first:
 
 ```bash
-/plugin marketplace add Marceltov/passageway
+/plugin marketplace add getpassageway/passageway
 /plugin install passageway@passageway
 ```
 
@@ -40,8 +40,8 @@ Five steps, in this order; each is a section below.
 
 ```bash
 uv tool install \
-  --with 'passageway-connector-wikipedia @ git+https://github.com/Marceltov/passageway#subdirectory=connectors/wikipedia' \
-  git+https://github.com/Marceltov/passageway
+  --with 'passageway-connector-wikipedia @ git+https://github.com/getpassageway/passageway#subdirectory=connectors/wikipedia' \
+  git+https://github.com/getpassageway/passageway
 ```
 
 This installs passageway and the Wikipedia connector into one environment. A connector is a separate package, so add `--with` for every bundled connector you want to run. The [Markdown](connectors/markdown.md), [Trilium](connectors/trilium.md) and [Confluence](connectors/confluence.md) connectors are installed the same way, with `connectors/markdown`, `connectors/trilium` or `connectors/confluence` as the subdirectory and the packages `passageway-connector-markdown`, `passageway-connector-trilium` and `passageway-connector-confluence`.

@@ -13,7 +13,7 @@ from pathlib import Path
 import truststore
 
 HUB = "https://huggingface.co"
-USER_AGENT = "passageway (+https://github.com/Marceltov/passageway)"
+USER_AGENT = "passageway (+https://github.com/getpassageway/passageway)"
 DEFAULT_PRESET = "multilingual-e5-small"
 DEVICES = ("auto", "cpu", "coreml")
 

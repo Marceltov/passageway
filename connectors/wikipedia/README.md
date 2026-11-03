@@ -1,12 +1,12 @@
 # passageway-connector-wikipedia
 
-A [passageway](https://github.com/Marceltov/passageway#readme) connector that turns part of Wikipedia (or any MediaWiki site) into searchable items: a **topic** (categories), some **titles**, or a **place**. English and German are both tested; any language code works.
+A [passageway](https://github.com/getpassageway/passageway#readme) connector that turns part of Wikipedia (or any MediaWiki site) into searchable items: a **topic** (categories), some **titles**, or a **place**. English and German are both tested; any language code works.
 
 Each article is one item. Its id is the page id, its version is the revision id, and its sections follow the article's headings (`History › 19th century`). Boilerplate sections such as References or Einzelnachweise are left out. A formula is indexed as its TeX between `$` signs (`$a^{2}+b^{2}=c^{2}$`), not as the MathML tokens the plain-text extract carries.
 
 ## Configure
 
-In `passageway.toml`, one `[[connector]]` per language (use the interpreter that has passageway installed, see [Install](https://github.com/Marceltov/passageway/blob/main/docs/install.md)):
+In `passageway.toml`, one `[[connector]]` per language (use the interpreter that has passageway installed, see [Install](https://github.com/getpassageway/passageway/blob/main/docs/install.md)):
 
 ```toml
 [[connector]]

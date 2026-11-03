@@ -1,6 +1,6 @@
 # passageway-connector-trilium
 
-A [passageway](https://github.com/Marceltov/passageway#readme) connector for [Trilium Notes](https://github.com/TriliumNext/Notes): every text and code note of a Trilium server, read through its ETAPI with GET requests only. It is the trilium-recall sync as a connector, so an LLM wiki kept the trilium-llm-wiki way is understood, and any other Trilium works too.
+A [passageway](https://github.com/getpassageway/passageway#readme) connector for [Trilium Notes](https://github.com/TriliumNext/Notes): every text and code note of a Trilium server, read through its ETAPI with GET requests only. It is the trilium-recall sync as a connector, so an LLM wiki kept the trilium-llm-wiki way is understood, and any other Trilium works too.
 
 ## What it does
 

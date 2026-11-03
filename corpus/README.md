@@ -1,6 +1,6 @@
 # The sample corpus
 
-A small, fixed set of Wikipedia articles on **deep learning**, 30 in English (`en/`) and 30 in German (`de/`), so that measurements of retrieval quality can be repeated by anyone against the same text. The articles are CC BY-SA 4.0, not AGPL: see [LICENSE.md](https://github.com/Marceltov/passageway/blob/main/corpus/LICENSE.md).
+A small, fixed set of Wikipedia articles on **deep learning**, 30 in English (`en/`) and 30 in German (`de/`), so that measurements of retrieval quality can be repeated by anyone against the same text. The articles are CC BY-SA 4.0, not AGPL: see [LICENSE.md](https://github.com/getpassageway/passageway/blob/main/corpus/LICENSE.md).
 
 The files are the corpus. Each has front matter with its title, address, revision and licence, and its sections are `##` headings. Wikipedia changes every day, so nothing is fetched at test time: the revision in each file says which version it is. The [markdown connector](https://passageway.marceltov.de/connectors/markdown/) indexes a folder of them:
 

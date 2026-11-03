@@ -12,7 +12,7 @@ passageway publishes three entry points for an AI agent, all built from this rep
 ## Install the plugin in Claude Code
 
 ```text
-/plugin marketplace add Marceltov/passageway
+/plugin marketplace add getpassageway/passageway
 /plugin install passageway
 ```
 
@@ -26,7 +26,7 @@ The plugin brings seven skills: `/passageway`, the general guide, `/passageway-i
 
 ## Trust and pinning
 
-A skill is a set of instructions that an agent follows, and the file on the site can change with every release. Read it before you hand it to an agent. To use exactly the version of a release, fetch it from that release's tag on GitHub: `https://raw.githubusercontent.com/Marceltov/passageway/v<version>/skills/passageway/SKILL.md`. That works from the first release that includes the skills, which is the one after v0.1.0. The version in the file's header, the plugin and the release tag are checked to be equal when a release is made.
+A skill is a set of instructions that an agent follows, and the file on the site can change with every release. Read it before you hand it to an agent. To use exactly the version of a release, fetch it from that release's tag on GitHub: `https://raw.githubusercontent.com/getpassageway/passageway/v<version>/skills/passageway/SKILL.md`. That works from the first release that includes the skills, which is the one after v0.1.0. The version in the file's header, the plugin and the release tag are checked to be equal when a release is made.
 
 ## How the files stay true
 

@@ -1,10 +1,10 @@
 site_name: passageway
 site_description: "Retrieval for Claude over MCP: connectors feed passages, and a relevance gate keeps it quiet when nothing fits."
 site_url: https://passageway.marceltov.de/
-repo_url: https://github.com/Marceltov/passageway
-repo_name: Marceltov/passageway
+repo_url: https://github.com/getpassageway/passageway
+repo_name: getpassageway/passageway
 edit_uri: edit/main/docs/
-copyright: Copyright &copy; 2026 Marcel Bruckner. The code is licensed under the <a href="https://github.com/Marceltov/passageway/blob/main/LICENSE">PolyForm Noncommercial License 1.0.0</a> (the SDK is MIT); the sample corpus is <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
+copyright: Copyright &copy; 2026 Marcel Bruckner. The code is licensed under the <a href="https://github.com/getpassageway/passageway/blob/main/LICENSE">PolyForm Noncommercial License 1.0.0</a> (the SDK is MIT); the sample corpus is <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
 
 hooks:
   - docs_hooks/roadmap.py
