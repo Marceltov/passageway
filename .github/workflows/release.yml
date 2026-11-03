@@ -1,6 +1,6 @@
 name: Release
 
-# A v* tag creates a GitHub release and posts its notes to notefeed, once per tag.
+# A v* tag creates a GitHub release, posts its notes to notefeed (once per tag), publishes every package to PyPI and builds the image.
 #
 #   git tag -a v0.2.0 -m "A one-line headline for the release"
 #   git push origin v0.2.0
@@ -68,6 +68,33 @@ jobs:
         run: |
           gh release view "$TAG" --json body,url --jq '.body + "\n\n[The release on GitHub](" + .url + ")\n"' > notefeed.md
           scripts/post-to-notefeed.sh "$TAG" notefeed.md
+
+  publish:
+    # Every package to PyPI at the tag's version, with trusted publishing (no token stored): the SDK first because the others depend on
+    # it, the core last because its extras pin the others. --check-url skips what is already on PyPI, so a re-run after a half-failed
+    # release carries on instead of failing. A published version can never be replaced, only yanked.
+    runs-on: ubuntu-latest
+    needs: release
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
+      - uses: astral-sh/setup-uv@v10.3.3
+      - name: Build every package
+        run: uv build --all-packages
+      - name: Check the metadata
+        run: uvx twine check dist/*
+      - name: Publish
+        run: |
+          for package in passageway-sdk passageway-connector-confluence passageway-connector-llmstxt passageway-connector-markdown passageway-connector-sitemap passageway-connector-trilium passageway-connector-wikipedia passageway-embedder-openai passageway; do
+            uv publish --trusted-publishing always --check-url https://pypi.org/simple/ "dist/${package//-/_}-${TAG#v}"*
+          done
 
   image:
     # The sidecar image for amd64 and arm64, tagged with the version; latest moves only on a pushed version tag.
