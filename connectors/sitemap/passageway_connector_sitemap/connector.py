@@ -82,7 +82,11 @@ class Browser:
                                 "then run `playwright install chromium`") from None
         self._playwright = sync_playwright().start()
         try:
-            self._page = self._playwright.chromium.launch().new_context(user_agent=user_agent).new_page()
+            try:
+                browser = self._playwright.chromium.launch(channel="chrome")  # the machine's own Chrome: no download
+            except Exception:
+                browser = self._playwright.chromium.launch()
+            self._page = browser.new_context(user_agent=user_agent).new_page()
         except Exception as e:
             self._playwright.stop()
             raise SettingsError(f"RENDER could not start the browser ({e}); run `playwright install chromium`") from None

@@ -67,9 +67,9 @@ All settings are strings in the connector's `env`.
 | `MAX_PAGES` | The most pages indexed. The rest are skipped with a warning. | `500` |
 | `PAUSE` | Seconds to wait between requests. | `0.2` |
 | `RESPECT_ROBOTS` | `true` or `false`: skip what `robots.txt` forbids for this crawler. | `true` |
-| `RENDER` | `true` or `false`: open every page in a headless browser first, for sites whose pages a script builds. Needs `passageway-connector-sitemap[render]` and `playwright install chromium`. | `false` |
+| `RENDER` | `true` or `false`: open every page in a headless browser first, for sites whose pages a script builds. Needs `passageway-connector-sitemap[render]`, and Chrome on the machine or `playwright install chromium`. | `false` |
 | `CONTACT` | An address or URL added to the user agent, so a site's owner can reach you. | none |
 
-A page that a script builds in the browser has little text in what the server sends: Teamscale's documentation pages, for one, hand back a one-line notice. Set `RENDER = "true"` and the connector opens each page in a headless Chromium and reads what the script built (slower, and it needs the `render` extra and the browser, about 150 MB, downloaded once by `playwright install chromium`). If the site publishes an `llms-full.txt` or `llms.txt`, the [llms.txt connector](https://passageway.marceltov.de/connectors/llmstxt/) is faster and needs no browser.
+A page that a script builds in the browser has little text in what the server sends: Teamscale's documentation pages, for one, hand back a one-line notice. Set `RENDER = "true"` and the connector opens each page in a headless Chromium and reads what the script built (slower, and it needs the `render` extra and a browser: the Google Chrome on the machine is used when there is one, else run `playwright install chromium` once, about 100 MB). If the site publishes an `llms-full.txt` or `llms.txt`, the [llms.txt connector](https://passageway.marceltov.de/connectors/llmstxt/) is faster and needs no browser.
 
 Requests carry the user agent `passageway-connector-sitemap`, follow redirects and verify HTTPS against the operating system's trust store. Only crawl sites you may index.
