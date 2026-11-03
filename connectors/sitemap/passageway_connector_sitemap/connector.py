@@ -2,7 +2,6 @@
 
 import hashlib
 import re
-import ssl
 import time
 from collections import deque
 from collections.abc import Callable, Iterator, Mapping
@@ -12,8 +11,9 @@ from urllib.parse import urldefrag, urljoin, urlparse
 from urllib.robotparser import RobotFileParser
 
 import httpx
-import truststore
-from passageway_sdk import Connector, SettingsError, SourceError, split_markdown
+from passageway_sdk import Connector, SettingsError, split_markdown
+from passageway_sdk.settings import flag, names, seconds, whole
+from passageway_sdk.web import TooLarge, Web
 from selectolax.lexbor import LexborHTMLParser as HTMLParser, LexborNode as Node
 
 LOC = re.compile(r"<loc>\s*(.*?)\s*</loc>", re.S)
@@ -22,41 +22,6 @@ MAX_SITEMAP_FILES = 50  # a sitemap index nests at most this many files
 MAX_LINKS = 30  # related items per page
 SKIP_TAGS = {"script", "style", "nav", "header", "footer", "aside", "form", "noscript", "svg", "iframe", "template", "head", "button"}
 LEAF_TAGS = {"p", "td", "th", "dt", "dd", "figcaption", "summary", "caption"}
-
-
-def _list(env: Mapping[str, str], key: str) -> tuple[str, ...]:
-    return tuple(p.strip() for p in env.get(key, "").split("|") if p.strip())
-
-
-def _int(env: Mapping[str, str], key: str, default: int) -> int:
-    raw = env.get(key, "").strip()
-    try:
-        value = int(raw) if raw else default
-    except ValueError:
-        raise SettingsError(f"{key} must be a whole number, got {raw!r}") from None
-    if value < 1:
-        raise SettingsError(f"{key} must be at least 1, got {value}")
-    return value
-
-
-def _bool(env: Mapping[str, str], key: str, default: bool) -> bool:
-    raw = env.get(key, "").strip().lower()
-    if not raw:
-        return default
-    if raw not in ("true", "false"):
-        raise SettingsError(f"{key} must be true or false, got {raw!r}")
-    return raw == "true"
-
-
-def _seconds(env: Mapping[str, str], key: str, default: float) -> float:
-    raw = env.get(key, "").strip()
-    try:
-        value = float(raw) if raw else default
-    except ValueError:
-        raise SettingsError(f"{key} must be a number of seconds, got {raw!r}") from None
-    if value < 0:
-        raise SettingsError(f"{key} must not be negative, got {value}")
-    return value
 
 
 def _clean(s: str) -> str:
@@ -100,24 +65,23 @@ class Sitemap(Connector):
 
     def __init__(self, env: Mapping[str, str], *, transport: httpx.BaseTransport | None = None,
                  sleep: Callable[[float], None] = time.sleep):
-        self.seeds = _list(env, "SITEMAP")
+        self.seeds = names(env, "SITEMAP")
         if not self.seeds:
             raise SettingsError("SITEMAP must name at least one site or sitemap address")
         for url in self.seeds:
             if urlparse(url).scheme not in ("http", "https") or not urlparse(url).netloc:
                 raise SettingsError(f"SITEMAP must hold http(s) addresses, got {url!r}")
         self.hosts = {urlparse(u).netloc for u in self.seeds}
-        self.include = _list(env, "INCLUDE")
-        self.exclude = _list(env, "EXCLUDE")
-        self.follow = _bool(env, "FOLLOW_LINKS", True)
-        self.respect_robots = _bool(env, "RESPECT_ROBOTS", True)
-        self.max_pages = _int(env, "MAX_PAGES", 500)
-        self.pause = _seconds(env, "PAUSE", 0.2)
+        self.include = names(env, "INCLUDE")
+        self.exclude = names(env, "EXCLUDE")
+        self.follow = flag(env, "FOLLOW_LINKS", True)
+        self.respect_robots = flag(env, "RESPECT_ROBOTS", True)
+        self.max_pages = whole(env, "MAX_PAGES", 500)
+        self.pause = seconds(env, "PAUSE", 0.2)
         contact = env.get("CONTACT", "").strip()
         agent = "passageway-connector-sitemap" + (f" ({contact})" if contact else "")
-        self._http = httpx.Client(headers={"User-Agent": agent}, timeout=30.0, follow_redirects=True, transport=transport,
-                                  verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT))
-        self._sleep, self._robots, self._last = sleep, {}, 0.0
+        self._web = Web(agent, pause=self.pause, max_bytes=MAX_PAGE_BYTES, transport=transport, sleep=sleep)
+        self._robots = {}
 
     # -- the protocol ------------------------------------------------------------------------
 
@@ -167,7 +131,7 @@ class Sitemap(Connector):
             if files > MAX_SITEMAP_FILES:
                 self.warn(f"more than {MAX_SITEMAP_FILES} sitemap files; the rest are skipped")
                 break
-            xml = self._get(todo.popleft(), required=True)[1]
+            xml = self._web.get(todo.popleft(), required=True).text
             locs = [unescape(loc) for loc in LOC.findall(xml)]
             if "<sitemapindex" in xml:
                 for loc in locs:
@@ -185,48 +149,25 @@ class Sitemap(Connector):
         origin = f"{parsed.scheme}://{parsed.netloc}"
         if origin not in self._robots:
             robots = RobotFileParser()
-            got = self._get(f"{origin}/robots.txt", required=False)
-            robots.parse(got[1].splitlines() if got and got[0] == 200 else [])
+            got = self._web.get(f"{origin}/robots.txt")
+            robots.parse(got.text.splitlines() if got.status == 200 else [])
             self._robots[origin] = robots
         return self._robots[origin].can_fetch("passageway-connector-sitemap", url)
-
-    def _get(self, url: str, *, required: bool) -> tuple[int, str, str] | None:
-        """(status, body, content type); a failure to reach the site, or a 5xx or 429, fails the whole call."""
-        wait = self.pause - (time.monotonic() - self._last)
-        if wait > 0:
-            self._sleep(wait)
-        try:
-            with self._http.stream("GET", url) as response:
-                body = bytearray()
-                for chunk in response.iter_bytes():
-                    body += chunk
-                    if len(body) > MAX_PAGE_BYTES:
-                        self.warn(f"skipped {url}: larger than {MAX_PAGE_BYTES} bytes")
-                        return None
-                status, kind = response.status_code, response.headers.get("content-type", "")
-        except httpx.HTTPError as e:
-            raise SourceError(f"{url}: {e}") from e
-        finally:
-            self._last = time.monotonic()
-        if status >= 500 or status == 429:
-            raise SourceError(f"{url}: HTTP {status}")
-        if required and status != 200:
-            raise SourceError(f"{url}: HTTP {status}")
-        return status, body.decode("utf-8", errors="replace"), kind
 
     def _page(self, url: str) -> Page | None:
         if not self._allowed(url):
             return None
-        got = self._get(url, required=False)
-        if got is None:
+        try:
+            reply = self._web.get(url)
+        except TooLarge:
+            self.warn(f"skipped {url}: larger than {MAX_PAGE_BYTES} bytes")
             return None
-        status, body, kind = got
-        if status != 200:
-            self.warn(f"skipped {url}: HTTP {status}")
+        if reply.status != 200:
+            self.warn(f"skipped {url}: HTTP {reply.status}")
             return None
-        if "html" not in kind.lower():
+        if "html" not in reply.content_type.lower():
             return None
-        tree = HTMLParser(body)
+        tree = HTMLParser(reply.text)
         root = tree.css_first("main") or tree.css_first("article") or tree.css_first("[role=main]") or tree.body
         out: list[str] = []
         if root is not None:

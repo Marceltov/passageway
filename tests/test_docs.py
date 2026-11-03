@@ -322,3 +322,9 @@ def test_a_company_may_try_it_for_32_days_under_the_free_trial_licence():
     licence = (ROOT / "docs" / "licence.md").read_text()
     assert "Free Trial" in licence and "32" in licence and "Not on sale yet" in licence  # nothing planned is described as existing
     assert "Free Trial" in (ROOT / "README.md").read_text()
+
+
+def test_every_public_sdk_helper_is_documented():
+    page = (ROOT / "docs" / "reference" / "sdk.md").read_text()
+    for name in ["names", "whole", "flag", "seconds", "Web", "Reply", "TooLarge", "passageway-sdk[web]"]:
+        assert f"`{name}" in page, f"{name} is in the SDK but missing from docs/reference/sdk.md"
