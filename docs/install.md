@@ -2,6 +2,11 @@
 
 passageway runs as a small server on your machine. You give it connectors, it indexes what they report, and an MCP client such as Claude Code asks it for passages.
 
+## Two ways to install
+
+- **For yourself.** Free for private use. Follow this page: the plugin below, or the steps by hand.
+- **For a company.** The same software and the same steps. Using it at work needs a [licence](licence.md); you can try it for up to 31 days under the Free Trial licence first, with no conversation needed.
+
 ## In Claude Code
 
 The [Claude Code plugin](guides/claude-code.md) does every step on this page for you. Install it first:

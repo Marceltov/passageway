@@ -27,6 +27,7 @@ passageway is the retrieval half of a RAG system, served as an MCP tool. It does
 
 - **The core knows no source.** A connector is any executable that lists items and prints their text as JSON Lines. Anyone can write one, in any language.
 - **It is quiet on purpose.** A relevance gate lets it return nothing instead of padding a prompt with weak matches.
+- **It is measured.** On the [sample corpus](reference/corpus.md) the right article is among the top three for 88.6% (95% interval 79–94%) of 70 answerable questions, and passageway stays silent on 80% of 30 unanswerable ones. [How, and what that does not tell you](measurements.md). Measure your own notes with `passageway eval`.
 - **It runs small.** Keyword and embedding search in one SQLite file per source, on the CPU, with no vector database to run.
 
 ```toml
