@@ -29,6 +29,9 @@ items:
     icon: scale-balance
     title: Tokens and money saved, measured
     summary: Compare an agent that searches with passageway to one that reads whole pages, on the same questions, and publish the difference with the method.
+    details: |
+      - The same questions, once with passageway and once with whole pages read.
+      - Tokens and cost, published with the method and the confidence interval, like every other number here.
     links:
       - {label: "#100", url: "https://github.com/Marceltov/passageway/issues/100"}
       - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
@@ -39,6 +42,9 @@ items:
     icon: message-text-outline
     title: A UI on top of the core
     summary: A search and chat app that embeds the core, with an optional generator for people who want an answer instead of passages. The core stays the search.
+    details: |
+      - The UI embeds the core; it does not change it.
+      - A generator is optional and lives outside the core, so passageway itself still returns passages.
     links:
       - {label: "#99", url: "https://github.com/Marceltov/passageway/issues/99"}
       - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
