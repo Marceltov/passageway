@@ -314,8 +314,17 @@ def test_the_release_workflow_publishes_every_package_in_order_with_trusted_publ
     assert "uv build --all-packages" in steps
     publish = re.findall(r"uv publish[^\n]*", steps)
     assert len(publish) == 1 and "--check-url" in publish[0] and "--trusted-publishing always" in publish[0]
-    order = re.search(r"for package in ([^;]+); do", steps).group(1).split()
+    order = re.search(r'packages="([^"]+)"', steps).group(1).split()
     import tomllib
     names = [tomllib.loads((ROOT / d / "pyproject.toml").read_text())["project"]["name"]
              for d in PUBLISH_DIRS]
     assert order[0] == "passageway-sdk" and order[-1] == "passageway" and sorted(order) == sorted([*names, "passageway"])
+
+
+def test_the_publish_step_checks_every_file_exists_before_uploading_anything():
+    import yaml
+
+    steps = yaml.safe_load((ROOT / ".github" / "workflows" / "release.yml").read_text())["jobs"]["publish"]["steps"]
+    publish = next(step["run"] for step in steps if "uv publish" in step.get("run", ""))
+    # an old tag re-run through workflow_dispatch builds an old tree: refuse before the first upload, never half-publish
+    assert "compgen" in publish and publish.index("compgen") < publish.index("uv publish")

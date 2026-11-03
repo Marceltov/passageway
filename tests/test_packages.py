@@ -41,3 +41,10 @@ def test_every_connector_requires_the_sdk_at_the_root_version_compatibly(name):
 @pytest.mark.parametrize("directory", PACKAGE_DIRS)
 def test_every_package_has_a_readme_that_exists(directory):
     assert project(directory).get("readme") == "README.md" and (ROOT / directory / "README.md").is_file()
+
+
+@pytest.mark.parametrize("directory", PACKAGE_DIRS)
+def test_every_package_pins_its_build_tool(directory):
+    # a re-run after a half-failed release must rebuild byte-identical files, or PyPI refuses them as already existing
+    requires = tomllib.loads((ROOT / directory / "pyproject.toml").read_text())["build-system"]["requires"]
+    assert requires == [requires[0]] and requires[0].startswith("hatchling==")

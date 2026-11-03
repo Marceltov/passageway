@@ -92,7 +92,13 @@ jobs:
         run: uvx twine check dist/*
       - name: Publish
         run: |
-          for package in passageway-sdk passageway-connector-confluence passageway-connector-llmstxt passageway-connector-markdown passageway-connector-sitemap passageway-connector-trilium passageway-connector-wikipedia passageway-embedder-openai passageway; do
+          packages="passageway-sdk passageway-connector-confluence passageway-connector-llmstxt passageway-connector-markdown passageway-connector-sitemap passageway-connector-trilium passageway-connector-wikipedia passageway-embedder-openai passageway"
+          # An old tag run again by hand builds an old tree whose versions differ: refuse before the first upload, because
+          # a half-published release (the SDK up, the rest missing) cannot be repaired.
+          for package in $packages; do
+            [ "$(compgen -G "dist/${package//-/_}-${TAG#v}*" | wc -l)" -eq 2 ] || { echo "dist/ has no wheel and sdist of $package at ${TAG#v}" >&2; exit 1; }
+          done
+          for package in $packages; do
             uv publish --trusted-publishing always --check-url https://pypi.org/simple/ "dist/${package//-/_}-${TAG#v}"*
           done
 
