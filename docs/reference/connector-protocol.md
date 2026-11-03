@@ -14,11 +14,26 @@ The core runs `<command> <mode>`. stdout is one JSON object per line. stderr goe
 Item record:
 
 ```json
-{"id": "abc", "title": "Rotating certificates", "url": "https://…", "version": "3f2a",
- "sections": [{"heading": "Steps", "text": "Rotate the signing cert every year…"}],
- "weight": 1.0, "path": ["Ops", "Security"], "links": ["def"],
- "labels": ["decision"], "updated": "2026-10-28T09:00:00Z"}
+{
+  "id": "abc",
+  "title": "Rotating certificates",
+  "url": "https://…",
+  "version": "3f2a",
+  "sections": [
+    {
+      "heading": "Steps",
+      "text": "Rotate the signing cert every year…"
+    }
+  ],
+  "weight": 1.0,
+  "path": ["Ops", "Security"],
+  "links": ["def"],
+  "labels": ["decision"],
+  "updated": "2026-10-28T09:00:00Z"
+}
 ```
+
+On the wire a record is one line of JSON; it is printed over several lines here to be readable.
 
 - Required: `id`, `title`, `url`, `version`, `sections` (may be empty; a section has optional `heading` and required `text`).
 - Optional: `weight` (multiplier on the ranking score, default 1.0), `path` (breadcrumb), `links` (ids of related items, shown with a hit when they are indexed), `labels` (short tags), `updated`.
