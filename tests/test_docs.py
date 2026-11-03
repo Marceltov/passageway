@@ -293,6 +293,14 @@ def test_outside_code_waits_for_a_contributor_licence_agreement():
     assert "agreement" in text and "PolyForm" in text
 
 
+def test_the_contributor_licence_agreement_lets_the_maintainer_sublicense():
+    cla = (ROOT / "CLA.md").read_text()
+    assert "sublicense" in cla and "Apache Software Foundation" in cla
+    assert "CLA.md" in (ROOT / "CONTRIBUTING.md").read_text()
+    workflow = (ROOT / ".github" / "workflows" / "cla.yml").read_text()
+    assert "I have read the CLA and I agree to it." in workflow and "I have read the CLA and I agree to it." in cla
+
+
 def test_the_front_page_carries_the_search_claim_and_the_licence_line():
     index = re.sub(r"<[^>]+>", "", (ROOT / "docs" / "index.md").read_text())
     assert "The answer is hidden somewhere across your sources. passageway finds it." in index
