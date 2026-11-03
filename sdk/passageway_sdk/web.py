@@ -43,6 +43,10 @@ class HttpError(SourceError):
 class NetworkError(SourceError):
     """The server could not be reached or went silent (a connection or timeout error)."""
 
+    def __init__(self, url: str, detail: str):
+        super().__init__(f"{url}: {detail}")
+        self.url, self.detail = url, detail
+
 
 @dataclass(frozen=True)
 class Retry:
@@ -73,30 +77,37 @@ class Web:
                                   transport=transport, verify=truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT) if verify else False)
         self._pause, self._max_bytes, self._retry, self._log, self._sleep, self._last = pause, max_bytes, retry, log, sleep, None
 
-    def get(self, url: str, *, params: Mapping[str, str] | None = None, required: bool = False, max_bytes: int | None = None) -> Reply:
-        return self.request("GET", url, params=params, required=required, max_bytes=max_bytes)
+    def get(self, url: str, *, params: Mapping[str, str] | None = None, required: bool = False, max_bytes: int | None = None,
+            retry_if: Callable[[Reply], str | None] | None = None) -> Reply:
+        return self.request("GET", url, params=params, required=required, max_bytes=max_bytes, retry_if=retry_if)
 
     def request(self, method: str, url: str, *, params: Mapping[str, str] | None = None, json: Any = None, required: bool = False,
-                max_bytes: int | None = None) -> Reply:
+                max_bytes: int | None = None, retry_if: Callable[[Reply], str | None] | None = None) -> Reply:
+        """`retry_if(reply)` may name a reason to try again although the status is fine (an API that answers 200 with
+        "I am lagging"); it counts against the same budget as a busy status."""
         limit, waited, attempt = max_bytes or self._max_bytes, 0.0, 0
         retry = self._retry
+        if retry_if and not retry:
+            raise ValueError("retry_if needs a retry policy: pass retry=Retry(...) to Web")
         while True:
             attempt += 1
             retry_after = None
             try:
                 reply, retry_after = self._once(method, url, params, json, limit)
                 reason = f"HTTP {reply.status}"
-                if not (retry and reply.status in retry.statuses):
+                if again := retry_if(reply) if retry_if else None:
+                    reason = again
+                elif not (retry and reply.status in retry.statuses):
                     if reply.status >= 500 or reply.status == 429 or (required and reply.status != 200):
                         raise HttpError(url, reply.status)
                     return reply
             except NetworkError as e:
                 if not (retry and retry.network):
                     raise
-                reply, reason = None, str(e)
+                reply, reason = None, e.detail
             if waited >= retry.budget:
                 message = f"{url}: giving up after {attempt} attempts and {waited:.0f} s of waiting: {reason}"
-                raise HttpError(url, reply.status, message, attempt) if reply else NetworkError(message)
+                raise HttpError(url, reply.status, message, attempt) if reply else NetworkError(url, message.removeprefix(f"{url}: "))
             wait = min(self._wait(attempt, retry_after), retry.budget - waited)
             if wait >= retry.say_from and self._log:
                 self._log(f"{reason} on {method} {url}: waiting {wait:.0f} s ({waited:.0f} s of {retry.budget:.0f} s waited)")
@@ -124,7 +135,7 @@ class Web:
                 reply = Reply(response.status_code, body.decode("utf-8", errors="replace"), headers.get("content-type", ""), headers)
                 return reply, headers.get("retry-after")
         except httpx.TransportError as e:
-            raise NetworkError(f"{url}: {type(e).__name__}: {e}") from e
+            raise NetworkError(url, f"{type(e).__name__}: {e}") from e
         except httpx.HTTPError as e:
             raise SourceError(f"{url}: {e}") from e
         finally:

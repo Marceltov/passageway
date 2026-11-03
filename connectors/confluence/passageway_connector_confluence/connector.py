@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 
 from passageway_sdk import Connector, SettingsError, SourceError
 from passageway_sdk.web import HttpError, Reply, Retry, Web
+from passageway_sdk.settings import names
 
 from passageway_connector_confluence.html import html_to_sections
 
@@ -24,10 +25,6 @@ MAX_RETRY_AFTER = 300  # the longest wait a Retry-After may ask for
 SAY_WAITS_FROM = 10  # seconds: a wait this long is said in the log, shorter ones stay quiet
 RETRY_STATUS = (429, 500, 502, 503, 504)
 FETCH_EXPAND = "body.storage,version,space,ancestors,metadata.labels"
-def _list(env: Mapping[str, str], key: str) -> tuple[str, ...]:
-    return tuple(p.strip() for p in env.get(key, "").split("|") if p.strip())
-
-
 @dataclass(frozen=True)
 class Settings:
     url: str
@@ -46,7 +43,7 @@ def parse_settings(env: Mapping[str, str]) -> Settings:
     parsed = urlparse(url)
     if not url or parsed.scheme not in ("http", "https") or not parsed.hostname:
         raise SettingsError(f"URL must be the Confluence site's http(s) address, got {url!r}")
-    spaces = _list(env, "SPACES")
+    spaces = names(env, "SPACES")
     if not spaces or not all(re.fullmatch(r"[A-Za-z0-9_~.-]+", s) for s in spaces):
         raise SettingsError("SPACES must list the space keys to index, separated by |, e.g. OPS|HR")
     token = env.get("TOKEN", "").strip()
@@ -65,7 +62,7 @@ def parse_settings(env: Mapping[str, str]) -> Settings:
     verify = env.get("VERIFY_TLS", "").strip().lower() or "true"
     if verify not in ("true", "false"):
         raise SettingsError("VERIFY_TLS must be true or false")
-    return Settings(url, spaces, token, frozenset(_list(env, "INCLUDE_LABELS")), frozenset(_list(env, "EXCLUDE_LABELS")),
+    return Settings(url, spaces, token, frozenset(names(env, "INCLUDE_LABELS")), frozenset(names(env, "EXCLUDE_LABELS")),
                     int(raw) if raw else 5000, timeout, pause, verify == "true")
 
 

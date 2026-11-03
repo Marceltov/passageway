@@ -181,3 +181,24 @@ def test_network_errors_are_retried_only_when_the_policy_says_so():
 def test_a_reply_has_its_headers_in_lower_case():
     client = web(lambda r: httpx.Response(302, headers={"Location": "https://y.example/"}), follow_redirects=False)
     assert client.get("https://x.example/").headers["location"] == "https://y.example/"
+
+
+def test_a_reply_the_caller_calls_busy_is_retried_like_a_busy_status():
+    replies = iter([httpx.Response(200, text="lag"), httpx.Response(200, text="lag"), httpx.Response(200, text="done")])
+    waits, said = [], []
+    client = Web("a", pause=0, retry=Retry(say_from=1), log=said.append, transport=httpx.MockTransport(lambda r: next(replies)),
+                 sleep=waits.append)
+    reply = client.get("https://x.example/", retry_if=lambda r: "maxlag" if r.text == "lag" else None)
+    assert reply.text == "done" and waits == [1, 2] and said[0].startswith("maxlag on GET")
+
+
+def test_a_reply_that_stays_busy_gives_up_with_the_reason():
+    client = Web("a", pause=0, retry=Retry(budget=3), transport=httpx.MockTransport(lambda r: httpx.Response(200, text="lag")),
+                 sleep=lambda s: None)
+    with pytest.raises(HttpError, match="giving up after 3 attempts and 3 s of waiting: maxlag"):
+        client.get("https://x.example/", retry_if=lambda r: "maxlag")
+
+
+def test_retry_if_needs_a_retry_policy():
+    with pytest.raises(ValueError, match="retry"):
+        web(ok).get("https://x.example/", retry_if=lambda r: "x")
