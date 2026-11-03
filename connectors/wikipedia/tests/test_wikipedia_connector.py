@@ -129,3 +129,11 @@ def test_redirect_pages_in_a_category_are_not_listed_counted_or_fetched(env, wik
 def test_a_fetch_id_that_is_not_a_string_is_an_error_not_a_crash(env):
     code, records, err = call(env, "fetch", '{"id": 1}\n')
     assert code == 1 and records == [] and "fetch expects" in err
+
+
+def test_the_user_agent_carries_the_installed_version():
+    from importlib.metadata import version
+
+    from passageway_connector_wikipedia.connector import _user_agent
+    agent = _user_agent(parse_scope({"CATEGORIES": "A"}))
+    assert agent.startswith(f"passageway-connector-wikipedia/{version('passageway-connector-wikipedia')} ")

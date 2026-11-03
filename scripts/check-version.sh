@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # A release tag must be vMAJOR.MINOR.PATCH and equal the version in pyproject.toml, in the plugin manifest
-# (.claude-plugin/plugin.json), in the general agent skill (skills/passageway/SKILL.md) and in the SDK (sdk/pyproject.toml):
-# they ship together.
+# (.claude-plugin/plugin.json), in the general agent skill (skills/passageway/SKILL.md) and in every package that goes to PyPI
+# (sdk, connectors/*, embedders/*): they ship together.
 # Usage: scripts/check-version.sh vX.Y.Z   (run from the repository root)
 set -euo pipefail
+shopt -s nullglob
 
 tag=${1:-}
 [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
@@ -26,8 +27,10 @@ skill=$(awk '/^---$/ {n++; next} n == 1 && /^version:/ {gsub(/["\047]/, "", $2);
   echo "tag $tag does not match the version '$skill' in skills/passageway/SKILL.md" >&2
   exit 1
 }
-sdk=$(python3 -c 'import tomllib; print(tomllib.load(open("sdk/pyproject.toml", "rb"))["project"]["version"])')
-[ "v$sdk" = "$tag" ] || {
-  echo "tag $tag does not match the version $sdk in sdk/pyproject.toml" >&2
-  exit 1
-}
+for file in sdk/pyproject.toml connectors/*/pyproject.toml embedders/*/pyproject.toml; do
+  found=$(python3 -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["project"]["version"])' "$file")
+  [ "v$found" = "$tag" ] || {
+    echo "tag $tag does not match the version $found in $file" >&2
+    exit 1
+  }
+done

@@ -4,6 +4,7 @@ import re
 import time
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
+from importlib.metadata import version
 from typing import TextIO
 from urllib.parse import quote
 
@@ -13,7 +14,7 @@ from passageway_sdk.settings import names, whole
 from passageway_connector_wikipedia.mediawiki import Wiki, WikiError
 from passageway_connector_wikipedia.sections import DEFAULT_SKIP, split_sections
 
-VERSION = "0.1.0"
+VERSION = version("passageway-connector-wikipedia")
 
 
 class ScopeError(SettingsError):

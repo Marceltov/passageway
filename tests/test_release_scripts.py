@@ -40,6 +40,46 @@ def test_a_malformed_tag_is_refused(tag):
     assert run("check-version.sh", tag).returncode != 0
 
 
+PACKAGE_FILES = sorted(str(p.relative_to(ROOT)) for pattern in ("connectors/*/pyproject.toml", "embedders/*/pyproject.toml")
+                       for p in ROOT.glob(pattern)) + ["sdk/pyproject.toml"]
+PUBLISH_DIRS = [d.rsplit("/pyproject.toml", 1)[0] for d in PACKAGE_FILES]
+VERSION_FILES = ["pyproject.toml", ".claude-plugin/plugin.json", "skills/passageway/SKILL.md", *PACKAGE_FILES]
+
+
+def copy_version_files(dst):
+    for name in VERSION_FILES:
+        (dst / name).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(ROOT / name, dst / name)
+
+
+@pytest.mark.parametrize("name", PACKAGE_FILES)
+def test_every_package_version_equals_the_root_version(name):
+    import tomllib
+    assert tomllib.loads((ROOT / name).read_text())["project"]["version"] == project_version(), name
+
+
+def test_a_connector_with_another_version_fails_naming_its_file(tmp_path):
+    copy_version_files(tmp_path)
+    assert run("bump-version.sh", "9.9.9", cwd=tmp_path).returncode == 0
+    path = tmp_path / "connectors/wikipedia/pyproject.toml"
+    path.write_text(path.read_text().replace('version = "9.9.9"', 'version = "0.0.1"'))
+    done = run("check-version.sh", "v9.9.9", cwd=tmp_path)
+    assert done.returncode != 0 and "connectors/wikipedia/pyproject.toml" in done.stderr
+
+
+def test_bump_version_moves_every_file_and_check_version_agrees(tmp_path):
+    copy_version_files(tmp_path)
+    assert run("bump-version.sh", "9.9.9", cwd=tmp_path).returncode == 0
+    done = run("check-version.sh", "v9.9.9", cwd=tmp_path)
+    assert done.returncode == 0, done.stderr
+
+
+@pytest.mark.parametrize("version", ["v1.0.0", "1.0", "1.0.0; x", ""])
+def test_bump_version_refuses_a_malformed_version(version, tmp_path):
+    copy_version_files(tmp_path)
+    assert run("bump-version.sh", version, cwd=tmp_path).returncode != 0
+
+
 # ---- release-notes.sh ---------------------------------------------------------------------------
 
 @pytest.fixture
@@ -256,3 +296,39 @@ def test_the_release_workflow_calls_only_scripts_that_exist_and_posts_with_the_s
     # the tag is validated before any other step sees it
     first_run = next(step["run"] for step in workflow["jobs"]["release"]["steps"] if "run" in step)
     assert "check-version.sh" in first_run, "scripts/check-version.sh must be the first run step"
+
+
+def test_the_release_workflow_publishes_every_package_in_order_without_a_credential_on_the_command_line():
+    import re
+
+    import yaml
+
+    text = (ROOT / ".github" / "workflows" / "release.yml").read_text()
+    job = yaml.safe_load(text)["jobs"]["publish"]
+    assert "release" in job["needs"] if isinstance(job["needs"], list) else job["needs"] == "release"
+    environment = job["environment"]
+    assert (environment["name"] if isinstance(environment, dict) else environment) == "pypi"
+    assert job["permissions"]["id-token"] == "write"
+    steps = "\n".join(step.get("run", "") for step in job["steps"])
+    # first release only: the token comes from the secret through the environment, never as an argument; the follow-up that
+    # removes it goes back to trusted publishing alone (#28)
+    assert not re.search(r"--token|--password", json.dumps(job)), "a credential must not be an argument"
+    publish_step = next(step for step in job["steps"] if "uv publish" in step.get("run", ""))
+    assert publish_step["env"] == {"UV_PUBLISH_TOKEN": "${{ secrets.PYPI_TOKEN }}"}
+    assert "uv build --all-packages" in steps
+    publish = re.findall(r"uv publish[^\n]*", steps)
+    assert len(publish) == 1 and "--check-url" in publish[0] and "--trusted-publishing always" not in publish[0]
+    order = re.search(r'packages="([^"]+)"', steps).group(1).split()
+    import tomllib
+    names = [tomllib.loads((ROOT / d / "pyproject.toml").read_text())["project"]["name"]
+             for d in PUBLISH_DIRS]
+    assert order[0] == "passageway-sdk" and order[-1] == "passageway" and sorted(order) == sorted([*names, "passageway"])
+
+
+def test_the_publish_step_checks_every_file_exists_before_uploading_anything():
+    import yaml
+
+    steps = yaml.safe_load((ROOT / ".github" / "workflows" / "release.yml").read_text())["jobs"]["publish"]["steps"]
+    publish = next(step["run"] for step in steps if "uv publish" in step.get("run", ""))
+    # an old tag re-run through workflow_dispatch builds an old tree: refuse before the first upload, never half-publish
+    assert "compgen" in publish and publish.index("compgen") < publish.index("uv publish")

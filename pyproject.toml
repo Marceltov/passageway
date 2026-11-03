@@ -1,11 +1,12 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling==1.33.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "passageway"
-version = "0.2.9"
+version = "0.3.0"
 description = "Retrieval for Claude over MCP: connectors feed passages, an eval harness keeps them honest"
+readme = "README.md"
 requires-python = ">=3.12"
 license = "PolyForm-Noncommercial-1.0.0"
 dependencies = [
@@ -22,6 +23,16 @@ dependencies = [
     "truststore>=0.10",
     "uvicorn>=0.30",
 ]
+
+[project.optional-dependencies]
+confluence = ["passageway-connector-confluence==0.3.0"]
+llmstxt = ["passageway-connector-llmstxt==0.3.0"]
+markdown = ["passageway-connector-markdown==0.3.0"]
+sitemap = ["passageway-connector-sitemap==0.3.0"]
+trilium = ["passageway-connector-trilium==0.3.0"]
+wikipedia = ["passageway-connector-wikipedia==0.3.0"]
+openai = ["passageway-embedder-openai==0.3.0"]
+all = ["passageway-connector-confluence==0.3.0", "passageway-connector-llmstxt==0.3.0", "passageway-connector-markdown==0.3.0", "passageway-connector-sitemap==0.3.0", "passageway-connector-trilium==0.3.0", "passageway-connector-wikipedia==0.3.0", "passageway-embedder-openai==0.3.0"]
 
 [project.scripts]
 passageway = "passageway.server:main"

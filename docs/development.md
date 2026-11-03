@@ -37,13 +37,15 @@ Dependabot keeps the dependencies and the GitHub Actions current (`.github/depen
 
 ## Releasing
 
-A release is a tag. Bump `version` in the root `pyproject.toml`, merge it, then tag the commit:
+A release is a tag. Run `scripts/bump-version.sh X.Y.Z` and `uv lock`, merge the result, then tag the commit. The script moves the version of the core, the SDK, every connector and the embedder together, with the plugin manifest, the general skill and the pins between the packages: they all carry the tag's version.
 
 ```bash
 git tag -a v0.2.0 -m "A one-line headline for the release"
 git push origin v0.2.0
 ```
 
-The `Release` workflow checks that the tag equals the version in `pyproject.toml`, runs the tests, and creates the GitHub release. Its notes are the tag message, the pull requests merged since the previous release, and install instructions. It then posts the same notes to a notefeed feed, once per tag, so running the workflow again never posts twice. The feed is configured with two repository secrets, `NOTEFEED_FEED` and `NOTEFEED_FEED_PASSWORD`; without them (a fork) nothing is posted.
+The `Release` workflow checks that the tag equals the version in `pyproject.toml`, runs the tests, and creates the GitHub release. Its notes are the tag message, the pull requests merged since the previous release, and install instructions. The `publish` job then builds the nine packages and uploads them to PyPI, the SDK first and the core last, skipping what is already there, so running it again after a failure carries on. It refuses before the first upload if a package's files are missing. A published version can only be yanked, never replaced. The first release (0.3.0) authenticates with an account token in the repository secret `PYPI_TOKEN` (kept in 1Password), because a project must exist before PyPI takes a trusted publisher for it; afterwards the secret is removed, the token revoked, and publishing goes back to trusted publishing. It posts the same notes to a notefeed feed, once per tag, so running the workflow again never posts twice. The feed is configured with two repository secrets, `NOTEFEED_FEED` and `NOTEFEED_FEED_PASSWORD`; without them (a fork) nothing is posted.
 
-To publish an existing tag again, run the workflow by hand from the Actions tab and give it the tag. This rewrites the release notes, so edits made by hand on GitHub are lost. The check compares the tag only with the root `pyproject.toml`; connector packages keep their own versions.
+To publish an existing tag again, run the workflow by hand from the Actions tab and give it the tag. This rewrites the release notes, so edits made by hand on GitHub are lost. The check compares the tag with the root `pyproject.toml` and with every package.
+
+The `pypi` environment exists on GitHub. After the first release, remove the `PYPI_TOKEN` secret and the `env` block of the Publish step in `release.yml`, revoke the token on pypi.org, and register a trusted publisher for each of `passageway`, `passageway-sdk`, the six `passageway-connector-*` and `passageway-embedder-openai` (repository `getpassageway/passageway`, workflow `release.yml`, environment `pypi`).
