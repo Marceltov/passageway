@@ -21,7 +21,7 @@ def _context(client):
 def test_every_http_client_uses_the_system_trust_store():
     clients = [
         confluence.Api(confluence.parse_settings({"URL": "https://wiki.example", "SPACES": "OPS", "TOKEN": "t"}))._http,
-        trilium.Etapi(trilium.parse_settings({"URL": "https://notes.example", "TOKEN": "t"}))._http,
+        trilium.Etapi(trilium.parse_settings({"URL": "https://notes.example", "TOKEN": "t"}))._web._http,
         Wiki("https://en.wikipedia.org/w/api.php", "test")._http,
         Web("test")._http,
         openai.Embedder(openai.parse_settings({"MODEL": "m", "API_KEY": "k"}))._http,
