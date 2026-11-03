@@ -1030,9 +1030,7 @@ name = "passageway-connector-wikipedia"
 version = "0.1.0"
 source = { editable = "connectors/wikipedia" }
 dependencies = [
-    { name = "httpx" },
-    { name = "passageway-sdk" },
-    { name = "truststore" },
+    { name = "passageway-sdk", extra = ["web"] },
 ]
 
 [package.dev-dependencies]
@@ -1043,11 +1041,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "passageway-sdk", editable = "sdk" },
-    { name = "truststore", specifier = ">=0.10" },
-]
+requires-dist = [{ name = "passageway-sdk", extras = ["web"], editable = "sdk" }]
 
 [package.metadata.requires-dev]
 dev = [

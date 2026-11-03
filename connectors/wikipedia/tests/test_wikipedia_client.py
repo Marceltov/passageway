@@ -132,7 +132,7 @@ def test_a_long_wait_is_said_in_the_log_as_it_starts(wiki_server, capsys):
     wiki.status_errors = [429] * 5  # waits 1, 2, 4, 8, then 16
     assert client(url, []).resolve_titles(("Cape Arkona",)) == {2: "Cape Arkona"}
     assert capsys.readouterr().err.splitlines() == [
-        "wikipedia connector: HTTP 429 from the wiki: waiting 16 s (15 s of 900 s waited)"]
+        f"wikipedia connector: HTTP 429 on GET {url}: waiting 16 s (15 s of 900 s waited)"]
 
 
 def test_a_429_that_never_ends_fails_and_says_how_long_it_waited(wiki_server):
