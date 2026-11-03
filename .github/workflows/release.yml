@@ -95,3 +95,10 @@ jobs:
           tags="-t $image:${TAG#v}"
           if [ "${{ github.event_name }}" = "push" ]; then tags="$tags -t $image:latest"; fi
           docker buildx build --platform linux/amd64,linux/arm64 --build-arg APP_VERSION="${TAG#v}" $tags --push .
+      - name: Build and push the variant with a browser
+        # For the sitemap connector's RENDER: the same image plus Chromium, tagged <version>-browser and, on a pushed tag, browser.
+        run: |
+          image=$(echo "ghcr.io/${{ github.repository_owner }}/passageway" | tr '[:upper:]' '[:lower:]')
+          tags="-t $image:${TAG#v}-browser"
+          if [ "${{ github.event_name }}" = "push" ]; then tags="$tags -t $image:browser"; fi
+          docker buildx build --platform linux/amd64,linux/arm64 --build-arg APP_VERSION="${TAG#v}" --build-arg WITH_BROWSER=1 $tags --push .

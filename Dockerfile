@@ -3,7 +3,7 @@
 # Multi-stage: resolve the workspace into a venv with uv, fetch the pinned model and verify its checksums, then ship
 # only the venv, the model and the code on python-slim.
 #
-#   docker build -t passageway .
+#   docker build -t passageway .          (add --build-arg WITH_BROWSER=1 for the sitemap connector's RENDER)
 #   docker run -p 8082:8082 -v passageway-data:/data -v ./passageway.toml:/config/passageway.toml \
 #     -e PASSAGEWAY_LOGIN_PASSWORD=... passageway
 
@@ -17,7 +17,8 @@ COPY passageway/ passageway/
 COPY sdk/ sdk/
 COPY connectors/ connectors/
 COPY embedders/ embedders/
-RUN uv sync --frozen --no-dev --all-packages
+ARG WITH_BROWSER=0
+RUN uv sync --frozen --no-dev --all-packages $([ "$WITH_BROWSER" = 1 ] && echo --all-extras)
 
 # ---- model: the default preset, pinned to a revision, every file verified by checksum ----
 FROM python:3.12-slim-bookworm AS model
@@ -33,6 +34,10 @@ RUN apt-get update \
 WORKDIR /app
 COPY --from=builder /app /app
 COPY --from=model /models /models
+# --build-arg WITH_BROWSER=1: Chromium for the sitemap connector's RENDER (about 400 MB more).
+ARG WITH_BROWSER=0
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN if [ "$WITH_BROWSER" = 1 ]; then /app/.venv/bin/playwright install --with-deps chromium && chmod -R a+rX /ms-playwright; fi
 RUN useradd --system --create-home --uid 1000 passageway && mkdir -p /data /config && chown passageway /data
 LABEL org.opencontainers.image.source="https://github.com/Marceltov/passageway" \
       org.opencontainers.image.licenses="PolyForm-Noncommercial-1.0.0"

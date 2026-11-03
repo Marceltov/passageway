@@ -68,3 +68,5 @@ volumes:
 Inside the container the defaults are `PASSAGEWAY_HOST=0.0.0.0`, `PASSAGEWAY_DATA_DIR=/data`, `PASSAGEWAY_CONFIG=/config/passageway.toml` and `PASSAGEWAY_MODEL_DIR=/models/e5-small`; the health check calls `/health` every minute. The bundled connectors are installed, so a `command` of `["python", "-m", "passageway_connector_trilium"]` works as written (the venv's `python` is first on the `PATH`). A connector of your own needs a derived image that adds it, or a mount.
 
 `:latest` moves only on pushed version tags, so a watcher that pulls `latest` installs each release on its own. The image is a few hundred megabytes, most of it the model and the ONNX runtime.
+
+The sitemap connector's `RENDER` (for sites whose pages a script builds) needs a browser, so every release also publishes `ghcr.io/marceltov/passageway:browser` (and `<version>-browser`): the same image plus Chromium, about 400 MB larger. Use it instead of `:latest` when a connector sets `RENDER`; to build it yourself, `docker build --build-arg WITH_BROWSER=1 -t passageway .`.
