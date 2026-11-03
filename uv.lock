@@ -707,14 +707,14 @@ wheels = [
 
 [[package]]
 name = "mcp-login-oauth"
-version = "0.2.1"
+version = "0.2.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastmcp" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4c/f1/4691f593c62f46484fdbf2075fdea1a7cc414db8bcf2cb1c4b77d468ae8e/mcp_login_oauth-0.2.1.tar.gz", hash = "sha256:dc4335ab701edd2f76c38af3386cfd71431d606a7e957934a53664bd06743197", size = 27758, upload-time = "2026-10-30T15:44:05.229Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/52/d3/04061a1569b3bd7e0fdc40b6dcc3407e7f51658c3b96637ff88622ceea4c/mcp_login_oauth-0.2.3.tar.gz", hash = "sha256:2d72ea0d00c5d70c71bcf8c0a0793dd824b6363603a5390641ae14ca896767cd", size = 16726, upload-time = "2026-11-03T07:06:04.63Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bd/4b/032cae90399925a7c0c49820c9c07d7665306da4db6ab1fa7478b7acd63d/mcp_login_oauth-0.2.1-py3-none-any.whl", hash = "sha256:eab00964c825f55345c56f1d36621785db6a30225bfb54ea9da7613404fff3ad", size = 24533, upload-time = "2026-10-30T15:44:03.877Z" },
+    { url = "https://files.pythonhosted.org/packages/58/1c/36a197bd059a13f43d999e601f10c3beca3a262be008864395ff8d958a48/mcp_login_oauth-0.2.3-py3-none-any.whl", hash = "sha256:566035664ad0914bfdac85d89dd040607dd2589f8cb1c243b8453620bc0f3dcc", size = 13241, upload-time = "2026-11-03T07:06:02.903Z" },
 ]
 
 [[package]]
@@ -913,7 +913,7 @@ dev = [
 requires-dist = [
     { name = "fastmcp", specifier = ">=3.0.0" },
     { name = "httpx", specifier = ">=0.28.1" },
-    { name = "mcp-login-oauth", specifier = ">=0.2.1" },
+    { name = "mcp-login-oauth", specifier = ">=0.2.3" },
     { name = "numpy", specifier = ">=2.0" },
     { name = "onnxruntime", specifier = ">=1.20" },
     { name = "pyyaml", specifier = ">=6.0" },
