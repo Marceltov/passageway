@@ -69,4 +69,4 @@ Inside the container the defaults are `PASSAGEWAY_HOST=0.0.0.0`, `PASSAGEWAY_DAT
 
 `:latest` moves only on pushed version tags, so a watcher that pulls `latest` installs each release on its own. The image is a few hundred megabytes, most of it the model and the ONNX runtime.
 
-The published image has no browser. The [sitemap connector](connectors/sitemap.md) needs one only for `RENDER`, on sites whose pages a script builds; build the image yourself with it: `docker build --build-arg WITH_BROWSER=1 -t passageway .` (about 400 MB more, Chromium and its libraries).
+The sitemap connector's `RENDER` (for sites whose pages a script builds) needs a browser, so every release also publishes `ghcr.io/marceltov/passageway:browser` (and `<version>-browser`): the same image plus Chromium, about 400 MB larger. Use it instead of `:latest` when a connector sets `RENDER`; to build it yourself, `docker build --build-arg WITH_BROWSER=1 -t passageway .`.
