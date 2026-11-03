@@ -326,5 +326,5 @@ def test_a_company_may_try_it_for_32_days_under_the_free_trial_licence():
 
 def test_every_public_sdk_helper_is_documented():
     page = (ROOT / "docs" / "reference" / "sdk.md").read_text()
-    for name in ["names", "whole", "flag", "seconds", "Web", "Reply", "TooLarge", "HttpError", "Retry", "request", "passageway-sdk[web]"]:
+    for name in ["names", "whole", "flag", "seconds", "Web", "Reply", "TooLarge", "HttpError", "NetworkError", "Retry", "request", "passageway-sdk[web]"]:
         assert f"`{name}" in page, f"{name} is in the SDK but missing from docs/reference/sdk.md"

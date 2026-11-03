@@ -81,8 +81,9 @@ data = reply.json()
 | `follow_redirects` | Set `False` to refuse redirects, so a secret never follows one to another host. | `True` |
 | `pause` | Seconds between two requests. | `0.2` |
 | `timeout`, `max_bytes` | Seconds per request, and the largest reply (`TooLarge`, a `SourceError`; `get(max_bytes=…)` per call). | `30`, `2000000` |
-| `retry` | A `Retry(statuses, budget, max_backoff, max_after)` policy: wait (the server's `Retry-After`, else 1, 2, 4 … seconds) and try again on `429`, `502`, `503`, `504` until the budget in seconds is spent. | none |
+| `retry` | A `Retry(statuses, network, budget, max_backoff, max_after, say_from)` policy: wait (the server's `Retry-After`, else 1, 2, 4 … seconds) and try again on `429`, `502`, `503`, `504` (set `statuses` for others; `network=True` also retries when the server cannot be reached) until `budget` seconds are spent, then give up with the total time waited. A wait of `say_from` seconds or more is passed to `log(message)`. | none |
+| `log` | A function that receives the retry messages, so a waiting sync does not look hung. | none |
 
-`get(url, params=None, required=False, max_bytes=None)` and `request(method, url, params=None, json=None, …)` return a `Reply`. A failure to reach the server, and a `5xx` or `429` that retries did not clear, raise `HttpError` (a `SourceError` with the `status`), so a source that is down fails the call and never looks empty; any other status, such as a `404`, is returned for the connector to judge, or raised with `required=True`.
+`get(url, params=None, required=False, max_bytes=None)` and `request(method, url, params=None, json=None, …)` return a `Reply`. A `Reply` has `status`, `text`, `content_type`, `headers` (names in lower case) and `.json()`. A failure to reach the server raises `NetworkError`, and a `5xx` or `429` that retries did not clear raises `HttpError` (a `SourceError` with the `status`), so a source that is down fails the call and never looks empty; any other status, such as a `404`, is returned for the connector to judge, or raised with `required=True`.
 
 *The SDK is MIT licensed ([licence](LICENSE)).*
