@@ -8,7 +8,7 @@ passageway searches across your wiki, notes and documentation and gives your age
 - **Connected.** Confluence, Trilium, Markdown and Wikipedia work out of the box.
 - **Open.** A documented protocol lets you add any source or embedding model, in any language.
 
-Free for private use. Companies need a licence ([details](docs/licence.md)).
+Free for private use. Companies need a licence ([details](docs/licence.md)); trying it at work for up to 32 days is covered by the PolyForm Free Trial licence (`LICENSE-FREE-TRIAL`).
 
 It serves the passages as one `recall` tool over MCP, stays silent when nothing is relevant enough, and does no generation: the calling agent reads the passages. An [eval harness](docs/guides/evaluate.md) (`passageway eval`) measures retrieval quality on your own questions, so you can publish the numbers.
 

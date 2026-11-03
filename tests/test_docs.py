@@ -315,3 +315,10 @@ def test_v8_promises_a_review_and_guards_a_future_hosted_offer():
     v8 = (ROOT / "docs" / "values.md").read_text().split("### V8.")[1].split("##")[0]
     assert "reviewed once" in v8 and "twelve months" in v8  # strict now, loosened if adoption stalls
     assert "hosted offer" in v8 and "never depends on it" in v8  # same software, nothing kept back for self-hosters
+
+
+def test_a_company_may_try_it_for_32_days_under_the_free_trial_licence():
+    assert (ROOT / "LICENSE-FREE-TRIAL").read_text().startswith("# PolyForm Free Trial License 1.0.0")
+    licence = (ROOT / "docs" / "licence.md").read_text()
+    assert "Free Trial" in licence and "32" in licence and "Not on sale yet" in licence  # nothing planned is described as existing
+    assert "Free Trial" in (ROOT / "README.md").read_text()
