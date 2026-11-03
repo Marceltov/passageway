@@ -28,6 +28,25 @@ def _clean(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
+BLOCK_TAGS = {"p", "div", "li", "ul", "ol", "table", "tr", "td", "th", "h1", "h2", "h3", "h4", "h5", "h6", "pre", "blockquote",
+              "section", "article", "figure", "details", "summary", "dt", "dd", "br"}
+
+
+def _inline(node: Node) -> str:
+    """The text of a node: markup inside a sentence adds no space, a block or a line break does; permalink anchors are left out."""
+    parts = []
+    for child in node.iter(include_text=True):
+        if child.tag == "-text":
+            parts.append(child.text_content or "")
+        elif child.tag in SKIP_TAGS or "headerlink" in (child.attributes.get("class") or "").split():
+            continue
+        elif child.tag in BLOCK_TAGS:
+            parts.append(f" {_inline(child)} ")
+        else:
+            parts.append(_inline(child))
+    return _clean("".join(parts))
+
+
 def _blocks(node: Node, out: list[str]) -> None:
     for child in node.iter(include_text=True):
         tag = child.tag
@@ -37,15 +56,15 @@ def _blocks(node: Node, out: list[str]) -> None:
         elif tag in SKIP_TAGS:
             continue
         elif len(tag) == 2 and tag[0] == "h" and tag[1] in "123456":
-            if text := _clean(child.text(deep=True, separator=" ")):
+            if text := _inline(child):
                 out.append(f"{'#' * int(tag[1])} {text}")
         elif tag == "pre":
             out.append("```\n" + (child.text(deep=True, strip=False) or "").strip("\n") + "\n```")
         elif tag == "li" and not child.css_first("ul, ol"):
-            if text := _clean(child.text(deep=True, separator=" ")):
+            if text := _inline(child):
                 out.append(f"- {text}")
         elif tag in LEAF_TAGS:
-            if text := _clean(child.text(deep=True, separator=" ")):
+            if text := _inline(child):
                 out.append(text)
         else:
             _blocks(child, out)

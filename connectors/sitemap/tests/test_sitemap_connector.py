@@ -91,3 +91,16 @@ def test_settings_are_checked(web):
     assert web.call("list", MAX_PAGES="0")[0] == 2
     assert web.call("list", PAUSE="-1")[0] == 2
     assert web.call("list", FOLLOW_LINKS="maybe")[0] == 2
+
+
+def test_a_permalink_anchor_is_not_part_of_the_heading(web):
+    web.pages[f"{SITE}/doc"] = (200, "text/html", html("Doc", '<h1>Doc<a class="headerlink" href="#doc" title="Permanent link">¶</a></h1>'
+                                                       '<h2 id="a">Setup <a class="headerlink" href="#a">¶</a></h2><p>Text.</p>'))
+    page = web.fetch(f"{SITE}/doc")[f"{SITE}/doc"]
+    assert page["title"] == "Doc" and [s["heading"] for s in page["sections"]] == ["Setup"]
+
+
+def test_inline_markup_does_not_add_spaces_inside_a_sentence(web):
+    web.pages[f"{SITE}/doc"] = (200, "text/html", html("Doc", "<h1>Doc</h1><p>Edit <code>passageway.toml</code>, or the <em>env</em>file.</p>"))
+    text = web.fetch(f"{SITE}/doc")[f"{SITE}/doc"]["sections"][0]["text"]
+    assert text == "Edit passageway.toml, or the envfile."

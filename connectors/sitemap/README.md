@@ -69,4 +69,6 @@ All settings are strings in the connector's `env`.
 | `RESPECT_ROBOTS` | `true` or `false`: skip what `robots.txt` forbids for this crawler. | `true` |
 | `CONTACT` | An address or URL added to the user agent, so a site's owner can reach you. | none |
 
+A page that a browser builds with JavaScript has little text for this connector to read: Teamscale's documentation pages, for one, hand back a one-line notice. If a site publishes an `llms-full.txt` or `llms.txt`, use the [llms.txt connector](https://passageway.marceltov.de/connectors/llmstxt/) for it and keep this one for sites that are server-rendered, such as a MkDocs or Hugo site.
+
 Requests carry the user agent `passageway-connector-sitemap`, follow redirects and verify HTTPS against the operating system's trust store. Only crawl sites you may index.
