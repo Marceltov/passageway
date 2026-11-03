@@ -11,6 +11,7 @@ resolution-markers = [
 members = [
     "passageway",
     "passageway-connector-confluence",
+    "passageway-connector-llmstxt",
     "passageway-connector-markdown",
     "passageway-connector-trilium",
     "passageway-connector-wikipedia",
@@ -900,6 +901,7 @@ dependencies = [
 dev = [
     { name = "jsonschema" },
     { name = "passageway-connector-confluence" },
+    { name = "passageway-connector-llmstxt" },
     { name = "passageway-connector-markdown" },
     { name = "passageway-connector-trilium" },
     { name = "passageway-connector-wikipedia" },
@@ -929,6 +931,7 @@ requires-dist = [
 dev = [
     { name = "jsonschema", specifier = ">=4.23" },
     { name = "passageway-connector-confluence", editable = "connectors/confluence" },
+    { name = "passageway-connector-llmstxt", editable = "connectors/llmstxt" },
     { name = "passageway-connector-markdown", editable = "connectors/markdown" },
     { name = "passageway-connector-trilium", editable = "connectors/trilium" },
     { name = "passageway-connector-wikipedia", editable = "connectors/wikipedia" },
@@ -959,6 +962,31 @@ requires-dist = [
     { name = "passageway-sdk", extras = ["web"], editable = "sdk" },
     { name = "selectolax", specifier = ">=0.3.21" },
 ]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "jsonschema", specifier = ">=4.23" },
+    { name = "passageway", editable = "." },
+    { name = "pytest", specifier = ">=8.3" },
+]
+
+[[package]]
+name = "passageway-connector-llmstxt"
+version = "0.1.0"
+source = { editable = "connectors/llmstxt" }
+dependencies = [
+    { name = "passageway-sdk", extra = ["web"] },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "jsonschema" },
+    { name = "passageway" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "passageway-sdk", extras = ["web"], editable = "sdk" }]
 
 [package.metadata.requires-dev]
 dev = [

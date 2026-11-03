@@ -49,6 +49,7 @@ Before anything else, [what passageway stands for](values.md): the lines it does
 - The [connector protocol](reference/connector-protocol.md) and a [guide to writing a connector](guides/write-a-connector.md)
 - The [Wikipedia connector](connectors/wikipedia.md), in English and German
 - The [Markdown connector](connectors/markdown.md), for a folder of markdown files with front matter
+- The [llms.txt connector](connectors/llmstxt.md), the `llms-full.txt` of a list of websites, a single markdown file, or the pages an `llms.txt` index links to
 - The [Trilium connector](connectors/trilium.md), the notes of a Trilium server with the LLM-wiki structure of trilium-recall
 - The [Confluence connector](connectors/confluence.md), the pages of chosen spaces of a Confluence Data Center
 - Hybrid search with a relevance gate, described in [How it works](how-it-works.md)
