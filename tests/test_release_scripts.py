@@ -40,6 +40,45 @@ def test_a_malformed_tag_is_refused(tag):
     assert run("check-version.sh", tag).returncode != 0
 
 
+PACKAGE_FILES = sorted(str(p.relative_to(ROOT)) for pattern in ("connectors/*/pyproject.toml", "embedders/*/pyproject.toml")
+                       for p in ROOT.glob(pattern)) + ["sdk/pyproject.toml"]
+VERSION_FILES = ["pyproject.toml", ".claude-plugin/plugin.json", "skills/passageway/SKILL.md", *PACKAGE_FILES]
+
+
+def copy_version_files(dst):
+    for name in VERSION_FILES:
+        (dst / name).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(ROOT / name, dst / name)
+
+
+@pytest.mark.parametrize("name", PACKAGE_FILES)
+def test_every_package_version_equals_the_root_version(name):
+    import tomllib
+    assert tomllib.loads((ROOT / name).read_text())["project"]["version"] == project_version(), name
+
+
+def test_a_connector_with_another_version_fails_naming_its_file(tmp_path):
+    copy_version_files(tmp_path)
+    assert run("bump-version.sh", "9.9.9", cwd=tmp_path).returncode == 0
+    path = tmp_path / "connectors/wikipedia/pyproject.toml"
+    path.write_text(path.read_text().replace('version = "9.9.9"', 'version = "0.0.1"'))
+    done = run("check-version.sh", "v9.9.9", cwd=tmp_path)
+    assert done.returncode != 0 and "connectors/wikipedia/pyproject.toml" in done.stderr
+
+
+def test_bump_version_moves_every_file_and_check_version_agrees(tmp_path):
+    copy_version_files(tmp_path)
+    assert run("bump-version.sh", "9.9.9", cwd=tmp_path).returncode == 0
+    done = run("check-version.sh", "v9.9.9", cwd=tmp_path)
+    assert done.returncode == 0, done.stderr
+
+
+@pytest.mark.parametrize("version", ["v1.0.0", "1.0", "1.0.0; x", ""])
+def test_bump_version_refuses_a_malformed_version(version, tmp_path):
+    copy_version_files(tmp_path)
+    assert run("bump-version.sh", version, cwd=tmp_path).returncode != 0
+
+
 # ---- release-notes.sh ---------------------------------------------------------------------------
 
 @pytest.fixture
