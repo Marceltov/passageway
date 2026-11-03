@@ -1,5 +1,5 @@
 from passageway.rank import Hit
-from passageway.render import fit, render
+from passageway.render import approx_tokens, fit, render
 
 
 def hit(n, source="s", links=()):
@@ -25,3 +25,12 @@ def test_several_sources_are_tagged_and_links_listed():
 def test_budget_drops_hits_from_the_end():
     text, shown = fit([hit(n) for n in range(1, 8)], max_tokens=120)
     assert 1 <= len(shown) < 7 and shown[0].item_id == "i1"
+
+
+def test_one_very_long_hit_still_fits_the_budget():
+    long = hit(1)
+    long.title = "word " * 2000
+    long.path = ["folder"] * 500
+    text, shown = fit([long], max_tokens=400)
+    assert approx_tokens(text) <= 400 and [h.item_id for h in shown] == ["i1"]
+    assert "http://x/1" in text  # the link is what makes a hit useful, it is never cut

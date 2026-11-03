@@ -1,6 +1,7 @@
 """The compact text Claude gets, for the hook and the MCP tool alike."""
 
 import math
+from dataclasses import replace
 
 from passageway.rank import Hit
 
@@ -51,4 +52,16 @@ def fit(hits: list[Hit], max_tokens: int = 400) -> tuple[str, list[Hit]]:
             text = "\n".join(lines)
             if approx_tokens(text) <= max_tokens:
                 return text, hits[:count]
-    return text, hits[:1]
+    return _first_hit_alone(hits[0], header, several, max_tokens), hits[:1]
+
+
+def _first_hit_alone(hit: Hit, header: str, several: bool, max_tokens: int) -> str:
+    """Even one hit is over budget: drop its labels, path and links, then cut the title; the link stays."""
+    hit = replace(hit, labels=[], path=[], heading="", links=[])
+    words = hit.title.split()
+    while True:
+        hit = replace(hit, title=" ".join(words))
+        text = "\n".join([header, *_hit_lines(1, hit, several, False, _shorten(hit.passage))])
+        if approx_tokens(text) <= max_tokens or not words:
+            return text  # shortcut: a URL longer than the budget alone is returned whole, its link is the point
+        words = words[: len(words) // 2]
