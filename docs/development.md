@@ -1,7 +1,7 @@
 # Development
 
 ```bash
-git clone https://github.com/Marceltov/passageway
+git clone https://github.com/getpassageway/passageway
 cd passageway
 uv sync                # installs the core and every connector package
 uv run pytest -q       # the whole suite, offline

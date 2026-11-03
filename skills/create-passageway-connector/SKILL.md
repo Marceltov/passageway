@@ -69,7 +69,7 @@ def test_my_connector(tmp_path):
     check_connector(Connector("mine", [sys.executable, script], env={"FOLDER": str(tmp_path)}))
 ```
 
-   `passageway` must be importable where pytest runs: `uv add --dev git+https://github.com/Marceltov/passageway`, or run `uv run --with git+https://github.com/Marceltov/passageway pytest`.
+   `passageway` must be importable where pytest runs: `uv add --dev git+https://github.com/getpassageway/passageway`, or run `uv run --with git+https://github.com/getpassageway/passageway pytest`.
 
    For a connector in another language, run each mode by hand and compare with the rules.
 5. **Register it** in `~/.config/passageway/passageway.toml`:

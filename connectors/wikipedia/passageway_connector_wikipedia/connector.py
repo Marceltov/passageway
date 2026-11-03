@@ -69,7 +69,7 @@ def parse_scope(env: Mapping[str, str]) -> Scope:
 
 def _user_agent(scope: Scope) -> str:
     contact = f"; {scope.contact}" if scope.contact else ""
-    return f"passageway-connector-wikipedia/{VERSION} (+https://github.com/Marceltov/passageway{contact})"
+    return f"passageway-connector-wikipedia/{VERSION} (+https://github.com/getpassageway/passageway{contact})"
 
 
 def _pages(wiki: Wiki, scope: Scope) -> dict[int, str]:

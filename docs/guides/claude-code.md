@@ -17,7 +17,7 @@ Claude Code can use passageway in two ways, and the plugin sets up both:
 ## Install the plugin
 
 ```bash
-/plugin marketplace add Marceltov/passageway
+/plugin marketplace add getpassageway/passageway
 /plugin install passageway@passageway
 ```
 

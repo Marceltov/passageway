@@ -1,6 +1,6 @@
 # passageway-connector-confluence
 
-A [passageway](https://github.com/Marceltov/passageway#readme) connector for **Confluence Data Center** (and Server): the current pages of the spaces you name, read through the REST API with GET requests only, using a personal access token. Written from the public REST documentation.
+A [passageway](https://github.com/getpassageway/passageway#readme) connector for **Confluence Data Center** (and Server): the current pages of the spaces you name, read through the REST API with GET requests only, using a personal access token. Written from the public REST documentation.
 
 ## What it does
 

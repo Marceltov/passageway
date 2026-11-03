@@ -17,7 +17,7 @@ First look at what is there and what is current:
 
 ```bash
 uv tool list --show-with | grep -A3 '^passageway '     # the installed version and its connectors, or nothing
-curl -s https://api.github.com/repos/Marceltov/passageway/releases/latest | python3 -c "import json,sys; print(json.load(sys.stdin)['tag_name'])"
+curl -s https://api.github.com/repos/getpassageway/passageway/releases/latest | python3 -c "import json,sys; print(json.load(sys.stdin)['tag_name'])"
 ```
 
 - **Not installed:** **install** (below), at the latest release.
@@ -43,9 +43,9 @@ The built-in embedder's model is shared, so a second instance does not download 
 
    ```bash
    uv tool install \
-     --with 'passageway-connector-trilium @ git+https://github.com/Marceltov/passageway@<tag>#subdirectory=connectors/trilium' \
-     --with 'passageway-connector-markdown @ git+https://github.com/Marceltov/passageway@<tag>#subdirectory=connectors/markdown' \
-     git+https://github.com/Marceltov/passageway@<tag>
+     --with 'passageway-connector-trilium @ git+https://github.com/getpassageway/passageway@<tag>#subdirectory=connectors/trilium' \
+     --with 'passageway-connector-markdown @ git+https://github.com/getpassageway/passageway@<tag>#subdirectory=connectors/markdown' \
+     git+https://github.com/getpassageway/passageway@<tag>
    ```
 
    The packages are `passageway-connector-<name>` under `connectors/<name>`, all from the same `<tag>`. The command replaces the set, so list every connector the user wants. `passageway --help` must then work.
@@ -106,4 +106,4 @@ The built-in embedder's model is shared, so a second instance does not download 
 
 1. Take the connectors from `uv tool list --show-with` (each `passageway-connector-<name>`) and run the `uv tool install` command from step 2 with exactly those, at `<tag>`, plus `--reinstall`. Leaving one out would uninstall it and break its source.
 2. Restart the service of every instance (step 5; `ls -d ~/.config/passageway*/` lists them), since they all run from this installation. Nothing in their config folders changes.
-3. Wait for `/health` to be `"ok"` again, check that `uv tool list` shows the new version, and tell the user: from which version to which, and the release notes link `https://github.com/Marceltov/passageway/releases/tag/<tag>`.
+3. Wait for `/health` to be `"ok"` again, check that `uv tool list` shows the new version, and tell the user: from which version to which, and the release notes link `https://github.com/getpassageway/passageway/releases/tag/<tag>`.

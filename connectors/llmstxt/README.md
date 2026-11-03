@@ -1,6 +1,6 @@
 # passageway-connector-llmstxt
 
-A [passageway](https://github.com/Marceltov/passageway#readme) connector that indexes the `llms-full.txt` of a list of websites, a single markdown file such as a `SKILL.md`, or the pages an `llms.txt` index links to. Most documentation sites publish one of these for language models, and this connector makes them searchable without crawling.
+A [passageway](https://github.com/getpassageway/passageway#readme) connector that indexes the `llms-full.txt` of a list of websites, a single markdown file such as a `SKILL.md`, or the pages an `llms.txt` index links to. Most documentation sites publish one of these for language models, and this connector makes them searchable without crawling.
 
 ## What it does
 
@@ -13,12 +13,12 @@ A [passageway](https://github.com/Marceltov/passageway#readme) connector that in
 
 ## Install
 
-Add the connector to the environment that runs passageway (see [Install](https://github.com/Marceltov/passageway/blob/main/docs/install.md)):
+Add the connector to the environment that runs passageway (see [Install](https://github.com/getpassageway/passageway/blob/main/docs/install.md)):
 
 ```bash
 uv tool install \
-  --with 'passageway-connector-llmstxt @ git+https://github.com/Marceltov/passageway#subdirectory=connectors/llmstxt' \
-  git+https://github.com/Marceltov/passageway
+  --with 'passageway-connector-llmstxt @ git+https://github.com/getpassageway/passageway#subdirectory=connectors/llmstxt' \
+  git+https://github.com/getpassageway/passageway
 ```
 
 ## An example

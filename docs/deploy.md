@@ -59,12 +59,12 @@ Then `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/de.marceltov.passa
 
 ## As a container
 
-The image `ghcr.io/marceltov/passageway` is built from the repository's `Dockerfile` on every release, for amd64 and arm64: the server with every bundled connector and embedder, and the default model baked in and verified by checksum, so the container fetches nothing at start as long as it uses the default model (another preset is fetched into `/data/models` once). It runs as an unprivileged user.
+The image `ghcr.io/getpassageway/passageway` is built from the repository's `Dockerfile` on every release, for amd64 and arm64: the server with every bundled connector and embedder, and the default model baked in and verified by checksum, so the container fetches nothing at start as long as it uses the default model (another preset is fetched into `/data/models` once). It runs as an unprivileged user.
 
 ```yaml
 services:
   passageway:
-    image: ghcr.io/marceltov/passageway:latest
+    image: ghcr.io/getpassageway/passageway:latest
     ports: ["8082:8082"]
     volumes:
       - passageway-data:/data
@@ -81,4 +81,4 @@ Inside the container the defaults are `PASSAGEWAY_HOST=0.0.0.0`, `PASSAGEWAY_DAT
 
 `:latest` moves only on pushed version tags, so a watcher that pulls `latest` installs each release on its own. The image is a few hundred megabytes, most of it the model and the ONNX runtime.
 
-The sitemap connector's `RENDER` (for sites whose pages a script builds) needs a browser, so every release also publishes `ghcr.io/marceltov/passageway:browser` (and `<version>-browser`): the same image plus Chromium, about 400 MB larger. Use it instead of `:latest` when a connector sets `RENDER`; to build it yourself, `docker build --build-arg WITH_BROWSER=1 -t passageway .`.
+The sitemap connector's `RENDER` (for sites whose pages a script builds) needs a browser, so every release also publishes `ghcr.io/getpassageway/passageway:browser` (and `<version>-browser`): the same image plus Chromium, about 400 MB larger. Use it instead of `:latest` when a connector sets `RENDER`; to build it yourself, `docker build --build-arg WITH_BROWSER=1 -t passageway .`.

@@ -1,6 +1,6 @@
 # passageway-embedder-openai
 
-A [passageway](https://github.com/Marceltov/passageway#readme) embedder for services that speak the OpenAI embeddings API: **Ollama**, **LM Studio**, **vLLM**, **OpenAI** itself, and **Voyage** (whose API differs in one field). It speaks the [embedder protocol](https://passageway.marceltov.de/reference/embedder-protocol/), so passageway runs it as `kind = "command"` and the core does not change.
+A [passageway](https://github.com/getpassageway/passageway#readme) embedder for services that speak the OpenAI embeddings API: **Ollama**, **LM Studio**, **vLLM**, **OpenAI** itself, and **Voyage** (whose API differs in one field). It speaks the [embedder protocol](https://passageway.marceltov.de/reference/embedder-protocol/), so passageway runs it as `kind = "command"` and the core does not change.
 
 **Where your text goes:** every indexed passage and every question is sent to the service at `BASE_URL`. With a local Ollama or LM Studio that is your own machine; with OpenAI or Voyage it is a third party, under their terms. passageway's default stays local; this embedder is your explicit choice.
 
@@ -50,8 +50,8 @@ timeout = 60                                # the core's limit per request; keep
 
 ```bash
 uv tool install \
-  --with 'passageway-embedder-openai @ git+https://github.com/Marceltov/passageway#subdirectory=embedders/openai' \
-  git+https://github.com/Marceltov/passageway
+  --with 'passageway-embedder-openai @ git+https://github.com/getpassageway/passageway#subdirectory=embedders/openai' \
+  git+https://github.com/getpassageway/passageway
 ```
 
 and use that environment's interpreter in `command` (`$(uv tool dir)/passageway/bin/python`), as for a connector.

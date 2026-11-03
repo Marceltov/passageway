@@ -68,7 +68,7 @@ def repo(tmp_path):
         "BODY\n")
     fake.chmod(0o755)
     return tmp_path, {"PATH": f"{bin_dir}:{os.environ['PATH']}", "GH_LOG": str(tmp_path / "gh.log"),
-                      "GITHUB_REPOSITORY": "Marceltov/passageway", "GH_TOKEN": "x"}
+                      "GITHUB_REPOSITORY": "getpassageway/passageway", "GH_TOKEN": "x"}
 
 
 def test_release_notes_have_the_tag_message_the_merged_prs_and_install_instructions(repo):
@@ -79,7 +79,7 @@ def test_release_notes_have_the_tag_message_the_merged_prs_and_install_instructi
     assert notes.startswith("The headline of this release.")
     assert "A second paragraph." in notes
     assert "Something merged" in notes and "Full Changelog" in notes
-    assert "git+https://github.com/Marceltov/passageway@v1.2.3" in notes
+    assert "git+https://github.com/getpassageway/passageway@v1.2.3" in notes
     assert "#subdirectory=connectors/wikipedia" in notes
     assert "https://passageway.marceltov.de" in notes
 
@@ -120,7 +120,7 @@ def test_the_first_release_has_no_previous_tag(tmp_path):
     (bin_dir / "gh").write_text('#!/usr/bin/env bash\necho "$@" >> "$GH_LOG"\necho "## What\'s Changed"\n')
     (bin_dir / "gh").chmod(0o755)
     env = {"PATH": f"{bin_dir}:{os.environ['PATH']}", "GH_LOG": str(tmp_path / "gh.log"),
-           "GITHUB_REPOSITORY": "Marceltov/passageway"}
+           "GITHUB_REPOSITORY": "getpassageway/passageway"}
     done = run("release-notes.sh", "v0.1.0", cwd=tmp_path, env=env)
     assert done.returncode == 0 and "previous_tag_name" not in (tmp_path / "gh.log").read_text()
 
@@ -191,7 +191,7 @@ def post(notefeed, tmp_path, tag="v1.2.3", **env):
     notes = tmp_path / "notes.md"
     notes.write_text("## Release\n\nWhat changed.\n")
     base = {"NOTEFEED_URL": notefeed.url, "NOTEFEED_FEED": "feedname", "NOTEFEED_FEED_PASSWORD": "pw",
-            "GITHUB_REPOSITORY": "Marceltov/passageway"}
+            "GITHUB_REPOSITORY": "getpassageway/passageway"}
     return run("post-to-notefeed.sh", tag, str(notes), env={**base, **env})
 
 

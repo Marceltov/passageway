@@ -39,7 +39,7 @@ ARG WITH_BROWSER=0
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN if [ "$WITH_BROWSER" = 1 ]; then /app/.venv/bin/playwright install --with-deps chromium && chmod -R a+rX /ms-playwright; fi
 RUN useradd --system --create-home --uid 1000 passageway && mkdir -p /data /config && chown passageway /data
-LABEL org.opencontainers.image.source="https://github.com/Marceltov/passageway" \
+LABEL org.opencontainers.image.source="https://github.com/getpassageway/passageway" \
       org.opencontainers.image.licenses="PolyForm-Noncommercial-1.0.0"
 USER passageway
 

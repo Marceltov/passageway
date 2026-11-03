@@ -20,7 +20,7 @@ items:
       - The budget follows the question and the room the agent has, not a fixed number.
       - The full text of a hit comes from the index, so the agent no longer calls the original source.
     links:
-      - {label: "#105", url: "https://github.com/Marceltov/passageway/issues/105"}
+      - {label: "#105", url: "https://github.com/getpassageway/passageway/issues/105"}
       - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
 
   - id: savings-measurement
@@ -33,7 +33,7 @@ items:
       - The same questions, once with passageway and once with whole pages read.
       - Tokens and cost, published with the method and the confidence interval, like every other number here.
     links:
-      - {label: "#100", url: "https://github.com/Marceltov/passageway/issues/100"}
+      - {label: "#100", url: "https://github.com/getpassageway/passageway/issues/100"}
       - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
 
   - id: ui
@@ -46,10 +46,20 @@ items:
       - The UI embeds the core; it does not change it.
       - A generator is optional and lives outside the core, so passageway itself still returns passages.
     links:
-      - {label: "#99", url: "https://github.com/Marceltov/passageway/issues/99"}
+      - {label: "#99", url: "https://github.com/getpassageway/passageway/issues/99"}
       - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: getpassageway-org
+    status: done
+    date: 2026-11-03
+    icon: source-repository
+    title: A home of its own on GitHub
+    summary: The repository moved to the getpassageway organization, ahead of publishing to PyPI, whose trusted publishing is tied to the owner and the repository name.
+    links:
+      - {label: "#125", url: "https://github.com/getpassageway/passageway/issues/125"}
+      - {label: "PR #126", url: "https://github.com/getpassageway/passageway/pull/126"}
+
   - id: trilium-recall-adopts
     status: done
     date: 2026-10-30
@@ -70,7 +80,7 @@ items:
     links:
       - {label: "Claude Code", url: "https://passageway.marceltov.de/guides/claude-code/"}
       - {label: "Run it", url: "https://passageway.marceltov.de/deploy/"}
-      - {label: "PR #52", url: "https://github.com/Marceltov/passageway/pull/52"}
+      - {label: "PR #52", url: "https://github.com/getpassageway/passageway/pull/52"}
 
   - id: confluence-connector
     status: done
@@ -81,7 +91,7 @@ items:
     links:
       - {label: "Connector", url: "https://passageway.marceltov.de/connectors/confluence/"}
       - {label: "ADR 0005", url: "https://passageway.marceltov.de/adr/0005-confluence-data-center-first/"}
-      - {label: "PR #51", url: "https://github.com/Marceltov/passageway/pull/51"}
+      - {label: "PR #51", url: "https://github.com/getpassageway/passageway/pull/51"}
 
   - id: embedders
     status: done
@@ -91,7 +101,7 @@ items:
     summary: An adapter for OpenAI-compatible services and Voyage; three built-in presets with a checksummed download and a measured gate each; CoreML measured and left opt-in; the models compared on the corpus.
     links:
       - {label: "Choosing a model", url: "https://passageway.marceltov.de/models/"}
-      - {label: "PR #50", url: "https://github.com/Marceltov/passageway/pull/50"}
+      - {label: "PR #50", url: "https://github.com/getpassageway/passageway/pull/50"}
 
   - id: trilium-connector
     status: done
@@ -102,7 +112,7 @@ items:
     links:
       - {label: "Connector", url: "https://passageway.marceltov.de/connectors/trilium/"}
       - {label: "ADR 0004", url: "https://passageway.marceltov.de/adr/0004-no-summary-for-source-substitution/"}
-      - {label: "PR #49", url: "https://github.com/Marceltov/passageway/pull/49"}
+      - {label: "PR #49", url: "https://github.com/getpassageway/passageway/pull/49"}
 
   - id: embedder-protocol
     status: done
@@ -112,7 +122,7 @@ items:
     summary: "`kind = \"command\"` runs any program that speaks the embedder protocol, and `passageway eval compare` puts several models side by side."
     links:
       - {label: "Protocol", url: "https://passageway.marceltov.de/reference/embedder-protocol/"}
-      - {label: "PR #39", url: "https://github.com/Marceltov/passageway/pull/39"}
+      - {label: "PR #39", url: "https://github.com/getpassageway/passageway/pull/39"}
 
   - id: eval-questions
     status: done
@@ -122,7 +132,7 @@ items:
     summary: 100 public questions for the sample corpus, and the numbers they give with the multilingual e5-small model.
     links:
       - {label: "Measurements", url: "https://passageway.marceltov.de/measurements/"}
-      - {label: "PR #37", url: "https://github.com/Marceltov/passageway/pull/37"}
+      - {label: "PR #37", url: "https://github.com/getpassageway/passageway/pull/37"}
 
   - id: eval-harness
     status: done
@@ -132,7 +142,7 @@ items:
     summary: "`passageway eval` measures retrieval quality on your own questions and builds reports you can publish."
     links:
       - {label: "Guide", url: "https://passageway.marceltov.de/guides/evaluate/"}
-      - {label: "PR #35", url: "https://github.com/Marceltov/passageway/pull/35"}
+      - {label: "PR #35", url: "https://github.com/getpassageway/passageway/pull/35"}
 
   - id: frozen-corpus
     status: done
@@ -142,7 +152,7 @@ items:
     summary: 30 hand-picked Wikipedia articles on deep learning in English and 30 in German, attributed and licensed CC BY-SA 4.0, so that measurements are reproducible.
     links:
       - {label: "Corpus", url: "https://passageway.marceltov.de/reference/corpus/"}
-      - {label: "PR #32", url: "https://github.com/Marceltov/passageway/pull/32"}
+      - {label: "PR #32", url: "https://github.com/getpassageway/passageway/pull/32"}
 
   - id: markdown-connector
     status: done
@@ -152,7 +162,7 @@ items:
     summary: Index a folder of markdown files with front matter, written with the SDK.
     links:
       - {label: "Connector", url: "https://passageway.marceltov.de/connectors/markdown/"}
-      - {label: "PR #30", url: "https://github.com/Marceltov/passageway/pull/30"}
+      - {label: "PR #30", url: "https://github.com/getpassageway/passageway/pull/30"}
 
   - id: decide-sdk
     status: done
@@ -162,7 +172,7 @@ items:
     summary: "`passageway-sdk` does the protocol plumbing, so that a Python connector is its logic. The Wikipedia connector is its first user."
     links:
       - {label: "Reference", url: "https://passageway.marceltov.de/reference/sdk/"}
-      - {label: "PR #27", url: "https://github.com/Marceltov/passageway/pull/27"}
+      - {label: "PR #27", url: "https://github.com/getpassageway/passageway/pull/27"}
 
   - id: decide-transport
     status: done
@@ -172,7 +182,7 @@ items:
     summary: The transport is settled before the protocol is frozen at v1. JSON Lines over a subprocess stays for connectors and embedders, with a published schema.
     links:
       - {label: "ADR 0003", url: "https://passageway.marceltov.de/adr/0003-json-lines-over-a-subprocess-stays/"}
-      - {label: "PR #26", url: "https://github.com/Marceltov/passageway/pull/26"}
+      - {label: "PR #26", url: "https://github.com/getpassageway/passageway/pull/26"}
 
   - id: agent-entry-points
     status: done
@@ -181,8 +191,8 @@ items:
     title: Agent entry points
     summary: Plugin skills, a root SKILL.md and llms-full.txt, so that an AI agent can learn passageway and write a connector.
     links:
-      - {label: "PR #14", url: "https://github.com/Marceltov/passageway/pull/14"}
-      - {label: "PR #16", url: "https://github.com/Marceltov/passageway/pull/16"}
+      - {label: "PR #14", url: "https://github.com/getpassageway/passageway/pull/14"}
+      - {label: "PR #16", url: "https://github.com/getpassageway/passageway/pull/16"}
 
   - id: dependabot
     status: done
@@ -191,7 +201,7 @@ items:
     title: Dependabot and a daily audit
     summary: Weekly grouped bumps, with auto-merge for patch and minor ones once the required checks are green.
     links:
-      - {label: "PR #10", url: "https://github.com/Marceltov/passageway/pull/10"}
+      - {label: "PR #10", url: "https://github.com/getpassageway/passageway/pull/10"}
 
   - id: first-release
     status: done
@@ -200,8 +210,8 @@ items:
     title: First release
     summary: A tag creates the GitHub release and posts its notes to notefeed, once.
     links:
-      - {label: "v0.1.0", url: "https://github.com/Marceltov/passageway/releases/tag/v0.1.0"}
-      - {label: "PR #8", url: "https://github.com/Marceltov/passageway/pull/8"}
+      - {label: "v0.1.0", url: "https://github.com/getpassageway/passageway/releases/tag/v0.1.0"}
+      - {label: "PR #8", url: "https://github.com/getpassageway/passageway/pull/8"}
 
   - id: docs-site
     status: done
@@ -210,7 +220,7 @@ items:
     title: Documentation site
     summary: Built strictly on every pull request and published on its own domain.
     links:
-      - {label: "PR #6", url: "https://github.com/Marceltov/passageway/pull/6"}
+      - {label: "PR #6", url: "https://github.com/getpassageway/passageway/pull/6"}
 
   - id: wikipedia-connector
     status: done
@@ -219,7 +229,7 @@ items:
     title: Wikipedia connector
     summary: Index a topic, some articles or a place, in English and German.
     links:
-      - {label: "PR #4", url: "https://github.com/Marceltov/passageway/pull/4"}
+      - {label: "PR #4", url: "https://github.com/getpassageway/passageway/pull/4"}
 
   - id: core-refactor
     status: done
@@ -228,7 +238,7 @@ items:
     title: A source-agnostic core
     summary: The connector protocol, a generic index, a sync with a deletion guard, passageway.toml, bearer and OAuth authentication.
     links:
-      - {label: "PR #2", url: "https://github.com/Marceltov/passageway/pull/2"}
+      - {label: "PR #2", url: "https://github.com/getpassageway/passageway/pull/2"}
 
   - id: bootstrap
     status: done
@@ -237,4 +247,4 @@ items:
     title: Bootstrap
     summary: The trilium-recall engine imported with a fresh history. The last commit with all its Trilium code is a tag.
     links:
-      - {label: "trilium-engine-import", url: "https://github.com/Marceltov/passageway/tree/trilium-engine-import"}
+      - {label: "trilium-engine-import", url: "https://github.com/getpassageway/passageway/tree/trilium-engine-import"}
