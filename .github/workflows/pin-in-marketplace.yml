@@ -1,0 +1,20 @@
+# A new version starts the marketplace's pin at once (Marceltov/claude-marketplace ADR 0011); its hourly run is the fallback.
+# MARKETPLACE_PIN_TOKEN is a fine-grained token on claude-marketplace with Actions: read and write only
+# (1Password: Business Admin/claude-marketplace pin token).
+name: Pin in the marketplace
+
+on:
+  push:
+    branches: [main]
+    paths: [".claude-plugin/plugin.json"]
+
+permissions: {}
+
+jobs:
+  pin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start the marketplace's pin
+        run: gh workflow run pin-plugins.yml -R Marceltov/claude-marketplace
+        env:
+          GH_TOKEN: ${{ secrets.MARKETPLACE_PIN_TOKEN }}
