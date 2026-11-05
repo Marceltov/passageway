@@ -121,7 +121,7 @@ def test_release_notes_have_the_tag_message_the_merged_prs_and_install_instructi
     assert "Something merged" in notes and "Full Changelog" in notes
     assert 'uv tool install --python 3.14 "passageway[wikipedia]==1.2.3"' in notes
     assert "git+https" not in notes
-    assert "https://passageway.marceltov.de" in notes
+    assert "https://getpassageway.com" in notes
 
 
 def test_a_lightweight_tag_gets_no_borrowed_commit_message(repo):

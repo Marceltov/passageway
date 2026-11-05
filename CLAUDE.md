@@ -1,6 +1,6 @@
 # passageway
 
-Retrieval for Claude over MCP: connectors (out-of-process programs speaking JSON Lines) feed passages to a core that indexes and ranks them. Documentation: https://passageway.marceltov.de/ (the pages are in `docs/`).
+Retrieval for Claude over MCP: connectors (out-of-process programs speaking JSON Lines) feed passages to a core that indexes and ranks them. Documentation: https://getpassageway.com/ (the pages are in `docs/`).
 
 ## Commands
 

@@ -12,3 +12,20 @@ def test_no_reference_to_the_old_owner():
              for n, line in enumerate((ROOT / f).read_text(errors="ignore").splitlines(), 1)
              if any(old in line for old in OLD)]
     assert not stale, f"the repository lives at getpassageway/passageway: {stale[:10]}"
+
+
+# The documentation moved to getpassageway.com; getpassageway.com only redirects there.
+OLD_SITE = "passageway" + ".marceltov.de"
+
+
+def test_no_link_to_the_old_docs_site():
+    files = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
+    stale = [f"{f}:{n}" for f in files if (ROOT / f).is_file()
+             for n, line in enumerate((ROOT / f).read_text(errors="ignore").splitlines(), 1)
+             if OLD_SITE in line]
+    assert not stale, f"the documentation lives at https://getpassageway.com/: {stale[:10]}"
+
+
+def test_the_site_is_served_from_getpassageway_com():
+    assert (ROOT / "docs" / "CNAME").read_text().strip() == "getpassageway.com"
+    assert "site_url: https://getpassageway.com/" in (ROOT / "mkdocs.yml").read_text()

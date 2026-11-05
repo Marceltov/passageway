@@ -7,7 +7,7 @@ A [passageway](https://github.com/getpassageway/passageway#readme) connector tha
 - **Each top-level heading is one item.** A `llms-full.txt` that concatenates a whole site becomes one item per page, with the sections below each heading as passages. Its id is the file's address plus the heading (`https://docs.example.org/llms-full.txt#install`), and its version is a hash of the text, so an edit re-indexes only that page. A `#` inside a code block is not a heading, and front matter at the top of a file is not indexed.
 - **A front matter block with a `url:` key starts a page, wherever it is in the file.** Some `llms-full.txt` files (the VitePress llms plugin writes them) open every page with `---`, `url: /howto/install.md` and `---`. Each such page is one item that runs to the next block, however many headings it has. Its hit links to the page itself (`https://docs.example.org/howto/install`, the `.md` dropped), its title is the page's first heading (else the last part of the path), and its `path` is the host and the folders of the page, so a `path:` filter works. Its id is the file's address plus the `url:` value. A file without such blocks is split by heading, as above.
 - **A site address reads its `llms-full.txt`.** `https://docs.example.org` is read as `https://docs.example.org/llms-full.txt`.
-- **A file address is read as it is:** `https://docs.example.org/llms-full.txt`, `https://passageway.marceltov.de/SKILL.md`, any markdown or text file.
+- **A file address is read as it is:** `https://docs.example.org/llms-full.txt`, `https://getpassageway.com/SKILL.md`, any markdown or text file.
 - **An `llms.txt` index is followed.** Every link in it that stays on the same host is fetched and indexed as a file of its own. Links to other hosts are not followed.
 - **Any failure fails the whole listing.** A page that returns an error, or a server that is down, stops the sync with a message that names it, so a half-read site never deletes what was indexed before.
 
@@ -57,7 +57,7 @@ and is configured as:
 [[connector]]
 name = "docs"
 command = ["/path/to/python", "-m", "passageway_connector_llmstxt"]
-env = { URLS = "https://docs.example.org|https://passageway.marceltov.de/SKILL.md" }
+env = { URLS = "https://docs.example.org|https://getpassageway.com/SKILL.md" }
 ```
 
 For a site whose `llms-full.txt` opens every page with a `url:` front matter block, and whose release notes should rank below its how-to pages:

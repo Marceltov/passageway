@@ -48,7 +48,7 @@ def test_both_skills_have_frontmatter_and_their_names_match_their_folders():
         assert meta["name"] == path.parent.name, path
         assert len(meta["description"]) > 40, f"{path}: the description is what makes the skill findable"
     assert frontmatter(GENERAL)["version"] == project_version()
-    assert frontmatter(GENERAL)["homepage"] == "https://passageway.marceltov.de/"
+    assert frontmatter(GENERAL)["homepage"] == "https://getpassageway.com/"
 
 
 def test_the_connector_skill_uses_the_guides_example_and_it_passes_the_contract(tmp_path):
@@ -189,7 +189,7 @@ def test_the_connector_skill_says_how_passageway_becomes_importable_in_the_tests
 
 def test_the_general_skill_links_the_install_page_and_names_the_source_of_the_model():
     text = GENERAL.read_text()
-    assert "https://passageway.marceltov.de/install/" in text and "passageway model download" in text
+    assert "https://getpassageway.com/install/" in text and "passageway model download" in text
 
 
 def test_the_pinning_example_is_not_a_dead_url():
@@ -318,7 +318,7 @@ def test_the_add_source_skill_writes_passageway_toml_with_secrets_as_references(
 def test_every_skill_says_where_the_documentation_is_and_how_to_read_it():
     for path in sorted((ROOT / "skills").glob("*/SKILL.md")):
         text = path.read_text()
-        assert "https://passageway.marceltov.de/llms.txt" in text and "llms-full.txt" in text, path
+        assert "https://getpassageway.com/llms.txt" in text and "llms-full.txt" in text, path
 
 
 def test_the_install_skill_runs_the_server_as_a_service_and_the_other_skills_use_it():
@@ -348,7 +348,7 @@ def test_the_status_skill_reads_the_status_tool_and_checks_the_whole_chain():
     text = skill.read_text()
     for needed in ("`status`", "/health", "launchctl print", "systemctl --user status", "test-recall-hook.sh", "claude mcp list",
                    "last_error", "passageway.log", "journalctl", "in the chat, never through a choice prompt",
-                   "https://passageway.marceltov.de/llms.txt", "llms-full.txt"):
+                   "https://getpassageway.com/llms.txt", "llms-full.txt"):
         assert needed in text, needed
     assert "/passageway-status" in json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())["description"]
     assert "passageway-status" in (ROOT / "scripts" / "publish-skills.sh").read_text()
@@ -363,7 +363,7 @@ def test_the_evaluate_skill_explains_itself_and_guides_the_questions():
                    "the last five things", "from the title only", "near-miss", "three words",  # the question workshop and its rule
                    "`recall`", "cases.toml", "expect = [", "group = ",
                    "passageway eval ", "--data-dir", "--sweep", "eval compare", "--write", "--include-cases",
-                   "hit@3", "silence", "interval", "https://passageway.marceltov.de/llms.txt", "llms-full.txt"):
+                   "hit@3", "silence", "interval", "https://getpassageway.com/llms.txt", "llms-full.txt"):
         assert needed in text, needed
     assert "/passageway-evaluate" in json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())["description"]
     assert "passageway-evaluate" in (ROOT / "scripts" / "publish-skills.sh").read_text()

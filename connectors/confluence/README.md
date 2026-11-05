@@ -32,13 +32,13 @@ secrets = { TOKEN = "env:CONFLUENCE_TOKEN" }
 | `MAX_PAGES` | `5000` | Upper bound on the spaces together; more fails with a message instead of indexing a subset |
 | `TIMEOUT` | `30` | Seconds per request |
 | `PAUSE_SECONDS` | `0` | Pause between requests, for a busy server |
-| `VERIFY_TLS` | `true` | `false` turns certificate checking off. A CA your operating system trusts already works without it (see [Certificates](https://passageway.marceltov.de/configuration/#certificates)), so prefer adding the CA there |
+| `VERIFY_TLS` | `true` | `false` turns certificate checking off. A CA your operating system trusts already works without it (see [Certificates](https://getpassageway.com/configuration/#certificates)), so prefer adding the CA there |
 
 ## Behaviour
 
 - **Retries:** 429 and 5xx answers and network errors are retried with a growing wait (1 s, doubling up to 60 s; a longer `Retry-After` is honoured up to 300 s) until a request has waited 15 minutes in total; the error then says how many attempts and how long it waited. Every wait of 10 s or more is logged as it starts (`HTTP 429 … waiting 16 s (15 s of 900 s waited)`), so a sync that waits does not look hung. A 401 says to check the token; any other error fails the call and nothing is stored.
 - **A throttled or large space** needs more than the core's default `timeout = 300` for the whole `list` or `fetch`: waiting out one rate limit can take minutes. Raise `timeout` in its `[[connector]]` entry (`3600` is a start), or set `PAUSE_SECONDS` so fewer requests are throttled in the first place.
-- **Cloud:** Atlassian Cloud authenticates with an e-mail address and an API token and serves the API under `/wiki`; it is not supported yet ([ADR 0005](https://passageway.marceltov.de/adr/0005-confluence-data-center-first/)).
+- **Cloud:** Atlassian Cloud authenticates with an e-mail address and an API token and serves the API under `/wiki`; it is not supported yet ([ADR 0005](https://getpassageway.com/adr/0005-confluence-data-center-first/)).
 - **Tested against a fake** of the Data Center API in this repository, not against a live Confluence.
 
 ## Test

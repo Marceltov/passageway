@@ -5,12 +5,12 @@ description: "Connect Claude Code to a running passageway server: set its URL an
 
 # Set up passageway in Claude Code
 
-passageway is a retrieval server next to the user's sources (docs: https://passageway.marceltov.de/). It indexes them and answers "do the sources know something about this?" in milliseconds. Once connected, Claude Code gets two things:
+passageway is a retrieval server next to the user's sources (docs: https://getpassageway.com/). It indexes them and answers "do the sources know something about this?" in milliseconds. Once connected, Claude Code gets two things:
 
 - a **prompt hook** (`UserPromptSubmit`, shipped with this plugin) that sends each prompt to the server and adds up to three short passages to the context when something relevant exists, and nothing otherwise;
 - the **`recall` MCP tool** (server name `passageway`), for searching on purpose mid-task.
 
-**Documentation:** the index https://passageway.marceltov.de/llms.txt lists every page with its markdown address; the whole documentation is one file, https://passageway.marceltov.de/llms-full.txt. Before you act on something this skill only names (a connector's settings, a configuration key, a deploy step), fetch its page and work from it, not from memory.
+**Documentation:** the index https://getpassageway.com/llms.txt lists every page with its markdown address; the whole documentation is one file, https://getpassageway.com/llms-full.txt. Before you act on something this skill only names (a connector's settings, a configuration key, a deploy step), fetch its page and work from it, not from memory.
 
 The connection is two pieces, both written by this skill: the hook's config file `passageway.json` in the plugin data folder, and the MCP server registration. Never print the password.
 
@@ -20,7 +20,7 @@ There is no hook and no `claude` CLI there. Add a custom connector (*Customize â
 
 Free text (a URL, a folder, a space key, a name) is asked in the chat, never through a choice prompt; a choice prompt is only for real alternatives (which source, which operation).
 
-**Several instances.** A machine may run several passageway servers side by side, one per Claude setup (https://passageway.marceltov.de/configuration/#several-instances). Instance `<name>` lives in `~/.config/passageway-<name>/` (its `passageway.toml`, `password` and `env`), listens on its own port, runs as the service `de.marceltov.passageway.<name>` (macOS, log `~/Library/Logs/passageway-<name>.log`) or `passageway-<name>` (Linux), and `/health` names it under `instance`. Wherever this skill says `~/.config/passageway`, the service, the log or port 8082, use the instance's. `ls -d ~/.config/passageway*/` lists them. Connect this Claude to the instances the user names (with several and no name, ask); one Claude may use several. Each connected instance is one hook file and one MCP server: `passageway.json` and `passageway` for the default instance, `passageway-<name>.json` and `passageway-<name>` for instance `<name>`. The hook asks every one of them and joins their passages. All of it lives in this Claude's own `CLAUDE_CONFIG_DIR`, so other Claude setups keep theirs; which Claude sees which instance is the user's choice, and this skill connects only what the user named.
+**Several instances.** A machine may run several passageway servers side by side, one per Claude setup (https://getpassageway.com/configuration/#several-instances). Instance `<name>` lives in `~/.config/passageway-<name>/` (its `passageway.toml`, `password` and `env`), listens on its own port, runs as the service `de.marceltov.passageway.<name>` (macOS, log `~/Library/Logs/passageway-<name>.log`) or `passageway-<name>` (Linux), and `/health` names it under `instance`. Wherever this skill says `~/.config/passageway`, the service, the log or port 8082, use the instance's. `ls -d ~/.config/passageway*/` lists them. Connect this Claude to the instances the user names (with several and no name, ask); one Claude may use several. Each connected instance is one hook file and one MCP server: `passageway.json` and `passageway` for the default instance, `passageway-<name>.json` and `passageway-<name>` for instance `<name>`. The hook asks every one of them and joins their passages. All of it lives in this Claude's own `CLAUDE_CONFIG_DIR`, so other Claude setups keep theirs; which Claude sees which instance is the user's choice, and this skill connects only what the user named.
 
 ## Determine the operation
 

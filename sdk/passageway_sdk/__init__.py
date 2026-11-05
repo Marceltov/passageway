@@ -1,7 +1,7 @@
 """Write a passageway connector as three small functions; the protocol plumbing is done here.
 
 Subclass Connector, implement versions() and fetch() (and changed() if the source can answer it cheaply), and call
-YourConnector.main(). The reference is https://passageway.marceltov.de/reference/connector-protocol/.
+YourConnector.main(). The reference is https://getpassageway.com/reference/connector-protocol/.
 """
 
 import json

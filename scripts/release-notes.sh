@@ -32,5 +32,5 @@ sed -e "s|__REPO__|$repo|g" -e "s|__TAG__|$tag|g" -e "s|__VERSION__|${tag#v}|g" 
 uv tool install --python 3.14 "passageway[wikipedia]==__VERSION__"
 ```
 
-Documentation: https://passageway.marceltov.de/
+Documentation: https://getpassageway.com/
 NOTES

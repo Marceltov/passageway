@@ -8,7 +8,7 @@ from pathlib import Path
 from passageway.config import ConfigError, default_config_path, instance_name
 
 SAMPLE = '''# passageway.toml: one [[connector]] per source. Secrets are references to environment variables, never values.
-# Documentation: https://passageway.marceltov.de/configuration/
+# Documentation: https://getpassageway.com/configuration/
 
 # [[connector]]
 # name = "notes"
@@ -52,7 +52,7 @@ def main(argv: list[str], env=None, stdout=None) -> int:
     prefix = f"PASSAGEWAY_PORT=<a free port> " if instance else ""
     flag = f" --instance {instance}" if instance else ""
     print(f"\nThen start the server:\n  {prefix}PASSAGEWAY_LOGIN_PASSWORD_FILE={password} passageway{flag}", file=stdout)
-    print("and connect Claude Code with /passageway-connect (https://passageway.marceltov.de/guides/claude-code/)", file=stdout)
+    print("and connect Claude Code with /passageway-connect (https://getpassageway.com/guides/claude-code/)", file=stdout)
     return 0
 
 

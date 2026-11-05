@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://passageway.marceltov.de/reference/connector-protocol.schema.json",
+  "$id": "https://getpassageway.com/reference/connector-protocol.schema.json",
   "title": "passageway connector protocol v1",
   "description": "The JSON objects of the connector protocol, one per line. Validate with the definition for the mode: check -> check, list -> listRecord, fetch -> fetchRequest on stdin and item on stdout, changed -> item. Unknown fields are allowed and ignored, so the protocol can grow.",
   "$defs": {

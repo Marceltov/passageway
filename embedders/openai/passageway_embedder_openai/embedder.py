@@ -1,6 +1,6 @@
 """passageway embedder for OpenAI-compatible embedding services (Ollama, LM Studio, vLLM, OpenAI) and Voyage.
 
-Speaks the embedder protocol (https://passageway.marceltov.de/reference/embedder-protocol/) on stdin/stdout; every setting
+Speaks the embedder protocol (https://getpassageway.com/reference/embedder-protocol/) on stdin/stdout; every setting
 comes from the environment and is documented in README.md.
 """
 

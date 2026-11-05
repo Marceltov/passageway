@@ -5,9 +5,9 @@ description: "Install passageway on this machine and run it as a service that su
 
 # Install passageway and keep it running
 
-passageway (docs: https://passageway.marceltov.de/) is a server next to the user's sources. This skill puts it on the machine and runs it as a user service, so that the user never starts it by hand. Never print a secret, never ask the user to paste one into the chat: the password lives in a file `passageway init` writes, and the connectors' tokens in one environment file the user fills in an editor.
+passageway (docs: https://getpassageway.com/) is a server next to the user's sources. This skill puts it on the machine and runs it as a user service, so that the user never starts it by hand. Never print a secret, never ask the user to paste one into the chat: the password lives in a file `passageway init` writes, and the connectors' tokens in one environment file the user fills in an editor.
 
-**Documentation:** the index https://passageway.marceltov.de/llms.txt lists every page with its markdown address; the whole documentation is one file, https://passageway.marceltov.de/llms-full.txt. The pages for this skill: https://passageway.marceltov.de/install/ and https://passageway.marceltov.de/deploy/. Fetch them before acting when a step below does not match what you see.
+**Documentation:** the index https://getpassageway.com/llms.txt lists every page with its markdown address; the whole documentation is one file, https://getpassageway.com/llms-full.txt. The pages for this skill: https://getpassageway.com/install/ and https://getpassageway.com/deploy/. Fetch them before acting when a step below does not match what you see.
 
 Free text (a URL, a folder, a space key, a name) is asked in the chat, never through a choice prompt; a choice prompt is only for real alternatives (which source, which operation).
 
@@ -27,7 +27,7 @@ curl -s https://api.github.com/repos/getpassageway/passageway/releases/latest | 
 
 `<tag>` below is the latest release, e.g. `v0.2.4`.
 
-**Several instances** (https://passageway.marceltov.de/configuration/#several-instances). One installation can run several servers side by side, one per Claude setup, each with its own sources, password and port. `ls -d ~/.config/passageway*/` lists what exists: `~/.config/passageway/` is the default instance, `~/.config/passageway-<name>/` instance `<name>`. On a machine with only named instances there is no default: every command needs `--instance`. When the user wants a separate passageway for this Claude (work, a customer), ask for a name (lowercase letters, digits, hyphens) and install that instance: the installation (step 2) is shared, steps 3 to 7 are per instance, with these differences:
+**Several instances** (https://getpassageway.com/configuration/#several-instances). One installation can run several servers side by side, one per Claude setup, each with its own sources, password and port. `ls -d ~/.config/passageway*/` lists what exists: `~/.config/passageway/` is the default instance, `~/.config/passageway-<name>/` instance `<name>`. On a machine with only named instances there is no default: every command needs `--instance`. When the user wants a separate passageway for this Claude (work, a customer), ask for a name (lowercase letters, digits, hyphens) and install that instance: the installation (step 2) is shared, steps 3 to 7 are per instance, with these differences:
 
 - Give every `passageway` command `--instance <name>`; `passageway --instance <name> init` writes `~/.config/passageway-<name>/`. A typo is an error that lists the instances there are.
 - Pick a free port from 8083 up (`lsof -nP -iTCP:<port> -sTCP:LISTEN` prints nothing for a free one).
