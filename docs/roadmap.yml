@@ -10,19 +10,6 @@
 
 items:
   # ---- open ------------------------------------------------------------------------------------------------------------
-  - id: pypi
-    status: next
-    when: Next
-    icon: package-variant
-    title: Install from PyPI
-    summary: The core, the SDK, every connector and the embedder go to PyPI at one version on every release tag, so an install is one command instead of a git address.
-    details: |
-      - `uv tool install "passageway[wikipedia,trilium]"`: each connector is an extra, pinned to the same release.
-      - Trusted publishing, so no token is stored anywhere; the first release is 0.3.0.
-    links:
-      - {label: "#28", url: "https://github.com/getpassageway/passageway/issues/28"}
-      - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
-
   - id: dynamic-result-size
     status: next
     when: Next
@@ -63,6 +50,17 @@ items:
       - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: pypi
+    status: done
+    date: 2026-11-05
+    icon: package-variant
+    title: Install from PyPI
+    summary: The core, the SDK, every connector and the embedder are on PyPI at one version, published by trusted publishing on every release tag, so an install is one command instead of a git address.
+    links:
+      - {label: "#28", url: "https://github.com/getpassageway/passageway/issues/28"}
+      - {label: "PR #132", url: "https://github.com/getpassageway/passageway/pull/132"}
+      - {label: "PR #133", url: "https://github.com/getpassageway/passageway/pull/133"}
+
   - id: getpassageway-org
     status: done
     date: 2026-11-03
