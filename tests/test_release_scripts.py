@@ -119,8 +119,8 @@ def test_release_notes_have_the_tag_message_the_merged_prs_and_install_instructi
     assert notes.startswith("The headline of this release.")
     assert "A second paragraph." in notes
     assert "Something merged" in notes and "Full Changelog" in notes
-    assert "git+https://github.com/getpassageway/passageway@v1.2.3" in notes
-    assert "#subdirectory=connectors/wikipedia" in notes
+    assert 'uv tool install --python 3.14 "passageway[wikipedia]==1.2.3"' in notes
+    assert "git+https" not in notes
     assert "https://passageway.marceltov.de" in notes
 
 

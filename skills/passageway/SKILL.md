@@ -29,9 +29,7 @@ If the intent is unclear, ask which of these they want.
 ## Install and run
 
 ```bash
-uv tool install \
-  --with 'passageway-connector-wikipedia @ git+https://github.com/getpassageway/passageway#subdirectory=connectors/wikipedia' \
-  git+https://github.com/getpassageway/passageway
+uv tool install --python 3.14 "passageway[wikipedia]"
 ```
 
 1. The embedding model (the multilingual e5-small) is fetched on first start, pinned and checksummed; `passageway model download` does it ahead of time. It lives in `<data dir>/models/e5-small` or the directory named by `PASSAGEWAY_MODEL_DIR`.sh`; https://passageway.marceltov.de/install/ has the steps.

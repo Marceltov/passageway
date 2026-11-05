@@ -49,9 +49,7 @@ timeout = 60                                # the core's limit per request; keep
 ## Install
 
 ```bash
-uv tool install \
-  --with 'passageway-embedder-openai @ git+https://github.com/getpassageway/passageway#subdirectory=embedders/openai' \
-  git+https://github.com/getpassageway/passageway
+uv tool install --python 3.14 "passageway[openai]"
 ```
 
 and use that environment's interpreter in `command` (`$(uv tool dir)/passageway/bin/python`), as for a connector.

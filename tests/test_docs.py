@@ -127,7 +127,7 @@ def test_the_sdk_is_versioned_with_the_core_and_documented():
 def test_the_guide_tells_how_to_run_and_register_an_sdk_connector():
     guide = (ROOT / "docs" / "guides" / "write-a-connector.md").read_text()
     assert "uv add git+" not in guide  # fails for a lone script: there is no pyproject.toml
-    assert "uv run --with 'passageway-sdk @ git+" in guide  # trying it by hand
+    assert "uv run --with passageway-sdk " in guide  # trying it by hand, from PyPI
     assert "$(uv tool dir)/passageway/bin/python" in guide  # registering it: the interpreter that has the SDK
 
 
@@ -336,3 +336,18 @@ def test_every_public_sdk_helper_is_documented():
     page = (ROOT / "docs" / "reference" / "sdk.md").read_text()
     for name in ["names", "whole", "flag", "seconds", "Web", "Reply", "TooLarge", "HttpError", "NetworkError", "Retry", "request", "retry_if", "passageway-sdk[web]"]:
         assert f"`{name}" in page, f"{name} is in the SDK but missing from docs/reference/sdk.md"
+
+
+def test_every_install_instruction_uses_pypi_not_a_git_address():
+    # 0.3.0 is on PyPI (#28): installs name the package and its extras, never a git address, and pin Python to a version
+    # onnxruntime has wheels for (uv would otherwise take the newest Python on the machine).
+    files = [ROOT / "docs" / "install.md", ROOT / "docs" / "guides" / "write-a-connector.md", ROOT / "scripts" / "release-notes.sh",
+             *ROOT.glob("connectors/*/README.md"), *ROOT.glob("embedders/*/README.md"), *ROOT.glob("skills/*/SKILL.md")]
+    installs = 0
+    for path in files:
+        text = path.read_text()
+        assert "git+https://github.com/getpassageway/passageway" not in text, f"{path.relative_to(ROOT)} still installs from git"
+        for command in re.findall(r'uv tool install [^`\n"]*"passageway[^`\n]*', text):
+            installs += 1
+            assert "--python 3.14" in command, f"{path.relative_to(ROOT)}: {command!r} must pin --python 3.14"
+    assert installs >= 8  # the pattern must actually find the commands
