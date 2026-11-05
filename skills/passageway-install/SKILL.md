@@ -42,13 +42,10 @@ The built-in embedder's model is shared, so a second instance does not download 
 2. Ask which sources to index (a folder of markdown, Trilium, Confluence, Wikipedia; several are fine) and install passageway with those connectors in one environment:
 
    ```bash
-   uv tool install \
-     --with 'passageway-connector-trilium @ git+https://github.com/getpassageway/passageway@<tag>#subdirectory=connectors/trilium' \
-     --with 'passageway-connector-markdown @ git+https://github.com/getpassageway/passageway@<tag>#subdirectory=connectors/markdown' \
-     git+https://github.com/getpassageway/passageway@<tag>
+   uv tool install --python 3.14 "passageway[trilium,markdown]==<version>"
    ```
 
-   The packages are `passageway-connector-<name>` under `connectors/<name>`, all from the same `<tag>`. The command replaces the set, so list every connector the user wants. `passageway --help` must then work.
+   Each connector is an extra (`confluence`, `llmstxt`, `markdown`, `sitemap`, `trilium`, `wikipedia`; `openai` for the OpenAI embedder), pinned to the same release; `<version>` is `<tag>` without the `v`. The command replaces the set, so list every connector the user wants. `--python 3.14` stays: onnxruntime has no wheels for 3.15 yet. `passageway --help` must then work.
 3. `passageway init`: creates `~/.config/passageway/` with a generated `password` (0600) and a sample `passageway.toml`; rerunning keeps what is there.
 4. Write the sources with `/passageway-add-source` (one `[[connector]]` each, secrets as `env:NAME` references). For every `NAME` referenced, add a line `NAME=` to `~/.config/passageway/env` (create it with `umask 077`, `chmod 600`), then ask the user to fill the values in that file with their editor, not in the chat. Leave the file out when no connector needs a secret.
 5. Run it as a service.
@@ -104,6 +101,6 @@ The built-in embedder's model is shared, so a second instance does not download 
 
 ## Upgrade
 
-1. Take the connectors from `uv tool list --show-with` (each `passageway-connector-<name>`) and run the `uv tool install` command from step 2 with exactly those, at `<tag>`, plus `--reinstall`. Leaving one out would uninstall it and break its source.
+1. Take the extras from `uv tool list --show-extras` (`passageway v0.3.0 [extras: trilium, markdown]`) and run the `uv tool install` command from step 2 with exactly those, at the new `<version>`. Leaving one out would uninstall its connector and break its source. An installation from before 0.3.0 lists its connectors under `uv tool list --show-with` instead (each `passageway-connector-<name>`); turn them into extras the same way.
 2. Restart the service of every instance (step 5; `ls -d ~/.config/passageway*/` lists them), since they all run from this installation. Nothing in their config folders changes.
 3. Wait for `/health` to be `"ok"` again, check that `uv tool list` shows the new version, and tell the user: from which version to which, and the release notes link `https://github.com/getpassageway/passageway/releases/tag/<tag>`.

@@ -15,9 +15,7 @@ A [passageway](https://github.com/getpassageway/passageway#readme) connector tha
 Add the connector to the environment that runs passageway (see [Install](https://github.com/getpassageway/passageway/blob/main/docs/install.md)):
 
 ```bash
-uv tool install \
-  --with 'passageway-connector-markdown @ git+https://github.com/getpassageway/passageway#subdirectory=connectors/markdown' \
-  git+https://github.com/getpassageway/passageway
+uv tool install --python 3.14 "passageway[markdown]"
 ```
 
 ## An example

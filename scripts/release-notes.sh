@@ -24,14 +24,12 @@ args=(-f "tag_name=$tag")
 [ -z "$previous" ] || args+=(-f "previous_tag_name=$previous")
 gh api "repos/$repo/releases/generate-notes" "${args[@]}" --jq .body
 
-sed -e "s|__REPO__|$repo|g" -e "s|__TAG__|$tag|g" <<'NOTES'
+sed -e "s|__REPO__|$repo|g" -e "s|__TAG__|$tag|g" -e "s|__VERSION__|${tag#v}|g" <<'NOTES'
 
 ## Install
 
 ```bash
-uv tool install \
-  --with 'passageway-connector-wikipedia @ git+https://github.com/__REPO__@__TAG__#subdirectory=connectors/wikipedia' \
-  git+https://github.com/__REPO__@__TAG__
+uv tool install --python 3.14 "passageway[wikipedia]==__VERSION__"
 ```
 
 Documentation: https://passageway.marceltov.de/
