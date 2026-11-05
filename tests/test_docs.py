@@ -77,7 +77,7 @@ def test_every_entry_point_in_the_agents_table_is_a_link():
     assert len(rows) >= 3, "the table must list the entry points"
     for row in rows:
         first_cell = row.split("|")[1]
-        assert re.search(r"\]\(https://passageway\.marceltov\.de/\S+\)", first_cell), f"no link in: {first_cell.strip()}"
+        assert re.search(r"\]\(https://getpassageway\.com/\S+\)", first_cell), f"no link in: {first_cell.strip()}"
 
 
 def test_the_roadmap_is_a_page_of_the_site_with_its_data_beside_it():

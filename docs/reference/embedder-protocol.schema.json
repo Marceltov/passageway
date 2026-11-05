@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://passageway.marceltov.de/reference/embedder-protocol.schema.json",
+  "$id": "https://getpassageway.com/reference/embedder-protocol.schema.json",
   "title": "passageway embedder protocol v1",
   "description": "The JSON objects of the embedder protocol, one per line, in the order asked. The core writes an infoRequest or an embedRequest to the embedder's stdin and reads one reply line from its stdout: an infoReply, an embedReply, or an errorReply. Unknown fields are allowed and ignored.",
   "$defs": {

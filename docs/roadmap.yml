@@ -21,7 +21,7 @@ items:
       - The full text of a hit comes from the index, so the agent no longer calls the original source.
     links:
       - {label: "#105", url: "https://github.com/getpassageway/passageway/issues/105"}
-      - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
+      - {label: "V4", url: "https://getpassageway.com/values/#v4-passages-not-answers"}
 
   - id: savings-measurement
     status: later
@@ -34,7 +34,7 @@ items:
       - Tokens and cost, published with the method and the confidence interval, like every other number here.
     links:
       - {label: "#100", url: "https://github.com/getpassageway/passageway/issues/100"}
-      - {label: "V3", url: "https://passageway.marceltov.de/values/#v3-numbers-are-measured-never-tuned"}
+      - {label: "V3", url: "https://getpassageway.com/values/#v3-numbers-are-measured-never-tuned"}
 
   - id: ui
     status: later
@@ -47,9 +47,18 @@ items:
       - A generator is optional and lives outside the core, so passageway itself still returns passages.
     links:
       - {label: "#99", url: "https://github.com/getpassageway/passageway/issues/99"}
-      - {label: "V4", url: "https://passageway.marceltov.de/values/#v4-passages-not-answers"}
+      - {label: "V4", url: "https://getpassageway.com/values/#v4-passages-not-answers"}
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: getpassageway-com
+    status: done
+    date: 2026-11-05
+    icon: web
+    title: getpassageway.com
+    summary: The documentation moved to getpassageway.com; the old address and the .eu, .de and .info domains redirect there, so existing links and installed skills keep working.
+    links:
+      - {label: "#134", url: "https://github.com/getpassageway/passageway/issues/134"}
+
   - id: pypi
     status: done
     date: 2026-11-05
@@ -89,8 +98,8 @@ items:
     title: Hook, plugin, sidecar image, quickstart
     summary: The prompt hook with its self-test and the setup skill in the plugin, the image with the model baked in, and `passageway init` with a launchd example.
     links:
-      - {label: "Claude Code", url: "https://passageway.marceltov.de/guides/claude-code/"}
-      - {label: "Run it", url: "https://passageway.marceltov.de/deploy/"}
+      - {label: "Claude Code", url: "https://getpassageway.com/guides/claude-code/"}
+      - {label: "Run it", url: "https://getpassageway.com/deploy/"}
       - {label: "PR #52", url: "https://github.com/getpassageway/passageway/pull/52"}
 
   - id: confluence-connector
@@ -100,8 +109,8 @@ items:
     title: Confluence connector
     summary: The pages of chosen spaces of a Confluence Data Center, with a personal access token, written from the public REST documentation and tested against a fake of it; Cloud later (ADR 0005).
     links:
-      - {label: "Connector", url: "https://passageway.marceltov.de/connectors/confluence/"}
-      - {label: "ADR 0005", url: "https://passageway.marceltov.de/adr/0005-confluence-data-center-first/"}
+      - {label: "Connector", url: "https://getpassageway.com/connectors/confluence/"}
+      - {label: "ADR 0005", url: "https://getpassageway.com/adr/0005-confluence-data-center-first/"}
       - {label: "PR #51", url: "https://github.com/getpassageway/passageway/pull/51"}
 
   - id: embedders
@@ -111,7 +120,7 @@ items:
     title: Embedders, the rest
     summary: An adapter for OpenAI-compatible services and Voyage; three built-in presets with a checksummed download and a measured gate each; CoreML measured and left opt-in; the models compared on the corpus.
     links:
-      - {label: "Choosing a model", url: "https://passageway.marceltov.de/models/"}
+      - {label: "Choosing a model", url: "https://getpassageway.com/models/"}
       - {label: "PR #50", url: "https://github.com/getpassageway/passageway/pull/50"}
 
   - id: trilium-connector
@@ -121,8 +130,8 @@ items:
     title: Trilium connector
     summary: The trilium-recall sync as a connector. On trilium-recall's public fixture (its synthetic wiki, the real model, an in-test ETAPI) it scores hit@3 0.92 and silence 1.0 against the published 0.83 and 1.0; the check against a live Trilium and the private question set is still the owner's to run.
     links:
-      - {label: "Connector", url: "https://passageway.marceltov.de/connectors/trilium/"}
-      - {label: "ADR 0004", url: "https://passageway.marceltov.de/adr/0004-no-summary-for-source-substitution/"}
+      - {label: "Connector", url: "https://getpassageway.com/connectors/trilium/"}
+      - {label: "ADR 0004", url: "https://getpassageway.com/adr/0004-no-summary-for-source-substitution/"}
       - {label: "PR #49", url: "https://github.com/getpassageway/passageway/pull/49"}
 
   - id: embedder-protocol
@@ -132,7 +141,7 @@ items:
     title: Any embedding model, and a model comparison
     summary: "`kind = \"command\"` runs any program that speaks the embedder protocol, and `passageway eval compare` puts several models side by side."
     links:
-      - {label: "Protocol", url: "https://passageway.marceltov.de/reference/embedder-protocol/"}
+      - {label: "Protocol", url: "https://getpassageway.com/reference/embedder-protocol/"}
       - {label: "PR #39", url: "https://github.com/getpassageway/passageway/pull/39"}
 
   - id: eval-questions
@@ -142,7 +151,7 @@ items:
     title: Questions and first measurements
     summary: 100 public questions for the sample corpus, and the numbers they give with the multilingual e5-small model.
     links:
-      - {label: "Measurements", url: "https://passageway.marceltov.de/measurements/"}
+      - {label: "Measurements", url: "https://getpassageway.com/measurements/"}
       - {label: "PR #37", url: "https://github.com/getpassageway/passageway/pull/37"}
 
   - id: eval-harness
@@ -152,7 +161,7 @@ items:
     title: Evaluation harness
     summary: "`passageway eval` measures retrieval quality on your own questions and builds reports you can publish."
     links:
-      - {label: "Guide", url: "https://passageway.marceltov.de/guides/evaluate/"}
+      - {label: "Guide", url: "https://getpassageway.com/guides/evaluate/"}
       - {label: "PR #35", url: "https://github.com/getpassageway/passageway/pull/35"}
 
   - id: frozen-corpus
@@ -162,7 +171,7 @@ items:
     title: A frozen corpus
     summary: 30 hand-picked Wikipedia articles on deep learning in English and 30 in German, attributed and licensed CC BY-SA 4.0, so that measurements are reproducible.
     links:
-      - {label: "Corpus", url: "https://passageway.marceltov.de/reference/corpus/"}
+      - {label: "Corpus", url: "https://getpassageway.com/reference/corpus/"}
       - {label: "PR #32", url: "https://github.com/getpassageway/passageway/pull/32"}
 
   - id: markdown-connector
@@ -172,7 +181,7 @@ items:
     title: Markdown connector
     summary: Index a folder of markdown files with front matter, written with the SDK.
     links:
-      - {label: "Connector", url: "https://passageway.marceltov.de/connectors/markdown/"}
+      - {label: "Connector", url: "https://getpassageway.com/connectors/markdown/"}
       - {label: "PR #30", url: "https://github.com/getpassageway/passageway/pull/30"}
 
   - id: decide-sdk
@@ -182,7 +191,7 @@ items:
     title: A connector SDK
     summary: "`passageway-sdk` does the protocol plumbing, so that a Python connector is its logic. The Wikipedia connector is its first user."
     links:
-      - {label: "Reference", url: "https://passageway.marceltov.de/reference/sdk/"}
+      - {label: "Reference", url: "https://getpassageway.com/reference/sdk/"}
       - {label: "PR #27", url: "https://github.com/getpassageway/passageway/pull/27"}
 
   - id: decide-transport
@@ -192,7 +201,7 @@ items:
     title: JSON Lines stays, with a JSON Schema
     summary: The transport is settled before the protocol is frozen at v1. JSON Lines over a subprocess stays for connectors and embedders, with a published schema.
     links:
-      - {label: "ADR 0003", url: "https://passageway.marceltov.de/adr/0003-json-lines-over-a-subprocess-stays/"}
+      - {label: "ADR 0003", url: "https://getpassageway.com/adr/0003-json-lines-over-a-subprocess-stays/"}
       - {label: "PR #26", url: "https://github.com/getpassageway/passageway/pull/26"}
 
   - id: agent-entry-points

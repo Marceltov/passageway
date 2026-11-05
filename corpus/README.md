@@ -2,7 +2,7 @@
 
 A small, fixed set of Wikipedia articles on **deep learning**, 30 in English (`en/`) and 30 in German (`de/`), so that measurements of retrieval quality can be repeated by anyone against the same text. The articles are CC BY-SA 4.0, not AGPL: see [LICENSE.md](https://github.com/getpassageway/passageway/blob/main/corpus/LICENSE.md).
 
-The files are the corpus. Each has front matter with its title, address, revision and licence, and its sections are `##` headings. Wikipedia changes every day, so nothing is fetched at test time: the revision in each file says which version it is. The [markdown connector](https://passageway.marceltov.de/connectors/markdown/) indexes a folder of them:
+The files are the corpus. Each has front matter with its title, address, revision and licence, and its sections are `##` headings. Wikipedia changes every day, so nothing is fetched at test time: the revision in each file says which version it is. The [markdown connector](https://getpassageway.com/connectors/markdown/) indexes a folder of them:
 
 ```toml
 [[connector]]
@@ -19,7 +19,7 @@ Chosen by hand: the core concepts of deep learning (backpropagation, convolution
 
 ## The questions and the measurements
 
-`questions.toml` holds 100 questions for the corpus: 70 with accepted answers and 30 that nothing in the corpus answers, in English and German, none naming a language or a source. `measure.sh` runs them with `passageway eval` and updates the [measurements page](https://passageway.marceltov.de/measurements/); it needs the embedding model, and `measure.sh --no-write --include-cases --out DIR` shows every question without touching the page. The accepted answers are file names, so an answer such as `backpropagation.md` accepts the article of that name in both languages.
+`questions.toml` holds 100 questions for the corpus: 70 with accepted answers and 30 that nothing in the corpus answers, in English and German, none naming a language or a source. `measure.sh` runs them with `passageway eval` and updates the [measurements page](https://getpassageway.com/measurements/); it needs the embedding model, and `measure.sh --no-write --include-cases --out DIR` shows every question without touching the page. The accepted answers are file names, so an answer such as `backpropagation.md` accepts the article of that name in both languages.
 
 ## Refreshing it
 

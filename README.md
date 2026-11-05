@@ -20,7 +20,7 @@ It serves the passages as one `recall` tool over MCP, stays silent when nothing 
 - Bundled connectors: [Wikipedia](connectors/wikipedia/README.md), [Markdown](connectors/markdown/README.md), [llms.txt](connectors/llmstxt/README.md), [Sitemap](connectors/sitemap/README.md), [Trilium](connectors/trilium/README.md), [Confluence](connectors/confluence/README.md); bundled embedder: [OpenAI-compatible](embedders/openai/README.md)
 - For AI agents: [skills and `llms-full.txt`](docs/guides/agents.md); in Claude Code, `/plugin marketplace add getpassageway/passageway` and `/plugin install passageway@passageway` give you the plugin, then `/passageway-install` sets everything up
 
-Documentation: the pages in `docs/`, will be published at https://passageway.marceltov.de.
+Documentation: https://getpassageway.com (the pages are in `docs/`).
 
 Status: early. The engine started as the recall engine of [trilium-recall](https://github.com/Marceltov/trilium-recall) and is being generalized. The code is source-available under the PolyForm Noncommercial License 1.0.0 (free for private use; companies need a licence), and the SDK is MIT; the Wikipedia articles of the sample corpus in `corpus/` are CC BY-SA 4.0 (see `corpus/LICENSE.md`).
 

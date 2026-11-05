@@ -1,6 +1,6 @@
 # passageway-embedder-openai
 
-A [passageway](https://github.com/getpassageway/passageway#readme) embedder for services that speak the OpenAI embeddings API: **Ollama**, **LM Studio**, **vLLM**, **OpenAI** itself, and **Voyage** (whose API differs in one field). It speaks the [embedder protocol](https://passageway.marceltov.de/reference/embedder-protocol/), so passageway runs it as `kind = "command"` and the core does not change.
+A [passageway](https://github.com/getpassageway/passageway#readme) embedder for services that speak the OpenAI embeddings API: **Ollama**, **LM Studio**, **vLLM**, **OpenAI** itself, and **Voyage** (whose API differs in one field). It speaks the [embedder protocol](https://getpassageway.com/reference/embedder-protocol/), so passageway runs it as `kind = "command"` and the core does not change.
 
 **Where your text goes:** every indexed passage and every question is sent to the service at `BASE_URL`. With a local Ollama or LM Studio that is your own machine; with OpenAI or Voyage it is a third party, under their terms. passageway's default stays local; this embedder is your explicit choice.
 
@@ -36,7 +36,7 @@ timeout = 60                                # the core's limit per request; keep
 | `TIMEOUT` | `50` | Seconds for one request including its retries. Keep the core's `timeout` for this embedder above it, or the core kills the process before this program can report what went wrong |
 | `NAME` | `<provider>:<model>@<host>[:port][#prefixes]` | The embedder's name as the index records it. A prefix changes every vector, so a short hash of the prefixes is part of it; set your own when the model behind a name changes |
 
-`min_similarity` belongs to the model: similarity scales differ, so measure it with [`passageway eval --sweep`](https://passageway.marceltov.de/guides/evaluate/) before relying on it.
+`min_similarity` belongs to the model: similarity scales differ, so measure it with [`passageway eval --sweep`](https://getpassageway.com/guides/evaluate/) before relying on it.
 
 ## Behaviour
 

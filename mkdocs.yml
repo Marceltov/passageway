@@ -1,6 +1,6 @@
 site_name: passageway
 site_description: "Retrieval for Claude over MCP: connectors feed passages, and a relevance gate keeps it quiet when nothing fits."
-site_url: https://passageway.marceltov.de/
+site_url: https://getpassageway.com/
 repo_url: https://github.com/getpassageway/passageway
 repo_name: getpassageway/passageway
 edit_uri: edit/main/docs/

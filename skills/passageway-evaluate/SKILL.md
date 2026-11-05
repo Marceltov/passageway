@@ -5,9 +5,9 @@ description: "Measure how well passageway finds the right passage in the user's 
 
 # Evaluate passageway on the user's own questions
 
-Retrieval quality is measured, never guessed (https://passageway.marceltov.de/guides/evaluate/). This skill makes that measurement a conversation: it explains what it is doing and why before every step, builds the questions with the user, and reads the result back in plain words.
+Retrieval quality is measured, never guessed (https://getpassageway.com/guides/evaluate/). This skill makes that measurement a conversation: it explains what it is doing and why before every step, builds the questions with the user, and reads the result back in plain words.
 
-**Documentation:** the index https://passageway.marceltov.de/llms.txt lists every page with its markdown address; the whole documentation is one file, https://passageway.marceltov.de/llms-full.txt. The page for this skill is https://passageway.marceltov.de/guides/evaluate/: fetch it before the first run and whenever an option below does not behave as described.
+**Documentation:** the index https://getpassageway.com/llms.txt lists every page with its markdown address; the whole documentation is one file, https://getpassageway.com/llms-full.txt. The page for this skill is https://getpassageway.com/guides/evaluate/: fetch it before the first run and whenever an option below does not behave as described.
 
 Free text (a question, a note's title, a path) is asked in the chat, never through a choice prompt; a choice prompt is only for real alternatives (which mode, which model).
 
