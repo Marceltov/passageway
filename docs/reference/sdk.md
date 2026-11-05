@@ -58,6 +58,8 @@ For connectors whose source is (or converts to) markdown:
 | `whole(env, key, default, low=1)` | A whole number of at least `low`. |
 | `flag(env, key, default)` | `true` or `false`, in any case. |
 | `seconds(env, key, default)` | A number of seconds that is not negative. |
+| `weights(env, key)` | `changelog=0.5,archive/=0.3`: comma-separated `prefix=weight` pairs, each weight above 0, in order. |
+| `weight_of(table, path)` | The weight of the first prefix in a `weights` table that `path` starts with (a leading `/` ignored), else `1.0`. Put it in the item's `weight` and its version, so a changed weight re-indexes the item. |
 
 ## Web client
 
@@ -85,5 +87,14 @@ data = reply.json()
 | `log` | A function that receives the retry messages, so a waiting sync does not look hung. | none |
 
 `get(url, params=None, required=False, max_bytes=None, retry_if=None)` and `request(method, url, params=None, json=None, …)` return a `Reply`. `retry_if(reply)` may return a reason to try again although the status is fine (an API that answers `200` with "I am lagging"); it counts against the same budget. A `Reply` has `status`, `text`, `content_type`, `headers` (names in lower case) and `.json()`. A failure to reach the server raises `NetworkError`, and a `5xx` or `429` that retries did not clear raises `HttpError` (a `SourceError` with the `status`), so a source that is down fails the call and never looks empty; any other status, such as a `404`, is returned for the connector to judge, or raised with `required=True`.
+
+## HTML
+
+`passageway_sdk.html` is for connectors whose source is a web page. It needs the extra `passageway-sdk[html]`, which installs `selectolax`.
+
+| Function | What it does |
+|---|---|
+| `to_markdown(html)` | An HTML string (a page or a fragment) or a parsed node as markdown-ish text: headings as `#` lines, `<pre>` as fenced code, list items as `- `, paragraphs apart by a blank line. Navigation, headers, footers, scripts, forms and permalink anchors are left out, and inline markup adds no space inside a sentence. Feed the result to `split_markdown`. |
+| `clean(text)` | Runs of whitespace as one space, trimmed. |
 
 *The SDK is MIT licensed ([licence](LICENSE)).*

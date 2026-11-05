@@ -9,7 +9,7 @@ from urllib.parse import urldefrag, urljoin, urlparse
 
 import httpx
 from passageway_sdk import Connector, SettingsError, SourceError, split_markdown
-from passageway_sdk.settings import whole
+from passageway_sdk.settings import weight_of, weights, whole
 from passageway_sdk.web import TooLarge, Web
 
 FRONT_MATTER = re.compile(r"\A---[ \t]*\r?\n.*?\r?\n(?:---|\.\.\.)[ \t]*(?:\r?\n|\Z)", re.S)
@@ -17,21 +17,6 @@ LINK = re.compile(r"\]\(\s*<?([^)\s>]+)")
 FENCE = re.compile(r"^\s*(```|~~~)")
 PAGE_URL = re.compile(r"url:[ \t]*(\S+)[ \t]*$")
 BLOCK_LINES = 20  # a front matter block longer than this is not one
-
-
-def _weights(text: str) -> list[tuple[str, float]]:
-    """`changelog=0.5,archive/=0.3`: a weight for every page whose path starts with a prefix; the first match wins."""
-    out = []
-    for part in (p.strip() for p in text.split(",") if p.strip()):
-        prefix, _, value = part.partition("=")
-        try:
-            weight = float(value)
-        except ValueError:
-            weight = 0.0
-        if not prefix.strip() or weight <= 0:
-            raise SettingsError(f"WEIGHTS must be prefix=weight pairs with a weight above 0, got {part!r}")
-        out.append((prefix.strip().lstrip("/"), weight))
-    return out
 
 
 def _slug(title: str) -> str:
@@ -134,7 +119,7 @@ class LlmsTxt(Connector):
                 raise SettingsError(f"URLS must be http(s) addresses, got {url!r}")
         self.max_bytes = whole(env, "MAX_BYTES", 20_000_000)
         self.max_pages = whole(env, "MAX_PAGES", 500)
-        self.weights = _weights(env.get("WEIGHTS", ""))
+        self.weights = weights(env, "WEIGHTS")
         self._web = Web("passageway-connector-llmstxt", max_bytes=self.max_bytes, transport=transport, sleep=sleep)
 
     # -- the protocol ------------------------------------------------------------------------
@@ -184,8 +169,7 @@ class LlmsTxt(Connector):
             raise SourceError(f"{url}: larger than MAX_BYTES ({self.max_bytes})") from None
 
     def _weight(self, page: Page) -> float:
-        where = urlparse(page.url).path.lstrip("/")
-        return next((w for prefix, w in self.weights if where.startswith(prefix)), 1.0)
+        return weight_of(self.weights, urlparse(page.url).path)
 
     def _version(self, page: Page) -> str:
         weight = self._weight(page)  # a changed weight is a changed item, so the index follows it
