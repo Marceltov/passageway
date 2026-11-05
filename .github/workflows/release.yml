@@ -94,7 +94,7 @@ jobs:
         # Each project has a trusted publisher for this repository, this workflow and the pypi environment. A new package
         # needs a pending publisher on pypi.org before its first release; without one the upload fails instead of asking for a token.
         run: |
-          packages="passageway-sdk passageway-connector-confluence passageway-connector-llmstxt passageway-connector-markdown passageway-connector-sitemap passageway-connector-trilium passageway-connector-wikipedia passageway-embedder-openai passageway"
+          packages="passageway-sdk passageway-connector-confluence passageway-connector-llmstxt passageway-connector-markdown passageway-connector-mkdocs passageway-connector-sitemap passageway-connector-trilium passageway-connector-wikipedia passageway-embedder-openai passageway"
           # An old tag run again by hand builds an old tree whose versions differ: refuse before the first upload, because
           # a half-published release (the SDK up, the rest missing) cannot be repaired.
           for package in $packages; do

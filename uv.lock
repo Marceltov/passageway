@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -13,6 +13,7 @@ members = [
     "passageway-connector-confluence",
     "passageway-connector-llmstxt",
     "passageway-connector-markdown",
+    "passageway-connector-mkdocs",
     "passageway-connector-sitemap",
     "passageway-connector-trilium",
     "passageway-connector-wikipedia",
@@ -970,6 +971,7 @@ all = [
     { name = "passageway-connector-confluence" },
     { name = "passageway-connector-llmstxt" },
     { name = "passageway-connector-markdown" },
+    { name = "passageway-connector-mkdocs" },
     { name = "passageway-connector-sitemap" },
     { name = "passageway-connector-trilium" },
     { name = "passageway-connector-wikipedia" },
@@ -983,6 +985,9 @@ llmstxt = [
 ]
 markdown = [
     { name = "passageway-connector-markdown" },
+]
+mkdocs = [
+    { name = "passageway-connector-mkdocs" },
 ]
 openai = [
     { name = "passageway-embedder-openai" },
@@ -1003,6 +1008,7 @@ dev = [
     { name = "passageway-connector-confluence" },
     { name = "passageway-connector-llmstxt" },
     { name = "passageway-connector-markdown" },
+    { name = "passageway-connector-mkdocs" },
     { name = "passageway-connector-sitemap" },
     { name = "passageway-connector-trilium" },
     { name = "passageway-connector-wikipedia" },
@@ -1025,6 +1031,8 @@ requires-dist = [
     { name = "passageway-connector-llmstxt", marker = "extra == 'llmstxt'", editable = "connectors/llmstxt" },
     { name = "passageway-connector-markdown", marker = "extra == 'all'", editable = "connectors/markdown" },
     { name = "passageway-connector-markdown", marker = "extra == 'markdown'", editable = "connectors/markdown" },
+    { name = "passageway-connector-mkdocs", marker = "extra == 'all'", editable = "connectors/mkdocs" },
+    { name = "passageway-connector-mkdocs", marker = "extra == 'mkdocs'", editable = "connectors/mkdocs" },
     { name = "passageway-connector-sitemap", marker = "extra == 'all'", editable = "connectors/sitemap" },
     { name = "passageway-connector-sitemap", marker = "extra == 'sitemap'", editable = "connectors/sitemap" },
     { name = "passageway-connector-trilium", marker = "extra == 'all'", editable = "connectors/trilium" },
@@ -1041,7 +1049,7 @@ requires-dist = [
     { name = "truststore", specifier = ">=0.10" },
     { name = "uvicorn", specifier = ">=0.30" },
 ]
-provides-extras = ["confluence", "llmstxt", "markdown", "sitemap", "trilium", "wikipedia", "openai", "all"]
+provides-extras = ["confluence", "llmstxt", "mkdocs", "markdown", "sitemap", "trilium", "wikipedia", "openai", "all"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1049,6 +1057,7 @@ dev = [
     { name = "passageway-connector-confluence", editable = "connectors/confluence" },
     { name = "passageway-connector-llmstxt", editable = "connectors/llmstxt" },
     { name = "passageway-connector-markdown", editable = "connectors/markdown" },
+    { name = "passageway-connector-mkdocs", editable = "connectors/mkdocs" },
     { name = "passageway-connector-sitemap", editable = "connectors/sitemap" },
     { name = "passageway-connector-trilium", editable = "connectors/trilium" },
     { name = "passageway-connector-wikipedia", editable = "connectors/wikipedia" },
@@ -1142,11 +1151,36 @@ dev = [
 ]
 
 [[package]]
+name = "passageway-connector-mkdocs"
+version = "0.3.0"
+source = { editable = "connectors/mkdocs" }
+dependencies = [
+    { name = "passageway-sdk", extra = ["html", "web"] },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "jsonschema" },
+    { name = "passageway" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "passageway-sdk", extras = ["web", "html"], editable = "sdk" }]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "jsonschema", specifier = ">=4.23" },
+    { name = "passageway", editable = "." },
+    { name = "pytest", specifier = ">=8.3" },
+]
+
+[[package]]
 name = "passageway-connector-sitemap"
 version = "0.3.0"
 source = { editable = "connectors/sitemap" }
 dependencies = [
-    { name = "passageway-sdk", extra = ["web"] },
+    { name = "passageway-sdk", extra = ["html", "web"] },
     { name = "selectolax" },
 ]
 
@@ -1164,7 +1198,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "passageway-sdk", extras = ["web"], editable = "sdk" },
+    { name = "passageway-sdk", extras = ["web", "html"], editable = "sdk" },
     { name = "playwright", marker = "extra == 'render'", specifier = ">=1.49" },
     { name = "selectolax", specifier = ">=0.3.21" },
 ]
@@ -1264,6 +1298,9 @@ version = "0.3.0"
 source = { editable = "sdk" }
 
 [package.optional-dependencies]
+html = [
+    { name = "selectolax" },
+]
 web = [
     { name = "httpx" },
     { name = "truststore" },
@@ -1274,21 +1311,24 @@ dev = [
     { name = "httpx" },
     { name = "passageway" },
     { name = "pytest" },
+    { name = "selectolax" },
     { name = "truststore" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "httpx", marker = "extra == 'web'", specifier = ">=0.28.1" },
+    { name = "selectolax", marker = "extra == 'html'", specifier = ">=0.3.21" },
     { name = "truststore", marker = "extra == 'web'", specifier = ">=0.10" },
 ]
-provides-extras = ["web"]
+provides-extras = ["web", "html"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "passageway", editable = "." },
     { name = "pytest", specifier = ">=8.3" },
+    { name = "selectolax", specifier = ">=0.3.21" },
     { name = "truststore", specifier = ">=0.10" },
 ]
 
