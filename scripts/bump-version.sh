@@ -32,7 +32,7 @@ for path in ["pyproject.toml", *glob.glob("connectors/*/pyproject.toml")]:
     # the pins between packages: exact in the core's extras, compatible-release for the SDK
     text = open(path).read()
     text = re.sub(r"(passageway-(?:connector|embedder)-[a-z]+)==[0-9.]+", rf"\1=={version}", text)
-    text = re.sub(r"(passageway-sdk(?:\[web\])?)~=[0-9.]+", rf"\1~={version}", text)
+    text = re.sub(r"(passageway-sdk(?:\[[a-z,]+\])?)~=[0-9.]+", rf"\1~={version}", text)
     open(path, "w").write(text)
 edit(".claude-plugin/plugin.json", r'^(\s*"version": )"[^"]*"', rf'\1"{version}"')
 edit("skills/passageway/SKILL.md", r"^version: .*$", f"version: {version}")
