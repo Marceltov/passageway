@@ -40,6 +40,7 @@ For connectors whose source is (or converts to) markdown:
 |---|---|
 | `split_markdown(text, skip_first_h1=False)` | The sections of a document: one per heading at any level (`#` to `######`), with the heading as the trail of its parents (`Setup › Linux`). Text before the first heading is a section without a heading; a `#` inside a fenced code block is not a heading; sections without text are dropped. With `skip_first_h1` the first `# heading`, the title, is left out of the trail. |
 | `first_h1(text)` | The text of the first level-1 heading outside code, or `None`. Use it as the title. |
+| `strip_front_matter(text)` | The text without a front matter block (`---` … `---`) at its very start. |
 | `strip_code(text)` | The text without fenced code blocks and inline code, for finding the links a document really contains. |
 
 `Connector.warn(message)` reports something odd (a skipped file) on stderr as `name: warning: message` without failing the call.
@@ -58,6 +59,7 @@ For connectors whose source is (or converts to) markdown:
 | `whole(env, key, default, low=1)` | A whole number of at least `low`. |
 | `flag(env, key, default)` | `true` or `false`, in any case. |
 | `seconds(env, key, default)` | A number of seconds that is not negative. |
+| `globs(env, key, default)` | Glob patterns separated by `\|` (`default` when the setting is missing), as a test of a relative path: `**` crosses folders, `*` and `?` stay in one, a pattern without `/` matches the file name in any folder. `globs(env, "INCLUDE", ("*.md",))("docs/a.md")` is `True`. |
 | `weights(env, key)` | `changelog=0.5,archive/=0.3`: comma-separated `prefix=weight` pairs, each weight above 0, in order. |
 | `weight_of(table, path)` | The weight of the first prefix in a `weights` table that `path` starts with (a leading `/` ignored), else `1.0`. Put it in the item's `weight` and its version, so a changed weight re-indexes the item. |
 

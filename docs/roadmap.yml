@@ -50,6 +50,16 @@ items:
       - {label: "V4", url: "https://getpassageway.com/values/#v4-passages-not-answers"}
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: github-connector
+    status: done
+    date: 2026-11-06
+    icon: github
+    title: GitHub connector
+    summary: "GitHub repositories, named one by one or as `owner/*`: their markdown files by default, their code in line ranges when `FILES` asks for it; private repositories and GitHub Enterprise Server with a token."
+    links:
+      - {label: "Connector", url: "https://getpassageway.com/connectors/github/"}
+      - {label: "#138", url: "https://github.com/getpassageway/passageway/issues/138"}
+
   - id: mkdocs-connector
     status: done
     date: 2026-11-05
