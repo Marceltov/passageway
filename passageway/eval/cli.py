@@ -39,7 +39,7 @@ def _parser() -> argparse.ArgumentParser:
     return p
 
 
-def _run(args, env: Mapping[str, str], embedder, targets, cases) -> tuple[dict, list]:
+def _run(args, env: Mapping[str, str], embedder, targets, cases, stderr) -> tuple[dict, list]:
     config = load_config(env, require_password=False)
     started = time.perf_counter()
     if embedder is None:
@@ -48,7 +48,8 @@ def _run(args, env: Mapping[str, str], embedder, targets, cases) -> tuple[dict, 
         embedder = build_embedder(config.embedder, config)
     load_seconds = round(time.perf_counter() - started, 1)
     try:
-        done = measure(config, embedder, cases, data_dir=args.data_dir, threshold=args.threshold, sweep=sweep_values(args.sweep))
+        done = measure(config, embedder, cases, data_dir=args.data_dir, threshold=args.threshold, sweep=sweep_values(args.sweep),
+                       say=lambda line: print(f"eval: {line}", file=stderr, flush=True))
     finally:
         if hasattr(embedder, "close"):
             embedder.close()  # a command embedder is a process of its own
@@ -94,7 +95,7 @@ def main(argv: list[str] | None = None, *, env: Mapping[str, str] | None = None,
                     check_page(args.write)
                 except ReportError as e:
                     raise UsageError(f"--write: {e}") from None
-            report, _ = _run(args, env, embedder, targets, cases)
+            report, _ = _run(args, env, embedder, targets, cases, stderr)
         except (UsageError, CasesError, ConfigError, ReportError) as e:
             print(f"eval: {e}", file=stderr)
             return 2

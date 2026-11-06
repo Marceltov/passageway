@@ -94,7 +94,9 @@ def compare_main(argv: list[str], *, env: Mapping[str, str], stdout, stderr) -> 
                     embedder, load_seconds = embedders.pop(name)
                     try:
                         done = measure(replace(config, embedder=cfg, min_similarity=cfg.min_similarity), embedder, cases,
-                                       threshold=args.threshold, sweep=sweep)
+                                       threshold=args.threshold, sweep=sweep,
+                                       say=lambda line, name=name: print(f"eval: {name}: {line}", file=stderr,
+                                                                         flush=True))
                     except EmbedderError as e:
                         raise EmbedderError(f"{name}: {e}") from None
                     finally:
