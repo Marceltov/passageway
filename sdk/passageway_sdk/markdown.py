@@ -5,6 +5,7 @@ from collections.abc import Iterator
 
 _FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 _HEADING = re.compile(r"^ {0,3}(#{1,6})[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$")
+_FRONT_MATTER = re.compile(r"\A---[ \t]*\r?\n(?:.*?\r?\n)?(?:---|\.\.\.)[ \t]*(?:\r?\n|\Z)", re.S)
 _INLINE_CODE = re.compile(r"(?<!`)(`+)(?!`)[^\n]+?(?<!`)\1(?!`)")  # a span closes with a run of exactly the same length
 SEPARATOR = " › "
 
@@ -76,3 +77,8 @@ def first_h1(text: str) -> str | None:
         if match and len(match.group(1)) == 1 and match.group(2).strip():
             return match.group(2).strip()
     return None
+
+
+def strip_front_matter(text: str) -> str:
+    """The text without a front matter block (`---` … `---` or `...`) at its very start."""
+    return _FRONT_MATTER.sub("", text, count=1)

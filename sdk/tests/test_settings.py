@@ -1,7 +1,7 @@
 import pytest
 
 from passageway_sdk import SettingsError
-from passageway_sdk.settings import flag, names, seconds, weight_of, weights, whole
+from passageway_sdk.settings import flag, globs, names, seconds, weight_of, weights, whole
 
 
 def test_names_splits_at_a_bar_and_drops_blanks():
@@ -44,3 +44,11 @@ def test_weight_of_takes_the_first_matching_prefix():
     assert weight_of(table, "/changelog/v1/x") == 0.2
     assert weight_of(table, "changelog/v2") == 0.5
     assert weight_of(table, "howto") == 1.0
+
+
+def test_globs_match_paths_with_double_star_across_folders_and_bare_names_at_any_depth():
+    wanted = globs({"I": "docs/**/*.md|a.md"}, "I", ("*.md",))
+    assert [p for p in ("a.md", "x/a.md", "docs/b.md", "docs/x/y/c.md", "src/b.md", "docs/b.txt") if wanted(p)] == \
+        ["a.md", "x/a.md", "docs/b.md", "docs/x/y/c.md"]
+    assert globs({}, "I", ("*.md",))("deep/down/z.md") and not globs({}, "I", ())("z.md")
+    assert globs({"I": "src/*.py"}, "I", ())("src/a.py") and not globs({"I": "src/*.py"}, "I", ())("src/x/a.py")

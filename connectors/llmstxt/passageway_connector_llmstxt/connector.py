@@ -8,11 +8,10 @@ from dataclasses import dataclass
 from urllib.parse import urldefrag, urljoin, urlparse
 
 import httpx
-from passageway_sdk import Connector, SettingsError, SourceError, split_markdown
+from passageway_sdk import Connector, SettingsError, SourceError, split_markdown, strip_front_matter
 from passageway_sdk.settings import weight_of, weights, whole
 from passageway_sdk.web import TooLarge, Web
 
-FRONT_MATTER = re.compile(r"\A---[ \t]*\r?\n.*?\r?\n(?:---|\.\.\.)[ \t]*(?:\r?\n|\Z)", re.S)
 LINK = re.compile(r"\]\(\s*<?([^)\s>]+)")
 FENCE = re.compile(r"^\s*(```|~~~)")
 PAGE_URL = re.compile(r"url:[ \t]*(\S+)[ \t]*$")
@@ -39,7 +38,7 @@ def split_pages(file: str, text: str) -> list[Page]:
     lines = text.splitlines()
     starts = _page_blocks(lines)
     if not starts:
-        return _by_headings(file, FRONT_MATTER.sub("", text, count=1))
+        return _by_headings(file, strip_front_matter(text))
     pages = _by_headings(file, "\n".join(lines[:starts[0][0]]))
     used = {p.id for p in pages}
     for n, (start, end, url) in enumerate(starts):

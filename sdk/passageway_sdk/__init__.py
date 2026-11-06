@@ -11,9 +11,9 @@ from collections.abc import Iterable, Mapping
 from datetime import datetime
 from typing import NoReturn, TextIO
 
-from passageway_sdk.markdown import first_h1, split_markdown, strip_code
+from passageway_sdk.markdown import first_h1, split_markdown, strip_code, strip_front_matter
 
-__all__ = ["Connector", "SettingsError", "SourceError", "first_h1", "split_markdown", "strip_code", "validate_item"]
+__all__ = ["Connector", "SettingsError", "SourceError", "first_h1", "split_markdown", "strip_code", "strip_front_matter", "validate_item"]
 
 PROTOCOL = "1"
 MODES = "check|list|fetch|changed"
