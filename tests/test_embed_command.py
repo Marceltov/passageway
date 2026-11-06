@@ -285,3 +285,47 @@ def test_vectors_must_be_finite_numbers_even_after_normalising(tmp_path, fail, m
             e.embed_passages(["one", "two"])
     finally:
         e.close()
+
+
+def test_an_embedder_without_max_tokens_does_not_count(embedder):
+    assert embedder.max_tokens is None
+
+
+def test_max_tokens_comes_from_info_and_counts_from_the_program_in_batches(tmp_path):
+    e, log = make(tmp_path, extra_env={"FAKE_EMBED_MAX_TOKENS": "50"}, batch_size=2)
+    try:
+        assert e.max_tokens == 50
+        assert e.count_passages(["a b c", "", "one", "two words"]) == [5, 2, 3, 4]  # words plus two special tokens
+        assert e.count_passages([]) == []
+        assert [len(r["texts"]) for r in requests(log, "count")] == [2, 2]
+    finally:
+        e.close()
+
+
+@pytest.mark.parametrize("bad", ["0", "-1", "1.5", "\"many\"", "true"])
+def test_max_tokens_must_be_a_whole_number_from_1(tmp_path, bad):
+    with pytest.raises(EmbedderError, match="max_tokens"):
+        make(tmp_path, extra_env={"FAKE_EMBED_MAX_TOKENS_RAW": bad})
+
+
+@pytest.mark.parametrize("fail", ["count-garbage", "count-short"])
+def test_a_count_reply_of_the_wrong_shape_is_an_error(tmp_path, fail):
+    e, _ = make(tmp_path, fail=fail, extra_env={"FAKE_EMBED_MAX_TOKENS": "50"})
+    try:
+        with pytest.raises(EmbedderError, match="counts"):
+            e.count_passages(["a", "b"])
+    finally:
+        e.close()
+
+
+def test_a_restart_with_another_token_limit_is_refused(tmp_path):
+    limit = tmp_path / "limit"
+    limit.write_text("50")
+    e, _ = make(tmp_path, fail="die-after:1", extra_env={"FAKE_EMBED_MAX_TOKENS_FILE": str(limit)})
+    try:
+        e.embed_passages(["a"])
+        limit.write_text("60")
+        with pytest.raises(EmbedderError, match="token limit"):
+            e.embed_passages(["b"])
+    finally:
+        e.close()

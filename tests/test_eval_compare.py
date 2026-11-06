@@ -216,3 +216,15 @@ def test_candidates_with_the_same_model_stay_apart_in_the_history(s):
     assert len(history) == 2 and {e["label"] for e in history} == {"default", "small"} and {e["dim"] for e in history} == {64, 8}
     text = page.read_text()
     assert "default: default-model" in text and "small: default-model" in text
+
+
+def test_each_candidates_build_shows_its_progress_under_its_name(s, monkeypatch):
+    from passageway import sync
+    from passageway.eval import measure
+    monkeypatch.setattr(sync, "FETCH_BATCH", 1)
+    monkeypatch.setattr(measure, "PROGRESS_EVERY", 0)
+    code, out, err = s.run()
+    assert code == 0, err
+    for label in ("default", "small", "big"):
+        assert f"eval: {label}: notes: 1 of " in err and f"eval: {label}: built in " in err, err
+    assert "eval:" not in out

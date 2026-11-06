@@ -18,7 +18,8 @@ def valid(name, message) -> bool:
 
 def test_the_schema_is_a_valid_draft_2020_12_schema_with_every_message():
     jsonschema.Draft202012Validator.check_schema(SCHEMA)
-    assert {"infoRequest", "infoReply", "embedRequest", "embedReply", "errorReply"} <= set(SCHEMA["$defs"])
+    assert {"infoRequest", "infoReply", "embedRequest", "embedReply", "countRequest", "countReply", "errorReply"} <= set(
+        SCHEMA["$defs"])
 
 
 def test_the_messages():
@@ -33,6 +34,12 @@ def test_the_messages():
     assert valid("embedReply", {"vectors": [[0.1, 0.2], [0.3, 0.4]]}) and valid("embedReply", {"vectors": []})
     assert not valid("embedReply", {"vectors": [["a"]]}) and not valid("embedReply", {"vectors": [0.1]})
     assert valid("errorReply", {"error": "out of memory"}) and not valid("errorReply", {"error": 5})
+    assert valid("infoReply", {"name": "m", "dim": 8, "max_tokens": 512})
+    assert not valid("infoReply", {"name": "m", "dim": 8, "max_tokens": 0})
+    assert not valid("infoReply", {"name": "m", "dim": 8, "max_tokens": 1.5})
+    assert valid("countRequest", {"op": "count", "texts": ["a", "b"]}) and not valid("countRequest", {"op": "count"})
+    assert valid("countReply", {"counts": [3, 0]}) and not valid("countReply", {"counts": [-1]})
+    assert not valid("countReply", {"counts": [1.5]}) and not valid("countReply", {"counts": "many"})
 
 
 def test_a_real_embedder_process_speaks_the_schema():
@@ -54,6 +61,17 @@ def test_a_real_embedder_process_speaks_the_schema():
     finally:
         proc.stdin.close()
         proc.wait(timeout=10)
+    proc = subprocess.Popen([sys.executable, "-m", "passageway.testing.fake_embedder"], stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE, text=True, cwd=ROOT,
+                            env={**os.environ, "FAKE_EMBED_DIM": "8", "FAKE_EMBED_MAX_TOKENS": "64"})
+    try:
+        info = ask({"op": "info"}, "infoReply", "infoRequest")
+        assert info["max_tokens"] == 64
+        counted = ask({"op": "count", "texts": ["alpha beta", ""]}, "countReply", "countRequest")
+        assert counted["counts"] == [4, 2]
+    finally:
+        proc.stdin.close()
+        proc.wait(timeout=10)
 
 
 def test_the_reference_page_exists_links_the_schema_and_its_examples_validate():
@@ -63,5 +81,6 @@ def test_the_reference_page_exists_links_the_schema_and_its_examples_validate():
     assert blocks
     examples = [json.loads(line) for block in blocks for line in block.splitlines() if line.strip().startswith("{")]
     assert len(examples) >= 4 and all(
-        any(valid(name, example) for name in ("infoRequest", "infoReply", "embedRequest", "embedReply", "errorReply"))
+        any(valid(name, example) for name in ("infoRequest", "infoReply", "embedRequest", "embedReply", "countRequest",
+                                              "countReply", "errorReply"))
         for example in examples)

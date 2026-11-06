@@ -56,9 +56,32 @@ def test_token_budget_batches():
 @pytest.mark.skipif(not (MODEL_DIR / "model.onnx").exists(), reason="model not fetched")
 def test_onnx_batching_keeps_order():
     e = OnnxEmbedder(MODEL_DIR)
-    texts = ["long " * 600, "short a", "medium text " * 30, "short b"]
+    texts = ["long " * 400, "short a", "medium text " * 30, "short b"]
     together = e.embed_passages(texts)
     alone = np.stack([e.embed_passages([t])[0] for t in texts])
     # Dynamic int8 quantisation shifts values a little with batch composition; order must hold.
     similarity = together @ alone.T
     assert (np.diag(similarity) > 0.99).all() and (similarity.argmax(axis=1) == np.arange(4)).all()
+
+
+@pytest.mark.skipif(not (MODEL_DIR / "model.onnx").exists(), reason="model not fetched")
+def test_onnx_counts_a_passage_as_the_model_sees_it_without_cutting():
+    e = OnnxEmbedder(MODEL_DIR)
+    assert e.max_tokens == 512
+    short, long_ = e.count_passages(["Hallo Welt", "Wort " * 2000])
+    assert 4 < short < 12  # "passage: Hallo Welt" with <s> and </s>
+    assert long_ > 2000  # counted in full, not at the cut
+
+
+@pytest.mark.skipif(not (MODEL_DIR / "model.onnx").exists(), reason="model not fetched")
+def test_onnx_refuses_a_passage_over_its_limit_instead_of_cutting_it():
+    from passageway.embed import EmbedderError
+
+    e = OnnxEmbedder(MODEL_DIR)
+    with pytest.raises(EmbedderError, match="over the model's limit of 512"):
+        e.embed_passages(["short", "Wort " * 2000])
+    assert e.embed_queries(["Wort " * 2000]).shape == (1, 384)  # a question is cut, as before
+
+
+def test_the_hash_embedder_does_not_count():
+    assert HashEmbedder().max_tokens is None

@@ -16,6 +16,7 @@ class TimedEmbedder:
     def __init__(self, inner):
         self._inner = inner
         self.name, self.dim = inner.name, inner.dim
+        self.max_tokens = getattr(inner, "max_tokens", None)
         self.query_seconds = 0.0
 
     def embed_queries(self, texts):
@@ -27,6 +28,9 @@ class TimedEmbedder:
 
     def embed_passages(self, texts):
         return self._inner.embed_passages(texts)
+
+    def count_passages(self, texts):
+        return self._inner.count_passages(texts)
 
 
 @dataclass

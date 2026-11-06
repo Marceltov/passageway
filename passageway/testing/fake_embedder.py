@@ -6,14 +6,18 @@ start (exits at once), no-read (answers info, then never reads again), info-erro
 embed request), hang (never answers an embed request), error (answers embed with an error), garbage, not-an-object,
 count (one vector too few), dim (vectors one longer), nan, zero, huge (values that overflow), strings, bools,
 noise (a line of text on stdout before the first embed reply), error-secret (an error reply quoting FAKE_SECRET),
-query-error (an error reply to every query, passages work).
+query-error (an error reply to every query, passages work), count-garbage (counts that are not a list),
+count-short (one count too few).
 FAKE_EMBED_NAME_FILE: if that file exists, its text is the name (changes the identity across a restart).
+FAKE_EMBED_MAX_TOKENS: the token limit info reports; the program then answers `count` with words plus two.
+FAKE_EMBED_MAX_TOKENS_FILE: the same, read from that file at each start; FAKE_EMBED_MAX_TOKENS_RAW: a raw JSON value.
 """
 
 import json
 import os
 import sys
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -28,6 +32,10 @@ def main() -> int:
     if name_file and os.path.exists(name_file):
         name = open(name_file).read().strip()
     dim = int(os.environ.get("FAKE_EMBED_DIM", "64"))
+    limit_file = os.environ.get("FAKE_EMBED_MAX_TOKENS_FILE")
+    limit = Path(limit_file).read_text().strip() if limit_file else os.environ.get("FAKE_EMBED_MAX_TOKENS")
+    max_tokens = json.loads(os.environ["FAKE_EMBED_MAX_TOKENS_RAW"]) if "FAKE_EMBED_MAX_TOKENS_RAW" in os.environ else (
+        int(limit) if limit else None)
     model = HashEmbedder(dim)
 
     def log(record: dict) -> None:
@@ -49,9 +57,16 @@ def main() -> int:
             if fail == "info-error":
                 print(json.dumps({"error": "no model loaded"}), flush=True)
             else:
-                print(json.dumps({"name": name, "dim": dim, **({"protocol": "2"} if fail == "protocol2" else {})}), flush=True)
+                print(json.dumps({"name": name, "dim": dim, **({"protocol": "2"} if fail == "protocol2" else {}),
+                                  **({"max_tokens": max_tokens} if max_tokens is not None else {})}), flush=True)
             if fail == "no-read":
                 time.sleep(600)  # never reads another line: a request bigger than the pipe blocks its writer
+            continue
+        if request["op"] == "count":
+            counts = [len(t.split()) + 2 for t in request["texts"]]
+            if fail == "count-short":
+                counts = counts[:-1]
+            print(json.dumps({"counts": "many" if fail == "count-garbage" else counts}), flush=True)
             continue
         served += 1
         if fail == "noise" and log_path and not os.path.exists(log_path + ".noised"):  # once, not again after a restart

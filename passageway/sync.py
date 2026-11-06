@@ -43,7 +43,7 @@ class Syncer:
         for item in items:
             if known.get(item.id) == item.version:
                 continue
-            parts = chunks(item)
+            parts = chunks(item, self.embedder)
             vectors = self.embedder.embed_passages([passage_text(item, c) for c in parts])
             self.index.upsert_item(
                 ItemRecord(item.id, item.title, item.url, item.version, item.weight, list(item.path),
