@@ -21,6 +21,26 @@ def test_a_command_embedder_passes_as_a_real_subprocess():
         embedder.close()
 
 
+def test_a_command_embedder_that_counts_passes():
+    embedder = CommandEmbedder("fake", [sys.executable, "-m", "passageway.testing.fake_embedder"],
+                               env={"FAKE_EMBED_MAX_TOKENS": "64"})
+    try:
+        check_embedder(embedder)
+    finally:
+        embedder.close()
+
+
+def test_a_count_that_does_not_grow_with_the_text_fails():
+    class Flat(HashEmbedder):
+        max_tokens = 64
+
+        def count_passages(self, texts):
+            return [5 for _ in texts]
+
+    with pytest.raises(AssertionError, match="longer text must count more"):
+        check_embedder(Flat())
+
+
 class Broken(HashEmbedder):
     """A hash embedder with one thing wrong."""
 

@@ -8,6 +8,7 @@ The core writes one JSON object per line to the program's stdin and reads one li
 |---|---|
 | `{"op": "info"}` | `{"name": "bge-m3", "dim": 1024}`, optionally with `"protocol": "1"` |
 | `{"op": "embed", "kind": "query", "texts": ["…"]}` (or `"kind": "passage"`) | `{"vectors": [[0.1, …], …]}`: one vector per text, in the same order, each with `dim` numbers |
+| `{"op": "count", "texts": ["…"]}` (only if `info` named `max_tokens`) | `{"counts": [57, …]}`: for each text, the tokens the model sees when it embeds it as a passage |
 | (any) | `{"error": "message"}` if the request failed; the process stays in use |
 
 ```json
@@ -17,10 +18,20 @@ The core writes one JSON object per line to the program's stdin and reads one li
 {"vectors": [[0.0, 1.0, 0.0, 2.0]]}
 ```
 
+A program that counts tokens names its limit and answers `count`:
+
+```json
+{"op": "info"}
+{"name": "bge-m3", "dim": 1024, "max_tokens": 8192}
+{"op": "count", "texts": ["Lighthouses guide ships."]}
+{"counts": [7]}
+```
+
 ## Rules
 
 - **The name identifies the model.** The index stores the name and the dimension; a different name rebuilds the index, and the core refuses a program that, after a restart, answers with another name or dimension. Change the name when you change the model.
 - **A query and a passage are told apart by `kind`.** Models that need a prefix for each (the e5 family wants `query: ` and `passage: `) add it themselves. Pooling and tokenisation are the program's business too.
+- **The text must fit the model; the model must not cut it.** A program that names `max_tokens` in `info` answers `count` with the number of tokens the model sees for each text as a passage, its passage prefix and special tokens included, counted before any cut. The core then cuts every piece it sends so that it fits, and a piece that does not is an error, not a silent cut. Without `max_tokens` the core cuts pieces at 1,500 characters, which it cannot check against the model's limit; `/health` shows `max_tokens: null` for such an embedder. `max_tokens` belongs to the identity: a restart that reports another limit is refused like another name.
 - **The core normalises the vectors** to unit length, so a program may send them as they are. A vector of zero length is an error.
 - **Batches:** the core sends at most `batch_size` texts per request (32 by default) and puts the answers together in order.
 - **Time and failure:** a request that takes longer than `timeout` seconds (60 by default) kills the process and fails the call; the next call starts it again. The first `info` is under the same timeout, so a model that takes longer than that to load needs a larger `timeout`. Within one call the process is started at most once more: if it was found dead, or dies while answering, it is started again and the request repeated; if it dies again the call fails with the program's error output (secrets masked, in the error reply too). A line on stdout that is not a reply, or a reply of the wrong shape, stops the process as well, because the next reply could otherwise be read as the answer to the wrong request. While the embedder is failing, `recall` returns an error rather than silence, and `/health` reports it.

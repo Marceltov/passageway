@@ -29,10 +29,17 @@ class EmbedderStartError(ConfigError):
 class Embedder(Protocol):
     dim: int
     name: str
+    # The most tokens the model reads. None: the embedder does not count, and the chunker cuts at chunk.MAX_CHARS.
+    max_tokens: int | None
 
     def embed_queries(self, texts: list[str]) -> np.ndarray: ...
 
     def embed_passages(self, texts: list[str]) -> np.ndarray: ...
+
+    def count_passages(self, texts: list[str]) -> list[int]:
+        """Tokens the model sees for each passage text: its passage prefix and special tokens included, nothing cut.
+        Only called when max_tokens is set."""
+        ...
 
 
 def _normalise(v: np.ndarray) -> np.ndarray:
@@ -82,11 +89,12 @@ class OnnxEmbedder:
         providers = choose_device(device, ort.get_available_providers())
         self._session = ort.InferenceSession(str(Path(model_dir) / "model.onnx"), options, providers=providers)
         self._inputs = {i.name for i in self._session.get_inputs()}
-        self._encode_batch = self._tokenizer(self.preset, Path(model_dir))
+        self._encode_batch, self._count = self._tokenizer(self.preset, Path(model_dir))
 
     @staticmethod
     def _tokenizer(preset, model_dir: Path):
-        """A function from texts to (ids, mask) arrays, padded to the longest text and cut at max_tokens."""
+        """A function from texts to (ids, mask) arrays, padded to the longest text and cut at max_tokens, and one from a
+        text to its full length in tokens, special tokens included and nothing cut."""
         if preset.tokenizer == "sentencepiece":
             import sentencepiece as spm
 
@@ -98,6 +106,9 @@ class OnnxEmbedder:
                 ids = [3 if i == 0 else i + 1 for i in sp.encode(text)][: preset.max_tokens - 2]
                 return [0, *ids, 2]
 
+            def count(text: str) -> int:
+                return len(sp.encode(text)) + 2
+
             pad = 1
         else:
             from tokenizers import Tokenizer
@@ -105,10 +116,16 @@ class OnnxEmbedder:
             tok = Tokenizer.from_file(str(model_dir / "tokenizer.json"))
             tok.enable_truncation(preset.max_tokens)
             tok.no_padding()
+            full = Tokenizer.from_file(str(model_dir / "tokenizer.json"))
+            full.no_truncation()
+            full.no_padding()
             pad = next((i for i in (tok.token_to_id(t) for t in ("[PAD]", "<pad>")) if i is not None), 0)
 
             def encode(text: str) -> list[int]:
                 return tok.encode(text).ids
+
+            def count(text: str) -> int:
+                return len(full.encode(text).ids)
 
         def batch(texts: list[str]) -> tuple[np.ndarray, np.ndarray]:
             encoded = [encode(t) for t in texts]
@@ -120,7 +137,7 @@ class OnnxEmbedder:
                 mask[row, : len(e)] = 1
             return ids, mask
 
-        return batch
+        return batch, count
 
     def _embed(self, texts: list[str]) -> np.ndarray:
         if not texts:
@@ -141,13 +158,22 @@ class OnnxEmbedder:
         return self._embed([self.preset.query_prefix + t for t in texts])
 
     def embed_passages(self, texts: list[str]) -> np.ndarray:
-        return self._embed([self.preset.passage_prefix + t for t in texts])
+        texts = [self.preset.passage_prefix + t for t in texts]
+        for text in texts:
+            if (n := self._count(text)) > self.max_tokens:  # the chunker's job: a cut here would hide its bug
+                raise EmbedderError(f"a passage of {n} tokens is over the model's limit of {self.max_tokens}; "
+                                    "the chunker should have split it")
+        return self._embed(texts)
+
+    def count_passages(self, texts: list[str]) -> list[int]:
+        return [self._count(self.preset.passage_prefix + t) for t in texts]
 
 
 class HashEmbedder:
     """Bag of lower-cased words hashed into buckets: overlap in words means similarity. Tests only."""
 
     name = "hash-test"
+    max_tokens = None  # does not count: the chunker cuts at characters
 
     def __init__(self, dim: int = 384):
         self.dim = dim

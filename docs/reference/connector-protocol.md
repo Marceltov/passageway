@@ -37,7 +37,7 @@ On the wire a record is one line of JSON; it is printed over several lines here 
 
 - Required: `id`, `title`, `url`, `version`, `sections` (may be empty; a section has optional `heading` and required `text`).
 - Optional: `weight` (multiplier on the ranking score, default 1.0), `path` (breadcrumb), `links` (ids of related items, shown with a hit when they are indexed), `labels` (short tags), `updated`.
-- The core builds the embedded text as `title › path › heading: text` and splits any section over a size cap at paragraph boundaries, so a connector cannot send an oversize section.
+- The core builds the embedded text as `title › path › heading: text` and splits any section that would not fit the embedding model, at blank lines, then lines, sentences and words, so a connector cannot send an oversize section and nothing is cut off. A section may be of any length. If `title › path › heading` alone would take more than half the model's limit, it is shortened for embedding (the middle of the path first, then the end of the title, then the end of the heading); the hit still shows the full title and path.
 - `version` is any string that changes when the content changes; the core fetches only items whose version differs.
 - The connector receives an empty environment plus `PATH`, `HOME`, `PASSAGEWAY_PROTOCOL=1`, its `env` table and its named secrets. It never sees the core's password or another connector's secrets.
 - A call succeeds completely or stores nothing. The core asks `fetch` for at most 50 ids per call and stores each call on its own, so a call that fails costs only its own ids: the core goes on with the next ones, reports the failure, and asks again at the next sync. Two failing calls in a row stop the fetch until then.

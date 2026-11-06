@@ -213,3 +213,24 @@ def test_a_running_fetch_reports_how_far_it_is(world, idx, monkeypatch):
     s.full_build()
     assert seen == [(0, 3), (1, 3), (2, 3)]
     assert (s.status.fetched, s.status.to_fetch) == (None, None)
+
+
+class CountingHash(HashEmbedder):
+    """The hash embedder with a limit: one token per word plus two, and a passage over the limit is refused."""
+
+    max_tokens = 12
+
+    def count_passages(self, texts):
+        return [len(t.split()) + 2 for t in texts]
+
+    def embed_passages(self, texts):
+        assert max(self.count_passages(texts), default=0) <= self.max_tokens, "the chunker let a passage through uncut"
+        return super().embed_passages(texts)
+
+
+def test_sync_cuts_pieces_to_the_embedders_token_limit(world, idx):
+    text = " ".join(f"w{i}" for i in range(40))
+    world.set([{"id": "a", "title": "Doc", "url": "http://x/a", "version": "1", "sections": [{"heading": "H", "text": text}]}])
+    Syncer("w", world.connector(), idx, CountingHash()).full_build()
+    pieces = idx.item_sections("a")
+    assert len(pieces) > 1 and " ".join(p.text for p in pieces).split() == text.split()

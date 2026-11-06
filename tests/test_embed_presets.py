@@ -29,11 +29,12 @@ def word_tokenizer(tmp_path):
 
 def test_the_tokenizers_kind_encodes_with_special_tokens_truncation_and_the_pad_id(tmp_path, word_tokenizer):
     preset = Preset("t", "x/y", "a" * 40, {}, "tokenizers", "", "", 5, "mean", 8, None, "t")
-    enc = OnnxEmbedder._tokenizer(preset, tmp_path)
+    enc, count = OnnxEmbedder._tokenizer(preset, tmp_path)
     ids, mask = enc(["wie geht es", "wie", "wie geht es wie geht es"])
     assert ids.tolist()[0] == [1, 4, 5, 6, 2] and mask.tolist()[0] == [1, 1, 1, 1, 1]
     assert ids.tolist()[1] == [1, 4, 2, 0, 0] and mask.tolist()[1] == [1, 1, 1, 0, 0]  # padded with [PAD]
     assert len(ids[2]) == 5 and mask.tolist()[2] == [1, 1, 1, 1, 1]  # truncated to max_tokens
+    assert count("wie geht es wie geht es") == 8  # counted in full, special tokens included
 
 
 def test_the_sentencepiece_kind_keeps_the_xlm_r_ids(tmp_path):
@@ -51,6 +52,8 @@ def test_prefixes_come_from_the_preset():
     class Fake(OnnxEmbedder):
         def __init__(self, preset):
             self.preset = preset
+            self.max_tokens = preset.max_tokens
+            self._count = lambda text: 1
             self.seen = []
 
         def _embed(self, texts):

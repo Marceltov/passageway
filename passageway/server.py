@@ -156,7 +156,9 @@ class Engine:
                                "last_error": st.last_error}
             if st.to_fetch is not None:
                 sources[name] |= {"fetched": st.fetched, "of": st.to_fetch}
-        embedder = {"name": self.embedder.name, "dim": self.embedder.dim, "last_error": self.embedder_error}
+        # max_tokens None: the embedder does not count, so its pieces are cut at characters and not checked against its limit.
+        embedder = {"name": self.embedder.name, "dim": self.embedder.dim,
+                    "max_tokens": getattr(self.embedder, "max_tokens", None), "last_error": self.embedder_error}
         if any(v["last_error"] for v in sources.values()) or self.embedder_error:
             status = "degraded"
         elif not all(self.ready.values()):

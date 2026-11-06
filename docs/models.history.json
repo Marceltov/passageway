@@ -34,5 +34,41 @@
     "p95_ms": 11.4,
     "dim": 384,
     "label": "default"
+  },
+  {
+    "date": "2026-11-06",
+    "embedder": "jina-embeddings-v2-base-de-int8",
+    "threshold": 0.845,
+    "passageway": "0.4.0",
+    "cases": 100,
+    "hit_at_3": 0.35714285714285715,
+    "silence": 0.9333333333333333,
+    "p95_ms": 55.4,
+    "dim": 768,
+    "label": "jina-de"
+  },
+  {
+    "date": "2026-11-06",
+    "embedder": "multilingual-e5-base-int8",
+    "threshold": 0.845,
+    "passageway": "0.4.0",
+    "cases": 100,
+    "hit_at_3": 0.7428571428571429,
+    "silence": 0.9,
+    "p95_ms": 67.6,
+    "dim": 768,
+    "label": "e5-base"
+  },
+  {
+    "date": "2026-11-06",
+    "embedder": "multilingual-e5-small-int8",
+    "threshold": 0.845,
+    "passageway": "0.4.0",
+    "cases": 100,
+    "hit_at_3": 0.8428571428571429,
+    "silence": 0.8,
+    "p95_ms": 28.4,
+    "dim": 384,
+    "label": "default"
   }
 ]
