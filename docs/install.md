@@ -42,7 +42,7 @@ Five steps, in this order; each is a section below.
 uv tool install --python 3.14 "passageway[wikipedia]"
 ```
 
-This installs passageway and the Wikipedia connector from PyPI into one environment. Each bundled connector is an extra, pinned to the same release: name every one you want to run, for example `"passageway[wikipedia,markdown,trilium]"`. The extras are `confluence`, `llmstxt`, `markdown`, `sitemap`, `trilium` and `wikipedia`, `openai` for the [OpenAI embedder](configuration.md#the-embedder), and `all` for everything. The command replaces the set, so to add one later run it again with all of them.
+This installs passageway and the Wikipedia connector from PyPI into one environment. Each bundled connector is an extra, pinned to the same release: name every one you want to run, for example `"passageway[wikipedia,markdown,trilium]"`. The extras are `confluence`, `llmstxt`, `markdown`, `mkdocs`, `sitemap`, `trilium` and `wikipedia`, `openai` for the [OpenAI embedder](configuration.md#the-embedder), and `all` for everything. The command replaces the set, so to add one later run it again with all of them.
 
 `--python 3.14` is needed while onnxruntime, which the built-in embedder runs on, has no wheels for Python 3.15; without it uv takes the newest Python on the machine and the install fails. Any of 3.12 to 3.14 works.
 

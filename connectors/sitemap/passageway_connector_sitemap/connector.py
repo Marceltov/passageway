@@ -16,62 +16,13 @@ import httpx
 from passageway_sdk import Connector, SettingsError, split_markdown
 from passageway_sdk.settings import flag, names, seconds, whole
 from passageway_sdk.web import TooLarge, Web
-from selectolax.lexbor import LexborHTMLParser as HTMLParser, LexborNode as Node
+from passageway_sdk.html import clean, to_markdown
+from selectolax.lexbor import LexborHTMLParser as HTMLParser
 
 LOC = re.compile(r"<loc>\s*(.*?)\s*</loc>", re.S)
 MAX_PAGE_BYTES = 2_000_000
 MAX_SITEMAP_FILES = 50  # a sitemap index nests at most this many files
 MAX_LINKS = 30  # related items per page
-SKIP_TAGS = {"script", "style", "nav", "header", "footer", "aside", "form", "noscript", "svg", "iframe", "template", "head", "button"}
-LEAF_TAGS = {"p", "td", "th", "dt", "dd", "figcaption", "summary", "caption"}
-
-
-def _clean(s: str) -> str:
-    return re.sub(r"\s+", " ", s).strip()
-
-
-BLOCK_TAGS = {"p", "div", "li", "ul", "ol", "table", "tr", "td", "th", "h1", "h2", "h3", "h4", "h5", "h6", "pre", "blockquote",
-              "section", "article", "figure", "details", "summary", "dt", "dd", "br"}
-
-
-def _inline(node: Node) -> str:
-    """The text of a node: markup inside a sentence adds no space, a block or a line break does; permalink anchors are left out."""
-    parts = []
-    for child in node.iter(include_text=True):
-        if child.tag == "-text":
-            parts.append(child.text_content or "")
-        elif child.tag in SKIP_TAGS or "headerlink" in (child.attributes.get("class") or "").split():
-            continue
-        elif child.tag in BLOCK_TAGS:
-            parts.append(f" {_inline(child)} ")
-        else:
-            parts.append(_inline(child))
-    return _clean("".join(parts))
-
-
-def _blocks(node: Node, out: list[str]) -> None:
-    for child in node.iter(include_text=True):
-        tag = child.tag
-        if tag == "-text":
-            if text := _clean(child.text_content or ""):
-                out.append(text)
-        elif tag in SKIP_TAGS:
-            continue
-        elif len(tag) == 2 and tag[0] == "h" and tag[1] in "123456":
-            if text := _inline(child):
-                out.append(f"{'#' * int(tag[1])} {text}")
-        elif tag == "pre":
-            out.append("```\n" + (child.text(deep=True, strip=False) or "").strip("\n") + "\n```")
-        elif tag == "li" and not child.css_first("ul, ol"):
-            if text := _inline(child):
-                out.append(f"- {text}")
-        elif tag in LEAF_TAGS:
-            if text := _inline(child):
-                out.append(text)
-        else:
-            _blocks(child, out)
-
-
 class Browser:
     """Headless Chromium, started on the first page: for sites whose pages a script builds. Returns (status, html)."""
 
@@ -230,12 +181,9 @@ class Sitemap(Connector):
             return None
         tree = HTMLParser(text)
         root = tree.css_first("main") or tree.css_first("article") or tree.css_first("[role=main]") or tree.body
-        out: list[str] = []
-        if root is not None:
-            _blocks(root, out)
         title_node = tree.css_first("title")
-        title = _clean(title_node.text()) if title_node else ""
-        markdown = "\n\n".join(out).strip()
+        title = clean(title_node.text()) if title_node else ""
+        markdown = to_markdown(root) if root is not None else ""
         h1 = re.match(r"# (.+)", markdown)
         links = []
         for a in tree.css("a[href]"):

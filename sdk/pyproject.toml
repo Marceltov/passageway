@@ -13,12 +13,13 @@ dependencies = []
 
 [project.optional-dependencies]
 web = ["httpx>=0.28.1", "truststore>=0.10"]
+html = ["selectolax>=0.3.21"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["passageway_sdk"]
 
 [dependency-groups]
-dev = ["pytest>=8.3", "passageway", "httpx>=0.28.1", "truststore>=0.10"]
+dev = ["pytest>=8.3", "passageway", "httpx>=0.28.1", "truststore>=0.10", "selectolax>=0.3.21"]
 
 [tool.uv.sources]
 passageway = { workspace = true }

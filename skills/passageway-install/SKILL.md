@@ -45,7 +45,7 @@ The built-in embedder's model is shared, so a second instance does not download 
    uv tool install --python 3.14 "passageway[trilium,markdown]==<version>"
    ```
 
-   Each connector is an extra (`confluence`, `llmstxt`, `markdown`, `sitemap`, `trilium`, `wikipedia`; `openai` for the OpenAI embedder), pinned to the same release; `<version>` is `<tag>` without the `v`. The command replaces the set, so list every connector the user wants. `--python 3.14` stays: onnxruntime has no wheels for 3.15 yet. `passageway --help` must then work.
+   Each connector is an extra (`confluence`, `llmstxt`, `markdown`, `mkdocs`, `sitemap`, `trilium`, `wikipedia`; `openai` for the OpenAI embedder), pinned to the same release; `<version>` is `<tag>` without the `v`. The command replaces the set, so list every connector the user wants. `--python 3.14` stays: onnxruntime has no wheels for 3.15 yet. `passageway --help` must then work.
 3. `passageway init`: creates `~/.config/passageway/` with a generated `password` (0600) and a sample `passageway.toml`; rerunning keeps what is there.
 4. Write the sources with `/passageway-add-source` (one `[[connector]]` each, secrets as `env:NAME` references). For every `NAME` referenced, add a line `NAME=` to `~/.config/passageway/env` (create it with `umask 077`, `chmod 600`), then ask the user to fill the values in that file with their editor, not in the chat. Leave the file out when no connector needs a secret.
 5. Run it as a service.

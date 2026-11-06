@@ -1,7 +1,7 @@
 import pytest
 
 from passageway_sdk import SettingsError
-from passageway_sdk.settings import flag, names, seconds, whole
+from passageway_sdk.settings import flag, names, seconds, weight_of, weights, whole
 
 
 def test_names_splits_at_a_bar_and_drops_blanks():
@@ -29,3 +29,18 @@ def test_seconds_reads_a_number_that_is_not_negative():
     for bad in ("x", "-1"):
         with pytest.raises(SettingsError, match="S"):
             seconds({"S": bad}, "S", 0.2)
+
+
+def test_weights_reads_prefix_weight_pairs_in_order():
+    assert weights({"W": " changelog=0.5, /archive/=0.3 "}, "W") == [("changelog", 0.5), ("archive/", 0.3)]
+    assert weights({}, "W") == []
+    for bad in ("changelog", "changelog=0", "=0.5", "a=x", "a=-1"):
+        with pytest.raises(SettingsError, match="W must be"):
+            weights({"W": bad}, "W")
+
+
+def test_weight_of_takes_the_first_matching_prefix():
+    table = [("changelog/v1", 0.2), ("changelog", 0.5)]
+    assert weight_of(table, "/changelog/v1/x") == 0.2
+    assert weight_of(table, "changelog/v2") == 0.5
+    assert weight_of(table, "howto") == 1.0

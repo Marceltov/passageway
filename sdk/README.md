@@ -1,6 +1,6 @@
 # passageway-sdk
 
-Write a [passageway](https://getpassageway.com/) connector as three small functions. No dependencies; `passageway-sdk[web]` adds a polite web client for connectors that read a website.
+Write a [passageway](https://getpassageway.com/) connector as three small functions. No dependencies; `passageway-sdk[web]` adds a polite web client for connectors that read a website, `passageway-sdk[html]` turns HTML into markdown.
 
 ```python
 from passageway_sdk import Connector

@@ -50,6 +50,16 @@ items:
       - {label: "V4", url: "https://getpassageway.com/values/#v4-passages-not-answers"}
 
   # ---- done, newest first ----------------------------------------------------------------------------------------------
+  - id: mkdocs-connector
+    status: done
+    date: 2026-11-05
+    icon: book-open-page-variant
+    title: MkDocs connector
+    summary: Someone else's documentation built with MkDocs or Material for MkDocs, read from the site's search index, so every hit opens the page at its heading.
+    links:
+      - {label: "Connector", url: "https://getpassageway.com/connectors/mkdocs/"}
+      - {label: "#137", url: "https://github.com/getpassageway/passageway/issues/137"}
+
   - id: getpassageway-com
     status: done
     date: 2026-11-05

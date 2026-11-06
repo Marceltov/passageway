@@ -27,12 +27,13 @@ dependencies = [
 [project.optional-dependencies]
 confluence = ["passageway-connector-confluence==0.3.0"]
 llmstxt = ["passageway-connector-llmstxt==0.3.0"]
+mkdocs = ["passageway-connector-mkdocs==0.3.0"]
 markdown = ["passageway-connector-markdown==0.3.0"]
 sitemap = ["passageway-connector-sitemap==0.3.0"]
 trilium = ["passageway-connector-trilium==0.3.0"]
 wikipedia = ["passageway-connector-wikipedia==0.3.0"]
 openai = ["passageway-embedder-openai==0.3.0"]
-all = ["passageway-connector-confluence==0.3.0", "passageway-connector-llmstxt==0.3.0", "passageway-connector-markdown==0.3.0", "passageway-connector-sitemap==0.3.0", "passageway-connector-trilium==0.3.0", "passageway-connector-wikipedia==0.3.0", "passageway-embedder-openai==0.3.0"]
+all = ["passageway-connector-confluence==0.3.0", "passageway-connector-llmstxt==0.3.0", "passageway-connector-markdown==0.3.0", "passageway-connector-mkdocs==0.3.0", "passageway-connector-sitemap==0.3.0", "passageway-connector-trilium==0.3.0", "passageway-connector-wikipedia==0.3.0", "passageway-embedder-openai==0.3.0"]
 
 [project.scripts]
 passageway = "passageway.server:main"
@@ -47,6 +48,7 @@ packages = ["passageway"]
 passageway-connector-wikipedia = { workspace = true }
 passageway-connector-markdown = { workspace = true }
 passageway-connector-llmstxt = { workspace = true }
+passageway-connector-mkdocs = { workspace = true }
 passageway-connector-sitemap = { workspace = true }
 passageway-connector-trilium = { workspace = true }
 passageway-connector-confluence = { workspace = true }
@@ -54,7 +56,7 @@ passageway-embedder-openai = { workspace = true }
 passageway-sdk = { workspace = true }
 
 [dependency-groups]
-dev = ["jsonschema>=4.23", "pytest>=8.3", "pytest-asyncio>=0.24", "passageway-connector-wikipedia", "passageway-connector-markdown", "passageway-connector-llmstxt", "passageway-connector-sitemap", "passageway-connector-trilium", "passageway-connector-confluence", "passageway-embedder-openai", "passageway-sdk"]
+dev = ["jsonschema>=4.23", "pytest>=8.3", "pytest-asyncio>=0.24", "passageway-connector-wikipedia", "passageway-connector-markdown", "passageway-connector-llmstxt", "passageway-connector-mkdocs", "passageway-connector-sitemap", "passageway-connector-trilium", "passageway-connector-confluence", "passageway-embedder-openai", "passageway-sdk"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

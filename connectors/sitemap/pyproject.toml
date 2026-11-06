@@ -9,7 +9,7 @@ description = "passageway connector for a website: its sitemap and the pages it 
 readme = "README.md"
 requires-python = ">=3.12"
 license = "PolyForm-Noncommercial-1.0.0"
-dependencies = ["passageway-sdk[web]~=0.3.0", "selectolax>=0.3.21"]
+dependencies = ["passageway-sdk[web,html]~=0.3.0", "selectolax>=0.3.21"]
 
 [project.optional-dependencies]
 render = ["playwright>=1.49"]

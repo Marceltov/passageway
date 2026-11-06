@@ -17,7 +17,7 @@ It serves the passages as one `recall` tool over MCP, stays silent when nothing 
 - [What passageway stands for](docs/values.md): the yardstick for every change
 - [Run it](docs/deploy.md) as a local service or as the container `ghcr.io/getpassageway/passageway`; in [Claude Code](docs/guides/claude-code.md), the plugin installs and connects it for you and brings the prompt hook
 - [Write a connector](docs/guides/write-a-connector.md), the [connector protocol](docs/reference/connector-protocol.md) and the [Python SDK](docs/reference/sdk.md) that does its plumbing
-- Bundled connectors: [Wikipedia](connectors/wikipedia/README.md), [Markdown](connectors/markdown/README.md), [llms.txt](connectors/llmstxt/README.md), [Sitemap](connectors/sitemap/README.md), [Trilium](connectors/trilium/README.md), [Confluence](connectors/confluence/README.md); bundled embedder: [OpenAI-compatible](embedders/openai/README.md)
+- Bundled connectors: [Wikipedia](connectors/wikipedia/README.md), [Markdown](connectors/markdown/README.md), [llms.txt](connectors/llmstxt/README.md), [MkDocs](connectors/mkdocs/README.md), [Sitemap](connectors/sitemap/README.md), [Trilium](connectors/trilium/README.md), [Confluence](connectors/confluence/README.md); bundled embedder: [OpenAI-compatible](embedders/openai/README.md)
 - For AI agents: [skills and `llms-full.txt`](docs/guides/agents.md); in Claude Code, `/plugin marketplace add getpassageway/passageway` and `/plugin install passageway@passageway` give you the plugin, then `/passageway-install` sets everything up
 
 Documentation: https://getpassageway.com (the pages are in `docs/`).
