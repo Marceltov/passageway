@@ -28,20 +28,20 @@ Drawn from the tables below by `docs_hooks/charts.py`, so they move with every m
 <!-- chart:groups -->
 
 <!-- passageway:results:start -->
-2026-10-29 · passageway 0.1.0 · multilingual-e5-small-int8 (384 dimensions) · relevance threshold 0.845
+2026-11-06 · passageway 0.4.0 · multilingual-e5-small-int8 (384 dimensions) · relevance threshold 0.845
 
-Darwin arm64, Python 3.14.3 · index built in 20.9 s (corpus-en: 30 items, 818 sections, corpus-de: 30 items, 516 sections)
+Linux x86_64, Python 3.13.5 · index built in 101.8 s (corpus-en: 30 items, 762 sections, corpus-de: 30 items, 472 sections)
 
 | Metric | Value |
 |---|---|
 | Questions | 100 (70 answerable, 30 unanswerable) |
-| Hit@1 | 77.1% (66–85%) |
-| Hit@3 | 88.6% (79–94%) |
-| MRR | 0.826 |
+| Hit@1 | 75.7% (64–84%) |
+| Hit@3 | 84.3% (74–91%) |
+| MRR | 0.800 |
 | Silence on unanswerable questions | 80.0% (63–90%) |
-| False silence on answerable questions | 1.4% (0–8%) |
-| Latency p50 / p95 | 10.0 ms / 14.0 ms |
-| Embedding the question | 3.4 ms (34.0% of the latency) |
+| False silence on answerable questions | 0.0% (0–5%) |
+| Latency p50 / p95 | 18.8 ms / 27.7 ms |
+| Embedding the question | 4.8 ms (25.2% of the latency) |
 
 In brackets: the 95% interval of a rate, the range that holds the true rate in 95 of 100 repetitions with other questions of the same kind. Overlapping intervals are a warning against over-reading a difference, not a test of it. The tables below show point values only.
 
@@ -49,18 +49,18 @@ In brackets: the 95% interval of a rate, the range that holds the true rate in 9
 
 | Threshold | Hit@1 | Hit@3 | MRR | Silence | False silence | p95 |
 |---|---|---|---|---|---|---|
-| 0.8 | 78.6% | 90.0% | 0.840 | 46.7% | 0.0% | 13.9 ms |
-| 0.81 | 78.6% | 90.0% | 0.840 | 53.3% | 0.0% | 14.2 ms |
-| 0.82 | 78.6% | 90.0% | 0.840 | 63.3% | 0.0% | 13.6 ms |
-| 0.83 | 77.1% | 88.6% | 0.829 | 73.3% | 0.0% | 14.1 ms |
-| 0.84 | 78.6% | 88.6% | 0.833 | 80.0% | 0.0% | 14.3 ms |
-| 0.845 | 77.1% | 88.6% | 0.826 | 80.0% | 1.4% | 13.8 ms |
-| 0.85 | 72.9% | 84.3% | 0.783 | 83.3% | 5.7% | 13.7 ms |
-| 0.86 | 70.0% | 77.1% | 0.736 | 90.0% | 8.6% | 13.5 ms |
-| 0.87 | 67.1% | 74.3% | 0.707 | 90.0% | 11.4% | 13.9 ms |
-| 0.88 | 65.7% | 72.9% | 0.693 | 93.3% | 14.3% | 14.1 ms |
-| 0.89 | 62.9% | 68.6% | 0.657 | 93.3% | 17.1% | 13.9 ms |
-| 0.9 | 51.4% | 57.1% | 0.543 | 93.3% | 27.1% | 13.9 ms |
+| 0.8 | 75.7% | 90.0% | 0.824 | 40.0% | 0.0% | 27.6 ms |
+| 0.81 | 75.7% | 90.0% | 0.824 | 46.7% | 0.0% | 27.8 ms |
+| 0.82 | 75.7% | 90.0% | 0.824 | 70.0% | 0.0% | 27.9 ms |
+| 0.83 | 75.7% | 88.6% | 0.819 | 73.3% | 0.0% | 27.5 ms |
+| 0.84 | 74.3% | 85.7% | 0.798 | 80.0% | 0.0% | 27.5 ms |
+| 0.845 | 75.7% | 84.3% | 0.800 | 80.0% | 0.0% | 27.3 ms |
+| 0.85 | 71.4% | 82.9% | 0.769 | 83.3% | 5.7% | 29.0 ms |
+| 0.86 | 68.6% | 77.1% | 0.729 | 90.0% | 7.1% | 27.7 ms |
+| 0.87 | 65.7% | 75.7% | 0.705 | 90.0% | 12.9% | 27.4 ms |
+| 0.88 | 65.7% | 74.3% | 0.698 | 93.3% | 12.9% | 27.1 ms |
+| 0.89 | 58.6% | 67.1% | 0.626 | 93.3% | 20.0% | 27.7 ms |
+| 0.9 | 52.9% | 61.4% | 0.569 | 93.3% | 24.3% | 27.8 ms |
 
 A passage that shares three or more words with the question is returned whatever the threshold (see How it works), so a high threshold only silences short or loosely worded questions.
 
@@ -69,8 +69,8 @@ A passage that shares three or more words with the question is returned whatever
 | Group | Questions | Hit@3 | Silence |
 |---|---|---|---|
 | definition | 25 | 96.0% (80–99%) | n/a |
-| how-why | 20 | 100.0% (84–100%) | n/a |
-| paraphrase | 18 | 61.1% (39–80%) | n/a |
+| how-why | 20 | 90.0% (70–97%) | n/a |
+| paraphrase | 18 | 55.6% (34–75%) | n/a |
 | cross-language | 7 | 100.0% (65–100%) | n/a |
 | near-topic | 15 | n/a | 60.0% (36–80%) |
 | off-topic | 15 | n/a | 100.0% (80–100%) |
@@ -79,6 +79,7 @@ A passage that shares three or more words with the question is returned whatever
 
 | Date | Embedder | Threshold | Questions | Hit@3 | Silence | p95 |
 |---|---|---|---|---|---|---|
+| 2026-11-06 | multilingual-e5-small-int8 | 0.845 | 100 | 84.3% | 80.0% | 27.7 ms |
 | 2026-10-29 | multilingual-e5-small-int8 | 0.845 | 100 | 88.6% | 80.0% | 14.0 ms |
 <!-- passageway:results:end -->
 

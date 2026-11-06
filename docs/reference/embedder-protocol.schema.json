@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://getpassageway.com/reference/embedder-protocol.schema.json",
   "title": "passageway embedder protocol v1",
-  "description": "The JSON objects of the embedder protocol, one per line, in the order asked. The core writes an infoRequest or an embedRequest to the embedder's stdin and reads one reply line from its stdout: an infoReply, an embedReply, or an errorReply. Unknown fields are allowed and ignored.",
+  "description": "The JSON objects of the embedder protocol, one per line, in the order asked. The core writes an infoRequest, an embedRequest or a countRequest to the embedder's stdin and reads one reply line from its stdout: an infoReply, an embedReply, a countReply, or an errorReply. Unknown fields are allowed and ignored.",
   "$defs": {
     "infoRequest": {
       "type": "object",
@@ -16,7 +16,8 @@
       "properties": {
         "name": {"type": "string", "minLength": 1},
         "dim": {"type": "integer", "minimum": 1},
-        "protocol": {"const": "1", "description": "Optional. The protocol version the embedder speaks."}
+        "protocol": {"const": "1", "description": "Optional. The protocol version the embedder speaks."},
+        "max_tokens": {"type": "integer", "minimum": 1, "description": "Optional. The most tokens the model reads in one text. An embedder that names it must answer countRequest; the core then cuts every passage to fit, so the model never cuts one. Without it, passages are cut at 1,500 characters and not checked."}
       }
     },
     "embedRequest": {
@@ -33,6 +34,21 @@
       "type": "object",
       "required": ["vectors"],
       "properties": {"vectors": {"type": "array", "items": {"type": "array", "items": {"type": "number"}}}}
+    },
+    "countRequest": {
+      "description": "Only to an embedder whose infoReply names max_tokens: how many tokens it would see for each passage.",
+      "type": "object",
+      "required": ["op", "texts"],
+      "properties": {
+        "op": {"const": "count"},
+        "texts": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "countReply": {
+      "description": "One count per text, in order: the tokens the model sees for that text as a passage, its passage prefix and special tokens included, before any cut.",
+      "type": "object",
+      "required": ["counts"],
+      "properties": {"counts": {"type": "array", "items": {"type": "integer", "minimum": 0}}}
     },
     "errorReply": {
       "description": "Instead of any reply: this request failed. The process stays in use.",

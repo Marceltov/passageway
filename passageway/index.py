@@ -17,7 +17,7 @@ import sqlite_vec
 
 from passageway.chunk import Chunk
 
-CHUNKER_VERSION = 2
+CHUNKER_VERSION = 3  # 3: pieces cut by the embedder's token count, so nothing is cut at embedding
 SCHEMA_VERSION = 2
 MAX_QUERY_TERMS = 64
 # Function words in English and German: they match everywhere and say nothing about the topic.

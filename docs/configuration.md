@@ -60,7 +60,7 @@ timeout = 60                    # seconds per request
 | `command`, `env`, `secrets` | `command` | The program, its settings and named secrets (references to environment variables), run with an empty environment like a connector |
 | `batch_size`, `timeout` | `command` | At most this many texts per request (1 to 1024); seconds per request, after which the process is killed. The first request, which loads the model, is under the same limit |
 
-A typo in a key is an error. Changing the embedder rebuilds every index at the next start, because vectors of different models cannot be compared.
+A typo in a key is an error. Changing the embedder rebuilds every index at the next start, because vectors of different models cannot be compared. So does a passageway release that cuts sections into pieces differently: an index records the way it was cut.
 
 To compare models, add `[embedders.NAME]` tables with the same keys. The server ignores them; [`passageway eval compare`](guides/evaluate.md#compare-embedding-models) runs your questions with each:
 

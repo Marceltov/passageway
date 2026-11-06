@@ -1,5 +1,6 @@
 """What every embedder must satisfy. Embedder authors call check_embedder from their own tests, on an object with
-name, dim, embed_queries and embed_passages (a passageway.embed_command.CommandEmbedder around their program)."""
+name, dim, embed_queries and embed_passages (a passageway.embed_command.CommandEmbedder around their program), and with
+max_tokens set, count_passages."""
 
 import numpy as np
 
@@ -35,3 +36,11 @@ def check_embedder(embedder) -> None:
     closer, farther = (float(query[0] @ out[0]), float(query[0] @ out[1]))
     assert closer > farther, ("an embedder must tell texts apart: a query about ships near the harbour must be closer to the "
                               f"passage about lighthouses ({closer:.3f}) than to the one about bananas ({farther:.3f})")
+
+    max_tokens = getattr(embedder, "max_tokens", None)
+    if max_tokens is not None:
+        assert isinstance(max_tokens, int) and max_tokens >= 1, "max_tokens must be a whole number from 1"
+        counts = embedder.count_passages([PASSAGES[0], PASSAGES[0] + " " + PASSAGES[1]])
+        assert len(counts) == 2 and all(isinstance(n, int) and n > 0 for n in counts), \
+            "count must give one whole number from 1 per text"
+        assert counts[1] > counts[0], "a longer text must count more tokens"

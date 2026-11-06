@@ -72,7 +72,8 @@ class _Process:
 
 
 class CommandEmbedder:
-    """name and dim come from the process (`info`); the vectors are normalised here, whatever the process sends."""
+    """name, dim and max_tokens come from the process (`info`); the vectors are normalised here, whatever the process
+    sends."""
 
     def __init__(self, label: str, command: Sequence[str], *, env: Mapping[str, str] | None = None,
                  secrets: Mapping[str, str] | None = None, batch_size: int = 32, timeout: float = 60.0,
@@ -145,14 +146,22 @@ class CommandEmbedder:
             self._drop()
             raise
         name, dim, protocol = reply.get("name"), reply.get("dim"), reply.get("protocol", PROTOCOL_VERSION)
+        max_tokens = reply.get("max_tokens")
         if protocol != PROTOCOL_VERSION:
             self._drop()
             raise self._fail(f"speaks protocol {protocol!r}, this core speaks {PROTOCOL_VERSION!r}")
         if not (isinstance(name, str) and name and isinstance(dim, int) and not isinstance(dim, bool) and dim >= 1):
             self._drop()
             raise self._fail("info must answer {\"name\": a non-empty string, \"dim\": a whole number from 1}")
+        if max_tokens is not None and (not isinstance(max_tokens, int) or isinstance(max_tokens, bool) or max_tokens < 1):
+            self._drop()
+            raise self._fail("info's max_tokens must be a whole number from 1, or left out")
         if first:
-            self.name, self.dim = name, dim
+            self.name, self.dim, self.max_tokens = name, dim, max_tokens
+        elif max_tokens != self.max_tokens:
+            self._drop()
+            raise self._fail(f"after a restart the embedder reports a token limit of {max_tokens}, but the index was "
+                             f"cut for {self.max_tokens}: its identity must not change while passageway runs")
         elif (name, dim) != (self.name, self.dim):
             self._drop()
             raise self._fail(f"after a restart the embedder identifies as {name!r} ({dim} dimensions), but the index was "
@@ -234,6 +243,22 @@ class CommandEmbedder:
                     self._drop()  # an answer of the wrong shape: the stream may be out of step
                 raise
         return np.vstack(parts)
+
+    def count_passages(self, texts: list[str]) -> list[int]:
+        """Tokens the model sees for each passage text, from the program's `count`; only when info named max_tokens."""
+        if self.max_tokens is None:
+            raise EmbedderError(f"embedder {self._label!r} does not count tokens (its info has no max_tokens)")
+        out: list[int] = []
+        for i in range(0, len(texts), self._batch):
+            batch = texts[i:i + self._batch]
+            counts = self._request({"op": "count", "texts": batch}).get("counts")
+            if not (isinstance(counts, list) and len(counts) == len(batch)
+                    and all(isinstance(n, int) and not isinstance(n, bool) and n >= 0 for n in counts)):
+                with self._lock:
+                    self._drop()  # an answer of the wrong shape: the stream may be out of step
+                raise self._fail(f"expected {{\"counts\": [...]}} with {len(batch)} whole numbers")
+            out += counts
+        return out
 
     def _vectors(self, reply: dict, expected: int):
         vectors = reply.get("vectors")

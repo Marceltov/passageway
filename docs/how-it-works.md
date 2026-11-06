@@ -23,6 +23,8 @@ flowchart LR
 
 Each connector is one **source** with its own SQLite file in the data directory. The sync loop asks the connector what exists and what changed, the embedder turns every section into a vector, and the index keeps both the text (for keyword search) and the vectors. The server answers questions from the indexes.
 
+A model reads only so many tokens at once (512 for the built-in presets) and would silently drop the rest. So the core cuts every section into pieces that fit, counted with the model's own tokenizer: at blank lines first, then lines, sentences and words. Every word of a source reaches the vectors, and each piece carries its title and path. An embedder program that cannot count tokens gets pieces of at most 1,500 characters instead (see the [embedder protocol](reference/embedder-protocol.md)).
+
 ## A connector call
 
 The core never imports a connector. It starts a process, reads its output, and stores something only if the call succeeded completely.

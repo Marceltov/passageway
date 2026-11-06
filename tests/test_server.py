@@ -160,6 +160,7 @@ def test_an_embedder_that_fails_on_queries_is_an_error_not_silence(tmp_path):
     body = engine.health()
     assert body["status"] == "degraded" and "rate limited" in body["embedder"]["last_error"]
     assert body["embedder"]["name"] == "hash-test" and body["embedder"]["dim"] == 384
+    assert body["embedder"]["max_tokens"] is None  # pieces cut at characters, not checked against a token limit
 
 
 def test_the_query_is_embedded_once_per_recall_not_once_per_source(tmp_path):
