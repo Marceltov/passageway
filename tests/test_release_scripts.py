@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import shutil
 import subprocess
 import threading
@@ -72,6 +73,15 @@ def test_bump_version_moves_every_file_and_check_version_agrees(tmp_path):
     assert run("bump-version.sh", "9.9.9", cwd=tmp_path).returncode == 0
     done = run("check-version.sh", "v9.9.9", cwd=tmp_path)
     assert done.returncode == 0, done.stderr
+
+
+def test_bump_version_moves_every_pin_between_the_packages_whatever_the_extras(tmp_path):
+    # a stale `passageway-sdk[web,html]~=0.3.0` refuses SDK 0.4.0, and the connector cannot be installed
+    copy_version_files(tmp_path)
+    assert run("bump-version.sh", "9.9.9", cwd=tmp_path).returncode == 0
+    pins = [(name, pin) for name in ["pyproject.toml", *PACKAGE_FILES]
+            for pin in re.findall(r'"(passageway-[a-z-]+(?:\[[a-z,]+\])?\s*[~=]=[^"]*)"', (tmp_path / name).read_text())]
+    assert pins and all(pin.endswith("=9.9.9") for _, pin in pins), [p for p in pins if not p[1].endswith("=9.9.9")]
 
 
 @pytest.mark.parametrize("version", ["v1.0.0", "1.0", "1.0.0; x", ""])

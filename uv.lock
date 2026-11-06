@@ -949,7 +949,7 @@ wheels = [
 
 [[package]]
 name = "passageway"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastmcp" },
@@ -1069,7 +1069,7 @@ dev = [
 
 [[package]]
 name = "passageway-connector-confluence"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "connectors/confluence" }
 dependencies = [
     { name = "passageway-sdk", extra = ["web"] },
@@ -1098,7 +1098,7 @@ dev = [
 
 [[package]]
 name = "passageway-connector-llmstxt"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "connectors/llmstxt" }
 dependencies = [
     { name = "passageway-sdk", extra = ["web"] },
@@ -1123,7 +1123,7 @@ dev = [
 
 [[package]]
 name = "passageway-connector-markdown"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "connectors/markdown" }
 dependencies = [
     { name = "passageway-sdk" },
@@ -1152,7 +1152,7 @@ dev = [
 
 [[package]]
 name = "passageway-connector-mkdocs"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "connectors/mkdocs" }
 dependencies = [
     { name = "passageway-sdk", extra = ["html", "web"] },
@@ -1177,7 +1177,7 @@ dev = [
 
 [[package]]
 name = "passageway-connector-sitemap"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "connectors/sitemap" }
 dependencies = [
     { name = "passageway-sdk", extra = ["html", "web"] },
@@ -1213,7 +1213,7 @@ dev = [
 
 [[package]]
 name = "passageway-connector-trilium"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "connectors/trilium" }
 dependencies = [
     { name = "passageway-sdk", extra = ["web"] },
@@ -1242,7 +1242,7 @@ dev = [
 
 [[package]]
 name = "passageway-connector-wikipedia"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "connectors/wikipedia" }
 dependencies = [
     { name = "passageway-sdk", extra = ["web"] },
@@ -1267,7 +1267,7 @@ dev = [
 
 [[package]]
 name = "passageway-embedder-openai"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "embedders/openai" }
 dependencies = [
     { name = "httpx" },
@@ -1294,7 +1294,7 @@ dev = [
 
 [[package]]
 name = "passageway-sdk"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "sdk" }
 
 [package.optional-dependencies]
