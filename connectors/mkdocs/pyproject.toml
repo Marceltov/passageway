@@ -4,12 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "passageway-connector-mkdocs"
-version = "0.3.0"
+version = "0.4.0"
 description = "passageway connector for websites built with MkDocs, read from their search index"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "PolyForm-Noncommercial-1.0.0"
-dependencies = ["passageway-sdk[web,html]~=0.3.0"]
+dependencies = ["passageway-sdk[web,html]~=0.4.0"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["passageway_connector_mkdocs"]
