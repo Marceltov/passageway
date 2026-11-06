@@ -68,6 +68,15 @@ passageway eval cases.toml
 
 It reads your `passageway.toml` and the embedding model like the server does (`PASSAGEWAY_CONFIG` and `PASSAGEWAY_MODEL_DIR`), builds every source into a **throwaway index** so it measures a fresh build and never touches your live one, asks the questions in-process, and prints a report. No server, token or password is needed.
 
+The report goes to stdout. While a large source builds, eval writes its progress to stderr, at most every 30 seconds per source:
+
+```text
+eval: docs: 32,700 of 106,468 items (30 %), about 2 h 55 min left
+eval: built in 4 h 10 min, asking 64 questions at 5 thresholds
+```
+
+`eval compare` puts the candidate's name in front (`eval: small: docs: …`). Redirect stdout alone (`> report.md`) and the progress stays on the terminal.
+
 | Option | What it does |
 |---|---|
 | `--config PATH`, `--model-dir DIR` | Use another `passageway.toml`, or another folder for the default model preset (a non-default preset keeps `<data dir>/models/<preset>` or its `model_dir`) |

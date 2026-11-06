@@ -282,3 +282,39 @@ def test_an_embedder_that_fails_on_queries_fails_the_run_instead_of_reporting_si
 def test_help_mentions_the_compare_command():
     out = subprocess.run([sys.executable, "-m", "passageway.eval", "--help"], capture_output=True, text=True)
     assert "compare" in out.stdout
+
+
+def test_a_long_build_shows_its_progress_on_stderr_not_in_the_report(s, monkeypatch):
+    from passageway import sync
+    from passageway.eval import measure
+    monkeypatch.setattr(sync, "FETCH_BATCH", 1)  # two batches: the sync reports after each
+    monkeypatch.setattr(measure, "PROGRESS_EVERY", 0)
+    code, out, err = s.run()
+    assert code == 0, err
+    assert "eval: notes: 1 of 2 items (50 %)" in err and "eval: notes: 2 of 2 items (100 %)" in err
+    assert "eval: built in under a minute, asking 3 questions" in err
+    assert "eval:" not in out
+
+
+def test_progress_is_shown_at_most_every_so_often_and_always_at_the_end(s, monkeypatch):
+    from passageway import sync
+    from passageway.eval import measure
+    monkeypatch.setattr(sync, "FETCH_BATCH", 1)
+    monkeypatch.setattr(measure, "PROGRESS_EVERY", 3600)
+    code, _, err = s.run()
+    assert code == 0, err
+    assert "1 of 2 items" in err  # the first line comes at once: a build that has started says so
+    assert "2 of 2 items (100 %)" in err
+
+
+def test_a_failing_source_shows_no_progress_and_no_traceback(s, monkeypatch):
+    from passageway import sync
+    monkeypatch.setattr(sync, "FETCH_BATCH", 1)
+    s.config.write_text(s.config.read_text().replace("FAKE_ITEMS =", 'FAKE_FAIL = "fetch", FAKE_ITEMS ='))
+    code, _, err = s.run()
+    assert code == 1 and "Traceback" not in err and "sync notes failed" not in err
+
+
+def test_the_time_left_is_said_in_minutes_and_hours():
+    from passageway.eval.measure import _duration
+    assert [_duration(x) for x in (20, 90, 3599, 10_500)] == ["under a minute", "2 min", "1 h", "2 h 55 min"]
