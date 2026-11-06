@@ -11,6 +11,7 @@ resolution-markers = [
 members = [
     "passageway",
     "passageway-connector-confluence",
+    "passageway-connector-github",
     "passageway-connector-llmstxt",
     "passageway-connector-markdown",
     "passageway-connector-mkdocs",
@@ -969,6 +970,7 @@ dependencies = [
 [package.optional-dependencies]
 all = [
     { name = "passageway-connector-confluence" },
+    { name = "passageway-connector-github" },
     { name = "passageway-connector-llmstxt" },
     { name = "passageway-connector-markdown" },
     { name = "passageway-connector-mkdocs" },
@@ -979,6 +981,9 @@ all = [
 ]
 confluence = [
     { name = "passageway-connector-confluence" },
+]
+github = [
+    { name = "passageway-connector-github" },
 ]
 llmstxt = [
     { name = "passageway-connector-llmstxt" },
@@ -1006,6 +1011,7 @@ wikipedia = [
 dev = [
     { name = "jsonschema" },
     { name = "passageway-connector-confluence" },
+    { name = "passageway-connector-github" },
     { name = "passageway-connector-llmstxt" },
     { name = "passageway-connector-markdown" },
     { name = "passageway-connector-mkdocs" },
@@ -1027,6 +1033,8 @@ requires-dist = [
     { name = "onnxruntime", specifier = ">=1.20" },
     { name = "passageway-connector-confluence", marker = "extra == 'all'", editable = "connectors/confluence" },
     { name = "passageway-connector-confluence", marker = "extra == 'confluence'", editable = "connectors/confluence" },
+    { name = "passageway-connector-github", marker = "extra == 'all'", editable = "connectors/github" },
+    { name = "passageway-connector-github", marker = "extra == 'github'", editable = "connectors/github" },
     { name = "passageway-connector-llmstxt", marker = "extra == 'all'", editable = "connectors/llmstxt" },
     { name = "passageway-connector-llmstxt", marker = "extra == 'llmstxt'", editable = "connectors/llmstxt" },
     { name = "passageway-connector-markdown", marker = "extra == 'all'", editable = "connectors/markdown" },
@@ -1049,12 +1057,13 @@ requires-dist = [
     { name = "truststore", specifier = ">=0.10" },
     { name = "uvicorn", specifier = ">=0.30" },
 ]
-provides-extras = ["confluence", "llmstxt", "mkdocs", "markdown", "sitemap", "trilium", "wikipedia", "openai", "all"]
+provides-extras = ["confluence", "github", "llmstxt", "mkdocs", "markdown", "sitemap", "trilium", "wikipedia", "openai", "all"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "jsonschema", specifier = ">=4.23" },
     { name = "passageway-connector-confluence", editable = "connectors/confluence" },
+    { name = "passageway-connector-github", editable = "connectors/github" },
     { name = "passageway-connector-llmstxt", editable = "connectors/llmstxt" },
     { name = "passageway-connector-markdown", editable = "connectors/markdown" },
     { name = "passageway-connector-mkdocs", editable = "connectors/mkdocs" },
@@ -1088,6 +1097,31 @@ requires-dist = [
     { name = "passageway-sdk", extras = ["web"], editable = "sdk" },
     { name = "selectolax", specifier = ">=0.3.21" },
 ]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "jsonschema", specifier = ">=4.23" },
+    { name = "passageway", editable = "." },
+    { name = "pytest", specifier = ">=8.3" },
+]
+
+[[package]]
+name = "passageway-connector-github"
+version = "0.4.0"
+source = { editable = "connectors/github" }
+dependencies = [
+    { name = "passageway-sdk", extra = ["web"] },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "jsonschema" },
+    { name = "passageway" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "passageway-sdk", extras = ["web"], editable = "sdk" }]
 
 [package.metadata.requires-dev]
 dev = [

@@ -1,6 +1,7 @@
 """Read connector settings from the environment: every value is a string, and a wrong one is a SettingsError."""
 
-from collections.abc import Mapping
+import re
+from collections.abc import Callable, Mapping
 
 from passageway_sdk import SettingsError
 
@@ -63,3 +64,27 @@ def weight_of(table: list[tuple[str, float]], path: str) -> float:
     """The weight of the first prefix of `table` that `path` starts with (a leading `/` ignored), else 1.0."""
     where = path.lstrip("/")
     return next((w for prefix, w in table if where.startswith(prefix)), 1.0)
+
+
+def _glob(pattern: str) -> re.Pattern:
+    out, i = "", 0
+    while i < len(pattern):
+        if pattern.startswith("**/", i):
+            out, i = out + "(?:.*/)?", i + 3
+        elif pattern.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif pattern[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        elif pattern[i] == "?":
+            out, i = out + "[^/]", i + 1
+        else:
+            out, i = out + re.escape(pattern[i]), i + 1
+    return re.compile(("" if "/" in pattern else "(?:.*/)?") + out + r"\Z")
+
+
+def globs(env: Mapping[str, str], key: str, default: tuple[str, ...]) -> Callable[[str], bool]:
+    """Glob patterns separated by `|` (`default` when the setting is missing), as a test of a relative path with `/`: true
+    when any pattern matches. `**` crosses folders, `*` and `?` stay inside one; a pattern without `/` matches the file
+    name at any depth."""
+    patterns = [_glob(p) for p in names(env, key) or default]
+    return lambda path: any(p.match(path) for p in patterns)

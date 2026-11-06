@@ -53,7 +53,7 @@ passageway is the retrieval half of a RAG system, served as an MCP tool. It does
 <div class="grid cards" markdown>
 
 - [**Install in Claude Code**](install.md): the plugin sets up the server, the sources and the hook for you.
-- [**Add a source**](connectors/markdown.md): [Markdown](connectors/markdown.md), [Trilium](connectors/trilium.md), [Confluence](connectors/confluence.md), [Wikipedia](connectors/wikipedia.md), [llms.txt](connectors/llmstxt.md), [MkDocs](connectors/mkdocs.md), [Sitemap](connectors/sitemap.md).
+- [**Add a source**](connectors/markdown.md): [Markdown](connectors/markdown.md), [Trilium](connectors/trilium.md), [Confluence](connectors/confluence.md), [GitHub](connectors/github.md), [Wikipedia](connectors/wikipedia.md), [llms.txt](connectors/llmstxt.md), [MkDocs](connectors/mkdocs.md), [Sitemap](connectors/sitemap.md).
 - [**Measure your own notes**](guides/evaluate.md): `passageway eval` on your questions, and [choose a model](models.md).
 
 </div>

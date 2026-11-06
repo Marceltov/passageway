@@ -36,6 +36,7 @@ nav:
           - Sitemap: connectors/sitemap.md
           - Trilium: connectors/trilium.md
           - Confluence: connectors/confluence.md
+          - GitHub: connectors/github.md
   - Embedders:
       - OpenAI-compatible: embedders/openai.md
       - Embedder protocol: reference/embedder-protocol.md

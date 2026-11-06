@@ -12,7 +12,7 @@ from urllib.parse import unquote
 
 import yaml
 from passageway_sdk import Connector, SettingsError, SourceError, first_h1, split_markdown, strip_code
-from passageway_sdk.settings import names, whole
+from passageway_sdk.settings import globs, whole
 
 DEFAULT_INCLUDE = ("*.md", "*.markdown")
 SKIP_DIRS = frozenset({"node_modules"})
@@ -20,23 +20,6 @@ FRONT_MATTER = re.compile(r"\A---[ \t]*\r?\n(?:(.*?)\r?\n)?(?:---|\.\.\.)[ \t]*(
 # [[wiki link]] or [text](target); no brackets or line breaks inside, which also keeps the matching linear
 LINK = re.compile(r"\[\[([^\[\]\n]+)\]\]|\[[^\[\]\n]*\]\(([^()\n]*)\)")
 SCHEME = re.compile(r"[a-zA-Z][a-zA-Z0-9+.-]*:")
-
-
-def _glob(pattern: str) -> re.Pattern:
-    """A glob over the path relative to the folder. `**` crosses folders; a pattern without `/` matches the file name anywhere."""
-    out, i = "", 0
-    while i < len(pattern):
-        if pattern.startswith("**/", i):
-            out, i = out + "(?:.*/)?", i + 3
-        elif pattern.startswith("**", i):
-            out, i = out + ".*", i + 2
-        elif pattern[i] == "*":
-            out, i = out + "[^/]*", i + 1
-        elif pattern[i] == "?":
-            out, i = out + "[^/]", i + 1
-        else:
-            out, i = out + re.escape(pattern[i]), i + 1
-    return re.compile(("" if "/" in pattern else "(?:.*/)?") + out + r"\Z")
 
 
 @dataclass(frozen=True)
@@ -61,8 +44,8 @@ class Markdown(Connector):
         if not folder or not Path(folder).is_dir():
             raise SettingsError(f"FOLDER must be an existing folder, got {folder!r}")
         self.root = Path(folder).resolve()
-        self.include = [_glob(p) for p in names(env, "INCLUDE") or DEFAULT_INCLUDE]
-        self.exclude = [_glob(p) for p in names(env, "EXCLUDE")]
+        self.include = globs(env, "INCLUDE", DEFAULT_INCLUDE)
+        self.exclude = globs(env, "EXCLUDE", ())
         self.max_bytes = whole(env, "MAX_FILE_BYTES", 1024 * 1024)
 
     # -- the protocol ------------------------------------------------------------------------
@@ -85,7 +68,7 @@ class Markdown(Connector):
     # -- the folder --------------------------------------------------------------------------
 
     def _wanted(self, rel: str) -> bool:
-        return any(g.match(rel) for g in self.include) and not any(g.match(rel) for g in self.exclude)
+        return self.include(rel) and not self.exclude(rel)
 
     def _paths(self) -> Iterator[tuple[str, Path]]:
         def unreadable(e: OSError) -> None:

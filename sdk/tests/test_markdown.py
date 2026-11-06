@@ -75,3 +75,11 @@ def test_strip_code_handles_spans_that_contain_a_backtick():
 
 def test_a_backtick_fence_whose_info_string_has_a_backtick_is_not_a_fence():
     assert sections("```foo`bar\n## B\ntext") == [(None, "```foo`bar"), ("B", "text")]
+
+
+def test_strip_front_matter_removes_a_leading_yaml_block_only():
+    from passageway_sdk import strip_front_matter
+    assert strip_front_matter("---\ntitle: x\n---\n# A\n\nText.\n") == "# A\n\nText.\n"
+    assert strip_front_matter("---\n---\nText.") == "Text."
+    assert strip_front_matter("# A\n\n---\nnot: front\n---\n") == "# A\n\n---\nnot: front\n---\n"  # only at the very start
+    assert strip_front_matter("---\nno end\n") == "---\nno end\n"
